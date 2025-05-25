@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>pixelpulse.dev | IA Cinemática</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #222;
+      font-family: 'Courier New', Courier, monospace;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    main {
+      scroll-snap-type: y mandatory;
+      height: 100vh;
+      overflow-y: scroll;
+    }
+
+    section {
+      scroll-snap-align: start;
+      min-height: 100vh;
+      overflow-y: auto;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1.5s ease, transform 1.5s ease;
+      background: #fff;
+    }
+
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    pre, .animated-ascii {
+      font-size: 1.1rem;
+      color: #888;
+      background: none;
+      text-shadow: none;
+      font-family: 'Courier New', monospace;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      max-width: 600px;
+      line-height: 1.6;
+      margin: 0 auto;
+    }
+
+    a {
+      color: #222;
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+    a:hover {
+      color: #888;
+    }
+
+    #terminal {
+      text-align: left;
+      width: 90%;
+      max-width: 720px;
+      background: #000;
+      padding: 1rem;
+      border: 1px solid #0f0;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      margin-top: 2rem;
+    }
+
+    #code-output {
+      white-space: pre-wrap;
+      color: #0f0;
+    }
+
+    nav {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1000;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px #eee;
+      padding: 0.5rem 1rem;
+    }
+
+    nav a {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #222;
+      font-size: 0.95rem;
+      font-weight: bold;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: #888;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.8; text-shadow: 0 0 5px #0ff; }
+      50% { opacity: 1; text-shadow: 0 0 20px #0ff; }
+      100% { opacity: 0.8; text-shadow: 0 0 5px #0ff; }
+    }
+
+    @keyframes blink {
+  50% { opacity: 0; }
+}
+
+.blinking {
+  animation: blink 1s step-start infinite;
+}
+
+.glow-bot {
+  animation: botPulse 2.5s infinite;
+  color: #0ff;
+  text-shadow:
+    0 0 5px #0ff,
+    0 0 10px #0ff,
+    0 0 15px #0ff,
+    0 0 20px #0ff;
+}
+
+@keyframes botPulse {
+  0% { text-shadow: 0 0 5px #0ff; opacity: 0.8; }
+  50% { text-shadow: 0 0 20px #0ff; opacity: 1; }
+  100% { text-shadow: 0 0 5px #0ff; opacity: 0.8; }
+}
+
+  
+
+#identity-prompt {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInPrompt 2s ease-out 2s forwards;
+}
+
+@keyframes fadeInPrompt {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+.glow-avatar {
+  animation: avatarGlow 2.5s infinite alternate;
+  text-shadow: 0 0 5px #bbb, 0 0 10px #bbb;
+}
+
+@keyframes avatarGlow {
+  0% {
+    text-shadow: 0 0 5px #bbb, 0 0 10px #bbb;
+    opacity: 0.8;
+  }
+  50% {
+    text-shadow: 0 0 15px #fff, 0 0 30px #bbb;
+    opacity: 1;
+  }
+  100% {
+    text-shadow: 0 0 5px #bbb, 0 0 10px #bbb;
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse-cinza {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+.avatar-cinza {
+  color: #888;
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  text-align: center;
+  background: none;
+  text-shadow: none;
+  animation: pulse-cinza 2s infinite;
+}
+
+@media screen and (max-width: 768px) {
+  section {
+    padding: 1rem;
+  }
+  pre {
+    font-size: 1rem;
+  }
+  nav a {
+    font-size: 0.85rem;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
+  p {
+    font-size: 0.9rem;
+    padding: 0 1rem;
+  }
+}
+
+#mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: #fff;
+  color: #222;
+  border: 1px solid #ccc;
+  font-family: monospace;
+  padding: 0.5rem 1rem;
+  z-index: 1001;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #eee;
+}
+#mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 3.5rem;
+  right: 1rem;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: monospace;
+  z-index: 1000;
+  box-shadow: 0 2px 8px #eee;
+}
+#mobile-nav a {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #222;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+#mobile-nav a:hover,
+#mobile-nav a.active {
+  color: #888;
+  background: none;
+}
+@media screen and (max-width: 768px) {
+  nav#main-nav {
+    display: none;
+  }
+  #mobile-menu-toggle {
+    display: block;
+  }
+}
+
+
+<style>
+.lang {
+  display: none;
+}
+.lang-pt, .lang-en, .lang-zh {
+  width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .team-container {
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+    align-items: center !important;
+  }
+  .team-container > div {
+    width: 95% !important;
+    min-width: 0 !important;
+    max-width: 340px !important;
+  }
+}
+</style>
+
+</style>
+
+</head>
+
+<body>
+
+<button id="mobile-menu-toggle" onclick="toggleMobileMenu()">☰ Menu</button>
+<div id="mobile-nav">
+  <a href="#scene-1">Identidade</a>
+  <a href="#scene-2">Despertar</a>
+  <a href="#scene-3">Criação</a>
+  <a href="#scene-4">Projetos</a>
+  <a href="#scene-produtos">Produtos</a>
+  <a href="#scene-5">Contato</a>
+  <a href="#scene-6">Boot</a>
+  <a href="#scene-7">Equipe</a>
+</div>
+<script>
+  function toggleMobileMenu() {
+    const nav = document.getElementById("mobile-nav");
+    nav.style.display = nav.style.display === "block" ? "none" : "block";
+  }
+</script>
+
+
+
+<div id="lang-switcher" style="position: fixed; top: 1rem; left: 1rem; z-index: 1001;">
+  <select id="language-select" onchange="switchLanguage()" style="background:#000; color:#0f0; font-family: monospace; border: 1px solid #0f0;">
+    <option value="pt">🇧🇷 PT</option>
+    <option value="en">🇺🇸 EN</option>
+    <option value="zh">🇨🇳 中文</option>
+  </select>
+</div>
+
+<nav id="main-nav">
+  <a href="#scene-1">Identidade</a>
+  <a href="#scene-2">Despertar</a>
+  <a href="#scene-3">Criação</a>
+  <a href="#scene-4">Projetos</a>
+  <a href="#scene-produtos">Produtos</a>
+  <a href="#scene-5">Contato</a>
+  <a href="#scene-6">Boot</a>
+  <a href="#scene-7">Equipe</a>
+</nav>
+
+<main>
+
+<!-- CENA 1: Identidade -->
+  <section id="scene-1">
+<pre id="ascii-identity" class="animated-ascii" style="text-align: left;"></pre>
+
+    <h2><span class="lang lang-pt">Construímos software com alma e propósito.</span>
+<span class="lang lang-en" style="display:none;">We build software with soul and purpose.</span>
+<span class="lang lang-zh" style="display:none;">我们构建有灵魂和目标的软件。</span></h2>
+    <p>
+<span class="lang lang-pt">Boutique de software autoral. IA aplicada, engenharia de ponta e mídia interativa com design de impacto.</span>
+<span class="lang lang-en" style="display:none;">Authorial software boutique. Applied AI, cutting-edge engineering and interactive media with impactful design.</span>
+<span class="lang lang-zh" style="display:none;">原创软件工作室。应用人工智能、前沿工程和具有影响力的互动设计。</span></p>
+
+<pre id="identity-avatar" class="animated-ascii avatar-cinza" style="font-size: 0.9rem; font-family: monospace; margin-top: 2rem;">
+   ╭────────╮
+   │ ◉    ◉ │
+   │   ▄▀▄   │
+   │  ████  │
+   ╰────────╯
+   PIXELPULSE CORE ACTIVE
+</pre>
+
+  </section>
+
+
+
+<!-- CENA 2: Despertar -->
+<section id="scene-2">
+  <pre class="animated-ascii engrenagem-ascii" id="ascii-gears" style="margin-bottom: 1.5rem; text-align:center;"></pre>
+  <style>
+    .engrenagem-ascii {
+      color: #888;
+      font-family: 'Courier New', monospace;
+      font-size: 1.15rem;
+      text-align: center;
+      background: none;
+      text-shadow: none;
+    }
+    .gear {
+      color: #555;
+      font-weight: bold;
+    }
+    .gear-text {
+      color: #888;
+      font-weight: bold;
+    }
+  </style>
+  <h2><span class="lang lang-pt">O código é arquitetura da intenção.</span>
+<span class="lang lang-en" style="display:none;">Code is the architecture of intention.</span>
+<span class="lang lang-zh" style="display:none;">代码是意图的架构。</span></h2>
+  <br>
+  <p>
+  <span class="lang lang-pt">Antes da interface, existe lógica.<br/>PixelPulse.dev surge da convergência entre engenharia de software, design computacional e sistemas inteligentes em tempo real.</span>
+  <span class="lang lang-en" style="display:none;">Before the interface, there is logic.<br/>PixelPulse.dev emerges at the intersection of software engineering, computational design, and real-time intelligent systems.</span>
+  <span class="lang lang-zh" style="display:none;">在界面之前，是逻辑。<br/>PixelPulse.dev 诞生于软件工程、计算设计与实时智能系统的交汇处。</span>
+</p>
+</section>
+
+<!-- CENA 3: Criação com layout lateral -->
+
+<section id="scene-3">
+  <pre class="animated-ascii pulse-cinza" id="ascii-monitor" style="text-align: center;">
+        ____________
+       ||----------||
+       ||  <span class="pixel-row" data-row="0"><span class="pixel pixel-a">▓</span><span class="pixel pixel-b">▓</span><span class="pixel pixel-c">▓</span><span class="pixel pixel-d">▓</span><span class="pixel pixel-e">▓</span><span class="pixel pixel-f">▓</span></span>  ||
+       ||  <span class="pixel-row" data-row="1">▓<span class="pixel pixel-g">⚫</span><span class="pixel pixel-h">⚫</span><span class="pixel pixel-i">⚫</span>▓</span>  ||
+       ||  <span class="pixel-row" data-row="2">▓<span class="pixel pixel-j">⚫</span><span class="pixel pixel-k">⚪</span><span class="pixel pixel-l">⚫</span>▓</span>  ||
+       ||  <span class="pixel-row" data-row="3">▓<span class="pixel pixel-m">⚫</span><span class="pixel pixel-n">⚫</span><span class="pixel pixel-o">⚫</span>▓</span>  ||
+       ||  <span class="pixel-row" data-row="4"><span class="pixel pixel-p">▓</span><span class="pixel pixel-q">▓</span><span class="pixel pixel-r">▓</span><span class="pixel pixel-s">▓</span><span class="pixel pixel-t">▓</span><span class="pixel pixel-u">▓</span></span>  ||
+       ||----------||
+       ||__________||
+         |  |  |  |
+     ___/__/__/__/__\___
+    |____________________|
+  </pre>
+  <h2 style="text-align: center;"><span class="lang lang-pt">Criamos interfaces que pensam.<br>Produtos que sentem.</span>
+<span class="lang lang-en" style="display:none;">We create interfaces that think.<br>Products that feel.</span>
+<span class="lang lang-zh" style="display:none;">我们创造会思考的界面，<br>有感知的产品。</span></h2>
+  <p style="text-align: center;">
+  <span class="lang lang-pt">Cada linha de código carrega propósito.<br>IA não é só automação. É empatia algorítmica —<br>é presença computacional.</span>
+  <span class="lang lang-en" style="display:none;">Every line of code carries purpose.<br>AI is not just automation. It is algorithmic empathy —<br>a computational presence.</span>
+  <span class="lang lang-zh" style="display:none;">每一行代码都承载着目的。<br>AI 不只是自动化，而是算法的共情，<br>是计算的存在。</span>
+</p>
+</section>
+
+
+
+  <!-- CENA 4: Projetos -->
+<section id="scene-4">
+  <pre class="animated-ascii neural-ascii" style="margin-bottom: 1.5rem;">
+      <span class="neural-node">●</span>───<span class="neural-node">●</span>───<span class="neural-node">●</span>
+     /   / \\   \\
+   <span class="neural-node">●</span>───<span class="neural-node">●</span>───<span class="neural-node">●</span>───<span class="neural-node">●</span>───<span class="neural-node">●</span>
+     \\   \\ /   /
+      <span class="neural-node">●</span>───<span class="neural-node">●</span>───<span class="neural-node">●</span>
+  </pre>
+  <style>
+    .neural-ascii {
+      color: #888;
+      font-family: 'Courier New', monospace;
+      font-size: 1.15rem;
+      text-align: center;
+      background: none;
+      text-shadow: none;
+    }
+    .neural-node {
+      color: #444 !important;
+      font-weight: bold;
+      font-size: 1.2em;
+      transition: color 0.3s, text-shadow 0.3s;
+    }
+    .neural-node.pulse {
+      color: #bbb !important;
+      text-shadow: 0 0 8px #bbb;
+    }
+    .projetos-titulo {
+      color: #444 !important;
+      font-family: 'Courier New', monospace;
+      margin-bottom: 2rem;
+      font-size: 1.7rem;
+      letter-spacing: 1px;
+    }
+    .projetos-lista {
+      list-style: none;
+      padding: 0;
+      margin: 0 auto;
+      max-width: 500px;
+    }
+    .projetos-lista li {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 2.2rem;
+      background: rgba(120, 120, 120, 0.06);
+      border-left: 3px solid #bbb;
+      padding: 1.2rem 1.2rem 1.2rem 2.2rem;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+    .projetos-lista li:hover {
+      background: rgba(120, 120, 120, 0.13);
+    }
+    .projeto-bullet {
+      width: 14px;
+      height: 14px;
+      background: #bbb;
+      border-radius: 50%;
+      margin-right: 1.2rem;
+      margin-top: 0.3rem;
+      box-shadow: none;
+      flex-shrink: 0;
+    }
+    .projeto-desc {
+      display: block;
+      color: #888 !important;
+      font-size: 1rem;
+      margin-top: 0.2rem;
+      font-family: 'Courier New', monospace;
+      opacity: 0.8;
+    }
+    @media screen and (max-width: 768px) {
+      .projetos-titulo {
+        font-size: 1.2rem;
+      }
+      .projetos-lista li {
+        padding: 1rem 0.7rem 1rem 1.2rem;
+        margin-bottom: 1.2rem;
+      }
+      .projeto-desc {
+        font-size: 0.92rem;
+      }
+    }
+  </style>
+  <h2 class="projetos-titulo">
+    <span class="lang lang-pt">Projetos Ativos</span>
+    <span class="lang lang-en" style="display:none;">Active Projects</span>
+    <span class="lang lang-zh" style="display:none;">活跃项目</span>
+  </h2>
+  <ul class="projetos-lista">
+    <li>
+      <div class="projeto-bullet"></div>
+      <div>
+        <strong style="color:#444;">Colmeia</strong>
+        <span class="projeto-desc lang lang-pt">IA para planejamento de mídias e visualização de impacto</span>
+        <span class="projeto-desc lang lang-en" style="display:none;">AI platform for media planning and impact forecasting</span>
+        <span class="projeto-desc lang lang-zh" style="display:none;">用于媒体规划和影响预测的人工智能平台</span>
+      </div>
+    </li>
+    <li>
+      <div class="projeto-bullet"></div>
+      <div>
+        <strong style="color:#444;">Teste de Visibilidade</strong>
+        <span class="projeto-desc lang lang-pt">Visão computacional para mídias (imagem e vídeo)</span>
+        <span class="projeto-desc lang lang-en" style="display:none;">Computer vision for image and video media</span>
+        <span class="projeto-desc lang lang-zh" style="display:none;">图像与视频媒体的计算机视觉分析</span>
+      </div>
+    </li>
+    <li>
+      <div class="projeto-bullet"></div>
+      <div>
+        <strong style="color:#444;">LikeME</strong>
+        <span class="projeto-desc lang lang-pt">App inteligente para o futuro da saúde e bem-estar</span>
+        <span class="projeto-desc lang lang-en" style="display:none;">Smart health and wellness app powered by AI</span>
+        <span class="projeto-desc lang lang-zh" style="display:none;">由人工智能驱动的健康与福祉应用</span>
+      </div>
+    </li>
+  </ul>
+</section>
+
+<!-- CENA PRODUTOS & SOLUÇÕES PIXELPULSE -->
+<section id="scene-produtos">
+  <pre class="animated-ascii" id="ascii-produtos" style="color: #888; margin-bottom: 1.5rem;"></pre>
+  <p class="produtos-subtitulo lang lang-pt">
+    O que uma boutique de software autoral com IA pode criar para transformar negócios.
+  </p>
+  <p class="produtos-subtitulo lang lang-en" style="display:none;">
+    What an authorial software boutique with AI can create to transform businesses.
+  </p>
+  <p class="produtos-subtitulo lang lang-zh" style="display:none;">
+    拥有人工智能的原创软件工作室如何助力企业转型。
+  </p>
+  <ul class="produtos-lista">
+    <li>
+      <strong style="color:#444;">Migração Inteligente de Sistemas Legados</strong>
+      <span class="produto-desc lang lang-pt">Modernize sistemas antigos com IA, cloud e automação.</span>
+      <span class="produto-desc lang lang-en" style="display:none;">Modernize legacy systems with AI, cloud and automation.</span>
+      <span class="produto-desc lang lang-zh" style="display:none;">用人工智能、云和自动化升级旧系统。</span>
+    </li>
+    <li>
+      <strong style="color:#444;">Buscas Avançadas com IA</strong>
+      <span class="produto-desc lang lang-pt">Busca semântica, recomendação e análise de dados complexos.</span>
+      <span class="produto-desc lang lang-en" style="display:none;">Semantic search, recommendation and complex data analysis.</span>
+      <span class="produto-desc lang lang-zh" style="display:none;">语义搜索、推荐与复杂数据分析。</span>
+    </li>
+    <li>
+      <strong style="color:#444;">Plataformas de Dados & Analytics</strong>
+      <span class="produto-desc lang lang-pt">Dashboards inteligentes, insights automáticos e predição.</span>
+      <span class="produto-desc lang lang-en" style="display:none;">Smart dashboards, automatic insights and prediction.</span>
+      <span class="produto-desc lang lang-zh" style="display:none;">智能仪表盘、自动洞察与预测。</span>
+    </li>
+    <li>
+      <strong style="color:#444;">Automação de Processos com IA</strong>
+      <span class="produto-desc lang lang-pt">RPA, bots e integração inteligente de fluxos internos.</span>
+      <span class="produto-desc lang lang-en" style="display:none;">RPA, bots and smart integration of internal flows.</span>
+      <span class="produto-desc lang lang-zh" style="display:none;">RPA、机器人与智能流程集成。</span>
+    </li>
+    <li>
+      <strong style="color:#444;">Visão Computacional</strong>
+      <span class="produto-desc lang lang-pt">Análise de imagens e vídeos para múltiplos setores.</span>
+      <span class="produto-desc lang lang-en" style="display:none;">Image and video analysis for multiple sectors.</span>
+      <span class="produto-desc lang lang-zh" style="display:none;">多行业图像与视频分析。</span>
+    </li>
+    <li>
+      <strong style="color:#444;">Produtos Digitais Sob Medida</strong>
+      <span class="produto-desc lang lang-pt">Apps e plataformas únicas, com design e IA embarcada.</span>
+      <span class="produto-desc lang lang-en" style="display:none;">Unique apps and platforms, with design and embedded AI.</span>
+      <span class="produto-desc lang lang-zh" style="display:none;">独特的应用与平台，融合设计与嵌入式AI。</span>
+    </li>
+    <li>
+      <strong style="color:#444;">Assistentes Virtuais Inteligentes</strong>
+      <span class="produto-desc lang lang-pt">Bots conversacionais personalizados para o seu negócio.</span>
+      <span class="produto-desc lang lang-en" style="display:none;">Custom conversational bots for your business.</span>
+      <span class="produto-desc lang lang-zh" style="display:none;">为企业定制的智能对话机器人。</span>
+    </li>
+    <li>
+      <strong style="color:#444;">IA Generativa</strong>
+      <span class="produto-desc lang lang-pt">Automação criativa com geração de texto, imagem e áudio.</span>
+      <span class="produto-desc lang lang-en" style="display:none;">Creative automation with text, image and audio generation.</span>
+      <span class="produto-desc lang lang-zh" style="display:none;">文本、图像与音频生成的创意自动化。</span>
+    </li>
+  </ul>
+</section>
+
+<style>
+.projetos-titulo {
+  color: #00FFAA;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 2rem;
+  font-size: 1.7rem;
+  letter-spacing: 1px;
+}
+
+.projetos-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 500px;
+}
+
+.projetos-lista li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 2.2rem;
+  background: rgba(120, 120, 120, 0.06);
+  border-left: 3px solid #bbb;
+  padding: 1.2rem 1.2rem 1.2rem 2.2rem;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.projetos-lista li:hover {
+  background: rgba(120, 120, 120, 0.13);
+}
+
+.projeto-bullet {
+  width: 14px;
+  height: 14px;
+  background: #bbb;
+  border-radius: 50%;
+  margin-right: 1.2rem;
+  margin-top: 0.3rem;
+  box-shadow: none;
+  flex-shrink: 0;
+}
+
+.projeto-desc {
+  display: block;
+  color: #888 !important;
+  font-size: 1rem;
+  margin-top: 0.2rem;
+  font-family: 'Courier New', monospace;
+  opacity: 0.8;
+}
+
+@media screen and (max-width: 768px) {
+  .projetos-titulo {
+    font-size: 1.2rem;
+  }
+  .projetos-lista li {
+    padding: 1rem 0.7rem 1rem 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+  .projeto-desc {
+    font-size: 0.92rem;
+  }
+}
+
+.produtos-titulo {
+  color: #444;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 1.2rem;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  text-align: center;
+}
+.produtos-subtitulo {
+  color: #888;
+  font-family: 'Courier New', monospace;
+  font-size: 1.05rem;
+  text-align: center;
+  margin-bottom: 2.2rem;
+  opacity: 0.8;
+}
+.produtos-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 540px;
+}
+.produtos-lista li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  background: rgba(120, 120, 120, 0.06);
+  border-left: 3px solid #bbb;
+  padding: 1.1rem 1.2rem 1.1rem 2.1rem;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+.produtos-lista li:hover {
+  background: rgba(120, 120, 120, 0.13);
+}
+.produto-desc {
+  display: block;
+  color: #888 !important;
+  font-size: 1rem;
+  margin-top: 0.18rem;
+  font-family: 'Courier New', monospace;
+  opacity: 0.8;
+}
+@media screen and (max-width: 768px) {
+  .produtos-titulo {
+    font-size: 1.1rem;
+  }
+  .produtos-lista li {
+    padding: 0.9rem 0.6rem 0.9rem 1.1rem;
+    margin-bottom: 1.1rem;
+  }
+  .produto-desc {
+    font-size: 0.92rem;
+  }
+}
+
+/* Animação dos pixels do monitor (Cena 3) */
+.pixel {
+  transition: color 0.3s, text-shadow 0.3s;
+}
+.pixel.on {
+  color: #bbb !important;
+  text-shadow: 0 0 8px #bbb;
+}
+.pixel.off {
+  color: #444 !important;
+  text-shadow: none;
+}
+
+/* Animação do ASCII art de Produtos */
+.produtos-pulse {
+  color: #bbb !important;
+  text-shadow: 0 0 8px #bbb;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+</style>
+
+  <!-- CENA 5: Contato -->
+<section id="scene-5">
+  <div class="contato-ascii-bloco">
+    <pre class="animated-ascii contato-ascii" id="ascii-contato">
+        .     .
+         \___/
+      --[●   ●]--
+         /---\\
+        /     \\
+    ~~~[_______]~~~
+    <span class="contato-ovni">Contato Interestelar Ativo</span>
+    </pre>
+    <div class="contato-mensagem">
+      <h2>Vamos criar algo incrível juntos?</h2>
+      <p>Fale com a gente</p>
+      <div class="contato-links">
+        <a href="mailto:hello@pixelpulse.dev" class="contato-link">
+          <span class="contato-icone">@</span> hello@pixelpulse.dev
+        </a>
+        <a href="https://wa.me/5511981058468" class="contato-link" target="_blank">
+          <span class="contato-icone">#</span> WhatsApp direto
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.contato-ascii-bloco {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.contato-ascii {
+  color: #888;
+  font-family: 'Courier New', monospace;
+  font-size: 1.1rem;
+  text-align: left;
+  min-width: 220px;
+  margin: 0;
+}
+
+.contato-ovni {
+  color: #555;
+  font-weight: bold;
+  display: block;
+  margin-top: 0.5rem;
+}
+
+.contato-mensagem {
+  text-align: left;
+  max-width: 340px;
+}
+
+.contato-mensagem h2 {
+  color: #444;
+  font-size: 1.3rem;
+  margin-bottom: 0.7rem;
+  font-family: 'Courier New', monospace;
+}
+
+.contato-mensagem p {
+  color: #888;
+  font-size: 1.05rem;
+  margin-bottom: 1.2rem;
+  font-family: 'Courier New', monospace;
+}
+
+.contato-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.contato-link {
+  color: #444;
+  background: #f0f0f0;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  font-family: 'Courier New', monospace;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.contato-link:hover {
+  background: #e0e0e0;
+  color: #888;
+  border-color: #888;
+}
+
+.contato-icone {
+  font-size: 1.2em;
+  color: #888;
+}
+
+@media screen and (max-width: 700px) {
+  .contato-ascii-bloco {
+    flex-direction: column;
+    gap: 1.2rem;
+    align-items: flex-start;
+  }
+  .contato-mensagem {
+    max-width: 100%;
+  }
+}
+
+/* Animação dos olhos do OVNI (Contato) */
+.ovni-eye {
+  color: #bbb !important;
+  text-shadow: 0 0 8px #bbb;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+</style>
+
+<!-- CENA 6: Terminal Boot -->
+<section id="scene-6">
+  <pre class="animated-ascii" id="ascii-boot" style="color: #888; font-size: 0.9rem; text-align: center;"></pre>
+
+  <div class="lang lang-pt" style="text-align: center; display: block;">
+    <h2>Sistema de inicialização criativa</h2>
+    <p>Para entender rapidamente o problema a ser resolvido. Um super discovery com propósito claro.</p>
+  </div>
+
+  <div class="lang lang-en" style="text-align: center; display: none;">
+    <h2>Creative boot system</h2>
+    <p>To rapidly understand the problem to be solved. A super-charged discovery with a clear purpose.</p>
+  </div>
+
+  <div class="lang lang-zh" style="text-align: center; display: none;">
+    <h2>创意启动系统</h2>
+    <p>快速理解待解决的问题。一次具有明确目标的超级探索。</p>
+  </div>
+</section>
+
+<!-- CENA 7: Equipe -->
+<section id="scene-7">
+  <pre class="animated-ascii equipe-ascii" style="color: #888; margin-bottom: 1.5rem;">
+   <span class="equipe-node">o</span>     <span class="equipe-node">o</span>     <span class="equipe-node">o</span>
+  /|\   |   /|\
+  / \\  / \\  / \\
+---|-----|-----|---
+   |     |     |
+  / \\   |   / \\
+ <span class="equipe-node">o</span>   <span class="equipe-node">o</span>  <span class="equipe-node">o</span>   <span class="equipe-node">o</span>   <span class="equipe-node">o</span>
+  </pre>
+  <script>
+  (function() {
+    const nodes = document.querySelectorAll('.equipe-node');
+    console.log('Equipe nodes encontrados:', nodes.length);
+    let idx = 0;
+    function pulseEquipe() {
+      nodes.forEach((el, i) => {
+        el.classList.toggle('pulse', i === idx);
+      });
+      idx = (idx + 1) % nodes.length;
+      setTimeout(pulseEquipe, 350);
+    }
+    if (nodes.length) pulseEquipe();
+  })();
+  </script>
+  <h2>
+    <span class="lang lang-pt" style="color:#444;">Quem está por trás da PixelPulse.dev</span>
+    <span class="lang lang-en" style="display:none;color:#444;">The team behind PixelPulse.dev</span>
+    <span class="lang lang-zh" style="display:none;color:#444;">PixelPulse.dev 背后的团队</span>
+  </h2>
+  <p>
+    <span class="lang lang-pt" style="color:#888;">Engenheiros, estrategistas e designers que colocam alma no software.</span>
+    <span class="lang lang-en" style="display:none;color:#888;">Engineers, strategists, and designers bringing soul to software.</span>
+    <span class="lang lang-zh" style="display:none;color:#888;">将灵魂注入软件的工程师、战略家与设计师。</span>
+  </p>
+
+  <div class="team-container">
+    <!-- Zé Baptista -->
+    <div class="team-member">
+      <pre class="glow-avatar" style="text-align: center;">
+╭─────╮
+│ ZÉ  │
+│ ◉ ◉ │
+│ ▄▀▄ │
+│ ████│
+╰─────╯
+      </pre>
+      <div class="team-info">
+        <strong class="team-name">Zé Baptista</strong><br/>
+        <span class="team-role">Principal Engineer</span><br/>
+        <a class="team-link" href="https://www.linkedin.com/in/zebaptista/" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+
+    <!-- Marco Lúcio Moreira -->
+    <div class="team-member">
+      <pre class="glow-avatar" style="text-align: center;">
+╭────────╮
+│ MARCO  │
+│ ◕ ◕    │
+│ ▄▄ ▄▄  │
+│ ██████ │
+╰────────╯
+      </pre>
+      <div class="team-info">
+        <strong class="team-name">Marco Lúcio Moreira</strong><br/>
+        <span class="team-role">Estratégia & Performance</span><br/>
+        <a class="team-link" href="https://www.linkedin.com/in/marcoluciomoreira/" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+
+    <!-- Duda Weber -->
+    <div class="team-member">
+      <pre class="glow-avatar" style="text-align: center;">
+╭──────╮
+│ DUDA │
+│ ⚫ ⚫ │
+│ ▀▄▀▄ │
+│ ████ │
+╰──────╯
+      </pre>
+      <div class="team-info">
+        <strong class="team-name">Duda Weber</strong><br/>
+        <span class="team-role">Engenharia Criativa</span><br/>
+        <a class="team-link" href="https://www.linkedin.com/in/dudaweber/" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+
+    <!-- Ana do Amaral -->
+    <div class="team-member">
+      <pre class="glow-avatar" style="text-align: center;">
+╭──────╮
+│ ANA  │
+│ ● ●  │
+│ ▄▄▄  │
+│ ▓▓▓▓ │
+╰──────╯
+      </pre>
+      <div class="team-info">
+        <strong class="team-name">Ana do Amaral</strong><br/>
+        <span class="team-role">Partner de Design — Studio</span><br/>
+        <a class="team-link" href="https://www.linkedin.com/in/anapdoamaral/" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+
+    <!-- PixelPulse.AI -->
+    <div class="team-member ai-member">
+      <div class="ai-label">⚙️ IA integrada no processo</div>
+      <pre class="glow-avatar" style="text-align: center;">
+╭────────────╮
+│  ◉      ◉  │
+│   ▄▀▀▀▄    │
+│  ███████   │
+╰────────────╯
+      </pre>
+      <div class="team-info ai-info">
+        <div class="ai-status">PIXELPULSE CORE ACTIVE</div>
+        <strong class="team-name">PixelPulse.AI</strong><br/>
+        <span class="team-role">Agente de Inteligência Artificial</span><br/>
+        <span class="team-role">Revisão de Código, Caça a Bugs & Qualidade</span><br/>
+        <span class="ai-note">Em constante aprendizado e vigilância.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+</main>
+
+<script>
+  const codeLines = [
+    ">>> Initializing system...",
+    ">>> Loading AI modules...",
+    ">>> Connecting to cognitive core [✓]",
+    ">>> Bootstrapping creative engine...",
+    ">>> Injecting context: 'Design. Software. Intuition.'",
+    ">>> System online.",
+    ">>> Awaiting input..."
+  ];
+
+  let index = 0;
+  const output = document.getElementById("code-output");
+
+  function typeLine() {
+    if (index < codeLines.length) {
+      output.innerHTML += codeLines[index] + "\n";
+      index++;
+      setTimeout(typeLine, 800);
+    }
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      typeLine();
+      observer.disconnect();
+    }
+  }, { threshold: 0.5 });
+
+  if (output) observer.observe(document.getElementById("terminal"));
+
+  const scenes = document.querySelectorAll("section");
+  const animObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("visible");
+        document.querySelectorAll('nav a').forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { threshold: 0.5 });
+
+  scenes.forEach(scene => animObserver.observe(scene));
+
+  document.querySelectorAll('nav a').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href').substring(1);
+      const targetElement = document.getElementById(targetId);
+      targetElement.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+
+<script>
+  const identityLines = [
+  "  ____  _       _      _ _           _           ",
+  " |  _ \(_) __ _| | ___| (_)_ __   __| | ___ _ __ ",
+  " | |__) | |/ _` | |/ _ \ | | '_ \ / _` |/ _ \ '__|",
+  " |  __/| | (_| | |  __/ | | | | | (_| |  __/ |   ",
+  " |_|   |_|\__, |_|\___|_|_|_| |_|\__,_|\___|_|   ",
+  "          |___/                                  ",
+  "      P I X E L  P U L S E  .  D E V             ",
+  "",
+  "Inteligência Artificial & Engenharia Criativa"
+];
+
+  const identityEl = document.getElementById("ascii-identity");
+  const promptEl = document.getElementById("identity-prompt");
+
+  window.addEventListener("DOMContentLoaded", () => {
+    identityEl.textContent = "";
+    let line = 0;
+
+    function typeNextLine() {
+      if (line < identityLines.length) {
+        identityEl.textContent += identityLines[line] + "\n";
+        line++;
+        setTimeout(typeNextLine, 300);
+      } else {
+        promptEl.style.display = "block";
+      }
+    }
+
+    typeNextLine();
+  });
+</script>
+
+<script>
+  const binaryFrames = [
+    "01001100 01101111 01100001 01100100 01101001 01101110 01100111 . . .",
+    "00110010 01101111 01100110 00110000 01101110 01100101 . . .",
+    "10100101 10110111 10011001 10101010 10101001 . . .",
+    "11001000 00110110 11110000 01101111 01001010 . . .",
+    "System Core Encoding → ✔",
+    "00001101 11100011 11001001 00010101 . . .",
+    "Signal decoded . . . Pulse Locked."
+  ];
+
+  let frame = 0;
+  const binaryEl = document.getElementById("code-pacman");
+
+  function loopBinary() {
+    binaryEl.textContent = binaryFrames[frame];
+    frame = (frame + 1) % binaryFrames.length;
+    setTimeout(loopBinary, 400);
+  }
+
+  window.addEventListener("DOMContentLoaded", loopBinary);
+</script>
+
+
+
+
+
+<div id="watermark" style="
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  color: #333;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  z-index: 999;
+  opacity: 0.4;
+  pointer-events: none;
+">
+  PixelPulse.dev
+</div>
+
+
+
+
+
+<script>
+  function setCookie(name, value, days) {
+    const d = new Date();
+    d.setTime(d.getTime() + (days*24*60*60*1000));
+    const expires = "expires="+ d.toUTCString();
+    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+  }
+
+  function getCookie(name) {
+    const cname = name + "=";
+    const ca = decodeURIComponent(document.cookie).split(';');
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i].trim();
+      if (c.indexOf(cname) === 0) return c.substring(cname.length, c.length);
+    }
+    return "";
+  }
+
+  function switchLanguage() {
+    const lang = document.getElementById("language-select").value;
+    setCookie("lang", lang, 30);
+    document.querySelectorAll(".lang").forEach(el => el.style.display = "none");
+    document.querySelectorAll(".lang-" + lang).forEach(el => el.style.display = "inline-block");
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const savedLang = getCookie("lang") || "pt";
+    const langSelect = document.getElementById("language-select");
+    if (langSelect) {
+      langSelect.value = savedLang;
+      langSelect.addEventListener("change", switchLanguage);
+      switchLanguage();
+    }
+  });
+</script>
+
+<style>
+.team-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2.5rem;
+  margin-top: 2.5rem;
+  font-family: 'Courier New', monospace;
+}
+.team-member {
+  width: 270px;
+  min-width: 220px;
+  max-width: 320px;
+  background: #f7f7f7;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #eee;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem 1.2rem 1rem;
+  margin-bottom: 0.5rem;
+  transition: box-shadow 0.2s, border 0.2s;
+}
+.team-member:hover {
+  box-shadow: 0 4px 16px #ccc;
+  border-color: #bbb;
+}
+.glow-avatar {
+  margin-bottom: 1.1rem;
+}
+.team-info {
+  text-align: center;
+}
+.team-name {
+  color: #444;
+  font-size: 1.08rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+.team-role {
+  color: #888;
+  font-size: 0.98rem;
+  font-family: 'Courier New', monospace;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+.team-link {
+  color: #888;
+  font-size: 0.97rem;
+  text-decoration: underline;
+  margin-top: 0.2rem;
+  display: inline-block;
+  transition: color 0.2s;
+}
+.team-link:hover {
+  color: #444;
+}
+.ai-member {
+  background: #f2f2f2;
+  border: 1px solid #bbb;
+}
+.ai-label {
+  color: #888;
+  font-size: 1rem;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  margin-bottom: 0.7rem;
+}
+.ai-info {
+  color: #888;
+}
+.ai-status {
+  font-family: monospace;
+  font-size: 0.95rem;
+  margin-top: 0.2rem;
+  margin-bottom: 0.5rem;
+  color: #444;
+}
+.ai-note {
+  font-size: 0.8rem;
+  color: #bbb;
+  display: block;
+  margin-top: 0.3rem;
+}
+@media screen and (max-width: 900px) {
+  .team-container {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  .team-member {
+    width: 95%;
+    min-width: 0;
+    max-width: 340px;
+  }
+}
+</style>
+
+<script>
+// Animação dos nós da rede neural na Cena 4
+window.addEventListener('DOMContentLoaded', function() {
+  const nodes = document.querySelectorAll('#scene-4 .neural-node');
+  let idx = 0;
+  function pulseNodes() {
+    nodes.forEach((el, i) => {
+      el.classList.toggle('pulse', i === idx);
+    });
+    idx = (idx + 1) % nodes.length;
+    setTimeout(pulseNodes, 350);
+  }
+  if (nodes.length) pulseNodes();
+});
+</script>
+
+<script>
+// Animação dos pixels do monitor na Cena 3
+window.addEventListener('DOMContentLoaded', function() {
+  const pixels = document.querySelectorAll('#ascii-monitor .pixel');
+  let step = 0;
+  const patterns = [
+    [1,0,0,0,0,1, 0,1,1,1, 0,1,0,1, 0,1,1,1, 1,0,0,0,0,1], // padrão 1
+    [0,1,1,1,1,0, 1,0,0,0, 1,0,1,0, 1,0,0,0, 0,1,1,1,1,0], // padrão 2
+    [1,1,0,0,1,1, 0,1,0,1, 1,1,1,1, 0,1,0,1, 1,1,0,0,1,1], // padrão 3
+    [0,0,1,1,0,0, 1,1,1,1, 0,0,0,0, 1,1,1,1, 0,0,1,1,0,0], // padrão 4
+  ];
+  function animatePixels() {
+    const pattern = patterns[step % patterns.length];
+    pixels.forEach((el, i) => {
+      el.classList.toggle('on', pattern[i]);
+      el.classList.toggle('off', !pattern[i]);
+    });
+    step++;
+    setTimeout(animatePixels, 400);
+  }
+  if (pixels.length) animatePixels();
+});
+</script>
+
+<script>
+// Animação das engrenagens na Cena 2
+window.addEventListener('DOMContentLoaded', function() {
+  const gearFrames = [
+    [
+      '    .--.     .--.   ',
+      '   (    )---(    )  ',
+      "    '--'     '--'   ",
+      '   /    Lógica   \\',
+      '  [ Engenharia & Design ]'
+    ],
+    [
+      '    -..-     -..-   ',
+      '   (    )---(    )  ',
+      "    '--'     '--'   ",
+      '   /    Lógica   \\',
+      '  [ Engenharia & Design ]'
+    ],
+    [
+      '    --.-     --.-   ',
+      '   (    )---(    )  ',
+      "    '--'     '--'   ",
+      '   /    Lógica   \\',
+      '  [ Engenharia & Design ]'
+    ],
+    [
+      '    .--.     .--.   ',
+      '   (    )---(    )  ',
+      "    '--'     '--'   ",
+      '   /    Lógica   \\',
+      '  [ Engenharia & Design ]'
+    ]
+  ];
+  const asciiGears = document.getElementById('ascii-gears');
+  let frame = 0;
+  function animateGears() {
+    asciiGears.innerHTML =
+      '<span class="gear">' + gearFrames[frame][0] + '</span><br>' +
+      ' <span class="gear">' + gearFrames[frame][1] + '</span><br>' +
+      ' <span class="gear">' + gearFrames[frame][2] + '</span><br>' +
+      ' <span class="gear-text">' + gearFrames[frame][3] + '</span><br>' +
+      ' <span class="gear-text">' + gearFrames[frame][4] + '</span>';
+    frame = (frame + 1) % gearFrames.length;
+    setTimeout(animateGears, 400);
+  }
+  if (asciiGears) animateGears();
+});
+</script>
+
+<script>
+// Animação do ASCII art de Produtos & Soluções PixelPulse
+window.addEventListener('DOMContentLoaded', function() {
+  const frames = [
+    [
+      '╔════════════════════════════╗',
+      '║   ░▒▓▓▒░  PRODUTOS  ░▒▓▓▒░ ║',
+      '║  [ IA | Software | Dados ] ║',
+      '╚════════════════════════════╝'
+    ],
+    [
+      '╔════════════════════════════╗',
+      '║   ░▒▓▓▒░  <span class="produtos-pulse">PRODUTOS</span>  ░▒▓▓▒░ ║',
+      '║  [ IA | Software | Dados ] ║',
+      '╚════════════════════════════╝'
+    ],
+    [
+      '<span class="produtos-pulse">╔════════════════════════════╗</span>',
+      '║   ░▒▓▓▒░  PRODUTOS  ░▒▓▓▒░ ║',
+      '║  [ IA | Software | Dados ] ║',
+      '<span class="produtos-pulse">╚════════════════════════════╝</span>'
+    ],
+    [
+      '╔════════════════════════════╗',
+      '║   ░▒▓▓▒░  <span class="produtos-pulse">PRODUTOS</span>  ░▒▓▓▒░ ║',
+      '║  [ IA | Software | Dados ] ║',
+      '╚════════════════════════════╝'
+    ]
+  ];
+  const asciiProdutos = document.getElementById('ascii-produtos');
+  let frame = 0;
+  function animateProdutos() {
+    asciiProdutos.innerHTML = frames[frame].join('<br>');
+    frame = (frame + 1) % frames.length;
+    setTimeout(animateProdutos, 400);
+  }
+  if (asciiProdutos) animateProdutos();
+});
+</script>
+
+<script>
+// Animação dos olhos do OVNI na Cena 5 (Contato)
+window.addEventListener('DOMContentLoaded', function() {
+  const frames = [
+    [
+      '        .     .',
+      '         \\___/',
+      '      --[●   ●]--',
+      '         /---\\\n        /     \\\n    ~~~[_______]~~~',
+      '<span class="contato-ovni">Contato Interestelar Ativo</span>'
+    ],
+    [
+      '        .     .',
+      '         \\___/',
+      '      --[<span class="ovni-eye">●</span>   <span class="ovni-eye">●</span>]--',
+      '         /---\\\n        /     \\\n    ~~~[_______]~~~',
+      '<span class="contato-ovni">Contato Interestelar Ativo</span>'
+    ],
+    [
+      '        .     .',
+      '         \\___/',
+      '      --[●   ●]--',
+      '         /---\\\n        /     \\\n    ~~~[_______]~~~',
+      '<span class="contato-ovni">Contato Interestelar Ativo</span>'
+    ],
+    [
+      '        .     .',
+      '         \\___/',
+      '      --[<span class="ovni-eye">●</span>   <span class="ovni-eye">●</span>]--',
+      '         /---\\\n        /     \\\n    ~~~[_______]~~~',
+      '<span class="contato-ovni">Contato Interestelar Ativo</span>'
+    ]
+  ];
+  const asciiContato = document.getElementById('ascii-contato');
+  let frame = 0;
+  function animateContato() {
+    asciiContato.innerHTML = frames[frame].join('<br>');
+    frame = (frame + 1) % frames.length;
+    setTimeout(animateContato, 500);
+  }
+  if (asciiContato) animateContato();
+});
+</script>
+
+<script>
+// Animação do ASCII art de Boot (Cena 6)
+window.addEventListener('DOMContentLoaded', function() {
+  const frames = [
+    [
+      '<span class="boot-pulse">     _____</span>',
+      ".'/L|__`.",
+      '/ =[_]O|` \\',
+      '|"+_____":|',
+      '<span class="boot-pulse">__|=\'|____`-|__</span>',
+      '||[] ||====| []||',
+      '||[] | |=| | []||',
+      '|:||_|=|U|_|_||:|',
+      '|:|||]_=_ \'|||:|',
+      '| |||] [] [||| |',
+      '| |||\'---\'||| |',
+      '| |||     ||| |',
+      '|_|_|     |_|_|',
+      '(___)     (___)'
+    ],
+    [
+      '     _____',
+      ".'/L|__`.",
+      '/ =[_]O|` \\',
+      '|"+_____":|',
+      '<span class="boot-pulse">__|=\'|____`-|__</span>',
+      '||[] ||====| []||',
+      '||[] | |=| | []||',
+      '|:||_|=|U|_|_||:|',
+      '|:|||]_=_ \'|||:|',
+      '| |||] [] [||| |',
+      '| |||\'---\'||| |',
+      '| |||     ||| |',
+      '|_|_|     |_|_|',
+      '(___)     (___)'
+    ],
+    [
+      '     _____',
+      ".'/L|__`.",
+      '/ =[_]O|` \\',
+      '|"+_____":|',
+      '__|=\'|____`-|__',
+      '||[] ||====| []||',
+      '||[] | |=| | []||',
+      '|:||_|=|U|_|_||:|',
+      '|:|||]_=_ \'|||:|',
+      '| |||] [] [||| |',
+      '| |||\'---\'||| |',
+      '<span class="boot-pulse">| |||     ||| |</span>',
+      '|_|_|     |_|_|',
+      '(___)     (___)'
+    ],
+    [
+      '     _____',
+      ".'/L|__`.",
+      '/ =[_]O|` \\',
+      '|"+_____":|',
+      '__|=\'|____`-|__',
+      '||[] ||====| []||',
+      '||[] | |=| | []||',
+      '|:||_|=|U|_|_||:|',
+      '|:|||]_=_ \'|||:|',
+      '| |||] [] [||| |',
+      '| |||\'---\'||| |',
+      '<span class="boot-pulse">| |||     ||| |</span>',
+      '|_|_|     |_|_|',
+      '(___)     (___)'
+    ]
+  ];
+  const asciiBoot = document.getElementById('ascii-boot');
+  let frame = 0;
+  function animateBoot() {
+    asciiBoot.innerHTML = frames[frame].join('<br>');
+    frame = (frame + 1) % frames.length;
+    setTimeout(animateBoot, 400);
+  }
+  if (asciiBoot) animateBoot();
+});
+</script>
+
+</body>
+</html>
