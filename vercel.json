@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/docs/sop",
+      "dest": "/docs/sop/index.html"
+    },
+    {
+      "src": "/docs/sop/(.*)",
+      "dest": "/docs/sop/$1"
+    }
+  ]
+} 

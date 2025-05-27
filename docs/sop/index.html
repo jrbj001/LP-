@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>S&OP Inteligente — PixelPulseLab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      color: #55585C;
+    }
+    body {
+      background: #fff;
+      color: #55585C;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+      height: 100vh;
+    }
+    .slide {
+      min-height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      scroll-snap-align: start;
+      padding: 0 2em;
+      box-sizing: border-box;
+      position: relative;
+      background: #fff;
+      transition: opacity 0.7s, transform 0.7s;
+    }
+    h1, h2 {
+      color: #44484B;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
+      font-weight: 700;
+      margin-bottom: 0.5em;
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+    h1 {
+      font-size: 2.2rem;
+      margin-top: 0;
+      color: #44484B;
+    }
+    h2 {
+      font-size: 1.5rem;
+      color: #888888;
+    }
+    p, .card, .slide ul, .slide li {
+      color: #55585C;
+      font-size: 1.18rem;
+      max-width: 700px;
+      text-align: center;
+      margin: 0 auto 1.2em auto;
+      line-height: 1.7;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
+    }
+    .slide ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5em 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7em;
+    }
+    .slide li {
+      background: #F3F4F6;
+      border-radius: 8px;
+      padding: 0.7em 1.2em;
+      margin: 0 auto;
+      display: inline-block;
+      font-size: 1.08rem;
+      box-shadow: none;
+      color: #888888;
+    }
+    .slide .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5em;
+      justify-content: center;
+      margin: 1.5em 0;
+    }
+    .card {
+      background: #F7F7F7;
+      border-radius: 12px;
+      padding: 1.5em 2em;
+      min-width: 220px;
+      box-shadow: none;
+      margin: 0.5em;
+      text-align: left;
+      color: #55585C;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
+      border: 1px solid #E0E0E0;
+    }
+    .glossario-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5em;
+      justify-content: center;
+      margin: 2em 0 0 0;
+    }
+    .glossario-card {
+      background: #F7F7F7;
+      border-radius: 12px;
+      padding: 1.2em 1.5em;
+      min-width: 220px;
+      max-width: 320px;
+      box-shadow: none;
+      font-size: 1rem;
+      margin: 0.5em;
+      text-align: left;
+      color: #888888;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
+      border: 1px solid #E0E0E0;
+    }
+    .img-wireframe {
+      display: block;
+      margin: 2em auto 0 auto;
+      max-width: 600px;
+      width: 100%;
+      border-radius: 16px;
+      box-shadow: 0 2px 16px 0 #e0e0e0;
+    }
+    .arrows {
+      position: absolute;
+      left: 50%;
+      bottom: 32px;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+      pointer-events: auto;
+    }
+    .arrow-down-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s;
+    }
+    .arrow-down {
+      width: 28px;
+      height: 28px;
+      margin: 2px 0;
+      opacity: 0.7;
+      animation: bounce 1.5s infinite alternate;
+      transition: fill 0.2s;
+    }
+    .arrow-down-btn:active .arrow-down,
+    .arrow-down-btn:focus .arrow-down {
+      opacity: 1;
+      fill: #232323;
+    }
+    @keyframes bounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(12px); }
+    }
+    @media (max-width: 600px) {
+      .slide { padding: 0 0.5em; }
+      h1 { font-size: 1.3rem; }
+      h2 { font-size: 1.1rem; }
+      .img-wireframe { max-width: 100%; }
+      .card, .glossario-card { min-width: 140px; padding: 1em; }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5em 0;
+      background: #F3F4F6;
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 1rem;
+    }
+    th, td {
+      padding: 0.7em 1em;
+      border-bottom: 1px solid #e0e0e0;
+      text-align: left;
+      color: #888888;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
+    }
+    th {
+      background: #E0E0E0;
+      font-weight: 700;
+      color: #55585C;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .watermark {
+      position: fixed;
+      left: 18px;
+      bottom: 12px;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
+      font-size: 0.65em;
+      color: #BDBDBD;
+      letter-spacing: 0.22em;
+      z-index: 1000;
+      pointer-events: none;
+      user-select: none;
+      opacity: 0.95;
+    }
+    .pixelpulse-avatar-anim {
+      animation: pulse-avatar 1.8s infinite alternate;
+    }
+    @keyframes pulse-avatar {
+      0% { filter: drop-shadow(0 0 0px #BDBDBD); opacity: 0.85; }
+      40% { filter: drop-shadow(0 0 8px #E0E0E0); opacity: 1; }
+      100% { filter: drop-shadow(0 0 0px #888); opacity: 0.85; }
+    }
+    /* MENU LATERAL DE BOLINHAS */
+    .slide-nav {
+      position: fixed;
+      left: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      z-index: 1001;
+      pointer-events: auto;
+    }
+    .slide-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #E0E0E0;
+      border: none;
+      margin: 0;
+      padding: 0;
+      cursor: pointer;
+      transition: background 0.22s, box-shadow 0.22s, transform 0.18s;
+      box-shadow: 0 0 0 0 #23232300;
+      outline: none;
+    }
+    .slide-dot.active {
+      background: #888888;
+      box-shadow: 0 0 0 3px #BDBDBD88;
+      transform: scale(1.15);
+    }
+    .slide-dot:hover, .slide-dot:focus {
+      background: #BDBDBD;
+      transform: scale(1.18);
+      box-shadow: 0 0 0 4px #E0E0E088;
+    }
+    .slide-dot:focus {
+      outline: 2px solid #232323;
+    }
+    @media (max-width: 700px) {
+      .slide-nav { left: 8px; gap: 10px; }
+      .slide-dot { width: 11px; height: 11px; }
+    }
+    /* Links em tons de cinza */
+    a, a:visited {
+      color: #888888;
+      text-decoration: underline dotted #BDBDBD;
+      transition: color 0.2s;
+    }
+    a:hover, a:focus {
+      color: #232323;
+      text-decoration: underline solid #888888;
+    }
+    /* MODAL DE ONBOARDING */
+    .onboarding-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(40, 40, 40, 0.82);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s;
+    }
+    .onboarding-content {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 32px 0 #23232322;
+      padding: 2.5em 2.2em 2em 2.2em;
+      max-width: 370px;
+      width: 92vw;
+      text-align: center;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .onboarding-emoji {
+      font-size: 2.2em;
+      margin-bottom: 0.5em;
+      user-select: none;
+    }
+    .onboarding-slide h2 {
+      color: #44484B;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.7em;
+      letter-spacing: -0.01em;
+    }
+    .onboarding-slide p {
+      color: #55585C;
+      font-size: 1.08rem;
+      margin-bottom: 1.7em;
+      line-height: 1.6;
+    }
+    .onboarding-next, .onboarding-prev, .onboarding-close {
+      background: #E0E0E0;
+      color: #44484B;
+      border: none;
+      border-radius: 8px;
+      padding: 0.7em 1.3em;
+      font-size: 1rem;
+      font-family: 'Manrope', 'Inter', 'Segoe UI', Arial, sans-serif;
+      font-weight: 600;
+      margin: 0 0.3em;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, transform 0.18s;
+      box-shadow: 0 1px 4px 0 #e0e0e033;
+    }
+    .onboarding-next:hover, .onboarding-prev:hover, .onboarding-close:hover {
+      background: #BDBDBD;
+      color: #232323;
+      transform: scale(1.06);
+    }
+    @media (max-width: 600px) {
+      .onboarding-content { padding: 1.2em 0.5em 1em 0.5em; max-width: 98vw; }
+      .onboarding-slide h2 { font-size: 1.05rem; }
+      .onboarding-emoji { font-size: 1.3em; }
+    }
+    .onboarding-close-icon {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      background: none;
+      border: none;
+      font-size: 1.7em;
+      color: #BDBDBD;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      z-index: 10;
+      transition: color 0.18s, transform 0.18s;
+    }
+    .onboarding-close-icon:hover, .onboarding-close-icon:focus {
+      color: #888888;
+      transform: scale(1.18) rotate(90deg);
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- MENU LATERAL DE BOLINHAS -->
+  <div class="slide-nav">
+    <button class="slide-dot" onclick="goToSlide(0)" aria-label="Slide 1"></button>
+    <button class="slide-dot" onclick="goToSlide(1)" aria-label="Slide 2"></button>
+    <button class="slide-dot" onclick="goToSlide(2)" aria-label="Slide 3"></button>
+    <button class="slide-dot" onclick="goToSlide(3)" aria-label="Slide 4"></button>
+    <button class="slide-dot" onclick="goToSlide(4)" aria-label="Slide 5"></button>
+    <button class="slide-dot" onclick="goToSlide(5)" aria-label="Slide 6"></button>
+    <button class="slide-dot" onclick="goToSlide(6)" aria-label="Slide 7"></button>
+    <button class="slide-dot" onclick="goToSlide(7)" aria-label="Slide 8"></button>
+    <button class="slide-dot" onclick="goToSlide(8)" aria-label="Slide 9"></button>
+    <button class="slide-dot" onclick="goToSlide(9)" aria-label="Slide 10"></button>
+    <button class="slide-dot" onclick="goToSlide(10)" aria-label="Slide 11"></button>
+  </div>
+  <div class="slide">
+    <div style="margin:2em 0 2.2em 0; text-align:center;">
+      <pre style="font-family: 'Fira Mono', 'Menlo', 'Consolas', monospace; color:#BDBDBD; font-size:0.92em; line-height:1.15; margin-bottom:0.5em; letter-spacing:0.01em;">
+  ____  _       _      _ _           _           
+ |  _ \(_) __ _| | ___| (_)_ __   __| | ___ _ __ 
+ | |__) | |/ _` | |/ _  | | '_ \ / _` |/ _  '__|
+ |  __/| | (_| | |  __/ | | | | | (_| |  __/ |   
+ |_|   |_|\__, |_|___|_|_|_| |_|\__,_|___|_|   
+          |___/                                  
+      P I X E L P U L S E L A B  .  D E V        
+    </pre>
+    <div style="color:#44484B; font-size:1.13em; font-family:'Manrope',sans-serif; font-weight:700; margin-bottom:0.18em; letter-spacing:0.01em;">Inteligência Artificial & Engenharia Criativa</div>
+    <div style="color:#888; font-size:1.01em; font-family:'Manrope',sans-serif; font-weight:500; margin-bottom:0.18em; letter-spacing:0.01em;">Construímos software com alma e propósito.</div>
+    <br><br>
+    <div class="pixelpulse-avatar-anim" style="display:inline-block; margin-bottom:1.7em;">
+      <pre style="font-family: 'Fira Mono', 'Menlo', 'Consolas', monospace; color:#C7C7C7; font-size:0.7em; line-height:1.1; margin:0; padding:0;">
+ ╭────────╮
+ │ ◉    ◉ │
+ │   ▄▀▄   │
+ │  ████  │
+ ╰────────╯
+      </pre>
+      <div style="color:#C7C7C7; font-size:0.62em; letter-spacing:0.08em; font-family:'Manrope',sans-serif;">PIXELPULSELAB CORE ACTIVE</div>
+    </div>
+  </div>
+  <h1 style="font-family:'Manrope',sans-serif; font-size:2.1rem; color:#232323; font-weight:800; letter-spacing:-0.01em; margin-bottom:0.2em;">📄 Whitepaper Estratégico & Proposta Comercial</h1>
+  <h2 style="font-family:'Manrope',sans-serif; font-size:1.25rem; color:#55585C; font-weight:600; margin-bottom:0.5em; letter-spacing:0.01em;">S&OP Inteligente — Plataforma de Planejamento com IA</h2>
+  <div class="arrows">
+    <button class="arrow-down-btn" onclick="goToSlide(1)" aria-label="Próximo slide">
+      <svg class="arrow-down" viewBox="0 0 24 24"><path fill="#888" d="M12 16.5l-8-8 1.4-1.4L12 13.7l6.6-6.6L20 8.5z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="slide">
+  <h2>1. Visão Geral do Produto</h2>
+  <p>O <strong>S&OP Inteligente</strong> é uma ferramenta modular de apoio à decisão em operações comerciais e logísticas. Com base em inteligência artificial, modelagem estatística avançada e heurísticas otimizadas, a solução entrega previsibilidade, eficiência e transparência ao processo de planejamento integrado de demanda, estoque e ressuprimento — o verdadeiro core do S&OP.</p>
+  <div class="arrows">
+    <button class="arrow-down-btn" onclick="goToSlide(2)" aria-label="Próximo slide">
+      <svg class="arrow-down" viewBox="0 0 24 24"><path fill="#888" d="M12 16.5l-8-8 1.4-1.4L12 13.7l6.6-6.6L20 8.5z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="slide">
+  <h2>2. Visão Estratégica</h2>
+  <div class="cards">
+    <div class="card"><strong>Missão</strong><br>Projetar soluções inteligentes que combinam rigor técnico e clareza operacional, ajudando empresas a tomarem melhores decisões todos os dias.</div>
+    <div class="card"><strong>Visão</strong><br>Ser o motor invisível por trás das decisões mais críticas em planejamento e operação no varejo contemporâneo.</div>
+  </div>
+  <div class="arrows">
+    <button class="arrow-down-btn" onclick="goToSlide(3)" aria-label="Próximo slide">
+      <svg class="arrow-down" viewBox="0 0 24 24"><path fill="#888" d="M12 16.5l-8-8 1.4-1.4L12 13.7l6.6-6.6L20 8.5z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="slide">
+  <h2>3. Diferenciais da Solução</h2>
+  <div class="cards">
+    <div class="card">🎯 Lógica <a href="#glossario-fuzzy" class="glossario-link">fuzzy</a> exclusiva para identificar padrões qualitativos de comportamento gerencial</div>
+    <div class="card">📈 Múltiplas distribuições estatísticas e modelos temporais testados em paralelo</div>
+    <div class="card">⚙️ Otimização com heurísticas, <a href="#glossario-programacao" class="glossario-link">programação linear</a> e simulação de cenários</div>
+    <div class="card">💬 Interface interpretável e feedback contínuo</div>
+    <div class="card">🔐 Núcleo proprietário com potencial de licenciamento escalável</div>
+  </div>
+  <div class="arrows">
+    <button class="arrow-down-btn" onclick="goToSlide(4)" aria-label="Próximo slide">
+      <svg class="arrow-down" viewBox="0 0 24 24"><path fill="#888" d="M12 16.5l-8-8 1.4-1.4L12 13.7l6.6-6.6L20 8.5z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="slide">
+  <h2>4. Arquitetura Técnica</h2>
+  <table>
+    <tr><th>Camada</th><th>Tecnologia</th></tr>
+    <tr><td>Frontend</td><td>React + TypeScript + Tailwind</td></tr>
+    <tr><td>Backend</td><td>Python (FastAPI) + PostgreSQL</td></tr>
+    <tr><td>Modelos</td><td>scikit-fuzzy, statsmodels, pmdarima, ortools, tensorflow</td></tr>
+    <tr><td>Infra</td><td>Docker, CI/CD, Cloud Run ou ECS</td></tr>
+    <tr><td>Visualização</td><td>Recharts, CSV Export, Radar Charts</td></tr>
+  </table>
+  <div class="arrows">
+    <button class="arrow-down-btn" onclick="goToSlide(5)" aria-label="Próximo slide">
+      <svg class="arrow-down" viewBox="0 0 24 24"><path fill="#888" d="M12 16.5l-8-8 1.4-1.4L12 13.7l6.6-6.6L20 8.5z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="slide">
+  <h2>5. Módulos Principais (Core)</h2>
+  <div class="cards">
+    <div class="card"><strong>5.1 Identificação de Vieses dos Gerentes</strong><br>Usa lógica <a href="#glossario-fuzzy" class="glossario-link">fuzzy</a> para classificar perfis preditivos: otimista, tático, orçamentário estratégico etc.<br>Baseado em previsão vs. realizado, não em dados de vendas.<br>Gera explicações em linguagem natural e permite feedback para ajuste fino.</div>
+    <div class="card"><strong>5.2 Previsão Dinâmica de Demanda & Estoque</strong><br>Executa dezenas de modelos por cluster (ARIMA, GAMLSS, Exponencial, etc.)<br>Seleciona a melhor função por erro absoluto mínimo<br>Mantém histórico e performance de cada previsão.</div>
+    <div class="card"><strong>5.3 Otimização de Ressuprimento</strong><br>Utiliza <a href="#glossario-programacao" class="glossario-link">programação linear</a>, heurísticas e simulações<br>Aponta o cenário ideal de custo, cobertura e nível de serviço<br>Oferece visual comparativo entre o atual e o ideal.</div>
+  </div>
+  <div class="arrows">
+    <button class="arrow-down-btn" onclick="goToSlide(6)" aria-label="Próximo slide">
+      <svg class="arrow-down" viewBox="0 0 24 24"><path fill="#888" d="M12 16.5l-8-8 1.4-1.4L12 13.7l6.6-6.6L20 8.5z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="slide">
+  <h2>6. Roadmap da POC</h2>
+  <table>
+    <tr><th>Etapa</th><th>Entregável</th><th>Prazo</th></tr>
+    <tr><td>Kickoff + Integrações</td><td>Definição de clusters e ingestão de dados</td><td>Semana 1</td></tr>
+    <tr><td>Módulo 1</td><td>Dashboard de Vieses + perfil fuzzy</td><td>Semana 2</td></tr>
+    <tr><td>Módulo 2</td><td>Previsão para 3 clusters com modelos</td><td>Semana 3</td></tr>
+    <tr><td>Módulo 3</td><td>Simulador de reabastecimento</td><td>Semana 4</td></tr>
+    <tr><td>Encerramento</td><td>Relatório, plano de expansão, demo final</td><td>Semana 5</td></tr>
+  </table>
+  <div class="arrows">
+    <button class="arrow-down-btn" onclick="goToSlide(7)" aria-label="Próximo slide">
+      <svg class="arrow-down" viewBox="0 0 24 24"><path fill="#888" d="M12 16.5l-8-8 1.4-1.4L12 13.7l6.6-6.6L20 8.5z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="slide">
+  <h2>7. Modelo Comercial</h2>
+  <div class="cards">
+    <div class="card"><strong>POC Inicial (Prova de Conceito)</strong><br>Formato: Projeto fechado de 5 semanas<br>Entregáveis: 3 módulos + relatório técnico + interface navegável<br>Valor: R$ XX.XXX (a negociar)<br>Escopo: Cluster piloto definido com o cliente</div>
+    <div class="card"><strong>Pós-POC</strong><br>Licenciamento do produto core<br>Customizações sob demanda<br>Serviço de rollout para múltiplos clusters ou países</div>
+  </div>
+  <div class="arrows">
+    <button class="arrow-down-btn" onclick="goToSlide(8)" aria-label="Próximo slide">
+      <svg class="arrow-down" viewBox="0 0 24 24"><path fill="#888" d="M12 16.5l-8-8 1.4-1.4L12 13.7l6.6-6.6L20 8.5z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="slide">
+  <h2>8. Propriedade & Distribuição</h2>
+  <div class="cards">
+    <div class="card">O núcleo (core) da tecnologia permanece de propriedade da PixelPulseLab.</div>
+    <div class="card">O cliente da POC terá <strong>prioridade de uso</strong>, com condições comerciais exclusivas.</div>
+    <div class="card">O produto será evoluído e ofertado como solução modular para outros clientes do setor.</div>
+  </div>
+  <div class="arrows">
+    <button class="arrow-down-btn" onclick="goToSlide(9)" aria-label="Próximo slide">
+      <svg class="arrow-down" viewBox="0 0 24 24"><path fill="#888" d="M12 16.5l-8-8 1.4-1.4L12 13.7l6.6-6.6L20 8.5z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="slide">
+  <h2>9. Equipe</h2>
+  <div class="cards">
+    <div class="card"><strong>Zé Baptista</strong><br>Engenharia de Produto & IA</div>
+    <div class="card"><strong>Fernando Belcorso</strong><br>Supply Chain & S&OP</div>
+    <div class="card"><strong>Fernando Mutarelli</strong><br>Estratégia & Operações</div>
+    <div class="card"><strong>Marco Moreira</strong><br>Arquitetura & Tecnologia</div>
+    <div class="card"><strong>Apoio Técnico</strong><br>INOVA USP (Engenharia de Produção & Transportes)</div>
+  </div>
+  <div class="arrows">
+    <button class="arrow-down-btn" onclick="goToSlide(10)" aria-label="Próximo slide">
+      <svg class="arrow-down" viewBox="0 0 24 24"><path fill="#888" d="M12 16.5l-8-8 1.4-1.4L12 13.7l6.6-6.6L20 8.5z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="slide glossario">
+  <h2>10. Glossário de Termos Técnicos</h2>
+  <div class="glossario-cards">
+    <div class="glossario-card"><strong>S&OP (Sales & Operations Planning):</strong><br>Processo integrado de planejamento que alinha vendas, marketing, supply chain e finanças para garantir decisões consistentes de oferta e demanda.</div>
+    <div class="glossario-card"><strong>Lógica Fuzzy:</strong><br>Tipo de raciocínio computacional que permite trabalhar com conceitos imprecisos como "otimista" ou "tático". Em vez de respostas exatas, gera classificações com graus de pertencimento.</div>
+    <div class="glossario-card"><strong>Perfil Preditivo:</strong><br>Comportamento histórico de um gerente em relação às suas previsões. Exemplo: sempre superestima a demanda no fechamento do trimestre.</div>
+    <div class="glossario-card"><strong>Distribuições Estatísticas:</strong><br>Modelos matemáticos usados para representar padrões de comportamento dos dados. Ex: distribuição normal, exponencial, gama, etc.</div>
+    <div class="glossario-card"><strong>ARIMA / SARIMA:</strong><br>Modelos de séries temporais que capturam padrões sazonais e de tendência para prever valores futuros com base em dados passados.</div>
+    <div class="glossario-card"><strong>Erro Absoluto Médio (MAE):</strong><br>Métrica de avaliação que calcula o quão distante uma previsão ficou do valor real, em média.</div>
+    <div class="glossario-card"><strong>Programação Linear / Inteira:</strong><br>Técnicas matemáticas usadas para encontrar a melhor solução (ex: menor custo, maior margem) dentro de um conjunto de restrições.</div>
+    <div class="glossario-card"><strong>Heurística:</strong><br>Método prático para encontrar soluções boas o suficiente, especialmente quando uma resposta ótima seria muito complexa ou demorada.</div>
+    <div class="glossario-card"><strong>Simulação de Cenários:</strong><br>Ferramenta para testar diferentes combinações de variáveis e entender como decisões influenciam resultados futuros.</div>
+    <div class="glossario-card"><strong>Core (núcleo do sistema):</strong><br>Parte central da plataforma — composta por modelos, lógica e arquitetura — que é reutilizável entre diferentes clientes e setores.</div>
+    <div class="glossario-card"><strong>Radar Chart (Gráfico Radar):</strong><br>Visualização gráfica em forma de estrela usada para comparar múltiplas variáveis (ex: comportamento de um gerente vs. equipe).</div>
+    <div class="glossario-card"><strong>POC (Proof of Concept):</strong><br>Prova de conceito: projeto de curta duração com foco em validar o potencial de uma solução em ambiente real, antes da implementação completa.</div>
+  </div>
+</div>
+
+<div class="watermark">P I X E L&nbsp;P U L S E L A B&nbsp;.&nbsp;D E V</div>
+
+<div id="onboarding-modal" class="onboarding-modal" style="display: flex;">
+  <div class="onboarding-content">
+    <button class="onboarding-close-icon" onclick="closeOnboardingModal()" aria-label="Fechar onboarding">&times;</button>
+    <div class="onboarding-slide" id="onboarding-slide-0">
+      <div class="onboarding-emoji">🧠✨</div>
+      <h2>PixelPulseLab: Onde IA encontra criatividade</h2>
+      <p>Somos PixelPulseLab: uma boutique de software onde inteligência artificial, engenharia criativa e cultura geek se unem para transformar dados em decisões.<br>Construímos tecnologia com alma, propósito e aquele toque nerd que faz a diferença.</p>
+      <button class="onboarding-next" onclick="nextOnboardingSlide()">Próximo &rarr;</button>
+    </div>
+    <div class="onboarding-slide" id="onboarding-slide-1" style="display:none;">
+      <div class="onboarding-emoji">🏃‍♂️🏅</div>
+      <h2>O desafio Track&Field</h2>
+      <p>A Track&Field é movida por performance — dentro e fora das pistas.<br>Nosso desafio: prever, planejar e abastecer cada loja com precisão, sem perder o ritmo, mesmo diante de cenários incertos.</p>
+      <button class="onboarding-prev" onclick="prevOnboardingSlide()">&larr; Anterior</button>
+      <button class="onboarding-next" onclick="nextOnboardingSlide()">Próximo &rarr;</button>
+    </div>
+    <div class="onboarding-slide" id="onboarding-slide-2" style="display:none;">
+      <div class="onboarding-emoji">🚀📊</div>
+      <h2>S&OP Inteligente: O futuro do planejamento</h2>
+      <p>Com o S&OP Inteligente, a Track&Field conquista previsibilidade, eficiência e transparência no verdadeiro core do S&OP: o planejamento integrado de demanda, estoque e ressuprimento.<br><br>Tudo isso com inteligência artificial, modelos avançados e dashboards interpretáveis — para decisões rápidas, assertivas e escaláveis.<br><br><strong>Pronto para correr junto?</strong></p>
+      <button class="onboarding-prev" onclick="prevOnboardingSlide()">&larr; Anterior</button>
+      <button class="onboarding-close" onclick="closeOnboardingModal()">Começar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Navegação entre slides ao clicar nas setas
+  function goToSlide(idx) {
+    const slides = document.querySelectorAll('.slide');
+    if (slides[idx]) {
+      slides[idx].scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+  // Destacar bolinha do slide atual
+  function updateActiveDot() {
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.slide-dot');
+    let idx = 0;
+    let minDist = Infinity;
+    slides.forEach((slide, i) => {
+      const rect = slide.getBoundingClientRect();
+      const dist = Math.abs(rect.top);
+      if (dist < minDist) {
+        minDist = dist;
+        idx = i;
+      }
+    });
+    dots.forEach(dot => dot.classList.remove('active'));
+    if (dots[idx]) dots[idx].classList.add('active');
+  }
+  window.addEventListener('scroll', updateActiveDot);
+  window.addEventListener('resize', updateActiveDot);
+  document.addEventListener('DOMContentLoaded', updateActiveDot);
+
+  // ONBOARDING MODAL JS
+  let onboardingIdx = 0;
+  function showOnboardingSlide(idx) {
+    for (let i = 0; i < 3; i++) {
+      document.getElementById('onboarding-slide-' + i).style.display = (i === idx) ? '' : 'none';
+    }
+    onboardingIdx = idx;
+  }
+  function nextOnboardingSlide() {
+    if (onboardingIdx < 2) showOnboardingSlide(onboardingIdx + 1);
+  }
+  function prevOnboardingSlide() {
+    if (onboardingIdx > 0) showOnboardingSlide(onboardingIdx - 1);
+  }
+  function closeOnboardingModal() {
+    document.getElementById('onboarding-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    showOnboardingSlide(0);
+    var modal = document.getElementById('onboarding-modal');
+    if (modal) modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  });
+</script>
+</body>
+</html>
