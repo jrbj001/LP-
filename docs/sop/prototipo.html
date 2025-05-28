@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Protótipo S&OP Inteligente</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #F7F8FA;
+      --card: #FFF;
+      --primary: #44484B;
+      --accent: #5A6A7A;
+      --gray: #E0E0E0;
+      --text: #232323;
+      --text-light: #55585c;
+      --text-muted: #888;
+      --border: #E0E0E0;
+      --radius: 12px;
+      --chart-blue: #5A6A7A;
+      --chart-purple: #A3A9B8;
+      --chart-orange: #F7B267;
+      --chart-pink: #E06C9F;
+    }
+    html, body {
+      margin: 0; padding: 0; background: var(--bg); color: var(--text-light); font-family: 'Inter', 'Segoe UI', Arial, sans-serif; }
+    body { min-height: 100vh; }
+    .navbar {
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 2rem;
+      font-size: 1.08rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      z-index: 100;
+    }
+    .navbar .logo {
+      display: flex; align-items: center; gap: 0.7rem; font-weight: bold; font-size: 1.2rem;
+    }
+    .navbar nav {
+      display: flex; gap: 2rem;
+    }
+    .navbar nav a {
+      color: #fff; text-decoration: none; opacity: 0.85; font-weight: 500; transition: opacity 0.2s; }
+    .navbar nav a:hover, .navbar nav a.active { opacity: 1; border-bottom: 2px solid var(--accent); }
+    .navbar .user {
+      display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;
+    }
+    .navbar .user svg { vertical-align: middle; }
+    .navbar-placeholder {
+      height: 64px;
+      width: 100%;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 2.5rem auto 0 auto;
+      padding: 0 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    .filters {
+      display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;
+    }
+    .filters select {
+      padding: 0.4em 1.2em; border-radius: var(--radius); border: 1px solid var(--border); background: #fff; color: var(--text-light); font-size: 1rem;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px #e0e0e022;
+      padding: 2.2rem 1.7rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      border: 1px solid var(--border);
+      min-width: 0;
+    }
+    .indicators {
+      display: flex;
+      gap: 2.2rem;
+      justify-content: space-between;
+      margin-bottom: 2.2rem;
+    }
+    .indicator {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.2rem;
+      min-width: 120px;
+      text-align: center;
+      border: 1px solid var(--border);
+      flex: 1;
+    }
+    .indicator strong {
+      font-size: 1.7rem; color: var(--accent); display: block; }
+    .indicator span {
+      font-size: 0.98rem; color: var(--text-muted); }
+    .section-title {
+      font-size: 1.13rem; color: var(--text); font-weight: 700; margin-bottom: 0.7rem; }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 1rem; margin-bottom: 0.5rem; }
+    th, td {
+      padding: 0.5em 0.7em; text-align: left; border-bottom: 1px solid var(--gray); }
+    th { color: var(--text); font-weight: 600; background: #f3f4f6; }
+    tr:last-child td { border-bottom: none; }
+    .details-link { color: var(--accent); text-decoration: underline; font-size: 0.98em; cursor: pointer; }
+    .chart-area {
+      width: 100%; height: 120px; margin: 0.7rem 0 0.5rem 0; }
+    .bar-chart {
+      width: 100%; height: 120px; margin: 0.7rem 0 0.5rem 0; }
+    .btn {
+      background: #fff; color: var(--accent); border: 1px solid var(--accent); border-radius: var(--radius); padding: 0.7em 1.3em; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.18s, color 0.18s;
+    }
+    .btn:hover { background: var(--accent); color: #fff; }
+    .export-btn {
+      background: #fff; color: var(--accent); border: 1px solid var(--accent); margin-top: 0.5rem; }
+    .export-btn:hover { background: var(--accent); color: #fff; }
+    /* LOGO S&OP CINZA */
+    .navbar .logo svg rect:nth-child(1) { fill: #5A6A7A; }
+    .navbar .logo svg rect:nth-child(2) { fill: #A3A9B8; }
+    .navbar .logo svg rect:nth-child(3) { fill: #BDBDBD; }
+    @media (max-width: 1000px) {
+      .dashboard { grid-template-columns: 1fr; gap: 2rem; }
+      .indicators { flex-direction: column; gap: 1rem; }
+    }
+    @media (max-width: 600px) {
+      .container { padding: 0 0.2rem; }
+      .card { padding: 1rem 0.5rem; }
+      .navbar { flex-direction: column; gap: 0.7rem; padding: 0.7rem 0.5rem; }
+    }
+    @media (max-width: 700px) {
+      .navbar-placeholder { height: 90px; }
+    }
+    /* --- VIESES DASHBOARD --- */
+    .vieses-flex {
+      display: flex;
+      gap: 2.5rem;
+      align-items: flex-start;
+      margin-top: 2.2rem;
+      flex-wrap: wrap;
+    }
+    .vieses-tabela {
+      flex: 2;
+      min-width: 340px;
+    }
+    .vieses-tabela table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px #e0e0e033;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .vieses-tabela th, .vieses-tabela td {
+      padding: 0.85em 1.1em;
+      text-align: left;
+      font-size: 1.04em;
+    }
+    .vieses-tabela th {
+      background: #f3f4f6;
+      color: var(--text);
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+    }
+    .vieses-tabela tr {
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    .vieses-tabela tr:hover {
+      background: #f7faf8;
+    }
+    .vieses-cards {
+      flex: 1.2;
+      min-width: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .vieses-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px #e0e0e033;
+      border: 1px solid var(--border);
+      padding: 1.3rem 1.2rem 1.1rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .vieses-card .radar-title {
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    .vieses-card .radar-svg {
+      display: block;
+      margin: 0 auto;
+    }
+    .vieses-card .exp-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .vieses-card .exp-text {
+      font-size: 1em;
+      color: #555;
+      min-height: 60px;
+    }
+    .vieses-card .feedback-row {
+      margin-top: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+    }
+    .vieses-card .feedback-row span {
+      font-size: 0.98em;
+    }
+    .vieses-card .feedback-row button {
+      font-size: 1.3em;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .vieses-card .feedback-row button:hover {
+      color: var(--accent);
+    }
+    .vieses-actions {
+      display: flex;
+      gap: 1.2rem;
+      margin-top: 1.2rem;
+      justify-content: flex-end;
+    }
+    @media (max-width: 1000px) {
+      .vieses-flex { flex-direction: column; gap: 2rem; }
+      .vieses-cards { flex-direction: row; gap: 1.2rem; }
+      .vieses-card { min-width: 0; width: 100%; }
+    }
+    @media (max-width: 700px) {
+      .vieses-cards { flex-direction: column; }
+      .vieses-flex { gap: 1.2rem; }
+    }
+    .ai-insights-card {
+      background: linear-gradient(90deg, #f7fafc 60%, #e3eaf3 100%);
+      border: none;
+      box-shadow: 0 2px 16px #e0e0e033;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.1rem;
+      margin-bottom: 2.5rem;
+    }
+    .ai-insights-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #5A6A7A;
+    }
+    .ai-robot-icon {
+      flex-shrink: 0;
+    }
+    .ai-insights-content {
+      color: #232323;
+      font-size: 1.05rem;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .ai-insights-modal {
+      position: fixed;
+      left: 24px;
+      bottom: 260px;
+      z-index: 2000;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 24px #5A6A7A22;
+      border-radius: 18px;
+      border: none;
+      padding: 0.8rem 1rem 0.8rem 0.8rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1.1rem;
+      min-width: 180px;
+      max-width: 240px;
+      transition: box-shadow 0.2s, opacity 0.2s, bottom 0.2s;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      opacity: 1;
+    }
+    .ai-insights-modal.minimized {
+      min-width: 0;
+      max-width: none;
+      width: 54px;
+      height: 54px;
+      padding: 0;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 8px #5A6A7A22;
+      cursor: pointer;
+      opacity: 0.85;
+      bottom: 200px !important;
+      left: 24px !important;
+      border-radius: 50%;
+    }
+    .ai-insights-modal.minimized .ai-insights-content,
+    .ai-insights-modal.minimized .ai-insights-header,
+    .ai-insights-modal.minimized .ai-close-btn {
+      display: none !important;
+    }
+    .ai-insights-modal.minimized .ai-robot-icon {
+      margin: 0 auto !important;
+      display: block;
+      width: 44px;
+      height: 44px;
+    }
+    .ai-insights-modal .ai-robot-icon {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+      animation: pulse 2.2s infinite alternate;
+    }
+    @keyframes pulse {
+      0% { filter: drop-shadow(0 0 0px #A3A9B8); }
+      100% { filter: drop-shadow(0 0 8px #5A6A7A); }
+    }
+    .ai-insights-modal .ai-insights-content {
+      color: #232323;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      font-size: 0.97rem;
+      font-weight: 400;
+      line-height: 1.4;
+      flex: 1;
+      margin-top: 0.1rem;
+      letter-spacing: 0.01em;
+      background: rgba(255,255,255,0.45);
+      border-radius: 8px;
+      padding: 0.2rem 0.5rem;
+    }
+    .ai-insights-modal .ai-insights-header {
+      font-size: 1.01rem;
+      font-weight: 600;
+      color: #5A6A7A;
+      margin-bottom: 0.18rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    }
+    .ai-insights-modal .ai-close-btn {
+      background: rgba(200,200,200,0.18);
+      border: none;
+      color: #888;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 0.3rem;
+      margin-top: -0.2rem;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.18s, background 0.18s, transform 0.18s;
+    }
+    .ai-insights-modal .ai-close-btn:hover {
+      color: #5A6A7A;
+      background: #e0e0e0;
+      transform: scale(1.18) rotate(90deg);
+    }
+    @media (max-width: 700px) {
+      .ai-insights-modal { left: 4px; bottom: 4px; min-width: 0; max-width: 98vw; padding: 0.5rem 0.3rem 0.5rem 0.5rem; }
+    }
+    /* --- PREVISÃO DE DEMANDA --- */
+    .demanda-card {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      padding: 2.2rem 2.2rem 2.2rem 2.2rem;
+    }
+    .demanda-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.7rem;
+    }
+    .demanda-title-row .demanda-title {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #232323;
+    }
+    .demanda-title-row .details-link {
+      font-size: 1rem;
+      color: var(--accent);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .demanda-impact-graph {
+      width: 100%;
+      max-width: 700px;
+      height: 260px;
+      margin: 0 auto 1.2rem auto;
+      background: none;
+      display: block;
+      border-radius: 22px;
+      box-shadow: 0 2px 12px #e0e0e022;
+      background: #f7f9fc;
+      padding: 1.2rem 0.5rem 0.5rem 0.5rem;
+    }
+    .demanda-indicadores-row {
+      display: flex;
+      gap: 1.2rem;
+      margin-top: 1.2rem;
+      justify-content: center;
+    }
+    .demanda-indicador {
+      background: #f7f8fa;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      font-size: 1.1rem;
+      color: #232323;
+      min-width: 130px;
+      text-align: center;
+      box-shadow: 0 1px 4px #e0e0e033;
+      border: 1px solid #e0e0e0;
+      font-weight: 600;
+    }
+    .demanda-indicador-label {
+      font-size: 0.95rem;
+      color: #888;
+      font-weight: 400;
+      margin-bottom: 0.2rem;
+      display: block;
+    }
+    .ai-help-icon {
+      width: 32px;
+      height: 32px;
+      margin-left: 0.7rem;
+      cursor: pointer;
+      vertical-align: middle;
+      transition: transform 0.15s;
+      opacity: 0.85;
+    }
+    .ai-help-icon:hover {
+      transform: scale(1.18) rotate(-8deg);
+      opacity: 1;
+    }
+    .ai-tutor-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(40, 40, 60, 0.55);
+      z-index: 4000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: tutorOverlayIn 0.25s;
+    }
+    @keyframes tutorOverlayIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .ai-tutor-modal {
+      background: rgba(255,255,255,0.98);
+      box-shadow: 0 8px 48px #5A6A7A33;
+      border-radius: 22px;
+      padding: 2.2rem 2.5rem 2.2rem 2.2rem;
+      min-width: 320px;
+      max-width: 480px;
+      width: 90vw;
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      font-size: 1.13rem;
+      color: #232323;
+      position: relative;
+      animation: tutorIn 0.3s;
+    }
+    .ai-tutor-modal .ai-robot-icon {
+      width: 54px;
+      height: 54px;
+      flex-shrink: 0;
+      margin-top: 0.2rem;
+      animation: pulse 2.2s infinite alternate;
+    }
+    .ai-tutor-modal .ai-tutor-close {
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 1.7rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 0.7rem;
+      margin-top: -0.7rem;
+      transition: color 0.18s, transform 0.18s;
+      position: absolute;
+      right: 18px;
+      top: 14px;
+    }
+    .ai-tutor-modal .ai-tutor-close:hover {
+      color: #2563eb;
+      transform: scale(1.18) rotate(90deg);
+    }
+    @media (max-width: 600px) {
+      .ai-tutor-modal { padding: 1.1rem 0.5rem 1.1rem 0.7rem; min-width: 0; max-width: 98vw; }
+    }
+    .ai-tutor-modal-nav {
+      display: flex;
+      gap: 1.2rem;
+      margin-top: 1.2rem;
+      justify-content: flex-end;
+    }
+    .ai-tutor-modal-nav button {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.5em 1.3em;
+      font-size: 1rem;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, transform 0.18s;
+      box-shadow: 0 1px 4px 0 #e0e0e033;
+      opacity: 1;
+    }
+    .ai-tutor-modal-nav button:disabled {
+      background: #e0e0e0;
+      color: #888;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.08rem;
+      font-weight: 500;
+      color: #232323;
+      margin-bottom: 0.7rem;
+      letter-spacing: 0.01em;
+    }
+    .ai-help-icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="logo">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="8" height="24" rx="2" fill="#2e7d4f"/><rect x="12" y="8" width="8" height="18" rx="2" fill="#4caf50"/><rect x="22" y="14" width="4" height="12" rx="2" fill="#a5d6a7"/></svg>
+      S&OP
+    </div>
+    <nav id="main-nav">
+      <a href="javascript:void(0)" class="active" data-tab="visao-geral">Visão Geral</a>
+      <a href="javascript:void(0)" data-tab="vieses">Vieses</a>
+      <a href="javascript:void(0)" data-tab="previsao">Previsão</a>
+      <a href="javascript:void(0)" data-tab="otimizacao">Otimização</a>
+    </nav>
+    <div class="user">
+      <svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 16-4 16 0"/></svg>
+      usuário
+    </div>
+  </div>
+  <div class="navbar-placeholder"></div>
+  <div class="container">
+    <div class="filters">
+      <select>
+        <option>Abr - Jun 2024</option>
+        <option>Jan - Mar 2024</option>
+        <option>Out - Dez 2023</option>
+      </select>
+    </div>
+    <!-- Visão Geral -->
+    <div class="tab-content tab-visao-geral">
+      <div class="indicators">
+        <div class="indicator"><strong>91 %</strong><span>Acurácia Geral de Previsão</span></div>
+        <div class="indicator"><strong>85 %</strong><span>% de Stockouts Evitados</span></div>
+        <div class="indicator"><strong>R$ 120 K</strong><span>Economia com Otimização</span></div>
+      </div>
+      <div class="dashboard">
+        <!-- Card 1: Vieses dos Gerentes -->
+        <div class="card">
+          <div class="card-title">
+            <span class="ai-help-trigger" data-modulo="vieses">
+              <svg class="ai-help-icon" viewBox="0 0 40 40" fill="none">
+                <rect x="7" y="13" width="26" height="16" rx="8" fill="#2563eb"/>
+                <circle cx="20" cy="11" r="5" fill="#60a5fa"/>
+                <circle cx="14" cy="23" r="3" fill="#fff"/>
+                <circle cx="26" cy="23" r="3" fill="#fff"/>
+                <rect x="17" y="28" width="6" height="2.5" rx="1.2" fill="#60a5fa"/>
+              </svg>
+            </span>
+            <span>Identificação de Vieses dos Gerentes</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Gerentes</th><th>Perfil</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Ana</td><td>Pessimista</td><td><span class="details-link">Ver Detalhes</span></td></tr>
+              <tr><td>João</td><td>Otimista Estratégico</td><td><span class="details-link">Ver Detalhes</span></td></tr>
+              <tr><td>Maria</td><td>Pessimista</td><td><span class="details-link">Ver Detalhes</span></td></tr>
+              <tr><td>Pedro</td><td>Otimista</td><td><span class="details-link">Ver Detalhes</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Card 2: Previsão de Demanda e Estoque -->
+        <div class="card">
+          <div class="card-title">
+            <span class="ai-help-trigger" data-modulo="previsao">
+              <svg class="ai-help-icon" viewBox="0 0 40 40" fill="none">
+                <rect x="7" y="13" width="26" height="16" rx="8" fill="#2563eb"/>
+                <circle cx="20" cy="11" r="5" fill="#60a5fa"/>
+                <circle cx="14" cy="23" r="3" fill="#fff"/>
+                <circle cx="26" cy="23" r="3" fill="#fff"/>
+                <rect x="17" y="28" width="6" height="2.5" rx="1.2" fill="#60a5fa"/>
+              </svg>
+            </span>
+            <span>Previsão de Demanda e Estoque</span>
+          </div>
+          <div style="margin-bottom:0.5rem;">
+            <select style="font-size:0.98em; padding:0.2em 0.7em; border-radius:6px; border:1px solid var(--gray);">
+              <option>Cluster de Produto</option>
+            </select>
+          </div>
+          <canvas id="graficoVisaoGeral" class="chart-area" height="120"></canvas>
+          <div style="display:flex; gap:1.2rem; font-size:0.95em; color:var(--text-muted); margin-bottom:0.5rem;">
+            <span style="color:#2e7d4f; font-weight:600;">Histórico</span>
+            <span style="color:#4caf50; font-weight:600;">Demanda</span>
+            <span style="color:#a5d6a7; font-weight:600;">Inventário</span>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Modelos Testados</th><th>Erro Absoluto</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>ARIMA</td><td>280</td></tr>
+              <tr><td>GAMLSS</td><td>300</td></tr>
+              <tr><td>Exponencial</td><td>380</td></tr>
+            </tbody>
+          </table>
+          <button class="btn export-btn">Exportar CSV</button>
+        </div>
+        <!-- Card 3: Otimização de Ressuprimento -->
+        <div class="card">
+          <div class="card-title">
+            <span class="ai-help-trigger" data-modulo="otimizacao">
+              <svg class="ai-help-icon" viewBox="0 0 40 40" fill="none">
+                <rect x="7" y="13" width="26" height="16" rx="8" fill="#2563eb"/>
+                <circle cx="20" cy="11" r="5" fill="#60a5fa"/>
+                <circle cx="14" cy="23" r="3" fill="#fff"/>
+                <circle cx="26" cy="23" r="3" fill="#fff"/>
+                <rect x="17" y="28" width="6" height="2.5" rx="1.2" fill="#60a5fa"/>
+              </svg>
+            </span>
+            <span>Otimização de Ressuprimento</span>
+          </div>
+          <div style="margin-bottom:0.5rem;">
+            <select style="font-size:0.98em; padding:0.2em 0.7em; border-radius:6px; border:1px solid var(--gray);">
+              <option>Cluster Rot</option>
+            </select>
+          </div>
+          <canvas id="graficoBarraVisaoGeral" class="bar-chart" height="120"></canvas>
+          <div style="display:flex; gap:1.2rem; font-size:0.95em; color:var(--text-muted); margin-bottom:0.5rem;">
+            <span style="color:#2e7d4f; font-weight:600;">Cenário</span>
+            <span style="color:#a5d6a7; font-weight:600;">Cenário Otimizado</span>
+          </div>
+          <div style="font-size:0.98em; color:var(--text-light); margin-bottom:0.7rem;">
+            Reduzir cobertura de <b>98</b> para <b>60 dias</b> em cluster XY2 reduz em <b>R$ 35 mil</b>
+          </div>
+          <button class="btn">Aprovar Cenário</button>
+        </div>
+      </div>
+      <!-- Card extra: Previsão de Demanda -->
+      <div class="dashboard" style="grid-template-columns: 1fr; gap: 1.5rem;">
+        <div class="card demanda-card">
+          <div class="demanda-title-row">
+            <span class="demanda-title">
+              <span class="ai-help-trigger" data-modulo="previsao">
+                <svg class="ai-help-icon" viewBox="0 0 40 40" fill="none">
+                  <rect x="7" y="13" width="26" height="16" rx="8" fill="#2563eb"/>
+                  <circle cx="20" cy="11" r="5" fill="#60a5fa"/>
+                  <circle cx="14" cy="23" r="3" fill="#fff"/>
+                  <circle cx="26" cy="23" r="3" fill="#fff"/>
+                  <rect x="17" y="28" width="6" height="2.5" rx="1.2" fill="#60a5fa"/>
+                </svg>
+              </span>
+              Previsão de Demanda
+            </span>
+            <span class="details-link">Ver Detalhes</span>
+          </div>
+          <div class="demanda-impact-graph">
+            <canvas id="demandaChart" height="220"></canvas>
+          </div>
+          <div>Cluster de Produto</div>
+          <div class="demanda-indicadores-row">
+            <div class="demanda-indicador">
+              <span class="demanda-indicador-label">Tempo de Resposta</span>
+              7 days
+            </div>
+            <div class="demanda-indicador">
+              <span class="demanda-indicador-label">Custo do Pedido</span>
+              R$ 200
+            </div>
+            <div class="demanda-indicador">
+              <span class="demanda-indicador-label">Custo de Armazenagem</span>
+              R$ 130
+            </div>
+            <div class="demanda-indicador">
+              <span class="demanda-indicador-label">Demanda Prevista</span>
+              1000
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Vieses -->
+    <div class="tab-content tab-vieses" style="display:none;">
+      <div class="vieses-flex">
+        <div class="vieses-tabela">
+          <div style="display:flex; gap:1rem; margin-bottom:1rem;">
+            <select id="filtro-periodo-vieses" style="padding:0.4em 1.2em; border-radius:8px; border:1px solid #e0e0e0;">
+              <option>Trimestre</option>
+              <option>Semestre</option>
+              <option>Ano</option>
+            </select>
+            <select id="filtro-cluster-vieses" style="padding:0.4em 1.2em; border-radius:8px; border:1px solid #e0e0e0;">
+              <option>Cluster de Produto</option>
+              <option>Cluster A</option>
+              <option>Cluster B</option>
+            </select>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Gerente</th><th>Perfil Fuzzy</th><th>Grau de Certeza</th><th>Última-Atualização</th></tr>
+            </thead>
+            <tbody id="tbody-vieses">
+              <!-- preenchido via JS -->
+            </tbody>
+          </table>
+        </div>
+        <div class="vieses-cards">
+          <div class="vieses-card">
+            <div class="radar-title">Previsão Acima/Abaixo</div>
+            <canvas id="graficoRadarVieses" class="radar-svg" width="220" height="220"></canvas>
+          </div>
+          <div class="vieses-card">
+            <div class="exp-title">Explicação</div>
+            <div id="explicacao-vieses" class="exp-text">Selecione um gerente para ver detalhes.</div>
+            <div class="feedback-row">
+              <span>Esse perfil faz sentido?</span>
+              <button id="btn-like">👍</button>
+              <button id="btn-dislike">👎</button>
+            </div>
+            <button class="btn export-btn" style="margin-top:0.7rem;">Exportar Relatório</button>
+          </div>
+        </div>
+      </div>
+      <div class="vieses-actions">
+        <button class="btn" id="btn-recalcular">Recalcular Perfil</button>
+        <button class="btn export-btn">Exportar Relatório</button>
+      </div>
+    </div>
+    <!-- Previsão -->
+    <div class="tab-content tab-previsao" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
+        <select style="padding:0.4em 1.2em; border-radius:8px; border:1px solid #e0e0e0; font-size:1.05em;">
+          <option>Cluster de Produto</option>
+          <option>Cluster A</option>
+          <option>Cluster B</option>
+        </select>
+        <span style="font-size:1.7rem; font-weight:700; margin:auto; text-align:center; flex:1; color:#232323;">Demanda & Estoque</span>
+        <span style="width:180px;"></span>
+      </div>
+      <div class="dashboard" style="grid-template-columns: 2fr 1fr 1fr; gap:1.5rem;">
+        <!-- Seleção de Modelo -->
+        <div class="card" style="grid-column:1/2;">
+          <div style="display:flex; gap:0.7rem; margin-bottom:1rem;">
+            <button class="btn" style="background:#e5e7eb; color:#232323;">Melhor Modelo</button>
+            <button class="btn">ARIMA</button>
+            <button class="btn">SARIMA</button>
+            <button class="btn">LSTM</button>
+            <button class="btn">Caótico</button>
+          </div>
+          <div style="margin-bottom:0.7rem;">
+            <label>Configuração do Modelo Selecionado:</label>
+            <select style="margin-left:0.5em;">
+              <option>ARIMA</option>
+              <option>SARIMA</option>
+              <option>LSTM</option>
+            </select>
+          </div>
+          <div style="margin-bottom:0.7rem;">
+            <label>Explicação do Modelo Selecionado:</label>
+            <div style="font-size:0.97em; color:#555; margin-top:0.3em;">Modelo preditivo premium, melhor absolvição de padrões com baixa sazonalidade e dispersão estratégica.</div>
+          </div>
+        </div>
+        <!-- Gráfico de Previsão -->
+        <div class="card" style="grid-column:2/3;">
+          <div class="section-title">Previsão de Demanda
+            <span class="ai-help-trigger" data-modulo="previsao">
+              <svg class="ai-help-icon" viewBox="0 0 40 40" fill="none">
+                <rect x="7" y="13" width="26" height="16" rx="8" fill="#2563eb"/>
+                <circle cx="20" cy="11" r="5" fill="#60a5fa"/>
+                <circle cx="14" cy="23" r="3" fill="#fff"/>
+                <circle cx="26" cy="23" r="3" fill="#fff"/>
+                <rect x="17" y="28" width="6" height="2.5" rx="1.2" fill="#60a5fa"/>
+              </svg>
+            </span>
+          </div>
+          <canvas id="graficoVisaoGeral" class="chart-area" height="120"></canvas>
+          <div style="display:flex; gap:1.2rem; font-size:0.95em; color:var(--text-muted); margin-bottom:0.5rem;">
+            <span style="color:#232323; font-weight:600;">Atual</span>
+            <span style="color:#888; font-weight:600;">Intervalo de Confiança</span>
+          </div>
+        </div>
+        <!-- Comparação dos Modelos -->
+        <div class="card" style="grid-column:3/4;">
+          <div class="section-title">Comparação dos Modelos</div>
+          <table>
+            <thead>
+              <tr><th>Modelo</th><th>Erro</th><th>Erro %</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>ARIMA</td><td>320</td><td>5%</td></tr>
+              <tr><td>GAMLSS</td><td>410</td><td>11%</td></tr>
+              <tr><td>LSTM</td><td>238</td><td>19%</td></tr>
+            </tbody>
+          </table>
+          <div style="display:flex; gap:0.7rem; margin-top:0.7rem;">
+            <button class="btn">Recalcular</button>
+            <button class="btn">Fixar</button>
+          </div>
+        </div>
+        <!-- Recomendações Inteligentes -->
+        <div class="card" style="grid-column:1/2;">
+          <div class="section-title">Recomendações Inteligentes</div>
+          <div style="font-size:0.98em; color:#555; margin-bottom:0.7rem;">Reduzir cobertura cluster de BB para 7 dias, plano tático minimiza risco de mínimo nível de serviço.</div>
+        </div>
+        <!-- Recomendações Integrantes -->
+        <div class="card" style="grid-column:1/2;">
+          <div class="section-title">Recomendações Integrantes</div>
+          <div style="font-size:0.98em; color:#555; margin-bottom:0.7rem;">Ajustar obsolescência e perdas de estoque de sib/re para R$ 23.600 /s</div>
+        </div>
+        <!-- Simulador de Impacto -->
+        <div class="card" style="grid-column:3/4;">
+          <div class="section-title">Simulador de Impacto</div>
+          <label>Alteração na Sazonalidade <input type="range" min="0" max="100" value="50"></label>
+          <label>Aumento de Preço <input type="range" min="0" max="100" value="0"></label>
+          <label>Promoção Futura <input type="range" min="0" max="100" value="0"></label>
+        </div>
+        <!-- Histórico de Previsão -->
+        <div class="card" style="grid-column:3/4;">
+          <div class="section-title">Histórico de Previsão</div>
+          <ul style="font-size:0.98em; color:var(--text-muted);">
+            <li>7 abr - ARIMA - 91% acurácia</li>
+            <li>18 mar - GAMLSS - 89% acurácia</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- Otimização -->
+    <div class="tab-content tab-otimizacao" style="display:none;">
+      <div class="dashboard" style="grid-template-columns: 1fr;">
+        <div class="card">
+          <div class="card-title">
+            <span class="ai-help-trigger" data-modulo="otimizacao">
+              <svg class="ai-help-icon" viewBox="0 0 40 40" fill="none">
+                <rect x="7" y="13" width="26" height="16" rx="8" fill="#2563eb"/>
+                <circle cx="20" cy="11" r="5" fill="#60a5fa"/>
+                <circle cx="14" cy="23" r="3" fill="#fff"/>
+                <circle cx="26" cy="23" r="3" fill="#fff"/>
+                <rect x="17" y="28" width="6" height="2.5" rx="1.2" fill="#60a5fa"/>
+              </svg>
+            </span>
+            <span>Otimização de Ressuprimento</span>
+          </div>
+          <canvas id="graficoBarraOtimizacao" class="bar-chart" height="120"></canvas>
+          <div style="display:flex; gap:1.2rem; font-size:0.95em; color:var(--text-muted); margin-bottom:0.5rem;">
+            <span style="color:#2e7d4f; font-weight:600;">Cenário</span>
+            <span style="color:#a5d6a7; font-weight:600;">Cenário Otimizado</span>
+          </div>
+          <div style="font-size:0.98em; color:var(--text-light); margin-bottom:0.7rem;">
+            Reduzir cobertura de <b>98</b> para <b>60 dias</b> em cluster XY2 reduz em <b>R$ 35 mil</b>
+          </div>
+          <button class="btn">Aprovar Cenário</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal AI Insights flutuante -->
+  <div id="aiInsightsModal" class="ai-insights-modal">
+    <svg class="ai-robot-icon" viewBox="0 0 64 64" fill="none">
+      <rect x="12" y="20" width="40" height="28" rx="14" fill="#5A6A7A"/>
+      <circle cx="32" cy="16" r="7" fill="#A3A9B8"/>
+      <circle cx="22" cy="36" r="4" fill="#fff"/>
+      <circle cx="42" cy="36" r="4" fill="#fff"/>
+      <rect x="28" y="46" width="8" height="3" rx="1.5" fill="#A3A9B8"/>
+    </svg>
+    <div class="ai-insights-content">
+      <div class="ai-insights-header">
+        🤖 AI Insights
+        <button class="ai-close-btn" id="closeAiInsights" title="Fechar">–</button>
+      </div>
+      <span>LSTM foi o modelo mais preciso neste ciclo.</span>
+    </div>
+  </div>
+
+  <!-- Modal Genérico para Ver Detalhes -->
+  <div id="detalhesModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(40,40,60,0.35); z-index:5000; align-items:center; justify-content:center;">
+    <div id="detalhesModalBox" style="background:#fff; border-radius:18px; box-shadow:0 8px 48px #5A6A7A33; padding:2.2rem 2.5rem; min-width:320px; max-width:90vw; position:relative;">
+      <button id="fecharDetalhesModal" style="position:absolute; top:18px; right:18px; background:none; border:none; font-size:1.7rem; color:#888; cursor:pointer;">×</button>
+      <div id="detalhesModalConteudo">Carregando...</div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Navegação por abas (menu superior)
+      const navLinks = document.querySelectorAll('#main-nav a');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const tab = this.getAttribute('data-tab');
+          
+          // Remove active class from all links
+          navLinks.forEach(l => l.classList.remove('active'));
+          // Add active class to clicked link
+          this.classList.add('active');
+          
+          // Hide all tab contents
+          tabContents.forEach(content => {
+            content.style.display = 'none';
+          });
+          
+          // Show selected tab content
+          const selectedTab = document.querySelector('.tab-' + tab);
+          if (selectedTab) {
+            selectedTab.style.display = '';
+          }
+          
+          // Render specific content if needed
+          if (tab === 'previsao') {
+            renderPrevisao();
+            setTimeout(renderDemandaChart, 100);
+          }
+        });
+      });
+
+      // Modal AI Insights
+      const aiModal = document.getElementById('aiInsightsModal');
+      const closeBtn = document.getElementById('closeAiInsights');
+      let minimized = false;
+
+      function minimizeAiModal() {
+        aiModal.classList.add('minimized');
+        minimized = true;
+      }
+
+      function maximizeAiModal() {
+        aiModal.classList.remove('minimized');
+        minimized = false;
+      }
+
+      // Eventos do modal AI
+      closeBtn.onclick = function(e) {
+        e.stopPropagation();
+        minimizeAiModal();
+      };
+
+      aiModal.onclick = function(e) {
+        if (minimized) {
+          maximizeAiModal();
+        }
+      };
+
+      // Eventos dos ícones de ajuda
+      document.querySelectorAll('.ai-help-trigger').forEach(el => {
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const modulo = this.dataset.modulo;
+          const mensagens = {
+            vieses: 'Identificação de vieses dos gerentes usando lógica fuzzy e análise de padrões de decisão.',
+            previsao: 'Previsão de demanda utilizando modelos estatísticos e machine learning.',
+            otimizacao: 'Otimização de ressuprimento com programação linear e simulação de cenários.'
+          };
+          
+          const mensagem = mensagens[modulo] || 'Informação não disponível para este módulo.';
+          document.querySelector('.ai-insights-content span').textContent = mensagem;
+          
+          maximizeAiModal();
+        };
+      });
+
+      // MOCK DE DADOS
+      const mockData = {
+        kpis: {
+          acuracia: 91,
+          stockouts: 85,
+          economia: 120000
+        },
+        clusters: [
+          { nome: 'Cluster de Produto', demanda: [900, 950, 1000, 1100, 1200], inventario: [1200, 1100, 1050, 1000, 950], historico: [950, 970, 980, 1050, 1150] },
+          { nome: 'Cluster A', demanda: [700, 750, 800, 850, 900], inventario: [900, 850, 800, 780, 750], historico: [800, 820, 830, 840, 860] },
+          { nome: 'Cluster B', demanda: [500, 520, 540, 560, 580], inventario: [600, 590, 580, 570, 560], historico: [550, 555, 560, 570, 580] }
+        ],
+        vieses: [
+          { gerente: 'Ana', perfil: 'Pessimista', explicacao: 'Tende a superestimar riscos e reduzir projeções.', feedback: '' },
+          { gerente: 'João', perfil: 'Otimista Estratégico', explicacao: 'Foca em oportunidades e metas agressivas.', feedback: '' },
+          { gerente: 'Maria', perfil: 'Pessimista', explicacao: 'Conservadora nas previsões, evita surpresas.', feedback: '' },
+          { gerente: 'Pedro', perfil: 'Otimista', explicacao: 'Acredita em crescimento acima da média.', feedback: '' }
+        ],
+        modelos: [
+          { nome: 'ARIMA', erro: 320, erroPerc: '5%', explicacao: 'Modelo ARIMA: bom para séries com tendência e pouca sazonalidade.' },
+          { nome: 'GAMLSS', erro: 410, erroPerc: '11%', explicacao: 'Modelo GAMLSS: flexível para diferentes distribuições de erro.' },
+          { nome: 'LSTM', erro: 238, erroPerc: '19%', explicacao: 'Modelo LSTM: captura padrões não-lineares e dependências longas.' },
+          { nome: 'SARIMA', erro: 350, erroPerc: '8%', explicacao: 'Modelo SARIMA: ideal para séries com forte sazonalidade.' },
+          { nome: 'Caótico', erro: 500, erroPerc: '22%', explicacao: 'Modelo Caótico: explora padrões complexos e imprevisíveis.' }
+        ],
+        ressuprimento: {
+          atual: [430, 390, 350, 320],
+          otimizado: [300, 320, 310, 300],
+          meses: ['Set', 'Out', 'Nov', 'Dez'],
+          economia: 35000,
+          coberturaIni: 98,
+          coberturaFim: 60,
+          cluster: 'XY2'
+        },
+        viesesDetalhados: [
+          {
+            gerente: 'João',
+            perfil: 'Otimista Estratégico',
+            certeza: 82,
+            ultima: '12/04/2025',
+            explicacao: 'João tende a superestimar a demanda no fechamento de trimestre. Porém, em períodos fora do orçamento, apresenta previsões mais equilibradas.',
+            radar: [0.8, 0.7, 0.9, 0.6, 0.8],
+            feedback: null
+          },
+          {
+            gerente: 'Ana',
+            perfil: 'Pessimista',
+            certeza: 91,
+            ultima: '14/04/2025',
+            explicacao: 'Ana é conservadora e prefere errar para menos, evitando riscos de excesso de estoque.',
+            radar: [0.6, 0.8, 0.7, 0.9, 0.7],
+            feedback: null
+          },
+          {
+            gerente: 'Pedro',
+            perfil: 'Orçamentário Flexível',
+            certeza: 75,
+            ultima: '10/04/2025',
+            explicacao: 'Pedro ajusta suas previsões conforme o orçamento, sendo flexível em períodos de incerteza.',
+            radar: [0.7, 0.6, 0.8, 0.7, 0.9],
+            feedback: null
+          }
+        ],
+        historico: [
+          { data: '7 abr', modelo: 'ARIMA', acuracia: '91%' },
+          { data: '18 mar', modelo: 'GAMLSS', acuracia: '89%' }
+        ],
+        recomendacoes: {
+          inteligente: 'Reduzir cobertura cluster de BB para 7 dias, plano tático minimiza risco de mínimo nível de serviço.',
+          integrante: 'Ajustar obsolescência e perdas de estoque de sib/re para R$ 23.600 /s'
+        }
+      };
+
+      // Função para formatar valores
+      function formatMoney(v) { return 'R$ ' + (v/1000).toFixed(0) + ' K'; }
+
+      // Preencher KPIs Visão Geral
+      document.querySelectorAll('.tab-visao-geral .indicator')[0].querySelector('strong').textContent = mockData.kpis.acuracia + ' %';
+      document.querySelectorAll('.tab-visao-geral .indicator')[1].querySelector('strong').textContent = mockData.kpis.stockouts + ' %';
+      document.querySelectorAll('.tab-visao-geral .indicator')[2].querySelector('strong').textContent = formatMoney(mockData.kpis.economia);
+
+      // Funções de renderização
+      function renderVieses(tbodySel) {
+        const tbody = document.querySelector(tbodySel);
+        tbody.innerHTML = '';
+        mockData.vieses.forEach(v => {
+          tbody.innerHTML += `<tr><td>${v.gerente}</td><td>${v.perfil}</td><td><span class="details-link" onclick="showExplicacao('${v.gerente}')">Ver Detalhes</span></td></tr>`;
+        });
+      }
+      renderVieses('.tab-visao-geral tbody');
+      renderVieses('.tab-vieses tbody');
+
+      window.showExplicacao = function(gerente) {
+        const v = mockData.vieses.find(x => x.gerente === gerente);
+        if (!v) return;
+        const explicacao = `${v.gerente}: ${v.explicacao}`;
+        const feedback = prompt(explicacao + '\n\nDeixe um feedback para ajuste fino:', v.feedback || '');
+        if (feedback !== null) v.feedback = feedback;
+      };
+
+      function renderModelos(tbodySel) {
+        const tbody = document.querySelector(tbodySel);
+        tbody.innerHTML = '';
+        mockData.modelos.forEach(m => {
+          tbody.innerHTML += `<tr><td>${m.nome}</td><td>${m.erro}</td></tr>`;
+        });
+      }
+      renderModelos('.tab-visao-geral .card:nth-child(2) table tbody');
+
+      function renderChart(clusterIdx = 0) {
+        const c = mockData.clusters[clusterIdx];
+        const svg = document.querySelector('.tab-visao-geral .chart-area');
+        function points(arr, yBase=100, scale=0.05) {
+          return arr.map((v,i) => `${i*50},${yBase-(v-c.demanda[0])*scale}`).join(' ');
+        }
+        svg.innerHTML = `
+          <polyline fill="var(--chart-pink)" stroke="var(--chart-pink)" stroke-width="2" points="0,100 250,100 250,120 0,120"/>
+          <polyline fill="none" stroke="var(--chart-blue)" stroke-width="3" points="${points(c.historico)}"/>
+          <polyline fill="none" stroke="var(--chart-purple)" stroke-width="3" points="${points(c.demanda,100,0.07)}"/>
+          <polyline fill="none" stroke="var(--chart-orange)" stroke-width="3" points="${points(c.inventario,100,0.07)}"/>
+        `;
+      }
+      renderChart();
+
+      function renderBarChart(sel) {
+        const r = mockData.ressuprimento;
+        const svg = document.querySelector(sel);
+        svg.innerHTML = '';
+        for(let i=0;i<r.atual.length;i++) {
+          svg.innerHTML += `<rect x="${30+i*50}" y="${120-r.atual[i]*0.25}" width="20" height="${r.atual[i]*0.25}" fill="var(--chart-blue)"/>`;
+          svg.innerHTML += `<rect x="${55+i*50}" y="${120-r.otimizado[i]*0.25}" width="20" height="${r.otimizado[i]*0.25}" fill="var(--chart-purple)"/>`;
+        }
+        svg.innerHTML += `<polyline fill="none" stroke="var(--chart-orange)" stroke-width="3" points="${r.atual.map((v,i)=>`${40+i*50},${120-v*0.25}`).join(' ')}"/>`;
+      }
+      renderBarChart('.tab-visao-geral .bar-chart');
+      renderBarChart('.tab-otimizacao .bar-chart');
+
+      document.querySelectorAll('.tab-visao-geral .card:nth-child(3) div[style*="font-size"]')[0].innerHTML =
+        `Reduzir cobertura de <b>${mockData.ressuprimento.coberturaIni}</b> para <b>${mockData.ressuprimento.coberturaFim} dias</b> em cluster ${mockData.ressuprimento.cluster} reduz em <b>${formatMoney(mockData.ressuprimento.economia)}</b>`;
+      document.querySelectorAll('.tab-otimizacao .card .section-title')[0].insertAdjacentHTML('afterend',
+        `<div style="font-size:0.98em; color:var(--text-light); margin-bottom:0.7rem;">
+          Reduzir cobertura de <b>${mockData.ressuprimento.coberturaIni}</b> para <b>${mockData.ressuprimento.coberturaFim} dias</b> em cluster ${mockData.ressuprimento.cluster} reduz em <b>${formatMoney(mockData.ressuprimento.economia)}</b>
+        </div>`);
+
+      // Vieses detalhados
+      function renderViesesDetalhados() {
+        const tbody = document.getElementById('tbody-vieses');
+        tbody.innerHTML = '';
+        mockData.viesesDetalhados.forEach((v, idx) => {
+          tbody.innerHTML += `<tr style="cursor:pointer;" onclick="selectGerente(${idx})"><td>${v.gerente}</td><td>${v.perfil}</td><td>${v.certeza} %</td><td>${v.ultima}</td></tr>`;
+        });
+      }
+      renderViesesDetalhados();
+
+      let gerenteSelecionado = null;
+      window.selectGerente = function(idx) {
+        gerenteSelecionado = mockData.viesesDetalhados[idx];
+        document.getElementById('explicacao-vieses').textContent = gerenteSelecionado.explicacao;
+        renderRadar(gerenteSelecionado.radar);
+      };
+      function renderRadar(valores) {
+        const labels = ['Média da Equipe', 'Variação por Cluster', 'Previsão do Cluster', 'Erro Absoluto Médio', 'Previsão Acima/Abaixo'];
+        const cx = 110, cy = 110, r = 80;
+        const svg = document.getElementById('graficoRadarVieses');
+        svg.innerHTML = '';
+        for(let i=0;i<5;i++) {
+          const ang = (Math.PI*2/5)*i - Math.PI/2;
+          const x = cx + Math.cos(ang)*r;
+          const y = cy + Math.sin(ang)*r;
+          svg.innerHTML += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#bbb"/>`;
+          const lx = cx + Math.cos(ang)*(r+18);
+          const ly = cy + Math.sin(ang)*(r+18);
+          svg.innerHTML += `<text x="${lx}" y="${ly}" font-size="12" text-anchor="middle" fill="#555">${labels[i]}</text>`;
+        }
+        for(let f=0;f<2;f++) {
+          let pts = [];
+          for(let i=0;i<5;i++) {
+            const ang = (Math.PI*2/5)*i - Math.PI/2;
+            const rr = r * (f ? valores[i] : 1);
+            pts.push([cx + Math.cos(ang)*rr, cy + Math.sin(ang)*rr]);
+          }
+          svg.innerHTML += `<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="${f? '#2e7d4f33':'#e0e0e022'}" stroke="#2e7d4f" stroke-width="${f?2:1}" />`;
+        }
+      }
+      selectGerente(0);
+
+      document.getElementById('btn-like').onclick = function() {
+        if (gerenteSelecionado) gerenteSelecionado.feedback = 'like';
+        alert('Obrigado pelo feedback!');
+      };
+      document.getElementById('btn-dislike').onclick = function() {
+        if (gerenteSelecionado) gerenteSelecionado.feedback = 'dislike';
+        alert('Obrigado pelo feedback!');
+      };
+      document.getElementById('btn-recalcular').onclick = function() {
+        alert('Recalcular perfil: lógica fuzzy será reexecutada (mock).');
+      };
+
+      // === PREVISÃO: NOVO LAYOUT ===
+      function renderPrevisaoKPIs() {
+        const kpis = [
+          { valor: mockData.kpis.acuracia + ' %', label: 'Acurácia' },
+          { valor: mockData.modelos[0].erro, label: 'Erro Médio' },
+          { valor: '12/04/2025', label: 'Última Execução' }
+        ];
+        document.querySelectorAll('.tab-previsao .indicator').forEach((el, i) => {
+          el.querySelector('strong').textContent = kpis[i].valor;
+          el.querySelector('span').textContent = kpis[i].label;
+        });
+      }
+      function renderPrevisaoChart(clusterIdx = 0) {
+        const c = mockData.clusters[clusterIdx];
+        const svg = document.querySelector('.tab-previsao .chart-area');
+        function points(arr, yBase=100, scale=0.07) {
+          return arr.map((v,i) => `${i*50},${yBase-(v-c.demanda[0])*scale}`).join(' ');
+        }
+        svg.innerHTML = `
+          <polyline fill="var(--chart-pink)" stroke="var(--chart-pink)" stroke-width="2" points="0,100 250,100 250,120 0,120"/>
+          <polyline fill="none" stroke="var(--chart-blue)" stroke-width="3" points="${points(c.historico)}"/>
+          <polyline fill="none" stroke="var(--chart-purple)" stroke-width="3" points="${points(c.demanda)}"/>
+          <polyline fill="none" stroke="var(--chart-orange)" stroke-width="3" points="${points(c.inventario)}"/>
+        `;
+      }
+      function renderPrevisaoModelos() {
+        const tbody = document.querySelector('.tab-previsao table tbody');
+        tbody.innerHTML = '';
+        mockData.modelos.forEach((m, i) => {
+          tbody.innerHTML += `<tr><td>${m.nome}</td><td>${m.erro}</td><td>${m.erroPerc}</td></tr>`;
+        });
+      }
+      function renderPrevisaoHistorico() {
+        const ul = document.querySelector('.tab-previsao ul');
+        ul.innerHTML = '';
+        ul.innerHTML += '<li>7 abr - ARIMA - 91% acurácia</li>';
+        ul.innerHTML += '<li>18 mar - GAMLSS - 89% acurácia</li>';
+      }
+
+      // Estado global para Previsão
+      let clusterIdx = 0;
+      let modeloSelecionado = 0;
+
+      // Função para renderizar a aba Previsão
+      function renderPrevisao() {
+        // ... (código de renderização do gráfico, tabelas, explicação, etc) ...
+        // Botões de modelo (apenas dentro da aba Previsão)
+        const botoesModelo = Array.from(document.querySelectorAll('.tab-previsao .card button')).filter(btn => btn.textContent.match(/ARIMA|SARIMA|LSTM|Caótico/));
+        botoesModelo.forEach((btn, idx) => {
+          btn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            modeloSelecionado = idx;
+            botoesModelo.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            renderPrevisao();
+          };
+        });
+        // ... (restante da renderização dinâmica) ...
+        renderDemandaChart();
+      }
+
+      // Inicialização padrão
+      document.querySelectorAll('.tab-content').forEach(function(tab) {
+        if (tab.classList.contains('tab-visao-geral')) {
+          tab.style.display = '';
+        } else {
+          tab.style.display = 'none';
+        }
+      });
+      renderPrevisao();
+
+      // Tutor Virtual: textos explicativos por módulo
+      const tutorTextos = {
+        previsao: [
+          'Aqui você visualiza a previsão de vendas e estoque para os próximos períodos, baseada em modelos estatísticos e IA. Analise tendências e tome decisões mais assertivas.',
+          'O gráfico mostra a evolução da demanda prevista e do estoque. Use os indicadores para comparar cenários e ajustar seu planejamento.',
+          'Clique nos ícones de AI para receber explicações detalhadas sobre cada funcionalidade do módulo.'
+        ],
+        otimizacao: [
+          'O módulo de Otimização sugere cenários para reduzir custos e melhorar o abastecimento, simulando diferentes estratégias de ressuprimento.',
+          'Veja o impacto de diferentes políticas de estoque e cobertura. Aproveite as recomendações inteligentes para maximizar a eficiência.',
+          'Use o simulador para testar alterações em sazonalidade, preço e promoções.'
+        ],
+        vieses: [
+          'Esta área identifica padrões de decisão dos gerentes, ajudando a entender e corrigir vieses que afetam o planejamento.',
+          'Analise o perfil fuzzy de cada gerente e veja como os vieses influenciam as previsões.',
+          'Dê feedback sobre os perfis para aprimorar o modelo de IA.'
+        ]
+      };
+      let dicaAtual = 0;
+      let dicasModulo = [];
+      let moduloAtual = '';
+      // Função para mostrar o balão do tutor
+      function mostrarTutor(modulo) {
+        removerTutor();
+        dicasModulo = tutorTextos[modulo] || ['Módulo não encontrado.'];
+        dicaAtual = 0;
+        moduloAtual = modulo;
+        renderTutorModal();
+      }
+      function renderTutorModal() {
+        removerTutor();
+        const overlay = document.createElement('div');
+        overlay.className = 'ai-tutor-overlay';
+        overlay.innerHTML = `
+          <div class="ai-tutor-modal">
+            <svg class="ai-robot-icon" viewBox="0 0 64 64" fill="none">
+              <rect x="12" y="20" width="40" height="28" rx="14" fill="#5A6A7A"/>
+              <circle cx="32" cy="16" r="7" fill="#A3A9B8"/>
+              <circle cx="22" cy="36" r="4" fill="#fff"/>
+              <circle cx="42" cy="36" r="4" fill="#fff"/>
+              <rect x="28" y="46" width="8" height="3" rx="1.5" fill="#A3A9B8"/>
+            </svg>
+            <div style="flex:1;">
+              <button class="ai-tutor-close" title="Fechar">×</button>
+              <div style="margin-bottom:0.7rem; font-weight:600; color:#2563eb; font-size:1.18rem;">Tutor Virtual</div>
+              <div id="ai-tutor-dica">${dicasModulo[dicaAtual]}</div>
+              <div class="ai-tutor-modal-nav">
+                <button id="ai-tutor-prev" ${dicaAtual === 0 ? 'disabled' : ''}>Anterior</button>
+                <button id="ai-tutor-next" ${dicaAtual === dicasModulo.length - 1 ? 'disabled' : ''}>Próxima</button>
+              </div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+        overlay.querySelector('.ai-tutor-close').onclick = removerTutor;
+        overlay.querySelector('#ai-tutor-prev').onclick = function(e) {
+          e.stopPropagation();
+          if (dicaAtual > 0) {
+            dicaAtual--;
+            renderTutorModal();
+          }
+        };
+        overlay.querySelector('#ai-tutor-next').onclick = function(e) {
+          e.stopPropagation();
+          if (dicaAtual < dicasModulo.length - 1) {
+            dicaAtual++;
+            renderTutorModal();
+          }
+        };
+      }
+      function removerTutor() {
+        const exist = document.querySelector('.ai-tutor-overlay');
+        if (exist) exist.remove();
+      }
+      document.querySelectorAll('.ai-help-trigger').forEach(el => {
+        el.onclick = function(e) {
+          e.stopPropagation();
+          mostrarTutor(this.dataset.modulo);
+        };
+      });
+      // Fecha tutor ao clicar no overlay
+      document.addEventListener('click', function(e) {
+        if (e.target.classList && e.target.classList.contains('ai-tutor-overlay')) {
+          removerTutor();
+        }
+      });
+
+      // Gráfico interativo Chart.js para Previsão de Demanda
+      // REMOVIDO: document.addEventListener('DOMContentLoaded', function() { ... criação direta do Chart ... });
+
+      // Função para renderizar o gráfico Chart.js de Previsão de Demanda
+      function renderDemandaChart() {
+        console.log('Chamando renderDemandaChart (Chart.js)'); // Depuração
+        const canvas = document.getElementById('demandaChart');
+        if (!canvas || canvas.offsetParent === null) return;
+        const ctx = canvas.getContext('2d');
+        if (window.demandaChartInstance) window.demandaChartInstance.destroy();
+        window.demandaChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+            datasets: [
+              { label: 'Prevista', data: [800, 950, 1000, 900, 1100, 1200], borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', tension: 0.4, fill: true },
+              { label: 'Estoque', data: [700, 850, 900, 800, 950, 1000], borderColor: '#94a3b8', backgroundColor: 'rgba(148,163,184,0.08)', borderDash: [6,6], tension: 0.4, fill: false }
+            ]
+          },
+          options: { plugins: { legend: { display: true, position: 'bottom' } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
+        });
+        // TESTE VISUAL: adicionar texto após o canvas
+        canvas.insertAdjacentHTML('afterend', '<div style="color:red;font-size:20px">TESTE VISUAL</div>');
+      }
+
+      function mostrarAbaVisaoGeral() {
+        document.querySelectorAll('.tab-content').forEach(function(tab) {
+          tab.style.display = tab.classList.contains('tab-visao-geral') ? '' : 'none';
+        });
+        setTimeout(renderDemandaChart, 100);
+      }
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const tab = this.getAttribute('data-tab');
+          navLinks.forEach(l => l.classList.remove('active'));
+          this.classList.add('active');
+          tabContents.forEach(content => content.style.display = 'none');
+          const selectedTab = document.querySelector('.tab-' + tab);
+          if (selectedTab) selectedTab.style.display = '';
+          // Chame renderDemandaChart após exibir a aba Visão Geral
+          if (tab === 'visao-geral') setTimeout(renderDemandaChart, 400);
+          if (tab === 'previsao') renderPrevisao();
+        });
+      });
+
+      // Garante que o gráfico seja renderizado na primeira carga, se a aba Visão Geral estiver ativa
+      window.addEventListener('DOMContentLoaded', function() {
+        if (document.querySelector('.tab-visao-geral').style.display !== 'none') {
+          setTimeout(renderDemandaChart, 300);
+        }
+      });
+    });
+
+    // Função para abrir o modal de detalhes
+    function abrirDetalhesModal(conteudoHtml, tipoGrafico, dadosGrafico) {
+      document.getElementById('detalhesModalConteudo').innerHTML = conteudoHtml + '<canvas id="modalChart" height="220" style="margin-top:1.5rem;"></canvas>';
+      document.getElementById('detalhesModal').style.display = 'flex';
+      setTimeout(function() {
+        renderModalChart(tipoGrafico, dadosGrafico);
+      }, 100);
+    }
+
+    // Função para renderizar o gráfico no modal
+    function renderModalChart(tipo, dados) {
+      const ctx = document.getElementById('modalChart');
+      if (!ctx) return;
+      if (window.modalChartInstance) window.modalChartInstance.destroy();
+      if (tipo === 'linha') {
+        window.modalChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+            datasets: [
+              { label: 'Demanda Prevista', data: [800, 950, 1000, 900, 1100, 1200], borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', tension: 0.4, fill: true },
+              { label: 'Estoque', data: [700, 850, 900, 800, 950, 1000], borderColor: '#94a3b8', backgroundColor: 'rgba(148,163,184,0.08)', borderDash: [6,6], tension: 0.4, fill: false }
+            ]
+          },
+          options: { plugins: { legend: { display: true, position: 'bottom' } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
+        });
+      } else if (tipo === 'radar') {
+        window.modalChartInstance = new Chart(ctx, {
+          type: 'radar',
+          data: {
+            labels: ['Equipe', 'Cluster', 'Previsão', 'Erro Médio', 'Acima/Abaixo'],
+            datasets: [
+              { label: 'Perfil Fuzzy', data: dados || [0.7,0.8,0.6,0.9,0.7], backgroundColor: 'rgba(37,99,235,0.18)', borderColor: '#2563eb', pointBackgroundColor: '#2563eb' }
+            ]
+          },
+          options: { plugins: { legend: { display: false } }, scales: { r: { min: 0, max: 1, ticks: { stepSize: 0.2 } } } }
+        });
+      } else if (tipo === 'barras') {
+        window.modalChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['A', 'B', 'C', 'D'],
+            datasets: [
+              { label: 'Distribuição', data: [12, 19, 7, 14], backgroundColor: ['#2563eb','#60a5fa','#a3a9b8','#f7b267'] }
+            ]
+          },
+          options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+      }
+    }
+
+    // Adicionar eventos aos links 'Ver Detalhes'
+    document.querySelectorAll('.details-link').forEach(function(link) {
+      link.onclick = function(e) {
+        e.preventDefault();
+        let conteudo = '';
+        let tipoGrafico = 'barras';
+        let dadosGrafico = null;
+        // Personalize o conteúdo e gráfico conforme a seção
+        if (this.closest('.demanda-card')) {
+          conteudo = `<h2>Detalhes da Previsão de Demanda</h2><p>Veja a tendência da demanda prevista e do estoque para o período selecionado.</p>`;
+          tipoGrafico = 'linha';
+        } else if (this.closest('.card-title') && this.closest('.card-title').textContent.includes('Vieses')) {
+          conteudo = `<h2>Detalhes dos Vieses</h2><p>Perfil fuzzy do gerente selecionado, mostrando variações e padrões de decisão.</p>`;
+          tipoGrafico = 'radar';
+          // Exemplo: pegar dados do gerente selecionado se disponível
+          if (window.gerenteSelecionado && window.gerenteSelecionado.radar) {
+            dadosGrafico = window.gerenteSelecionado.radar;
+          }
+        } else {
+          conteudo = `<h2>Detalhes</h2><p>Distribuição de dados para esta seção.</p>`;
+          tipoGrafico = 'barras';
+        }
+        abrirDetalhesModal(conteudo, tipoGrafico, dadosGrafico);
+      };
+    });
+
+    // Fechar modal ao clicar no X ou fora da caixa
+    const modal = document.getElementById('detalhesModal');
+    document.getElementById('fecharDetalhesModal').onclick = function() {
+      modal.style.display = 'none';
+      // Re-renderiza o gráfico principal se a aba Visão Geral estiver ativa
+      if (document.querySelector('.tab-visao-geral').style.display !== 'none') {
+        setTimeout(renderDemandaChart, 100);
+      }
+    };
+    modal.onclick = function(e) {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+        // Re-renderiza o gráfico principal se a aba Visão Geral estiver ativa
+        if (document.querySelector('.tab-visao-geral').style.display !== 'none') {
+          setTimeout(renderDemandaChart, 100);
+        }
+      }
+    };
+
+    // Instâncias globais dos gráficos
+    let chartVisaoGeral = null;
+    let chartBarraVisaoGeral = null;
+    let chartBarraOtimizacao = null;
+    let chartRadarVieses = null;
+
+    function renderGraficoVisaoGeral() {
+      const canvas = document.getElementById('graficoVisaoGeral');
+      if (!canvas || canvas.offsetParent === null) return;
+      if (chartVisaoGeral) chartVisaoGeral.destroy();
+      chartVisaoGeral = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+          datasets: [
+            { label: 'Demanda', data: [900, 950, 1000, 1100, 1200, 1250], borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', tension: 0.4, fill: true },
+            { label: 'Estoque', data: [1200, 1100, 1050, 1000, 950, 900], borderColor: '#94a3b8', backgroundColor: 'rgba(148,163,184,0.08)', borderDash: [6,6], tension: 0.4, fill: false }
+          ]
+        },
+        options: { plugins: { legend: { display: true, position: 'bottom' } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
+      });
+    }
+
+    function renderGraficoBarraVisaoGeral() {
+      const canvas = document.getElementById('graficoBarraVisaoGeral');
+      if (!canvas || canvas.offsetParent === null) return;
+      if (chartBarraVisaoGeral) chartBarraVisaoGeral.destroy();
+      chartBarraVisaoGeral = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ['Set', 'Out', 'Nov', 'Dez'],
+          datasets: [
+            { label: 'Atual', data: [430, 390, 350, 320], backgroundColor: '#5A6A7A' },
+            { label: 'Otimizado', data: [300, 320, 310, 300], backgroundColor: '#A3A9B8' }
+          ]
+        },
+        options: { plugins: { legend: { display: true, position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
+      });
+    }
+
+    function renderGraficoBarraOtimizacao() {
+      const canvas = document.getElementById('graficoBarraOtimizacao');
+      if (!canvas || canvas.offsetParent === null) return;
+      if (chartBarraOtimizacao) chartBarraOtimizacao.destroy();
+      chartBarraOtimizacao = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ['Set', 'Out', 'Nov', 'Dez'],
+          datasets: [
+            { label: 'Atual', data: [430, 390, 350, 320], backgroundColor: '#5A6A7A' },
+            { label: 'Otimizado', data: [300, 320, 310, 300], backgroundColor: '#A3A9B8' }
+          ]
+        },
+        options: { plugins: { legend: { display: true, position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
+      });
+    }
+
+    function renderGraficoRadarVieses(valores) {
+      const canvas = document.getElementById('graficoRadarVieses');
+      if (!canvas || canvas.offsetParent === null) return;
+      if (chartRadarVieses) chartRadarVieses.destroy();
+      chartRadarVieses = new Chart(canvas.getContext('2d'), {
+        type: 'radar',
+        data: {
+          labels: ['Média da Equipe', 'Variação por Cluster', 'Previsão do Cluster', 'Erro Absoluto Médio', 'Previsão Acima/Abaixo'],
+          datasets: [
+            { label: 'Perfil', data: valores || [0.7, 0.8, 0.6, 0.9, 0.7], backgroundColor: 'rgba(37,99,235,0.18)', borderColor: '#2563eb', pointBackgroundColor: '#2563eb' }
+          ]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { r: { min: 0, max: 1, ticks: { stepSize: 0.2 } } } }
+      });
+    }
+
+    // Chamada dos gráficos ao exibir as abas
+    function mostrarAba(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      document.querySelector('.tab-' + tab).style.display = '';
+      setTimeout(() => {
+        if (tab === 'visao-geral') {
+          renderGraficoVisaoGeral();
+          renderGraficoBarraVisaoGeral();
+        }
+        if (tab === 'otimizacao') {
+          renderGraficoBarraOtimizacao();
+        }
+        if (tab === 'vieses') {
+          // Exemplo: valores mockados, pode ser substituído por dados reais do gerente selecionado
+          renderGraficoRadarVieses([0.8, 0.7, 0.9, 0.6, 0.8]);
+        }
+      }, 300);
+    }
+
+    // Substituir navegação existente para usar mostrarAba
+    const navLinks = document.querySelectorAll('#main-nav a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tab = this.getAttribute('data-tab');
+        navLinks.forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+        mostrarAba(tab);
+      });
+    });
+
+    // Renderizar gráficos na primeira carga se necessário
+    window.addEventListener('DOMContentLoaded', function() {
+      if (document.querySelector('.tab-visao-geral').style.display !== 'none') {
+        setTimeout(() => {
+          renderGraficoVisaoGeral();
+          renderGraficoBarraVisaoGeral();
+        }, 300);
+      }
+    });
+  </script>
+</body>
+</html> 
