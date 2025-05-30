@@ -1,0 +1,251 @@
+:root {
+  --bg: #F7F8FA;
+  --card: #FFF;
+  --primary: #44484B;
+  --accent: #5A6A7A;
+  --gray: #E0E0E0;
+  --text: #232323;
+  --text-light: #55585c;
+  --text-muted: #888;
+  --border: #E0E0E0;
+  --radius: 12px;
+  --chart-blue: #5A6A7A;
+  --chart-purple: #A3A9B8;
+  --chart-orange: #F7B267;
+  --chart-pink: #E06C9F;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text-light);
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+}
+
+/* Navbar */
+.navbar {
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 2rem;
+  font-size: 1.08rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  z-index: 100;
+}
+
+.navbar .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.navbar nav {
+  display: flex;
+  gap: 2rem;
+}
+
+.navbar nav a {
+  color: #fff;
+  text-decoration: none;
+  opacity: 0.85;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.navbar nav a:hover,
+.navbar nav a.active {
+  opacity: 1;
+  border-bottom: 2px solid var(--accent);
+}
+
+.navbar .user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.navbar .user svg {
+  vertical-align: middle;
+}
+
+.navbar-placeholder {
+  height: 64px;
+  width: 100%;
+}
+
+/* Container e Layout */
+.container {
+  max-width: 1200px;
+  margin: 2.5rem auto 0 auto;
+  padding: 0 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Filtros */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.filters select {
+  padding: 0.4em 1.2em;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text-light);
+  font-size: 1rem;
+}
+
+/* Dashboard */
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px #e0e0e022;
+  padding: 2.2rem 1.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+
+/* Indicadores */
+.indicators {
+  display: flex;
+  gap: 2.2rem;
+  justify-content: space-between;
+  margin-bottom: 2.2rem;
+}
+
+.indicator {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.2rem;
+  min-width: 120px;
+  text-align: center;
+  border: 1px solid var(--border);
+  flex: 1;
+}
+
+.indicator strong {
+  font-size: 1.7rem;
+  color: var(--accent);
+  display: block;
+}
+
+.indicator span {
+  font-size: 0.98rem;
+  color: var(--text-muted);
+}
+
+/* Tabelas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+th, td {
+  padding: 0.5em 0.7em;
+  text-align: left;
+  border-bottom: 1px solid var(--gray);
+}
+
+th {
+  color: var(--text);
+  font-weight: 600;
+  background: #f3f4f6;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* Botões */
+.btn {
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 0.7em 1.3em;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.export-btn {
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  margin-top: 0.5rem;
+}
+
+.export-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Responsividade */
+@media (max-width: 1000px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .indicators {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 0 0.2rem;
+  }
+  .card {
+    padding: 1rem 0.5rem;
+  }
+  .navbar {
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 0.7rem 0.5rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .navbar-placeholder {
+    height: 90px;
+  }
+} 
