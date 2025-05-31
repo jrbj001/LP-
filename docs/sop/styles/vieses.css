@@ -1,0 +1,141 @@
+.vieses-flex {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+  margin-top: 2.2rem;
+  flex-wrap: wrap;
+}
+
+.vieses-tabela {
+  flex: 2;
+  min-width: 340px;
+}
+
+.vieses-tabela table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #e0e0e033;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.vieses-tabela th,
+.vieses-tabela td {
+  padding: 0.85em 1.1em;
+  text-align: left;
+  font-size: 1.04em;
+}
+
+.vieses-tabela th {
+  background: #f3f4f6;
+  color: var(--text);
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+}
+
+.vieses-tabela tr {
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.vieses-tabela tr:hover {
+  background: #f7faf8;
+}
+
+.vieses-cards {
+  flex: 1.2;
+  min-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.vieses-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #e0e0e033;
+  border: 1px solid var(--border);
+  padding: 1.3rem 1.2rem 1.1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.vieses-card .radar-title {
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.vieses-card .radar-svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.vieses-card .exp-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.vieses-card .exp-text {
+  font-size: 1em;
+  color: #555;
+  min-height: 60px;
+}
+
+.vieses-card .feedback-row {
+  margin-top: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+}
+
+.vieses-card .feedback-row span {
+  font-size: 0.98em;
+}
+
+.vieses-card .feedback-row button {
+  font-size: 1.3em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.vieses-card .feedback-row button:hover {
+  color: var(--accent);
+}
+
+.vieses-actions {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 1.2rem;
+  justify-content: flex-end;
+}
+
+@media (max-width: 1000px) {
+  .vieses-flex {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .vieses-cards {
+    flex-direction: row;
+    gap: 1.2rem;
+  }
+  .vieses-card {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .vieses-cards {
+    flex-direction: column;
+  }
+  .vieses-flex {
+    gap: 1.2rem;
+  }
+} 
