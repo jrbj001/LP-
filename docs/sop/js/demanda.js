@@ -18,7 +18,7 @@ class DemandaManager {
   }
 
   initChart() {
-    const ctx = document.getElementById('demandaImpactChart');
+    const ctx = document.getElementById('demandaChart');
     if (!ctx) return;
 
     this.chart = new Chart(ctx, {

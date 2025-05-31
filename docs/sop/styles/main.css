@@ -188,6 +188,11 @@ tr:last-child td {
   border-bottom: none;
 }
 
+table tr:hover {
+  background: #eaf1fb;
+  transition: background 0.18s;
+}
+
 /* Botões */
 .btn {
   background: #fff;
@@ -248,4 +253,13 @@ tr:last-child td {
   .navbar-placeholder {
     height: 90px;
   }
+}
+
+.details-link svg {
+  transition: transform 0.18s, stroke 0.18s;
+  cursor: pointer;
+}
+.details-link:hover svg {
+  transform: scale(1.22) rotate(-7deg);
+  stroke: #1746a2;
 } 

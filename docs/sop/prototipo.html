@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Protótipo S&OP Inteligente</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="styles/main.css">
-  <link rel="stylesheet" href="styles/vieses.css">
-  <link rel="stylesheet" href="styles/ai-insights.css">
-  <link rel="stylesheet" href="styles/demanda.css">
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="stylesheet" href="./styles/vieses.css">
+  <link rel="stylesheet" href="./styles/ai-insights.css">
+  <link rel="stylesheet" href="./styles/demanda.css">
+  <link rel="stylesheet" href="./styles/onboarding.css">
 </head>
 <body>
   <div class="navbar">
@@ -21,10 +22,11 @@
       <a href="javascript:void(0)" data-tab="vieses">Vieses</a>
       <a href="javascript:void(0)" data-tab="previsao">Previsão</a>
       <a href="javascript:void(0)" data-tab="otimizacao">Otimização</a>
+      <button id="resetTour" class="nav-reset-btn" title="Reiniciar Tour">🔄 Tour</button>
     </nav>
     <div class="user">
       <svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 16-4 16 0"/></svg>
-      usuário
+      <span>usuário</span>
     </div>
   </div>
   <div class="navbar-placeholder"></div>
@@ -35,6 +37,17 @@
         <option>Jan - Mar 2024</option>
         <option>Out - Dez 2023</option>
       </select>
+      <!-- Ícone de simulação IA -->
+      <span id="icone-simular-ia" class="ai-help-trigger" data-modulo="simulacao" style="cursor:pointer; margin-left:1.2rem; vertical-align:middle; display:inline-flex; align-items:center; gap:0.5rem;" title="Simular Cenário com IA">
+        <svg class="ai-help-icon" width="32" height="32" viewBox="0 0 64 64" fill="none">
+          <rect x="12" y="20" width="40" height="28" rx="14" fill="#2563eb"/>
+          <circle cx="32" cy="16" r="7" fill="#60a5fa"/>
+          <circle cx="22" cy="36" r="4" fill="#fff"/>
+          <circle cx="42" cy="36" r="4" fill="#fff"/>
+          <rect x="28" y="46" width="8" height="3" rx="1.5" fill="#60a5fa"/>
+        </svg>
+        <span style="font-weight:600; color:#2563eb; font-size:1.08em;">Simulador de Cenário com IA</span>
+      </span>
     </div>
     <!-- Visão Geral -->
     <div class="tab-content tab-visao-geral">
@@ -63,12 +76,15 @@
               <tr><th>Gerentes</th><th>Perfil</th><th></th></tr>
             </thead>
             <tbody>
-              <tr><td>Ana</td><td>Pessimista</td><td><span class="details-link">Ver Detalhes</span></td></tr>
-              <tr><td>João</td><td>Otimista Estratégico</td><td><span class="details-link">Ver Detalhes</span></td></tr>
-              <tr><td>Maria</td><td>Pessimista</td><td><span class="details-link">Ver Detalhes</span></td></tr>
-              <tr><td>Pedro</td><td>Otimista</td><td><span class="details-link">Ver Detalhes</span></td></tr>
+              <tr><td>Ana</td><td>Pessimista</td><td><span class="details-link" data-gerente="Ana" title="Ver gráfico do perfil"><svg width="22" height="22" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 16v-4m4 4V8m4 8v-2"/></svg></span></td></tr>
+              <tr><td>João</td><td>Otimista Estratégico</td><td><span class="details-link" data-gerente="João" title="Ver gráfico do perfil"><svg width="22" height="22" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 16v-4m4 4V8m4 8v-2"/></svg></span></td></tr>
+              <tr><td>Maria</td><td>Pessimista</td><td><span class="details-link" data-gerente="Maria" title="Ver gráfico do perfil"><svg width="22" height="22" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 16v-4m4 4V8m4 8v-2"/></svg></span></td></tr>
+              <tr><td>Pedro</td><td>Otimista</td><td><span class="details-link" data-gerente="Pedro" title="Ver gráfico do perfil"><svg width="22" height="22" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 16v-4m4 4V8m4 8v-2"/></svg></span></td></tr>
             </tbody>
           </table>
+          <div style="margin-top:1.5rem;">
+            <canvas id="viesesBarChart" height="180"></canvas>
+          </div>
         </div>
         <!-- Card 2: Previsão de Demanda e Estoque -->
         <div class="card">
@@ -198,7 +214,7 @@
           </div>
           <table>
             <thead>
-              <tr><th>Gerente</th><th>Perfil Fuzzy</th><th>Grau de Certeza</th><th>Última-Atualização</th></tr>
+              <tr><th>Gerente</th><th>Perfil Fuzzy</th><th>Grau de Certeza</th><th>Última-Atualização</th><th></th></tr>
             </thead>
             <tbody id="tbody-vieses">
               <!-- preenchido via JS -->
@@ -380,9 +396,41 @@
     </div>
   </div>
 
+  <!-- Modal Radar Vieses Gerente -->
+  <div id="modalRadarVieses" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(40,40,60,0.35); z-index:5100; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:18px; box-shadow:0 8px 48px #5A6A7A33; padding:2.2rem 2.5rem; min-width:320px; max-width:90vw; position:relative;">
+      <button id="fecharModalRadarVieses" style="position:absolute; top:18px; right:18px; background:none; border:none; font-size:1.7rem; color:#888; cursor:pointer;">×</button>
+      <h2>Perfil Fuzzy do Gerente</h2>
+      <canvas id="radarViesesChart" width="320" height="320"></canvas>
+      <div id="radarViesesInfo" style="margin-top:1.2rem; color:#555; font-size:1.05em;"></div>
+    </div>
+  </div>
+
+  <!-- Modal Simulação de Cenário IA -->
+  <div id="modalSimulacaoIA" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(40,40,60,0.35); z-index:5200; align-items:center; justify-content:center;">
+    <div id="modalSimulacaoIABox" style="background:#fff; border-radius:18px; box-shadow:0 8px 48px #5A6A7A33; padding:2.2rem 2.5rem; min-width:340px; max-width:90vw; position:relative; text-align:left;">
+      <button id="fecharModalSimulacaoIA" style="position:absolute; top:18px; right:18px; background:none; border:none; font-size:1.7rem; color:#888; cursor:pointer;">×</button>
+      <div style="display:flex; align-items:center; gap:1.1rem; margin-bottom:1.2rem;">
+        <svg width="38" height="38" viewBox="0 0 64 64" fill="none"><rect x="12" y="20" width="40" height="28" rx="14" fill="#2563eb"/><circle cx="32" cy="16" r="7" fill="#60a5fa"/><circle cx="22" cy="36" r="4" fill="#fff"/><circle cx="42" cy="36" r="4" fill="#fff"/><rect x="28" y="46" width="8" height="3" rx="1.5" fill="#60a5fa"/></svg>
+        <h2 style="margin:0; color:#2563eb; font-size:1.35em;">Simulação de Cenário com IA</h2>
+      </div>
+      <div style="font-size:1.08em; color:#232323;">
+        <b>Resultado da Simulação:</b><br>
+        <ul style='margin:0.7em 0 0.7em 1.2em;'>
+          <li>Estoque de acessórios <b>+20%</b></li>
+          <li>Risco de ruptura cai de <b>12%</b> para <b>4%</b></li>
+          <li>Custo de estoque aumenta em <b>R$ 3.000</b></li>
+          <li>Vendas adicionais previstas: <b>+180 peças</b></li>
+        </ul>
+        <i style='color:#2563eb;'>IA recomenda reforço para a coleção Verão 2024, priorizando lojas de alto giro.</i>
+      </div>
+    </div>
+  </div>
+
   <script src="js/charts.js"></script>
   <script src="js/ai-insights.js"></script>
   <script src="js/demanda.js"></script>
+  <script src="js/onboarding.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -433,6 +481,7 @@
         aiModal.classList.remove('minimized');
         minimized = false;
       }
+      window.maximizeAiModal = maximizeAiModal;
 
       // Eventos do modal AI
       closeBtn.onclick = function(e) {
@@ -454,11 +503,20 @@
           const mensagens = {
             vieses: 'Identificação de vieses dos gerentes usando lógica fuzzy e análise de padrões de decisão.',
             previsao: 'Previsão de demanda utilizando modelos estatísticos e machine learning.',
-            otimizacao: 'Otimização de ressuprimento com programação linear e simulação de cenários.'
+            otimizacao: 'Otimização de ressuprimento com programação linear e simulação de cenários.',
+            simulacao: `<b>Simulação de Cenário com IA</b><br><br>
+              <b>Resultado da Simulação:</b><br>
+              <ul style='margin:0.7em 0 0.7em 1.2em;'>
+                <li>Estoque de acessórios <b>+20%</b></li>
+                <li>Risco de ruptura cai de <b>12%</b> para <b>4%</b></li>
+                <li>Custo de estoque aumenta em <b>R$ 3.000</b></li>
+                <li>Vendas adicionais previstas: <b>+180 peças</b></li>
+              </ul>
+              <i style='color:#2563eb;'>IA recomenda reforço para a coleção Verão 2024, priorizando lojas de alto giro.</i>`
           };
           
           const mensagem = mensagens[modulo] || 'Informação não disponível para este módulo.';
-          document.querySelector('.ai-insights-content span').textContent = mensagem;
+          document.querySelector('.ai-insights-content span').innerHTML = mensagem;
           
           maximizeAiModal();
         };
@@ -497,43 +555,6 @@
           coberturaIni: 98,
           coberturaFim: 60,
           cluster: 'XY2'
-        },
-        viesesDetalhados: [
-          {
-            gerente: 'João',
-            perfil: 'Otimista Estratégico',
-            certeza: 82,
-            ultima: '12/04/2025',
-            explicacao: 'João tende a superestimar a demanda no fechamento de trimestre. Porém, em períodos fora do orçamento, apresenta previsões mais equilibradas.',
-            radar: [0.8, 0.7, 0.9, 0.6, 0.8],
-            feedback: null
-          },
-          {
-            gerente: 'Ana',
-            perfil: 'Pessimista',
-            certeza: 91,
-            ultima: '14/04/2025',
-            explicacao: 'Ana é conservadora e prefere errar para menos, evitando riscos de excesso de estoque.',
-            radar: [0.6, 0.8, 0.7, 0.9, 0.7],
-            feedback: null
-          },
-          {
-            gerente: 'Pedro',
-            perfil: 'Orçamentário Flexível',
-            certeza: 75,
-            ultima: '10/04/2025',
-            explicacao: 'Pedro ajusta suas previsões conforme o orçamento, sendo flexível em períodos de incerteza.',
-            radar: [0.7, 0.6, 0.8, 0.7, 0.9],
-            feedback: null
-          }
-        ],
-        historico: [
-          { data: '7 abr', modelo: 'ARIMA', acuracia: '91%' },
-          { data: '18 mar', modelo: 'GAMLSS', acuracia: '89%' }
-        ],
-        recomendacoes: {
-          inteligente: 'Reduzir cobertura cluster de BB para 7 dias, plano tático minimiza risco de mínimo nível de serviço.',
-          integrante: 'Ajustar obsolescência e perdas de estoque de sib/re para R$ 23.600 /s'
         }
       };
 
@@ -550,283 +571,26 @@
         const tbody = document.querySelector(tbodySel);
         tbody.innerHTML = '';
         mockData.vieses.forEach(v => {
-          tbody.innerHTML += `<tr><td>${v.gerente}</td><td>${v.perfil}</td><td><span class="details-link" onclick="showExplicacao('${v.gerente}')">Ver Detalhes</span></td></tr>`;
+          tbody.innerHTML += `<tr><td>${v.gerente}</td><td>${v.perfil}</td><td><span class="details-link" data-gerente="${v.gerente}" title="Ver gráfico do perfil"><svg width='22' height='22' fill='none' stroke='#2563eb' stroke-width='2' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10'/><path d='M8 16v-4m4 4V8m4 8v-2'/></svg></span></td></tr>`;
         });
       }
       renderVieses('.tab-visao-geral tbody');
       renderVieses('.tab-vieses tbody');
 
-      window.showExplicacao = function(gerente) {
-        const v = mockData.vieses.find(x => x.gerente === gerente);
-        if (!v) return;
-        const explicacao = `${v.gerente}: ${v.explicacao}`;
-        const feedback = prompt(explicacao + '\n\nDeixe um feedback para ajuste fino:', v.feedback || '');
-        if (feedback !== null) v.feedback = feedback;
-      };
-
-      function renderModelos(tbodySel) {
-        const tbody = document.querySelector(tbodySel);
-        tbody.innerHTML = '';
-        mockData.modelos.forEach(m => {
-          tbody.innerHTML += `<tr><td>${m.nome}</td><td>${m.erro}</td></tr>`;
-        });
-      }
-      renderModelos('.tab-visao-geral .card:nth-child(2) table tbody');
-
-      function renderChart(clusterIdx = 0) {
-        const c = mockData.clusters[clusterIdx];
-        const svg = document.querySelector('.tab-visao-geral .chart-area');
-        function points(arr, yBase=100, scale=0.05) {
-          return arr.map((v,i) => `${i*50},${yBase-(v-c.demanda[0])*scale}`).join(' ');
-        }
-        svg.innerHTML = `
-          <polyline fill="var(--chart-pink)" stroke="var(--chart-pink)" stroke-width="2" points="0,100 250,100 250,120 0,120"/>
-          <polyline fill="none" stroke="var(--chart-blue)" stroke-width="3" points="${points(c.historico)}"/>
-          <polyline fill="none" stroke="var(--chart-purple)" stroke-width="3" points="${points(c.demanda,100,0.07)}"/>
-          <polyline fill="none" stroke="var(--chart-orange)" stroke-width="3" points="${points(c.inventario,100,0.07)}"/>
-        `;
-      }
-      renderChart();
-
-      function renderBarChart(sel) {
-        const r = mockData.ressuprimento;
-        const svg = document.querySelector(sel);
-        svg.innerHTML = '';
-        for(let i=0;i<r.atual.length;i++) {
-          svg.innerHTML += `<rect x="${30+i*50}" y="${120-r.atual[i]*0.25}" width="20" height="${r.atual[i]*0.25}" fill="var(--chart-blue)"/>`;
-          svg.innerHTML += `<rect x="${55+i*50}" y="${120-r.otimizado[i]*0.25}" width="20" height="${r.otimizado[i]*0.25}" fill="var(--chart-purple)"/>`;
-        }
-        svg.innerHTML += `<polyline fill="none" stroke="var(--chart-orange)" stroke-width="3" points="${r.atual.map((v,i)=>`${40+i*50},${120-v*0.25}`).join(' ')}"/>`;
-      }
-      renderBarChart('.tab-visao-geral .bar-chart');
-      renderBarChart('.tab-otimizacao .bar-chart');
-
-      document.querySelectorAll('.tab-visao-geral .card:nth-child(3) div[style*="font-size"]')[0].innerHTML =
-        `Reduzir cobertura de <b>${mockData.ressuprimento.coberturaIni}</b> para <b>${mockData.ressuprimento.coberturaFim} dias</b> em cluster ${mockData.ressuprimento.cluster} reduz em <b>${formatMoney(mockData.ressuprimento.economia)}</b>`;
-      document.querySelectorAll('.tab-otimizacao .card .section-title')[0].insertAdjacentHTML('afterend',
-        `<div style="font-size:0.98em; color:var(--text-light); margin-bottom:0.7rem;">
-          Reduzir cobertura de <b>${mockData.ressuprimento.coberturaIni}</b> para <b>${mockData.ressuprimento.coberturaFim} dias</b> em cluster ${mockData.ressuprimento.cluster} reduz em <b>${formatMoney(mockData.ressuprimento.economia)}</b>
-        </div>`);
-
-      // Vieses detalhados
-      function renderViesesDetalhados() {
-        const tbody = document.getElementById('tbody-vieses');
-        tbody.innerHTML = '';
-        mockData.viesesDetalhados.forEach((v, idx) => {
-          tbody.innerHTML += `<tr style="cursor:pointer;" onclick="selectGerente(${idx})"><td>${v.gerente}</td><td>${v.perfil}</td><td>${v.certeza} %</td><td>${v.ultima}</td></tr>`;
-        });
-      }
-      renderViesesDetalhados();
-
-      let gerenteSelecionado = null;
-      window.selectGerente = function(idx) {
-        gerenteSelecionado = mockData.viesesDetalhados[idx];
-        document.getElementById('explicacao-vieses').textContent = gerenteSelecionado.explicacao;
-        renderRadar(gerenteSelecionado.radar);
-      };
-      function renderRadar(valores) {
-        const labels = ['Média da Equipe', 'Variação por Cluster', 'Previsão do Cluster', 'Erro Absoluto Médio', 'Previsão Acima/Abaixo'];
-        const cx = 110, cy = 110, r = 80;
-        const svg = document.getElementById('graficoRadarVieses');
-        svg.innerHTML = '';
-        for(let i=0;i<5;i++) {
-          const ang = (Math.PI*2/5)*i - Math.PI/2;
-          const x = cx + Math.cos(ang)*r;
-          const y = cy + Math.sin(ang)*r;
-          svg.innerHTML += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#bbb"/>`;
-          const lx = cx + Math.cos(ang)*(r+18);
-          const ly = cy + Math.sin(ang)*(r+18);
-          svg.innerHTML += `<text x="${lx}" y="${ly}" font-size="12" text-anchor="middle" fill="#555">${labels[i]}</text>`;
-        }
-        for(let f=0;f<2;f++) {
-          let pts = [];
-          for(let i=0;i<5;i++) {
-            const ang = (Math.PI*2/5)*i - Math.PI/2;
-            const rr = r * (f ? valores[i] : 1);
-            pts.push([cx + Math.cos(ang)*rr, cy + Math.sin(ang)*rr]);
-          }
-          svg.innerHTML += `<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="${f? '#2e7d4f33':'#e0e0e022'}" stroke="#2e7d4f" stroke-width="${f?2:1}" />`;
-        }
-      }
-      selectGerente(0);
-
-      document.getElementById('btn-like').onclick = function() {
-        if (gerenteSelecionado) gerenteSelecionado.feedback = 'like';
-        alert('Obrigado pelo feedback!');
-      };
-      document.getElementById('btn-dislike').onclick = function() {
-        if (gerenteSelecionado) gerenteSelecionado.feedback = 'dislike';
-        alert('Obrigado pelo feedback!');
-      };
-      document.getElementById('btn-recalcular').onclick = function() {
-        alert('Recalcular perfil: lógica fuzzy será reexecutada (mock).');
-      };
-
-      // === PREVISÃO: NOVO LAYOUT ===
-      function renderPrevisaoKPIs() {
-        const kpis = [
-          { valor: mockData.kpis.acuracia + ' %', label: 'Acurácia' },
-          { valor: mockData.modelos[0].erro, label: 'Erro Médio' },
-          { valor: '12/04/2025', label: 'Última Execução' }
-        ];
-        document.querySelectorAll('.tab-previsao .indicator').forEach((el, i) => {
-          el.querySelector('strong').textContent = kpis[i].valor;
-          el.querySelector('span').textContent = kpis[i].label;
-        });
-      }
-      function renderPrevisaoChart(clusterIdx = 0) {
-        const c = mockData.clusters[clusterIdx];
-        const svg = document.querySelector('.tab-previsao .chart-area');
-        function points(arr, yBase=100, scale=0.07) {
-          return arr.map((v,i) => `${i*50},${yBase-(v-c.demanda[0])*scale}`).join(' ');
-        }
-        svg.innerHTML = `
-          <polyline fill="var(--chart-pink)" stroke="var(--chart-pink)" stroke-width="2" points="0,100 250,100 250,120 0,120"/>
-          <polyline fill="none" stroke="var(--chart-blue)" stroke-width="3" points="${points(c.historico)}"/>
-          <polyline fill="none" stroke="var(--chart-purple)" stroke-width="3" points="${points(c.demanda)}"/>
-          <polyline fill="none" stroke="var(--chart-orange)" stroke-width="3" points="${points(c.inventario)}"/>
-        `;
-      }
-      function renderPrevisaoModelos() {
-        const tbody = document.querySelector('.tab-previsao table tbody');
-        tbody.innerHTML = '';
-        mockData.modelos.forEach((m, i) => {
-          tbody.innerHTML += `<tr><td>${m.nome}</td><td>${m.erro}</td><td>${m.erroPerc}</td></tr>`;
-        });
-      }
-      function renderPrevisaoHistorico() {
-        const ul = document.querySelector('.tab-previsao ul');
-        ul.innerHTML = '';
-        ul.innerHTML += '<li>7 abr - ARIMA - 91% acurácia</li>';
-        ul.innerHTML += '<li>18 mar - GAMLSS - 89% acurácia</li>';
-      }
-
-      // Estado global para Previsão
-      let clusterIdx = 0;
-      let modeloSelecionado = 0;
-
-      // Função para renderizar a aba Previsão
-      function renderPrevisao() {
-        // ... (código de renderização do gráfico, tabelas, explicação, etc) ...
-        // Botões de modelo (apenas dentro da aba Previsão)
-        const botoesModelo = Array.from(document.querySelectorAll('.tab-previsao .card button')).filter(btn => btn.textContent.match(/ARIMA|SARIMA|LSTM|Caótico/));
-        botoesModelo.forEach((btn, idx) => {
-          btn.onclick = function(e) {
+      // Adiciona evento de clique ao ícone de gráfico para abrir o modal radar
+      function bindViesesIconClick() {
+        document.querySelectorAll('.details-link[data-gerente]').forEach(el => {
+          el.onclick = function(e) {
             e.preventDefault();
-            e.stopPropagation();
-            modeloSelecionado = idx;
-            botoesModelo.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            renderPrevisao();
+            const gerente = this.getAttribute('data-gerente');
+            if (typeof openRadarViesesModal === 'function') openRadarViesesModal(gerente);
           };
         });
-        // ... (restante da renderização dinâmica) ...
-        renderDemandaChart();
       }
-
-      // Inicialização padrão
-      document.querySelectorAll('.tab-content').forEach(function(tab) {
-        if (tab.classList.contains('tab-visao-geral')) {
-          tab.style.display = '';
-        } else {
-          tab.style.display = 'none';
-        }
-      });
-      renderPrevisao();
-
-      // Tutor Virtual: textos explicativos por módulo
-      const tutorTextos = {
-        previsao: [
-          'Aqui você visualiza a previsão de vendas e estoque para os próximos períodos, baseada em modelos estatísticos e IA. Analise tendências e tome decisões mais assertivas.',
-          'O gráfico mostra a evolução da demanda prevista e do estoque. Use os indicadores para comparar cenários e ajustar seu planejamento.',
-          'Clique nos ícones de AI para receber explicações detalhadas sobre cada funcionalidade do módulo.'
-        ],
-        otimizacao: [
-          'O módulo de Otimização sugere cenários para reduzir custos e melhorar o abastecimento, simulando diferentes estratégias de ressuprimento.',
-          'Veja o impacto de diferentes políticas de estoque e cobertura. Aproveite as recomendações inteligentes para maximizar a eficiência.',
-          'Use o simulador para testar alterações em sazonalidade, preço e promoções.'
-        ],
-        vieses: [
-          'Esta área identifica padrões de decisão dos gerentes, ajudando a entender e corrigir vieses que afetam o planejamento.',
-          'Analise o perfil fuzzy de cada gerente e veja como os vieses influenciam as previsões.',
-          'Dê feedback sobre os perfis para aprimorar o modelo de IA.'
-        ]
-      };
-      let dicaAtual = 0;
-      let dicasModulo = [];
-      let moduloAtual = '';
-      // Função para mostrar o balão do tutor
-      function mostrarTutor(modulo) {
-        removerTutor();
-        dicasModulo = tutorTextos[modulo] || ['Módulo não encontrado.'];
-        dicaAtual = 0;
-        moduloAtual = modulo;
-        renderTutorModal();
-      }
-      function renderTutorModal() {
-        removerTutor();
-        const overlay = document.createElement('div');
-        overlay.className = 'ai-tutor-overlay';
-        overlay.innerHTML = `
-          <div class="ai-tutor-modal">
-            <svg class="ai-robot-icon" viewBox="0 0 64 64" fill="none">
-              <rect x="12" y="20" width="40" height="28" rx="14" fill="#5A6A7A"/>
-              <circle cx="32" cy="16" r="7" fill="#A3A9B8"/>
-              <circle cx="22" cy="36" r="4" fill="#fff"/>
-              <circle cx="42" cy="36" r="4" fill="#fff"/>
-              <rect x="28" y="46" width="8" height="3" rx="1.5" fill="#A3A9B8"/>
-            </svg>
-            <div style="flex:1;">
-              <button class="ai-tutor-close" title="Fechar">×</button>
-              <div style="margin-bottom:0.7rem; font-weight:600; color:#2563eb; font-size:1.18rem;">Tutor Virtual</div>
-              <div id="ai-tutor-dica">${dicasModulo[dicaAtual]}</div>
-              <div class="ai-tutor-modal-nav">
-                <button id="ai-tutor-prev" ${dicaAtual === 0 ? 'disabled' : ''}>Anterior</button>
-                <button id="ai-tutor-next" ${dicaAtual === dicasModulo.length - 1 ? 'disabled' : ''}>Próxima</button>
-              </div>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(overlay);
-        overlay.querySelector('.ai-tutor-close').onclick = removerTutor;
-        overlay.querySelector('#ai-tutor-prev').onclick = function(e) {
-          e.stopPropagation();
-          if (dicaAtual > 0) {
-            dicaAtual--;
-            renderTutorModal();
-          }
-        };
-        overlay.querySelector('#ai-tutor-next').onclick = function(e) {
-          e.stopPropagation();
-          if (dicaAtual < dicasModulo.length - 1) {
-            dicaAtual++;
-            renderTutorModal();
-          }
-        };
-      }
-      function removerTutor() {
-        const exist = document.querySelector('.ai-tutor-overlay');
-        if (exist) exist.remove();
-      }
-      document.querySelectorAll('.ai-help-trigger').forEach(el => {
-        el.onclick = function(e) {
-          e.stopPropagation();
-          mostrarTutor(this.dataset.modulo);
-        };
-      });
-      // Fecha tutor ao clicar no overlay
-      document.addEventListener('click', function(e) {
-        if (e.target.classList && e.target.classList.contains('ai-tutor-overlay')) {
-          removerTutor();
-        }
-      });
-
-      // Gráfico interativo Chart.js para Previsão de Demanda
-      // REMOVIDO: document.addEventListener('DOMContentLoaded', function() { ... criação direta do Chart ... });
+      bindViesesIconClick();
 
       // Função para renderizar o gráfico Chart.js de Previsão de Demanda
       function renderDemandaChart() {
-        console.log('Chamando renderDemandaChart (Chart.js)'); // Depuração
         const canvas = document.getElementById('demandaChart');
         if (!canvas || canvas.offsetParent === null) return;
         const ctx = canvas.getContext('2d');
@@ -842,30 +606,15 @@
           },
           options: { plugins: { legend: { display: true, position: 'bottom' } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
         });
-        // TESTE VISUAL: adicionar texto após o canvas
-        canvas.insertAdjacentHTML('afterend', '<div style="color:red;font-size:20px">TESTE VISUAL</div>');
       }
 
-      function mostrarAbaVisaoGeral() {
-        document.querySelectorAll('.tab-content').forEach(function(tab) {
-          tab.style.display = tab.classList.contains('tab-visao-geral') ? '' : 'none';
-        });
-        setTimeout(renderDemandaChart, 100);
-      }
-
-      navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const tab = this.getAttribute('data-tab');
-          navLinks.forEach(l => l.classList.remove('active'));
-          this.classList.add('active');
-          tabContents.forEach(content => content.style.display = 'none');
-          const selectedTab = document.querySelector('.tab-' + tab);
-          if (selectedTab) selectedTab.style.display = '';
-          // Chame renderDemandaChart após exibir a aba Visão Geral
-          if (tab === 'visao-geral') setTimeout(renderDemandaChart, 400);
-          if (tab === 'previsao') renderPrevisao();
-        });
+      // Inicialização padrão
+      document.querySelectorAll('.tab-content').forEach(function(tab) {
+        if (tab.classList.contains('tab-visao-geral')) {
+          tab.style.display = '';
+        } else {
+          tab.style.display = 'none';
+        }
       });
 
       // Garante que o gráfico seja renderizado na primeira carga, se a aba Visão Geral estiver ativa
@@ -874,6 +623,32 @@
           setTimeout(renderDemandaChart, 300);
         }
       });
+
+      // Adicionar evento de fechamento ao modal de simulação IA
+      const modalSimulacaoIA = document.getElementById('modalSimulacaoIA');
+      const btnFecharSimulacao = document.getElementById('fecharModalSimulacaoIA');
+      const caixaBrancaSimulacao = document.getElementById('modalSimulacaoIABox');
+
+      if (btnFecharSimulacao) {
+        btnFecharSimulacao.addEventListener('click', function(e) {
+          e.stopPropagation();
+          modalSimulacaoIA.style.display = 'none';
+        });
+      }
+
+      if (modalSimulacaoIA) {
+        modalSimulacaoIA.addEventListener('click', function(e) {
+          if (e.target === modalSimulacaoIA) {
+            modalSimulacaoIA.style.display = 'none';
+          }
+        });
+      }
+
+      if (caixaBrancaSimulacao) {
+        caixaBrancaSimulacao.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+      }
     });
 
     // Função para abrir o modal de detalhes
@@ -955,14 +730,14 @@
 
     // Fechar modal ao clicar no X ou fora da caixa
     const modal = document.getElementById('detalhesModal');
-    document.getElementById('fecharDetalhesModal').onclick = function() {
+    document.getElementById('fecharDetalhesModal').addEventListener('click', function() {
       modal.style.display = 'none';
       // Re-renderiza o gráfico principal se a aba Visão Geral estiver ativa
       if (document.querySelector('.tab-visao-geral').style.display !== 'none') {
         setTimeout(renderDemandaChart, 100);
       }
-    };
-    modal.onclick = function(e) {
+    });
+    modal.addEventListener('click', function(e) {
       if (e.target === modal) {
         modal.style.display = 'none';
         // Re-renderiza o gráfico principal se a aba Visão Geral estiver ativa
@@ -970,7 +745,7 @@
           setTimeout(renderDemandaChart, 100);
         }
       }
-    };
+    });
 
     // Instâncias globais dos gráficos
     let chartVisaoGeral = null;
@@ -1083,6 +858,36 @@
           renderGraficoVisaoGeral();
           renderGraficoBarraVisaoGeral();
         }, 300);
+      }
+    });
+
+    // Delegação de evento para o botão Simular Cenário com IA
+    // Garante funcionamento mesmo se o botão for recriado dinamicamente
+
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('#icone-simular-ia');
+      const aiInsightsModal = document.getElementById('aiInsightsModal');
+      const aiInsightsContent = aiInsightsModal ? aiInsightsModal.querySelector('.ai-insights-content span') : null;
+      if (btn && aiInsightsModal && aiInsightsContent) {
+        aiInsightsContent.innerHTML = `
+          <b>Simulação de Cenário com IA</b><br><br>
+          <b>Resultado da Simulação:</b><br>
+          <ul style='margin:0.7em 0 0.7em 1.2em;'>
+            <li>Estoque de acessórios <b>+20%</b></li>
+            <li>Risco de ruptura cai de <b>12%</b> para <b>4%</b></li>
+            <li>Custo de estoque aumenta em <b>R$ 3.000</b></li>
+            <li>Vendas adicionais previstas: <b>+180 peças</b></li>
+          </ul>
+          <i style='color:#2563eb;'>IA recomenda reforço para a coleção Verão 2024, priorizando lojas de alto giro.</i>
+        `;
+        if (typeof window.maximizeAiModal === 'function') {
+          window.maximizeAiModal();
+        } else if (typeof maximizeAiModal === 'function') {
+          maximizeAiModal();
+        } else {
+          aiInsightsModal.classList.remove('minimized');
+          aiInsightsModal.style.display = 'flex';
+        }
       }
     });
   </script>
