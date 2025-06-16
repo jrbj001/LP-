@@ -98,11 +98,11 @@ function initViesesBarChart() {
   if (!ctx) return;
   // Dados mockados para exemplo
   const data = {
-    labels: ['Pessimista', 'Otimista', 'Otimista Estratégico'],
+    labels: ['CERTEIRA', 'BOA DE ROTINA', 'DESCALIBRADA', 'SONHADORA'],
     datasets: [{
       label: 'Quantidade',
-      data: [2, 1, 1],
-      backgroundColor: ['#5A6A7A', '#A3A9B8', '#F7B267']
+      data: [2, 1, 1, 1],
+      backgroundColor: ['#2563eb', '#60a5fa', '#a3a9b8', '#f7b267']
     }]
   };
   new Chart(ctx, {
