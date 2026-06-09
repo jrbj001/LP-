@@ -1,0 +1,199 @@
+{
+  "nav": {
+    "cta": "Work With Us"
+  },
+  "hero": {
+    "eyebrow": "AI Product & Infrastructure Company",
+    "headline1": "Building Intelligence Platforms",
+    "headline2": "for Real Operations",
+    "description": "We design and develop AI-native platforms, adaptive intelligence systems and operational software that help organizations automate complex workflows, make better decisions and create lasting competitive advantages.",
+    "cta_primary": "Work With Us",
+    "cta_secondary": "Explore Ventures"
+  },
+  "build": {
+    "label": "What We Build",
+    "headline1": "We Build Intelligence,",
+    "headline2": "Not Just Software",
+    "description": "PixelPulse combines software engineering, artificial intelligence and operational expertise to create systems that solve real-world problems.",
+    "cards": {
+      "platforms": {
+        "title": "Intelligence Platforms",
+        "description": "AI-native platforms built around decision making and operational workflows."
+      },
+      "vision": {
+        "title": "Computer Vision Systems",
+        "description": "Visual intelligence platforms that transform images and environments into actionable insights."
+      },
+      "operational": {
+        "title": "Operational Intelligence",
+        "description": "Systems that convert complex operations into measurable, scalable and intelligent processes."
+      },
+      "products": {
+        "title": "Intelligence Products",
+        "description": "Products born from patterns discovered through real-world deployments."
+      }
+    }
+  },
+  "thesis": {
+    "label": "Our Thesis",
+    "headline1": "The Future Is Not More AI Applications.",
+    "headline2": "It's Adaptive Operational Intelligence.",
+    "p1": "Most organizations are experimenting with language models. Few are building intelligence that compounds over time.",
+    "p2": "We believe AI should not live inside isolated chat interfaces. It should become part of the operational fabric of an organization.",
+    "p3": "Adaptive intelligence systems learn continuously. They accumulate knowledge. They understand context. They support decisions. They evolve alongside the business.",
+    "p4": "This is the future we are building."
+  },
+  "how": {
+    "label": "How PixelPulse Works",
+    "headline1": "From Operational Challenges",
+    "headline2": "to Intelligence Platforms",
+    "description": "We don't invent problems in a lab. We build products from challenges we solve in the real world.",
+    "loop": "↻ Loop continuously",
+    "p1": "Every project exposes us to real operational challenges. The most valuable patterns become reusable intelligence. That intelligence strengthens our Adaptive Core. The strongest capabilities become products. The products create new opportunities.",
+    "p2": "This cycle continuously improves everything we build.",
+    "steps": {
+      "s1": { "label": "Enterprise Platforms", "sub": "Real-world challenges" },
+      "s2": { "label": "Operational Knowledge", "sub": "Patterns & insights" },
+      "s3": { "label": "Adaptive Core", "sub": "Reusable intelligence" },
+      "s4": { "label": "Intelligence Products", "sub": "Scalable solutions" },
+      "s5": { "label": "New Opportunities", "sub": "Continuous growth" }
+    }
+  },
+  "enterprise": {
+    "label": "Enterprise Platforms",
+    "headline1": "Building Systems for",
+    "headline2": "Complex Operations",
+    "description": "We partner with organizations to design, develop and evolve intelligence platforms across multiple industries.",
+    "domains_label": "Domains",
+    "capabilities": {
+      "c1": { "title": "AI-Native Applications", "description": "Applications designed around intelligence from day one." },
+      "c2": { "title": "Computer Vision", "description": "Image understanding, visual analysis and operational monitoring." },
+      "c3": { "title": "Data Intelligence", "description": "Transforming complex datasets into actionable knowledge." },
+      "c4": { "title": "Operational Systems", "description": "Intelligent workflows, automation and decision support." },
+      "c5": { "title": "Enterprise Platforms", "description": "Modern architectures designed for scale and adaptability." }
+    }
+  },
+  "platforms": {
+    "label": "Intelligence Platforms in Production",
+    "headline1": "Real-world platforms built across",
+    "headline2": "health, territories, assets and vision",
+    "description": "Every deployment generates operational knowledge that contributes to the evolution of our Adaptive Core.",
+    "status": "Production",
+    "footer_title": "Built Through Real Operations",
+    "footer_body": "Unlike companies that start with products and search for problems, PixelPulseLab develops intelligence platforms alongside real operational environments. The experience gained through these deployments helps strengthen our Adaptive Core and accelerate the creation of future intelligence products.",
+    "items": {
+      "likeme": {
+        "name": "LikeMe",
+        "category": "Health Intelligence Platform",
+        "description": "A digital platform designed to connect people, communities and specialists through intelligent health-focused experiences.",
+        "capabilities": ["Communities", "Engagement", "Content", "Health Ecosystem"]
+      },
+      "colmeia": {
+        "name": "Colmeia",
+        "category": "Territorial Intelligence Platform",
+        "description": "A platform designed to organize, visualize and analyze territorial and operational information at scale.",
+        "capabilities": ["Geographic Intelligence", "Planning", "Visualization", "Analytics"]
+      },
+      "asset": {
+        "name": "Asset Intelligence",
+        "category": "Asset Intelligence Platform",
+        "description": "Built within the Colmeia ecosystem, helping organizations structure, monitor and extract intelligence from asset inventories and operational resources.",
+        "capabilities": ["Asset Mapping", "Inventory Intelligence", "Operational Visibility", "Strategic Planning"]
+      },
+      "visibility": {
+        "name": "Visibility Intelligence",
+        "category": "Computer Vision Platform",
+        "description": "A visual intelligence system that analyzes images and field execution to evaluate visibility, exposure and operational performance.",
+        "capabilities": ["Computer Vision", "Image Analysis", "Brand Visibility", "AI Insights"]
+      }
+    }
+  },
+  "ventures": {
+    "label": "Venture Studio",
+    "headline1": "Building the Next Generation of",
+    "headline2": "Intelligence Products",
+    "description": "Our venture studio transforms operational expertise into scalable intelligence products.",
+    "items": {
+      "credix": {
+        "name": "Credix",
+        "category": "Tax Intelligence Platform",
+        "description": "Automating fiscal analysis, tax interpretation and compliance workflows.",
+        "status": "Building"
+      },
+      "qa": {
+        "name": "QA Agent",
+        "category": "Engineering Intelligence Platform",
+        "description": "AI-powered software quality assurance and engineering insights.",
+        "status": "Building"
+      },
+      "monitoring": {
+        "name": "Project Monitoring",
+        "category": "Delivery Intelligence Platform",
+        "description": "Operational visibility, project risk detection and engineering performance monitoring.",
+        "status": "Building"
+      },
+      "core": {
+        "name": "Adaptive Core",
+        "category": "Infrastructure Intelligence Platform",
+        "description": "The proprietary foundation behind every PixelPulse system.",
+        "status": "Internal Platform"
+      }
+    }
+  },
+  "adaptive": {
+    "label": "Adaptive Core",
+    "headline1": "The Intelligence Layer",
+    "headline2": "Behind Everything We Build",
+    "description": "Every engagement strengthens a reusable intelligence foundation. Adaptive Core is the internal infrastructure powering the PixelPulse ecosystem.",
+    "capabilities_label": "Core Capabilities",
+    "capabilities": ["Contextual Reasoning", "Operational Memory", "Knowledge Management", "AI Orchestration", "Reusable Intelligence", "Platform Scalability"],
+    "layers": {
+      "l1": { "label": "Data Layer", "description": "Ingestion, normalization & storage" },
+      "l2": { "label": "Knowledge Layer", "description": "Extraction, indexing & retrieval" },
+      "l3": { "label": "Adaptive Layer", "description": "Learning, reasoning & evolution" },
+      "l4": { "label": "Runtime Layer", "description": "Orchestration, execution & monitoring" },
+      "l5": { "label": "Applications", "description": "Platforms, products & interfaces" }
+    }
+  },
+  "why": {
+    "label": "Why PixelPulse",
+    "headline1": "Built Like a Product Company.",
+    "headline2": "Not a Consultancy.",
+    "col_traditional": "Traditional Consulting",
+    "col_pixel": "PixelPulse",
+    "rows": {
+      "r1": { "traditional": "Delivers projects", "pixel": "Builds platforms" },
+      "r2": { "traditional": "One-off engagements", "pixel": "Creates reusable intelligence" },
+      "r3": { "traditional": "Team scaling", "pixel": "Infrastructure scaling" },
+      "r4": { "traditional": "Custom code", "pixel": "Product mindset" },
+      "r5": { "traditional": "Knowledge remains inside projects", "pixel": "Knowledge becomes assets" }
+    },
+    "closing": "Every engagement strengthens our ecosystem. Every deployment improves our platform. Every solution contributes to a growing network of intelligence products and capabilities."
+  },
+  "principles": {
+    "label": "Engineering Principles",
+    "headline1": "Engineering for the",
+    "headline2": "Adaptive Era",
+    "items": {
+      "p1": { "title": "AI-Native Thinking", "description": "We design systems around intelligence from the beginning." },
+      "p2": { "title": "Adaptive By Design", "description": "Systems should evolve through usage and feedback." },
+      "p3": { "title": "Infrastructure First", "description": "Reusable architecture creates long-term value." },
+      "p4": { "title": "Explainable Intelligence", "description": "Enterprise AI must remain understandable and auditable." },
+      "p5": { "title": "Enterprise Reliability", "description": "Operational systems require trust and resilience." },
+      "p6": { "title": "Small Elite Teams", "description": "Exceptional engineering over organizational complexity." }
+    }
+  },
+  "cta": {
+    "label": "Get Started",
+    "headline1": "Let's Build the Next Generation of",
+    "headline2": "Intelligence Platforms",
+    "description": "Whether you're creating a new AI-native platform or exploring a future intelligence product, PixelPulseLab can help transform operational complexity into competitive advantage.",
+    "btn_primary": "Work With Us",
+    "btn_secondary": "Start a Conversation"
+  },
+  "footer": {
+    "tagline": "Adaptive cognition, delivered as code.",
+    "description": "PixelPulseLab is an AI Product & Infrastructure Company building adaptive intelligence systems and intelligence platforms for real-world operations. We combine software engineering, artificial intelligence and operational expertise to create systems that learn, adapt and scale.",
+    "links": "Links"
+  }
+}

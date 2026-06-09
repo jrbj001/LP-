@@ -1,0 +1,199 @@
+{
+  "nav": {
+    "cta": "与我们合作"
+  },
+  "hero": {
+    "eyebrow": "AI 产品与基础设施公司",
+    "headline1": "构建面向真实运营的",
+    "headline2": "智能平台",
+    "description": "我们设计并开发原生 AI 平台、自适应智能系统和运营软件，帮助组织自动化复杂工作流、做出更好的决策并建立持久的竞争优势。",
+    "cta_primary": "与我们合作",
+    "cta_secondary": "探索风险投资"
+  },
+  "build": {
+    "label": "我们构建什么",
+    "headline1": "我们构建智能，",
+    "headline2": "而不仅仅是软件",
+    "description": "PixelPulse 将软件工程、人工智能和运营专业知识相结合，创建解决现实问题的系统。",
+    "cards": {
+      "platforms": {
+        "title": "智能平台",
+        "description": "围绕决策制定和运营工作流构建的原生 AI 平台。"
+      },
+      "vision": {
+        "title": "计算机视觉系统",
+        "description": "将图像和环境转化为可操作洞察的视觉智能平台。"
+      },
+      "operational": {
+        "title": "运营智能",
+        "description": "将复杂运营转化为可测量、可扩展和智能化流程的系统。"
+      },
+      "products": {
+        "title": "智能产品",
+        "description": "从真实世界部署中发现的模式所诞生的产品。"
+      }
+    }
+  },
+  "thesis": {
+    "label": "我们的理论",
+    "headline1": "未来不是更多 AI 应用。",
+    "headline2": "而是自适应运营智能。",
+    "p1": "大多数组织正在尝试语言模型。很少有组织在构建随时间复利增长的智能。",
+    "p2": "我们相信 AI 不应该存在于孤立的聊天界面中。它应该成为组织运营结构的一部分。",
+    "p3": "自适应智能系统持续学习。它们积累知识。理解上下文。支持决策。与业务一同进化。",
+    "p4": "这就是我们正在构建的未来。"
+  },
+  "how": {
+    "label": "PixelPulse 如何运作",
+    "headline1": "从运营挑战",
+    "headline2": "到智能平台",
+    "description": "我们不在实验室中虚构问题。我们从在现实世界中解决的挑战中构建产品。",
+    "loop": "↻ 持续循环",
+    "p1": "每个项目都让我们接触真实的运营挑战。最有价值的模式成为可重用的智能。这种智能强化了我们的 Adaptive Core。最强的能力成为产品。产品创造新机会。",
+    "p2": "这个循环持续改善我们构建的一切。",
+    "steps": {
+      "s1": { "label": "企业平台", "sub": "真实世界的挑战" },
+      "s2": { "label": "运营知识", "sub": "模式与洞察" },
+      "s3": { "label": "Adaptive Core", "sub": "可重用智能" },
+      "s4": { "label": "智能产品", "sub": "可扩展解决方案" },
+      "s5": { "label": "新机遇", "sub": "持续增长" }
+    }
+  },
+  "enterprise": {
+    "label": "企业平台",
+    "headline1": "为复杂运营",
+    "headline2": "构建系统",
+    "description": "我们与组织合作，跨多个行业设计、开发和演进智能平台。",
+    "domains_label": "领域",
+    "capabilities": {
+      "c1": { "title": "原生 AI 应用", "description": "从第一天起就围绕智能设计的应用程序。" },
+      "c2": { "title": "计算机视觉", "description": "图像理解、视觉分析和运营监控。" },
+      "c3": { "title": "数据智能", "description": "将复杂数据集转化为可操作的知识。" },
+      "c4": { "title": "运营系统", "description": "智能工作流、自动化和决策支持。" },
+      "c5": { "title": "企业平台", "description": "为规模化和适应性而设计的现代架构。" }
+    }
+  },
+  "platforms": {
+    "label": "在产运营的智能平台",
+    "headline1": "跨健康、领土、资产和视觉",
+    "headline2": "构建的真实世界平台",
+    "description": "每次部署都产生有助于推动 Adaptive Core 演进的运营知识。",
+    "status": "运营中",
+    "footer_title": "通过真实运营构建",
+    "footer_body": "与从产品出发寻找问题的公司不同，PixelPulseLab 在真实运营环境中与客户一同开发智能平台。这些部署所积累的经验有助于强化我们的 Adaptive Core 并加速未来智能产品的创建。",
+    "items": {
+      "likeme": {
+        "name": "LikeMe",
+        "category": "健康智能平台",
+        "description": "专为通过以健康为中心的智能体验连接人、社区和专家而设计的数字平台。",
+        "capabilities": ["社区", "参与度", "内容", "健康生态系统"]
+      },
+      "colmeia": {
+        "name": "Colmeia",
+        "category": "领土智能平台",
+        "description": "旨在大规模组织、可视化和分析领土及运营信息的平台。",
+        "capabilities": ["地理智能", "规划", "可视化", "分析"]
+      },
+      "asset": {
+        "name": "Asset Intelligence",
+        "category": "资产智能平台",
+        "description": "在 Colmeia 生态系统内构建，帮助组织从资产库存和运营资源中构建、监控和提取智能。",
+        "capabilities": ["资产映射", "库存智能", "运营可见性", "战略规划"]
+      },
+      "visibility": {
+        "name": "Visibility Intelligence",
+        "category": "计算机视觉平台",
+        "description": "通过分析图像和现场执行情况来评估可见度、曝光度和运营绩效的视觉智能系统。",
+        "capabilities": ["计算机视觉", "图像分析", "品牌可见度", "AI 洞察"]
+      }
+    }
+  },
+  "ventures": {
+    "label": "风险工作室",
+    "headline1": "构建下一代",
+    "headline2": "智能产品",
+    "description": "我们的风险工作室将运营专业知识转化为可扩展的智能产品。",
+    "items": {
+      "credix": {
+        "name": "Credix",
+        "category": "税务智能平台",
+        "description": "自动化财务分析、税务解释和合规工作流。",
+        "status": "构建中"
+      },
+      "qa": {
+        "name": "QA Agent",
+        "category": "工程智能平台",
+        "description": "AI 驱动的软件质量保证和工程洞察。",
+        "status": "构建中"
+      },
+      "monitoring": {
+        "name": "Project Monitoring",
+        "category": "交付智能平台",
+        "description": "运营可见性、项目风险检测和工程绩效监控。",
+        "status": "构建中"
+      },
+      "core": {
+        "name": "Adaptive Core",
+        "category": "基础设施智能平台",
+        "description": "每个 PixelPulse 系统背后的专有基础。",
+        "status": "内部平台"
+      }
+    }
+  },
+  "adaptive": {
+    "label": "Adaptive Core",
+    "headline1": "我们所构建一切背后的",
+    "headline2": "智能层",
+    "description": "每次参与都强化可重用的智能基础。Adaptive Core 是驱动 PixelPulse 生态系统的内部基础设施。",
+    "capabilities_label": "核心能力",
+    "capabilities": ["上下文推理", "运营记忆", "知识管理", "AI 编排", "可重用智能", "平台可扩展性"],
+    "layers": {
+      "l1": { "label": "数据层", "description": "摄取、规范化与存储" },
+      "l2": { "label": "知识层", "description": "提取、索引与检索" },
+      "l3": { "label": "自适应层", "description": "学习、推理与演进" },
+      "l4": { "label": "运行时层", "description": "编排、执行与监控" },
+      "l5": { "label": "应用", "description": "平台、产品与界面" }
+    }
+  },
+  "why": {
+    "label": "为什么选择 PixelPulse",
+    "headline1": "像产品公司一样构建。",
+    "headline2": "而非咨询公司。",
+    "col_traditional": "传统咨询",
+    "col_pixel": "PixelPulse",
+    "rows": {
+      "r1": { "traditional": "交付项目", "pixel": "构建平台" },
+      "r2": { "traditional": "一次性参与", "pixel": "创建可重用智能" },
+      "r3": { "traditional": "团队扩展", "pixel": "基础设施扩展" },
+      "r4": { "traditional": "定制代码", "pixel": "产品思维" },
+      "r5": { "traditional": "知识留存于项目中", "pixel": "知识成为资产" }
+    },
+    "closing": "每次参与都强化我们的生态系统。每次部署都改善我们的平台。每个解决方案都为不断增长的智能产品和能力网络做出贡献。"
+  },
+  "principles": {
+    "label": "工程原则",
+    "headline1": "为自适应时代",
+    "headline2": "而工程",
+    "items": {
+      "p1": { "title": "原生 AI 思维", "description": "我们从一开始就围绕智能设计系统。" },
+      "p2": { "title": "自适应设计", "description": "系统应通过使用和反馈而演进。" },
+      "p3": { "title": "基础设施优先", "description": "可重用架构创造长期价值。" },
+      "p4": { "title": "可解释智能", "description": "企业 AI 必须保持可理解和可审计。" },
+      "p5": { "title": "企业可靠性", "description": "运营系统需要信任和韧性。" },
+      "p6": { "title": "小而精英的团队", "description": "卓越工程优于组织复杂性。" }
+    }
+  },
+  "cta": {
+    "label": "开始合作",
+    "headline1": "让我们共同构建下一代",
+    "headline2": "智能平台",
+    "description": "无论您是在创建新的原生 AI 平台还是探索未来的智能产品，PixelPulseLab 都可以帮助将运营复杂性转化为竞争优势。",
+    "btn_primary": "与我们合作",
+    "btn_secondary": "开始对话"
+  },
+  "footer": {
+    "tagline": "自适应认知，以代码呈现。",
+    "description": "PixelPulseLab 是一家 AI 产品与基础设施公司，为真实世界运营构建自适应智能系统和智能平台。我们将软件工程、人工智能和运营专业知识相结合，创建能够学习、适应和扩展的系统。",
+    "links": "链接"
+  }
+}
