@@ -10,6 +10,7 @@ import { Ventures } from '@/components/ventures'
 import { AdaptiveCore } from '@/components/adaptive-core'
 import { WhyPixelPulse } from '@/components/why-pixelpulse'
 import { Principles } from '@/components/principles'
+import { TechStack } from '@/components/tech-stack'
 import { FinalCTA } from '@/components/final-cta'
 import { Footer } from '@/components/footer'
 
@@ -29,6 +30,7 @@ export default function Page() {
         <AdaptiveCore />
         <WhyPixelPulse />
         <Principles />
+        <TechStack />
         <FinalCTA />
       </main>
       <Footer />
