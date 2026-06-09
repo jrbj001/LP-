@@ -3,6 +3,7 @@
 import {
   siVercel, siGooglecloud, siRailway, siSupabase, siUpstash,
   siAnthropic, siGithub, siJira, siMailchimp, siBackblaze, siDeepseek,
+  siPostgresql, siAuth0, siFirebase, siAppstore, siGoogleplay,
 } from 'simple-icons'
 
 // ─── Custom SVG paths for brands not in simple-icons ─────────────────────────
@@ -32,6 +33,10 @@ const CUSTOM_ICONS: Record<string, { path: string; viewBox?: string }> = {
     viewBox: '0 0 24 24',
     path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
   },
+  sqlserver: {
+    viewBox: '0 0 24 24',
+    path: 'M12 2C6.48 2 2 4.24 2 7v10c0 2.76 4.48 5 10 5s10-2.24 10-5V7c0-2.76-4.48-5-10-5zm0 2c4.42 0 8 1.57 8 3s-3.58 3-8 3-8-1.57-8-3 3.58-3 8-3zm0 16c-4.42 0-8-1.57-8-3v-2.23C5.61 15.84 8.65 16.5 12 16.5s6.39-.66 8-1.73V17c0 1.43-3.58 3-8 3zm0-5.5c-4.42 0-8-1.57-8-3v-2.23C5.61 10.34 8.65 11 12 11s6.39-.66 8-1.73V11.5c0 1.43-3.58 3-8 3z',
+  },
 }
 
 // ─── Brand definitions ────────────────────────────────────────────────────────
@@ -44,6 +49,7 @@ interface Brand {
 }
 
 const BRANDS: Brand[] = [
+  // Row 1
   { name: 'Vercel',       category: 'Deploy',    color: '#ffffff', si: siVercel },
   { name: 'Google Cloud', category: 'Cloud',     color: '#4285F4', si: siGooglecloud },
   { name: 'OpenAI',       category: 'AI',        color: '#412991', custom: 'openai' },
@@ -53,19 +59,26 @@ const BRANDS: Brand[] = [
   { name: 'GitHub',       category: 'Code',      color: '#ffffff', si: siGithub },
   { name: 'Cursor',       category: 'IDE',       color: '#ffffff', custom: 'cursor' },
   { name: 'Supabase',     category: 'Database',  color: '#3ECF8E', si: siSupabase },
+  { name: 'PostgreSQL',   category: 'Database',  color: '#4169E1', si: siPostgresql },
+  { name: 'SQL Server',   category: 'Database',  color: '#CC2927', custom: 'sqlserver' },
+  { name: 'Firebase',     category: 'Backend',   color: '#DD2C00', si: siFirebase },
+  // Row 2
   { name: 'Upstash',      category: 'Cache',     color: '#00E9A3', si: siUpstash },
   { name: 'Railway',      category: 'Deploy',    color: '#ffffff', si: siRailway },
   { name: 'Azure',        category: 'Cloud',     color: '#0078D4', custom: 'azure' },
   { name: 'Slack',        category: 'Comms',     color: '#4A154B', custom: 'slack' },
   { name: 'Jira',         category: 'Planning',  color: '#0052CC', si: siJira },
+  { name: 'Auth0',        category: 'Auth',      color: '#EB5424', si: siAuth0 },
   { name: 'Mailchimp',    category: 'Marketing', color: '#FFE01B', si: siMailchimp },
   { name: 'Gather',       category: 'Remote',    color: '#3D9EFF', custom: 'gather' },
   { name: 'Bob Storage',  category: 'Storage',   color: '#FF5722', si: siBackblaze },
+  { name: 'App Store',    category: 'Mobile',    color: '#0D96F6', si: siAppstore },
+  { name: 'Google Play',  category: 'Mobile',    color: '#34A853', si: siGoogleplay },
 ]
 
 // Split into two rows and duplicate for seamless loop
-const ROW1 = BRANDS.slice(0, 9)
-const ROW2 = BRANDS.slice(9)
+const ROW1 = BRANDS.slice(0, 12)
+const ROW2 = BRANDS.slice(12)
 
 // ─── Single brand card ────────────────────────────────────────────────────────
 function BrandCard({ brand }: { brand: Brand }) {
