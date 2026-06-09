@@ -1,16 +1,35 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
+import { useRouter, usePathname } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
+import { AnimatedMark } from './animated-mark'
+
+const LOCALES = [
+  { code: 'pt', label: 'PT' },
+  { code: 'en', label: 'EN' },
+  { code: 'zh', label: '中文' },
+] as const
 
 export function Nav() {
   const [scrolled, setScrolled] = useState(false)
+  const locale = useLocale()
+  const router = useRouter()
+  const pathname = usePathname()
+  const t = useTranslations('nav')
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  function switchLocale(next: string) {
+    // Replace current locale prefix in path
+    const segments = pathname.split('/')
+    segments[1] = next
+    router.push(segments.join('/') || '/')
+  }
 
   return (
     <nav
@@ -21,31 +40,37 @@ export function Nav() {
       }`}
     >
       <div className="mx-auto max-w-[1200px] px-6 h-[72px] flex items-center justify-between">
-        <a href="#" className="flex items-center gap-2">
-          <Image
-            src="/logo.png"
-            alt="PixelPulseLab"
-            width={140}
-            height={32}
-            className="h-7 w-auto brightness-0 invert"
-            priority
-          />
+        <a href="#" className="flex items-center gap-3 group">
+          <AnimatedMark className="w-7 h-auto flex-shrink-0" />
+          <span className="text-[15px] font-semibold tracking-[-0.02em] text-white/90 group-hover:text-white transition-colors">
+            PixelPulseLab
+            <span className="text-white/30 font-normal">.dev</span>
+          </span>
         </a>
 
-        <div className="flex items-center gap-4">
-          <a
-            href="https://www.linkedin.com/company/pixelpulselab"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:block text-sm text-text-muted hover:text-text-primary transition-colors"
-          >
-            LinkedIn
-          </a>
+        <div className="flex items-center gap-3">
+          {/* Language switcher */}
+          <div className="flex border border-white/[0.1] rounded-lg overflow-hidden">
+            {LOCALES.map(({ code, label }) => (
+              <button
+                key={code}
+                onClick={() => switchLocale(code)}
+                className={`px-3 py-1.5 text-[11px] font-mono tracking-wide transition-colors ${
+                  locale === code
+                    ? 'bg-white/[0.1] text-white'
+                    : 'text-white/30 hover:text-white/60'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           <a
             href="#cta"
-            className="px-5 py-2.5 text-sm font-medium bg-white text-black rounded-full hover:bg-white/90 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+            className="px-5 py-2.5 text-sm font-medium bg-white text-black rounded-full hover:bg-white/90 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.12)]"
           >
-            Work With Us
+            {t('cta')}
           </a>
         </div>
       </div>
