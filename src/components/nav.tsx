@@ -41,7 +41,7 @@ export function Nav() {
     >
       <div className="mx-auto max-w-[1200px] px-6 h-[72px] flex items-center justify-between">
         <a href="#" className="flex items-center gap-3 group">
-          <AnimatedMark className="w-7 h-auto flex-shrink-0" />
+            <AnimatedMark className="w-7 h-7 flex-shrink-0" />
           <span className="text-[15px] font-semibold tracking-[-0.02em] text-white/90 group-hover:text-white transition-colors">
             PixelPulseLab
             <span className="text-white/30 font-normal">.dev</span>

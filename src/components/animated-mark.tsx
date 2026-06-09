@@ -1,120 +1,234 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, useAnimation, type AnimationControls } from 'framer-motion'
+import { useEffect, useState } from 'react'
 
-// 6 pixel squares: 3 top row, 3 bottom row
-// Middle row is replaced by the animated pulse line
-const SQUARES = [
-  [0, 0],  [9, 0],  [18, 0],   // top
-  [0, 21], [9, 21], [18, 21],  // bottom
-] as const
+// ─── Rubik's Cube Colors ──────────────────────────────────────────────────────
+const C = {
+  R: '#ef4444',  // red    – front
+  O: '#f97316',  // orange – back
+  W: '#f1f5f9',  // white  – top
+  Y: '#facc15',  // yellow – bottom
+  B: '#3b82f6',  // blue   – right (+x)
+  G: '#16a34a',  // green  – left  (-x)
+} as const
 
-// ECG-style pulse path through the middle row
-const PULSE_PATH = 'M -6 13 L 5 13 L 8 5 L 12 21 L 15 13 L 31 13'
+// ─── Types ────────────────────────────────────────────────────────────────────
+type Ax = -1 | 0 | 1
 
-export function AnimatedMark({ className }: { className?: string }) {
+interface Cubie {
+  id:  number
+  cx: Ax; cy: Ax; cz: Ax
+  px?: string; nx?: string  // right / left sticker
+  py?: string; ny?: string  // top   / bottom sticker
+  pz?: string; nz?: string  // front / back sticker
+}
+
+type Move = { col: Ax; dir: 1 | -1 }
+
+// ─── Cube state machine ───────────────────────────────────────────────────────
+function buildSolved(): Cubie[] {
+  const out: Cubie[] = []
+  let id = 0
+  for (const cx of [-1, 0, 1] as Ax[]) {
+    for (const cy of [-1, 0, 1] as Ax[]) {
+      for (const cz of [-1, 0, 1] as Ax[]) {
+        out.push({
+          id: id++,
+          cx, cy, cz,
+          px: cx ===  1 ? C.B : undefined,
+          nx: cx === -1 ? C.G : undefined,
+          py: cy ===  1 ? C.W : undefined,
+          ny: cy === -1 ? C.Y : undefined,
+          pz: cz ===  1 ? C.R : undefined,
+          nz: cz === -1 ? C.O : undefined,
+        })
+      }
+    }
+  }
+  return out
+}
+
+/**
+ * Column move = rotateX on the slice with cx === col.
+ *
+ * dir = -1  →  rotateX(-90°):  (y, z) → ( z, -y)
+ *              front → top, top → back, back → bottom, bottom → front
+ *
+ * dir = +1  →  rotateX(+90°):  (y, z) → (-z,  y)
+ *              top → front, front → bottom, bottom → back, back → top
+ */
+function applyMove(cubies: Cubie[], col: Ax, dir: 1 | -1): Cubie[] {
+  return cubies.map(c => {
+    if (c.cx !== col) return c
+
+    const { id, cx, cy, cz, px, nx, py, ny, pz, nz } = c
+    const newCy = (dir === -1 ?  cz : -cz) as Ax
+    const newCz = (dir === -1 ? -cy :  cy) as Ax
+
+    return dir === -1
+      ? { id, cx, cy: newCy, cz: newCz, px, nx, py: pz, nz: py, ny: nz, pz: ny }
+      : { id, cx, cy: newCy, cz: newCz, px, nx, pz: py, ny: pz, nz: ny, py: nz }
+  })
+}
+
+// ─── Scramble & animation sequence ───────────────────────────────────────────
+// Applied once on mount to produce a visually interesting initial state
+const SCRAMBLE: Move[] = [
+  { col:  1, dir: -1 }, { col: -1, dir:  1 }, { col:  1, dir: -1 },
+  { col:  0, dir: -1 }, { col: -1, dir:  1 }, { col:  1, dir:  1 },
+  { col:  0, dir:  1 }, { col: -1, dir: -1 }, { col:  0, dir: -1 },
+]
+
+// Repeating sequence: R L' M R' L M' (and back)
+const LOOP: Move[] = [
+  { col:  1, dir: -1 },   // R
+  { col: -1, dir:  1 },   // L'
+  { col:  0, dir: -1 },   // M
+  { col:  1, dir:  1 },   // R'
+  { col: -1, dir: -1 },   // L
+  { col:  0, dir:  1 },   // M'
+]
+
+// ─── Geometry constants ───────────────────────────────────────────────────────
+const S    = 22           // overall cube side (px)
+const CELL = S / 3        // one cubie side ≈ 7.33 px
+const HALF = CELL / 2
+const GAP  = 0.45         // sticker inset from cubie edge
+
+// ─── Sticker face ─────────────────────────────────────────────────────────────
+function StickerFace({ color, xform }: { color: string; xform: string }) {
   return (
-    <svg
-      viewBox="-6 -1 37 30"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
+    <div
+      style={{
+        position: 'absolute',
+        inset: GAP,
+        transform: xform,
+        backgroundColor: color,
+        borderRadius: 0.7,
+        backfaceVisibility: 'hidden',
+        boxShadow: 'inset 0 0 0 0.4px rgba(0,0,0,0.22)',
+      }}
+    />
+  )
+}
+
+// ─── Single cubie (up to 6 colored sticker faces) ────────────────────────────
+function CubieEl({ c }: { c: Cubie }) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        width: CELL,
+        height: CELL,
+        left: '50%',
+        top: '50%',
+        transformStyle: 'preserve-3d',
+        // cx/cy/cz → 3-D position relative to cube centre
+        transform: `translate3d(${c.cx * CELL - HALF}px, ${-c.cy * CELL - HALF}px, ${c.cz * CELL}px)`,
+        background: '#080808',
+      }}
     >
-      {/* Pixel squares — staggered fade in, then subtle breathe */}
-      {SQUARES.map(([x, y], i) => (
-        <motion.rect
-          key={i}
-          x={x}
-          y={y}
-          width={6}
-          height={6}
-          rx={0.75}
-          fill="white"
-          initial={{ opacity: 0, scale: 0.6 }}
-          animate={{
-            opacity: [0, 1, 0.85, 1],
-            scale: [0.6, 1, 1, 1],
-          }}
-          transition={{
-            duration: 0.5,
-            delay: 0.1 + i * 0.07,
-            times: [0, 0.5, 0.75, 1],
-            ease: 'easeOut',
-          }}
-        />
-      ))}
+      {c.pz && <StickerFace color={c.pz} xform={`translateZ(${HALF}px)`} />}
+      {c.nz && <StickerFace color={c.nz} xform={`rotateY(180deg) translateZ(${HALF}px)`} />}
+      {c.px && <StickerFace color={c.px} xform={`rotateY(90deg) translateZ(${HALF}px)`} />}
+      {c.nx && <StickerFace color={c.nx} xform={`rotateY(-90deg) translateZ(${HALF}px)`} />}
+      {c.py && <StickerFace color={c.py} xform={`rotateX(-90deg) translateZ(${HALF}px)`} />}
+      {c.ny && <StickerFace color={c.ny} xform={`rotateX(90deg) translateZ(${HALF}px)`} />}
+    </div>
+  )
+}
 
-      {/* Squares breathe continuously after mount */}
-      {SQUARES.map(([x, y], i) => (
-        <motion.rect
-          key={`b-${i}`}
-          x={x}
-          y={y}
-          width={6}
-          height={6}
-          rx={0.75}
-          fill="white"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0.85, 1, 0.85] }}
-          transition={{
-            duration: 3.5,
-            delay: 0.8 + i * 0.15,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-      ))}
+// ─── Main component ───────────────────────────────────────────────────────────
+export function AnimatedMark({ className }: { className?: string }) {
 
-      {/* Base guide line — very dim */}
-      <line
-        x1="-6" y1="13" x2="31" y2="13"
-        stroke="white"
-        strokeWidth="0.6"
-        opacity={0.1}
-      />
+  // Cube state: 27 cubies with current position + sticker colors
+  const [cubies, setCubies] = useState<Cubie[]>(() => {
+    let s = buildSolved()
+    for (const { col, dir } of SCRAMBLE) s = applyMove(s, col, dir)
+    return s
+  })
 
-      {/* Animated pulse — draws in, holds, fades, repeats */}
-      <motion.path
-        d={PULSE_PATH}
-        stroke="#6366f1"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-        animate={{
-          pathLength: [0, 1, 1, 1, 0],
-          opacity:    [0, 1, 1, 0.7, 0],
+  // One animation control per column slice
+  const ctrlL = useAnimation()
+  const ctrlM = useAnimation()
+  const ctrlR = useAnimation()
+
+  // ── Column animation loop ──────────────────────────────────────────────────
+  useEffect(() => {
+    let active = true
+    let idx = 0
+    const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms))
+
+    ;(async () => {
+      await sleep(700)    // brief pause before first move
+
+      while (active) {
+        const { col, dir } = LOOP[idx++ % LOOP.length]
+        const ctrl: AnimationControls = col === -1 ? ctrlL : col === 0 ? ctrlM : ctrlR
+
+        // 1. Animate the column slice by ±90°
+        await ctrl.start({
+          rotateX: dir * 90,
+          transition: { duration: 0.58, ease: [0.4, 0, 0.2, 1] },
+        })
+
+        if (!active) break
+
+        // 2. Snap column back to 0° (instant), then update cubie colors/positions
+        ctrl.set({ rotateX: 0 })
+        setCubies(prev => applyMove(prev, col, dir))
+
+        await sleep(1250)  // hold before next move
+      }
+    })()
+
+    return () => { active = false }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <div
+      className={className}
+      style={{
+        perspective: '88px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {/* Outer: fixed X-tilt for depth + slow Y drift for viewing angle */}
+      <motion.div
+        style={{
+          width: S,
+          height: S,
+          transformStyle: 'preserve-3d',
+          rotateX: -24,
         }}
+        animate={{ rotateY: [0, 16, 0, -16, 0] }}
         transition={{
-          duration: 3,
-          times: [0, 0.38, 0.62, 0.82, 1],
-          repeat: Infinity,
-          repeatDelay: 1.8,
-          ease: 'easeInOut',
+          rotateY: { duration: 12, repeat: Infinity, ease: 'easeInOut' },
         }}
-      />
-
-      {/* Traveling bright highlight on top of pulse */}
-      <motion.path
-        d={PULSE_PATH}
-        stroke="white"
-        strokeWidth="0.8"
-        strokeLinecap="round"
-        fill="none"
-        animate={{
-          pathLength: [0.12, 0.12, 0.12, 0.12, 0],
-          pathOffset: [0, 0, 0.88, 1, 1],
-          opacity:    [0, 0.6, 0.4, 0, 0],
-        }}
-        transition={{
-          duration: 3,
-          times: [0, 0.38, 0.80, 0.95, 1],
-          repeat: Infinity,
-          repeatDelay: 1.8,
-          ease: 'easeOut',
-        }}
-      />
-    </svg>
+      >
+        {/* Three column slices — only one animates at a time */}
+        {([-1, 0, 1] as Ax[]).map(col => {
+          const ctrl = col === -1 ? ctrlL : col === 0 ? ctrlM : ctrlR
+          return (
+            <motion.div
+              key={col}
+              animate={ctrl}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                transformStyle: 'preserve-3d',
+              }}
+            >
+              {cubies
+                .filter(c => c.cx === col)
+                .map(c => <CubieEl key={c.id} c={c} />)}
+            </motion.div>
+          )
+        })}
+      </motion.div>
+    </div>
   )
 }
