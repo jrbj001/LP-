@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
+import { AnimatedMark } from './animated-mark'
 
 export function Nav() {
   const [scrolled, setScrolled] = useState(false)
@@ -21,15 +21,14 @@ export function Nav() {
       }`}
     >
       <div className="mx-auto max-w-[1200px] px-6 h-[72px] flex items-center justify-between">
-        <a href="#" className="flex items-center gap-2">
-          <Image
-            src="/logo.png"
-            alt="PixelPulseLab"
-            width={140}
-            height={32}
-            className="h-7 w-auto brightness-0 invert"
-            priority
-          />
+
+        {/* Logo: animated mark + wordmark */}
+        <a href="#" className="flex items-center gap-3 group">
+          <AnimatedMark className="w-7 h-auto flex-shrink-0" />
+          <span className="text-[15px] font-semibold tracking-[-0.02em] text-white/90 group-hover:text-white transition-colors">
+            PixelPulseLab
+            <span className="text-white/30 font-normal">.dev</span>
+          </span>
         </a>
 
         <div className="flex items-center gap-4">
@@ -37,13 +36,13 @@ export function Nav() {
             href="https://www.linkedin.com/company/pixelpulselab"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:block text-sm text-text-muted hover:text-text-primary transition-colors"
+            className="hidden sm:block text-sm text-white/30 hover:text-white/70 transition-colors"
           >
             LinkedIn
           </a>
           <a
             href="#cta"
-            className="px-5 py-2.5 text-sm font-medium bg-white text-black rounded-full hover:bg-white/90 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+            className="px-5 py-2.5 text-sm font-medium bg-white text-black rounded-full hover:bg-white/90 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.12)]"
           >
             Work With Us
           </a>
