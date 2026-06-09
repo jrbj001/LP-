@@ -1,4 +1,5 @@
 import { Nav } from '@/components/nav'
+import { RubikWatermark } from '@/components/rubik-watermark'
 import { Hero } from '@/components/hero'
 import { WhatWeBuild } from '@/components/what-we-build'
 import { Thesis } from '@/components/thesis'
@@ -15,6 +16,7 @@ import { Footer } from '@/components/footer'
 export default function Page() {
   return (
     <>
+      <RubikWatermark />
       <Nav />
       <main>
         <Hero />
