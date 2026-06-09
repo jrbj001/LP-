@@ -1,17 +1,5 @@
 {
-  "version": 2,
-  "routes": [
-    {
-      "src": "/",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/docs/sop",
-      "dest": "/docs/sop/index.html"
-    },
-    {
-      "src": "/docs/sop/(.*)",
-      "dest": "/docs/sop/$1"
-    }
-  ]
-} 
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build"
+}
