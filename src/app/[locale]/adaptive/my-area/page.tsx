@@ -7,8 +7,9 @@ import { PageShell, PageHeader, Reveal, Badge } from '@/components/adaptive/ui'
 import { ProjectCard } from '@/components/adaptive/project-card'
 import {
   STAKEHOLDERS, findStakeholder, projectsByRequester, CLIENT,
+  PROJECTS, AREA_ORDER, AREA_OWNERS, projectsByArea,
 } from '@/components/adaptive/data'
-import { ArrowRight, ChevronDown, Star } from 'lucide-react'
+import { ArrowRight, ChevronDown, Star, Crown } from 'lucide-react'
 
 const STORAGE_KEY = 'adaptive.orfeu.stakeholder'
 
@@ -47,12 +48,14 @@ export default function MyAreaPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {STAKEHOLDERS.map((s, i) => {
-            const count = projectsByRequester(s.name).length
+            const count = s.sponsor ? PROJECTS.length : projectsByRequester(s.name).length
             return (
               <Reveal key={s.name} delay={i * 0.03}>
                 <button
                   onClick={() => choose(s.name)}
-                  className="group w-full text-left rounded-xl border border-black/[0.06] bg-white p-5 hover:border-black/[0.14] hover:shadow-[0_2px_18px_rgba(0,0,0,0.05)] transition-all duration-200"
+                  className={`group w-full text-left rounded-xl border bg-white p-5 hover:shadow-[0_2px_18px_rgba(0,0,0,0.05)] transition-all duration-200 ${
+                    s.sponsor ? 'border-neutral-900/20 hover:border-neutral-900/40' : 'border-black/[0.06] hover:border-black/[0.14]'
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-neutral-900 text-white flex items-center justify-center text-[13px] font-semibold flex-shrink-0">
@@ -61,16 +64,18 @@ export default function MyAreaPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
                         <p className="text-[14px] font-semibold text-neutral-900 truncate">{s.name}</p>
+                        {s.sponsor && <Crown className="w-3.5 h-3.5 text-neutral-900 fill-neutral-900 flex-shrink-0" strokeWidth={0} />}
                         {s.facilitator && <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 flex-shrink-0" strokeWidth={0} />}
                       </div>
-                      <p className="text-[12px] text-neutral-400 truncate">{s.areas.join(' · ')}</p>
+                      <p className="text-[12px] text-neutral-400 truncate">{s.role ?? s.areas.join(' · ')}</p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-600 group-hover:translate-x-0.5 transition-all flex-shrink-0" strokeWidth={2} />
                   </div>
                   <div className="mt-4 pt-3 border-t border-black/[0.05] flex items-center justify-between">
                     <span className="text-[12px] text-neutral-500">
-                      {count} {count === 1 ? 'projeto' : 'projetos'}
+                      {s.sponsor ? `${count} projetos · todas as áreas` : `${count} ${count === 1 ? 'projeto' : 'projetos'}`}
                     </span>
+                    {s.sponsor && <Badge tone="neutral">CEO · Sponsor</Badge>}
                     {s.facilitator && <Badge tone="amber">Facilitador</Badge>}
                   </div>
                 </button>
@@ -84,7 +89,7 @@ export default function MyAreaPage() {
 
   // ── Selected stakeholder view ──
   const person = findStakeholder(selected)!
-  const projects = projectsByRequester(selected)
+  const projects = person.sponsor ? PROJECTS : projectsByRequester(selected)
 
   return (
     <PageShell>
@@ -96,9 +101,13 @@ export default function MyAreaPage() {
       </div>
 
       <PageHeader
-        eyebrow="Minha Área"
+        eyebrow={person.sponsor ? 'Visão do Sponsor' : 'Minha Área'}
         title={person.name}
-        subtitle={`Projetos sob sua responsabilidade no assessment do ${CLIENT.name}.`}
+        subtitle={
+          person.sponsor
+            ? `Guarda-chuva executivo — todo o portfólio do ${CLIENT.name} em uma única visão.`
+            : `Projetos sob sua responsabilidade no assessment do ${CLIENT.name}.`
+        }
       />
 
       {/* Profile + status card */}
@@ -115,24 +124,36 @@ export default function MyAreaPage() {
           <div>
             <div className="flex items-center gap-2">
               <p className="text-[14px] font-semibold text-neutral-900">{person.name}</p>
+              {person.sponsor && <Badge tone="neutral">CEO · Sponsor</Badge>}
               {person.facilitator && <Badge tone="amber">Facilitador</Badge>}
             </div>
-            <p className="text-[12px] text-neutral-400">{person.areas.join(' · ')}</p>
+            <p className="text-[12px] text-neutral-400">{person.role ?? person.areas.join(' · ')}</p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <p className="text-[11px] text-neutral-400">Discovery</p>
-            <div className="mt-1"><Badge tone="amber">Pending</Badge></div>
+        {!person.sponsor && (
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-[11px] text-neutral-400">Discovery</p>
+              <div className="mt-1"><Badge tone="amber">Pending</Badge></div>
+            </div>
+            <a
+              href={`${base}/discovery/session`}
+              className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-all"
+            >
+              Start Discovery
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+            </a>
           </div>
+        )}
+        {person.sponsor && (
           <a
-            href={`${base}/discovery/session`}
+            href={`${base}/dashboard`}
             className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-all"
           >
-            Start Discovery
+            Ver Dashboard executivo
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
           </a>
-        </div>
+        )}
       </motion.div>
 
       {/* Facilitator note */}
@@ -147,19 +168,61 @@ export default function MyAreaPage() {
         </div>
       )}
 
-      {/* Projects */}
-      <div className="flex items-baseline justify-between mb-5">
-        <h2 className="text-[15px] font-semibold text-neutral-900">Seus projetos</h2>
-        <span className="text-[12px] text-neutral-400">{projects.length} {projects.length === 1 ? 'projeto' : 'projetos'}</span>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {projects.map((p, i) => (
-          <Reveal key={p.name} delay={i * 0.05}>
-            <ProjectCard project={p} showArea={person.areas.length > 1} />
-          </Reveal>
-        ))}
-      </div>
+      {/* Sponsor: full portfolio grouped by area */}
+      {person.sponsor ? (
+        <>
+          <div className="flex items-baseline justify-between mb-5">
+            <h2 className="text-[15px] font-semibold text-neutral-900">Portfólio completo</h2>
+            <span className="text-[12px] text-neutral-400">{projects.length} projetos · {AREA_ORDER.length} áreas</span>
+          </div>
+          <div className="flex flex-col gap-10">
+            {AREA_ORDER.map((area, ai) => {
+              const areaProjects = projectsByArea(area)
+              if (areaProjects.length === 0) return null
+              const owner = AREA_OWNERS[area]
+              return (
+                <Reveal key={area} delay={ai * 0.03}>
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-[15px] font-semibold text-neutral-900">{area}</h3>
+                        <span className="text-[12px] text-neutral-400">
+                          {areaProjects.length} {areaProjects.length === 1 ? 'projeto' : 'projetos'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-black/[0.06] flex items-center justify-center text-[10px] font-semibold text-neutral-600">
+                          {owner?.initials}
+                        </div>
+                        <span className="text-[12px] text-neutral-500">{owner?.owner}</span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {areaProjects.map(p => (
+                        <ProjectCard key={p.name} project={p} />
+                      ))}
+                    </div>
+                  </div>
+                </Reveal>
+              )
+            })}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex items-baseline justify-between mb-5">
+            <h2 className="text-[15px] font-semibold text-neutral-900">Seus projetos</h2>
+            <span className="text-[12px] text-neutral-400">{projects.length} {projects.length === 1 ? 'projeto' : 'projetos'}</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {projects.map((p, i) => (
+              <Reveal key={p.name} delay={i * 0.05}>
+                <ProjectCard project={p} showArea={person.areas.length > 1} />
+              </Reveal>
+            ))}
+          </div>
+        </>
+      )}
     </PageShell>
   )
 }

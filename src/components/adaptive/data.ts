@@ -227,10 +227,13 @@ export interface Stakeholder {
   initials: string
   areas: string[]
   facilitator?: boolean
+  sponsor?: boolean
+  role?: string
 }
 
 export const STAKEHOLDERS: Stakeholder[] = [
-  { name: 'Diego',         initials: 'DI', areas: ['Inteligência'],           facilitator: true },
+  { name: 'Ricardo Madureira', initials: 'RM', areas: ['Todas as áreas'], sponsor: true, role: 'CEO · Sponsor Executivo' },
+  { name: 'Diego',         initials: 'DI', areas: ['Inteligência'],           facilitator: true, role: 'Facilitador · Gente & Gestão' },
   { name: 'Cristiane',     initials: 'CR', areas: ['Comercial'] },
   { name: 'Joyce',         initials: 'JO', areas: ['Comercial'] },
   { name: 'Silvia',        initials: 'SI', areas: ['Comercial'] },
