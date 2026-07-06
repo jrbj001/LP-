@@ -5,13 +5,13 @@ import { useLocale } from 'next-intl'
 import { ArrowRight, Users, FolderKanban, Compass, Clock, Activity } from 'lucide-react'
 import { Timeline } from '@/components/adaptive/timeline'
 import { Reveal } from '@/components/adaptive/ui'
-import { EXPECTED_RESULTS } from '@/components/adaptive/data'
+import { EXPECTED_RESULTS, CLIENT } from '@/components/adaptive/data'
 
 const STATUS_CARDS = [
-  { icon: Activity,     label: 'Assessment Progress', value: '15%',  meta: 'Discovery em andamento' },
-  { icon: Users,        label: 'Stakeholders',        value: '8',    meta: '2 sessões concluídas' },
-  { icon: FolderKanban, label: 'Projects',            value: '23',   meta: 'em análise' },
-  { icon: Compass,      label: 'Discovery Sessions',  value: '8',    meta: '30 min cada' },
+  { icon: Activity,     label: 'Assessment Progress', value: '0%',   meta: 'aguardando kickoff' },
+  { icon: Users,        label: 'Stakeholders',        value: '15',   meta: 'solicitantes mapeados' },
+  { icon: FolderKanban, label: 'Projetos no Comitê',  value: '31',   meta: 'a avaliar' },
+  { icon: Compass,      label: 'Discovery Sessions',  value: '10',   meta: '30 min por área' },
   { icon: Clock,        label: 'Estimated Duration',  value: '3 sem',meta: 'até o Executive Review' },
 ]
 
@@ -22,6 +22,20 @@ export default function AdaptiveHome() {
   return (
     <div className="max-w-[920px] mx-auto px-6 lg:px-12 py-14 lg:py-20">
 
+      {/* Personalized greeting */}
+      <Reveal>
+        <div className="mb-8 flex flex-wrap items-center gap-3">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/[0.04] text-[12px] font-medium text-neutral-600">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            {CLIENT.name}
+          </span>
+          <span className="text-[12px] text-neutral-400">{CLIENT.sector}</span>
+        </div>
+        <h2 className="mb-10 text-[22px] lg:text-[26px] font-semibold tracking-[-0.02em] text-neutral-900">
+          Olá, {CLIENT.champion.name}. Bem-vindo ao seu Technology Assessment.
+        </h2>
+      </Reveal>
+
       {/* Founder welcome */}
       <Reveal>
         <div className="mb-16 rounded-2xl border border-black/[0.06] bg-white p-8 lg:p-10">
@@ -30,7 +44,8 @@ export default function AdaptiveHome() {
           </p>
           <p className="text-[19px] lg:text-[21px] leading-[1.55] tracking-[-0.01em] text-neutral-800 font-light">
             &ldquo;Toda empresa acumula tecnologia. Poucas constroem capacidade adaptativa.
-            O <span className="font-medium text-neutral-900">Adaptive Enterprise™</span> nasceu para ajudar organizações a
+            O <span className="font-medium text-neutral-900">Adaptive Enterprise™</span> nasceu para ajudar organizações como
+            o <span className="font-medium text-neutral-900">{CLIENT.name}</span> a
             transformar tecnologia em vantagem competitiva — alinhando estratégia, execução e
             inteligência artificial em um único framework.&rdquo;
           </p>
@@ -61,8 +76,9 @@ export default function AdaptiveHome() {
           <span className="text-neutral-300">Aligned.</span>
         </h1>
         <p className="mt-7 text-[17px] leading-relaxed text-neutral-500 max-w-xl">
-          A metodologia proprietária da PixelPulseLab para diagnosticar a maturidade tecnológica
-          da sua organização e construir um roadmap executivo orientado ao negócio.
+          Vamos diagnosticar a maturidade tecnológica do {CLIENT.name} a partir dos
+          31 projetos do Comitê de TI e construir um roadmap executivo orientado ao negócio —
+          alinhando as 10 áreas em uma única visão.
         </p>
 
         <div className="mt-9 flex flex-wrap items-center gap-3">

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useLocale } from 'next-intl'
-import { NAV_ITEMS } from './data'
+import { NAV_ITEMS, CLIENT } from './data'
 import { Lock, Menu, X } from 'lucide-react'
 
 export function Sidebar() {
@@ -43,6 +43,16 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-auto p-4">
+        {/* Client context */}
+        <div className="mb-3 flex items-center gap-2.5 px-1">
+          <div className="w-7 h-7 rounded-lg bg-black/[0.06] flex items-center justify-center text-[10px] font-semibold text-neutral-600">
+            {CLIENT.champion.initials}
+          </div>
+          <div className="leading-tight min-w-0">
+            <p className="text-[12px] font-medium text-neutral-900 truncate">{CLIENT.name}</p>
+            <p className="text-[10px] text-neutral-400 truncate">{CLIENT.champion.name} · {CLIENT.champion.role}</p>
+          </div>
+        </div>
         <div className="rounded-xl border border-black/[0.06] bg-black/[0.015] p-4">
           <p className="text-[11px] font-medium text-neutral-900">Precisa de ajuda?</p>
           <p className="text-[11px] text-neutral-400 mt-1 leading-relaxed">

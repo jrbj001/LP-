@@ -33,8 +33,8 @@ export interface TimelineStep {
 }
 
 export const TIMELINE: TimelineStep[] = [
-  { id: 'kickoff',   title: 'Kickoff',            description: 'Alinhamento de escopo, stakeholders e objetivos do assessment.', status: 'done' },
-  { id: 'discovery', title: 'Discovery Sessions', description: 'Sessões individuais com cada líder de área para entender a realidade operacional.', status: 'active' },
+  { id: 'kickoff',   title: 'Kickoff',            description: 'Alinhamento de escopo, stakeholders e objetivos do assessment.', status: 'active' },
+  { id: 'discovery', title: 'Discovery Sessions', description: 'Sessões individuais com cada líder de área para entender a realidade operacional.', status: 'upcoming' },
   { id: 'assessment',title: 'Assessment',         description: 'Análise cruzada de negócio, portfólio, operação, tecnologia e IA.', status: 'upcoming' },
   { id: 'review',    title: 'Executive Review',   description: 'Apresentação executiva com o Adaptive Index™ e recomendações.', status: 'upcoming' },
   { id: 'roadmap',   title: 'Roadmap',            description: 'Roadmap adaptativo priorizado por impacto no negócio.', status: 'upcoming' },
@@ -128,15 +128,25 @@ export const EXPECTED_RESULTS: ExpectedResult[] = [
   { metric: 'Adaptive Roadmap™',      label: 'Roadmap Executivo',      description: 'Um plano priorizado por impacto, risco e esforço.' },
 ]
 
+// ─── Client (Grupo Orfeu) ─────────────────────────────────────────────────────
+export const CLIENT = {
+  name: 'Grupo Orfeu',
+  sector: 'Café · Agroindústria & Varejo',
+  champion: { name: 'Diego', role: 'Líder de Gente & Gestão', initials: 'DI' },
+  sponsor: { name: 'Ricardo Madureira', role: 'Sponsor Executivo' },
+  partners: 'José Roberto (Zé) & Marco Lúcio — PixelPulseLab',
+}
+
 // ─── Stakeholder & projects ───────────────────────────────────────────────────
 export type Priority = 'high' | 'medium' | 'low'
-export type ProjectStatus = 'in-progress' | 'planned' | 'at-risk' | 'done'
+export type ProjectStatus = 'review' | 'in-progress' | 'planned' | 'at-risk' | 'done'
 
 export interface Project {
   name: string
+  area: string
+  requester: string
   priority: Priority
   status: ProjectStatus
-  description: string
 }
 
 export interface StakeholderArea {
@@ -147,21 +157,85 @@ export interface StakeholderArea {
   projects: Project[]
 }
 
+// Full portfolio from Grupo Orfeu's "Comitê de TI" spreadsheet.
+export const PROJECTS: Project[] = [
+  // Comercial
+  { name: 'Site Compra B2B (cafeterias e restaurantes)', area: 'Comercial', requester: 'Cristiane', priority: 'high',   status: 'review' },
+  { name: 'Página Office (assinaturas B2B)',              area: 'Comercial', requester: 'Cristiane', priority: 'medium', status: 'review' },
+  { name: 'CRM Jornada do Vendedor (Dashboard) API Protheus', area: 'Comercial', requester: 'Cristiane', priority: 'high', status: 'review' },
+  { name: 'App Baristas Orfeu',                           area: 'Comercial', requester: 'Joyce',     priority: 'medium', status: 'review' },
+  { name: 'Calculadora de Elasticidade de Preço (varejo)',area: 'Comercial', requester: 'Silvia',    priority: 'medium', status: 'review' },
+  { name: 'Faturamento simultâneo — fechamento de mês no Protheus', area: 'Comercial', requester: 'RM', priority: 'high', status: 'review' },
+  { name: 'Automação faturamento pedidos com ruptura canal B2C', area: 'Comercial', requester: 'Cibele', priority: 'high', status: 'review' },
+  { name: 'Faturamento automático canais B2B e varejo',  area: 'Comercial', requester: 'Cristiane', priority: 'high',   status: 'review' },
+  // Compras
+  { name: 'Implantar a Jornada de Compras',              area: 'Compras',   requester: 'Alene',     priority: 'medium', status: 'review' },
+  { name: 'BI de Compras',                               area: 'Compras',   requester: 'Alene',     priority: 'medium', status: 'review' },
+  // Fazenda
+  { name: 'Gerente Agrícola — automação custos indiretos Protheus × GA', area: 'Fazenda', requester: 'Lucas', priority: 'medium', status: 'review' },
+  { name: 'Gerente Agrícola — automação custos indiretos GA × Protheus', area: 'Fazenda', requester: 'Lucas', priority: 'medium', status: 'review' },
+  { name: 'BI correlação manejo × qualidade × produtividade', area: 'Fazenda', requester: 'Lucas', priority: 'high', status: 'review' },
+  // Financeiro
+  { name: 'Conciliação financeira/fiscal Mercado Livre', area: 'Financeiro', requester: 'Rafaela',  priority: 'high',   status: 'review' },
+  { name: 'Controle de máquinas em comodato',            area: 'Financeiro', requester: 'Rafaela',  priority: 'medium', status: 'review' },
+  { name: 'Conciliação financeira PagBrasil',            area: 'Financeiro', requester: 'Rafaela',  priority: 'medium', status: 'review' },
+  // Gestão
+  { name: 'Migração versão Protheus',                    area: 'Gestão',    requester: 'André Martins', priority: 'high', status: 'review' },
+  { name: 'Bloqueio de saídas de estoque no Protheus em dias de inventário (Fazenda + Orfeu)', area: 'Gestão', requester: 'Rafaela', priority: 'medium', status: 'review' },
+  { name: 'Dashboard de resultados da N1 mensal',        area: 'Gestão',    requester: 'Rafaela',  priority: 'medium', status: 'review' },
+  { name: 'Dashboard de resultados da N1 semanal (OPR)', area: 'Gestão',    requester: 'Rafaela',  priority: 'medium', status: 'review' },
+  // Indústria
+  { name: 'Integração OpsFactor × Protheus',             area: 'Indústria', requester: 'Gustavo',  priority: 'high',   status: 'review' },
+  { name: 'Implantação módulo Controle da Qualidade',    area: 'Indústria', requester: 'Gustavo',  priority: 'medium', status: 'review' },
+  { name: 'Implantação módulo Manutenção de Ativos',     area: 'Indústria', requester: 'Gustavo',  priority: 'medium', status: 'review' },
+  { name: 'Aplicativo para Orfeu — análise sensorial (Cropster)', area: 'Indústria', requester: 'Milena', priority: 'medium', status: 'review' },
+  // Inteligência
+  { name: 'Segurança da informação / LGPD / código-fonte de aplicações e sites', area: 'Inteligência', requester: 'Diego', priority: 'high', status: 'review' },
+  { name: 'Dashboard forecast × realizado — nível vendedor/cliente/SKU', area: 'Inteligência', requester: 'Amanda Raquel', priority: 'high', status: 'review' },
+  { name: 'Amazon Hub',                                  area: 'Inteligência', requester: 'Amanda Raquel', priority: 'medium', status: 'review' },
+  // Logística
+  { name: 'EDI Transportadoras',                         area: 'Logística', requester: 'Ricardo Silva', priority: 'medium', status: 'review' },
+  { name: 'Implantar WMS na expedição Botelhos',         area: 'Logística', requester: 'Ricardo Silva', priority: 'high', status: 'review' },
+  // Qualidade
+  { name: 'BI de Qualidade',                             area: 'Qualidade', requester: 'Jéssica Viana', priority: 'medium', status: 'review' },
+  // SOP
+  { name: 'Implantação OpsFactor',                       area: 'SOP',       requester: 'Gustavo',  priority: 'medium', status: 'review' },
+]
+
+// Area leaders (owner) derived from the portfolio.
+export const AREA_OWNERS: Record<string, { owner: string; initials: string }> = {
+  'Comercial':    { owner: 'Cristiane',      initials: 'CR' },
+  'Compras':      { owner: 'Alene',          initials: 'AL' },
+  'Fazenda':      { owner: 'Lucas',          initials: 'LU' },
+  'Financeiro':   { owner: 'Rafaela',        initials: 'RA' },
+  'Gestão':       { owner: 'André Martins',  initials: 'AM' },
+  'Indústria':    { owner: 'Gustavo',        initials: 'GU' },
+  'Inteligência': { owner: 'Diego',          initials: 'DI' },
+  'Logística':    { owner: 'Ricardo Silva',  initials: 'RS' },
+  'Qualidade':    { owner: 'Jéssica Viana',  initials: 'JV' },
+  'SOP':          { owner: 'Gustavo',        initials: 'GU' },
+}
+
+export const AREA_ORDER = [
+  'Comercial', 'Compras', 'Fazenda', 'Financeiro', 'Gestão',
+  'Indústria', 'Inteligência', 'Logística', 'Qualidade', 'SOP',
+]
+
+export function projectsByArea(area: string): Project[] {
+  return PROJECTS.filter(p => p.area === area)
+}
+
+// The logged-in stakeholder (primary champion): Diego.
 export const MY_AREA: StakeholderArea = {
-  area: 'Comercial',
-  owner: 'Cristiane',
-  ownerInitials: 'CR',
+  area: 'Inteligência',
+  owner: 'Diego',
+  ownerInitials: 'DI',
   discoveryStatus: 'pending',
-  projects: [
-    { name: 'CRM Unificado',            priority: 'high',   status: 'in-progress', description: 'Consolidação de leads e pipeline em uma única plataforma.' },
-    { name: 'Automação de Propostas',   priority: 'high',   status: 'planned',     description: 'Geração automática de propostas comerciais com IA.' },
-    { name: 'Dashboard de Vendas',      priority: 'medium', status: 'in-progress', description: 'Visão em tempo real de metas, funil e forecast.' },
-    { name: 'Integração ERP',           priority: 'medium', status: 'at-risk',     description: 'Sincronização de pedidos entre CRM e ERP legado.' },
-    { name: 'Portal do Cliente',        priority: 'low',    status: 'planned',     description: 'Autoatendimento para acompanhamento de pedidos.' },
-  ],
+  projects: projectsByArea('Inteligência'),
 }
 
 export const PROJECT_STATUS_META: Record<ProjectStatus, { label: string; tone: 'green' | 'amber' | 'muted' | 'neutral' }> = {
+  'review':      { label: 'Em análise',   tone: 'muted' },
   'in-progress': { label: 'Em andamento', tone: 'green' },
   'planned':     { label: 'Planejado',    tone: 'muted' },
   'at-risk':     { label: 'Em risco',     tone: 'amber' },
@@ -174,6 +248,11 @@ export const PRIORITY_META: Record<Priority, { label: string; dot: string }> = {
   low:    { label: 'Baixa', dot: 'bg-neutral-300' },
 }
 
+// ─── Derived counts ───────────────────────────────────────────────────────────
+const UNIQUE_REQUESTERS = new Set(PROJECTS.map(p => p.requester)).size
+const TOTAL_PROJECTS = PROJECTS.length
+const TOTAL_AREAS = AREA_ORDER.length
+
 // ─── Dashboard metrics ────────────────────────────────────────────────────────
 export interface Metric {
   label: string
@@ -183,11 +262,12 @@ export interface Metric {
 }
 
 export const DASHBOARD_METRICS: Metric[] = [
-  { label: 'Assessment Progress', value: '15%', hint: 'Discovery em andamento' },
-  { label: 'Projects Reviewed',   value: '4',   delta: 'de 23', hint: 'portfólio total' },
-  { label: 'Stakeholders',        value: '8',   delta: '2 ativos', hint: 'líderes de área' },
-  { label: 'Discovery Sessions',  value: '2/8', hint: 'sessões concluídas' },
-  { label: 'Quick Wins',          value: '6',   hint: 'oportunidades imediatas' },
-  { label: 'Critical Risks',      value: '3',   hint: 'exigem atenção' },
-  { label: 'AI Opportunities',    value: '9',   hint: 'mapeadas até agora' },
+  { label: 'Assessment Progress', value: '0%',                       hint: 'aguardando kickoff' },
+  { label: 'Projects Mapped',     value: String(TOTAL_PROJECTS),     hint: 'no Comitê de TI' },
+  { label: 'Áreas',               value: String(TOTAL_AREAS),        hint: 'em avaliação' },
+  { label: 'Stakeholders',        value: String(UNIQUE_REQUESTERS),  hint: 'solicitantes mapeados' },
+  { label: 'Discovery Sessions',  value: `0/${TOTAL_AREAS}`,         hint: 'a agendar' },
+  { label: 'Quick Wins',          value: '—',                        hint: 'após Discovery' },
+  { label: 'Critical Risks',      value: '—',                        hint: 'após Discovery' },
+  { label: 'AI Opportunities',    value: '—',                        hint: 'após Discovery' },
 ]

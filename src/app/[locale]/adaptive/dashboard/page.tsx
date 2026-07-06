@@ -1,18 +1,28 @@
 'use client'
 
 import { PageShell, PageHeader, Reveal } from '@/components/adaptive/ui'
-import { DASHBOARD_METRICS, PILLARS } from '@/components/adaptive/data'
+import {
+  DASHBOARD_METRICS, PROJECTS, AREA_ORDER, projectsByArea, PRIORITY_META, CLIENT,
+} from '@/components/adaptive/data'
+import { Lock } from 'lucide-react'
 
-// Sample pillar scores (0–100) shown as horizontal bars.
-const PILLAR_SCORES = [72, 64, 58, 61, 43]
+const PRIORITIES = ['high', 'medium', 'low'] as const
 
 export default function DashboardPage() {
+  const maxArea = Math.max(...AREA_ORDER.map(a => projectsByArea(a).length))
+  const priorityCounts = PRIORITIES.map(p => ({
+    key: p,
+    label: PRIORITY_META[p].label,
+    dot: PRIORITY_META[p].dot,
+    count: PROJECTS.filter(x => x.priority === p).length,
+  }))
+
   return (
     <PageShell>
       <PageHeader
         eyebrow="Workspace"
         title="Dashboard"
-        subtitle="Acompanhe o andamento do assessment em tempo real. Os números são atualizados à medida que as Discovery Sessions são concluídas."
+        subtitle={`Visão consolidada do portfólio do ${CLIENT.name}. Os indicadores de maturidade são gerados à medida que as Discovery Sessions são concluídas.`}
       />
 
       {/* Metric cards */}
@@ -31,37 +41,62 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Pillar scores */}
-      <Reveal>
-        <div className="rounded-2xl border border-black/[0.06] bg-white p-8">
-          <div className="flex items-baseline justify-between mb-7">
-            <h2 className="text-[15px] font-semibold text-neutral-900">Adaptive Index™ — parcial</h2>
-            <span className="text-[12px] text-neutral-400">baseado em 25% dos dados</span>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 mb-12">
+        {/* Projects by area */}
+        <Reveal>
+          <div className="rounded-2xl border border-black/[0.06] bg-white p-7 h-full">
+            <h2 className="text-[15px] font-semibold text-neutral-900 mb-6">Projetos por área</h2>
+            <div className="flex flex-col gap-3.5">
+              {AREA_ORDER.map(area => {
+                const count = projectsByArea(area).length
+                return (
+                  <div key={area} className="flex items-center gap-3">
+                    <span className="w-24 text-[12px] text-neutral-500 flex-shrink-0">{area}</span>
+                    <div className="flex-1 h-2.5 rounded-full bg-black/[0.04] overflow-hidden">
+                      <div className="h-full rounded-full bg-neutral-900" style={{ width: `${(count / maxArea) * 100}%` }} />
+                    </div>
+                    <span className="w-5 text-right text-[12px] font-mono text-neutral-400">{count}</span>
+                  </div>
+                )
+              })}
+            </div>
           </div>
+        </Reveal>
 
-          <div className="flex flex-col gap-5">
-            {PILLARS.map((pillar, i) => {
-              const score = PILLAR_SCORES[i]
-              return (
-                <div key={pillar.index}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[13px] font-medium text-neutral-700">{pillar.name}</span>
-                    <span className="text-[13px] font-mono text-neutral-400">{score}</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-black/[0.05] overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-neutral-900"
-                      style={{ width: `${score}%`, animation: `adaptive-fade-up 0.6s ease-out` }}
-                    />
-                  </div>
+        {/* Priority distribution */}
+        <Reveal delay={0.06}>
+          <div className="rounded-2xl border border-black/[0.06] bg-white p-7 h-full">
+            <h2 className="text-[15px] font-semibold text-neutral-900 mb-6">Prioridade inicial</h2>
+            <div className="flex flex-col gap-5">
+              {priorityCounts.map(p => (
+                <div key={p.key} className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-[13px] text-neutral-600">
+                    <span className={`w-2 h-2 rounded-full ${p.dot}`} />
+                    {p.label}
+                  </span>
+                  <span className="text-[18px] font-semibold text-neutral-900">{p.count}</span>
                 </div>
-              )
-            })}
+              ))}
+            </div>
+            <p className="mt-6 text-[11px] text-neutral-400 leading-relaxed">
+              Priorização preliminar — será validada com cada líder durante a Discovery.
+            </p>
           </div>
+        </Reveal>
+      </div>
 
-          <p className="mt-7 text-[12px] text-neutral-400 leading-relaxed">
-            * Índice preliminar. O score final é consolidado após todas as Discovery Sessions e a análise técnica.
-          </p>
+      {/* Adaptive Index — awaiting */}
+      <Reveal>
+        <div className="rounded-2xl border border-black/[0.06] bg-neutral-900 text-white p-8 flex items-center gap-5">
+          <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+            <Lock className="w-5 h-5 text-white" strokeWidth={1.75} />
+          </div>
+          <div>
+            <p className="text-[15px] font-semibold">Adaptive Index™ — aguardando assessment</p>
+            <p className="text-[13px] text-white/50 mt-1">
+              O índice de maturidade dos 5 pilares é liberado após as Discovery Sessions.
+            </p>
+          </div>
         </div>
       </Reveal>
     </PageShell>
