@@ -46,11 +46,11 @@ export function Sidebar() {
         {/* Client context */}
         <div className="mb-3 flex items-center gap-2.5 px-1">
           <div className="w-7 h-7 rounded-lg bg-black/[0.06] flex items-center justify-center text-[10px] font-semibold text-neutral-600">
-            {CLIENT.champion.initials}
+            {CLIENT.facilitator.initials}
           </div>
           <div className="leading-tight min-w-0">
             <p className="text-[12px] font-medium text-neutral-900 truncate">{CLIENT.name}</p>
-            <p className="text-[10px] text-neutral-400 truncate">{CLIENT.champion.name} · {CLIENT.champion.role}</p>
+            <p className="text-[10px] text-neutral-400 truncate">{CLIENT.facilitator.name} · {CLIENT.facilitator.role}</p>
           </div>
         </div>
         <div className="rounded-xl border border-black/[0.06] bg-black/[0.015] p-4">
