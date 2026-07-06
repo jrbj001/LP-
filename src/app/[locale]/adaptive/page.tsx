@@ -31,9 +31,13 @@ export default function AdaptiveHome() {
           </span>
           <span className="text-[12px] text-neutral-400">{CLIENT.sector}</span>
         </div>
-        <h2 className="mb-10 text-[22px] lg:text-[26px] font-semibold tracking-[-0.02em] text-neutral-900">
-          Olá, {CLIENT.champion.name}. Bem-vindo ao seu Technology Assessment.
+        <h2 className="mb-3 text-[22px] lg:text-[26px] font-semibold tracking-[-0.02em] text-neutral-900">
+          Bem-vindo ao Technology Assessment do {CLIENT.name}.
         </h2>
+        <p className="mb-10 text-[14px] text-neutral-500">
+          Facilitação de <span className="font-medium text-neutral-700">{CLIENT.facilitator.name}</span> · {CLIENT.facilitator.role}.
+          Cada líder acessa sua própria área em <span className="font-medium text-neutral-700">Minha Área</span>.
+        </p>
       </Reveal>
 
       {/* Founder welcome */}

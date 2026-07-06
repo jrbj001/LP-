@@ -132,7 +132,7 @@ export const EXPECTED_RESULTS: ExpectedResult[] = [
 export const CLIENT = {
   name: 'Grupo Orfeu',
   sector: 'Café · Agroindústria & Varejo',
-  champion: { name: 'Diego', role: 'Líder de Gente & Gestão', initials: 'DI' },
+  facilitator: { name: 'Diego', role: 'Facilitador · Gente & Gestão', initials: 'DI' },
   sponsor: { name: 'Ricardo Madureira', role: 'Sponsor Executivo' },
   partners: 'José Roberto (Zé) & Marco Lúcio — PixelPulseLab',
 }
@@ -147,14 +147,6 @@ export interface Project {
   requester: string
   priority: Priority
   status: ProjectStatus
-}
-
-export interface StakeholderArea {
-  area: string
-  owner: string
-  ownerInitials: string
-  discoveryStatus: 'pending' | 'in-progress' | 'done'
-  projects: Project[]
 }
 
 // Full portfolio from Grupo Orfeu's "Comitê de TI" spreadsheet.
@@ -225,13 +217,38 @@ export function projectsByArea(area: string): Project[] {
   return PROJECTS.filter(p => p.area === area)
 }
 
-// The logged-in stakeholder (primary champion): Diego.
-export const MY_AREA: StakeholderArea = {
-  area: 'Inteligência',
-  owner: 'Diego',
-  ownerInitials: 'DI',
-  discoveryStatus: 'pending',
-  projects: projectsByArea('Inteligência'),
+export function projectsByRequester(name: string): Project[] {
+  return PROJECTS.filter(p => p.requester === name)
+}
+
+// ─── Stakeholders (each person selects their own name) ────────────────────────
+export interface Stakeholder {
+  name: string
+  initials: string
+  areas: string[]
+  facilitator?: boolean
+}
+
+export const STAKEHOLDERS: Stakeholder[] = [
+  { name: 'Diego',         initials: 'DI', areas: ['Inteligência'],           facilitator: true },
+  { name: 'Cristiane',     initials: 'CR', areas: ['Comercial'] },
+  { name: 'Joyce',         initials: 'JO', areas: ['Comercial'] },
+  { name: 'Silvia',        initials: 'SI', areas: ['Comercial'] },
+  { name: 'RM',            initials: 'RM', areas: ['Comercial'] },
+  { name: 'Cibele',        initials: 'CI', areas: ['Comercial'] },
+  { name: 'Alene',         initials: 'AL', areas: ['Compras'] },
+  { name: 'Lucas',         initials: 'LU', areas: ['Fazenda'] },
+  { name: 'Rafaela',       initials: 'RA', areas: ['Financeiro', 'Gestão'] },
+  { name: 'André Martins', initials: 'AM', areas: ['Gestão'] },
+  { name: 'Gustavo',       initials: 'GU', areas: ['Indústria', 'SOP'] },
+  { name: 'Milena',        initials: 'MI', areas: ['Indústria'] },
+  { name: 'Amanda Raquel', initials: 'AR', areas: ['Inteligência'] },
+  { name: 'Ricardo Silva', initials: 'RS', areas: ['Logística'] },
+  { name: 'Jéssica Viana', initials: 'JV', areas: ['Qualidade'] },
+]
+
+export function findStakeholder(name: string): Stakeholder | undefined {
+  return STAKEHOLDERS.find(s => s.name === name)
 }
 
 export const PROJECT_STATUS_META: Record<ProjectStatus, { label: string; tone: 'green' | 'amber' | 'muted' | 'neutral' }> = {
