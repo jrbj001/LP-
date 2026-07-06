@@ -3,7 +3,7 @@
 import { useLocale } from 'next-intl'
 import { PageShell, PageHeader, Reveal, Badge } from '@/components/adaptive/ui'
 import { ProjectCard } from '@/components/adaptive/project-card'
-import { MY_AREA } from '@/components/adaptive/data'
+import { MY_AREA, CLIENT } from '@/components/adaptive/data'
 import { ArrowRight } from 'lucide-react'
 
 export default function MyAreaPage() {
@@ -13,7 +13,11 @@ export default function MyAreaPage() {
 
   return (
     <PageShell>
-      <PageHeader eyebrow="Minha Área" title={area.area} />
+      <PageHeader
+        eyebrow="Minha Área"
+        title={area.area}
+        subtitle={`Projetos e prioridades sob sua responsabilidade no assessment do ${CLIENT.name}.`}
+      />
 
       {/* Owner + status card */}
       <Reveal>
@@ -24,7 +28,7 @@ export default function MyAreaPage() {
             </div>
             <div>
               <p className="text-[14px] font-semibold text-neutral-900">{area.owner}</p>
-              <p className="text-[12px] text-neutral-400">Responsável pela área</p>
+              <p className="text-[12px] text-neutral-400">{CLIENT.champion.role}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
