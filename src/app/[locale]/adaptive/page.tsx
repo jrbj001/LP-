@@ -14,7 +14,7 @@ const STATUS_CARDS = [
   { icon: Users,        label: 'Stakeholders',        value: '15',   meta: 'solicitantes mapeados' },
   { icon: FolderKanban, label: 'Projetos no Comitê',  value: '31',   meta: 'a avaliar' },
   { icon: Compass,      label: 'Discovery Sessions',  value: '10',   meta: '30 min por área' },
-  { icon: Clock,        label: 'Estimated Duration',  value: '3 sem',meta: 'até o Executive Review' },
+  { icon: Clock,        label: 'Estimated Duration',  value: '1 sem',meta: 'até o Executive Review' },
 ]
 
 export default function AdaptiveHome() {
