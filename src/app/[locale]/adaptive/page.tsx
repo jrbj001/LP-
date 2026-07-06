@@ -2,10 +2,12 @@
 
 import { motion } from 'framer-motion'
 import { useLocale } from 'next-intl'
-import { ArrowRight, Users, FolderKanban, Compass, Clock, Activity } from 'lucide-react'
+import { ArrowRight, Users, FolderKanban, Compass, Clock, Activity, Crown, Star, Building2 } from 'lucide-react'
 import { Timeline } from '@/components/adaptive/timeline'
 import { Reveal } from '@/components/adaptive/ui'
-import { EXPECTED_RESULTS, CLIENT } from '@/components/adaptive/data'
+import {
+  EXPECTED_RESULTS, CLIENT, AREA_ORDER, AREA_OWNERS, projectsByArea,
+} from '@/components/adaptive/data'
 
 const STATUS_CARDS = [
   { icon: Activity,     label: 'Assessment Progress', value: '0%',   meta: 'aguardando kickoff' },
@@ -132,6 +134,77 @@ export default function AdaptiveHome() {
             )
           })}
         </div>
+      </Reveal>
+
+      {/* Governance */}
+      <Reveal className="mb-16">
+        <h2 className="text-[15px] font-semibold text-neutral-900 mb-5">Governança do Assessment</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Sponsor */}
+          <div className="rounded-xl border border-neutral-900/15 bg-white p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Crown className="w-4 h-4 text-neutral-900 fill-neutral-900" strokeWidth={0} />
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">Sponsor</span>
+            </div>
+            <p className="text-[15px] font-semibold text-neutral-900">{CLIENT.sponsor.name}</p>
+            <p className="text-[12px] text-neutral-400 mt-0.5">CEO · {CLIENT.sponsor.role}</p>
+          </div>
+          {/* Facilitator */}
+          <div className="rounded-xl border border-amber-100 bg-white p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Star className="w-4 h-4 text-amber-500 fill-amber-500" strokeWidth={0} />
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">Facilitador</span>
+            </div>
+            <p className="text-[15px] font-semibold text-neutral-900">{CLIENT.facilitator.name}</p>
+            <p className="text-[12px] text-neutral-400 mt-0.5">{CLIENT.facilitator.role}</p>
+          </div>
+          {/* Delivery */}
+          <div className="rounded-xl border border-black/[0.06] bg-white p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Building2 className="w-4 h-4 text-neutral-300" strokeWidth={1.75} />
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">Entrega</span>
+            </div>
+            <p className="text-[15px] font-semibold text-neutral-900">PixelPulseLab</p>
+            <p className="text-[12px] text-neutral-400 mt-0.5">José Roberto &amp; Marco Lúcio</p>
+          </div>
+        </div>
+      </Reveal>
+
+      {/* Areas & leaders */}
+      <Reveal className="mb-16">
+        <div className="flex items-baseline justify-between mb-5">
+          <h2 className="text-[15px] font-semibold text-neutral-900">Áreas &amp; líderes</h2>
+          <span className="text-[12px] text-neutral-400">{AREA_ORDER.length} áreas · 15 stakeholders</span>
+        </div>
+
+        <div className="rounded-2xl border border-black/[0.06] bg-white divide-y divide-black/[0.05] overflow-hidden">
+          {AREA_ORDER.map((area) => {
+            const owner = AREA_OWNERS[area]
+            const count = projectsByArea(area).length
+            return (
+              <div key={area} className="flex items-center gap-4 px-5 py-3.5 hover:bg-black/[0.015] transition-colors">
+                <div className="w-8 h-8 rounded-full bg-black/[0.06] flex items-center justify-center text-[11px] font-semibold text-neutral-600 flex-shrink-0">
+                  {owner?.initials}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[14px] font-medium text-neutral-900">{area}</p>
+                  <p className="text-[12px] text-neutral-400">{owner?.owner}</p>
+                </div>
+                <span className="text-[12px] text-neutral-400 flex-shrink-0">
+                  {count} {count === 1 ? 'projeto' : 'projetos'}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+
+        <a
+          href={`${base}/my-area`}
+          className="group mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-[14px] font-medium hover:bg-neutral-800 transition-all"
+        >
+          Selecione seu nome em Minha Área
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+        </a>
       </Reveal>
 
       {/* Expected results */}
