@@ -49,6 +49,15 @@ export function Nav() {
         </a>
 
         <div className="flex items-center gap-3">
+          {/* Client portal link */}
+          <a
+            href={`/${locale}/client`}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono tracking-wider text-white/40 hover:text-white/70 border border-white/[0.08] hover:border-white/[0.18] rounded-lg transition-all duration-200"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+            Portal
+          </a>
+
           {/* Language switcher */}
           <div className="flex border border-white/[0.1] rounded-lg overflow-hidden">
             {LOCALES.map(({ code, label }) => (
