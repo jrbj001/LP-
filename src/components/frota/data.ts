@@ -47,7 +47,7 @@ export const CLIENT = {
   sector: 'Inteligência de Rede · Finanças & Investimentos',
   facilitator: { name: 'José Roberto', role: 'Tech Lead · PixelPulseLab', initials: 'JR' },
   sponsor: { name: 'SF', role: 'Sponsor · Cliente' },
-  partners: 'José Roberto (Zé) & Marco Lúcio — PixelPulseLab',
+  partners: 'PixelPulseLab',
 }
 
 // ─── Founders ─────────────────────────────────────────────────────────────────
@@ -89,36 +89,36 @@ export interface Project {
 
 export const PROJECTS: Project[] = [
   // Camada 1 — Coleta & Enriquecimento
-  { name: 'Integração HubSpot — importação dos 2.410 contatos',   area: 'Coleta & Enriquecimento', owner: 'Zé',    priority: 'high',   status: 'planned', hours: 24 },
-  { name: 'Scraper LinkedIn (cargo, bio, experiência, posts)',     area: 'Coleta & Enriquecimento', owner: 'Zé',    priority: 'high',   status: 'planned', hours: 40 },
-  { name: 'Scraper Instagram (bio, seguidores, engajamento)',      area: 'Coleta & Enriquecimento', owner: 'Zé',    priority: 'medium', status: 'planned', hours: 24 },
-  { name: 'Scraper Site da empresa (setor, serviços, equipe)',     area: 'Coleta & Enriquecimento', owner: 'Zé',    priority: 'medium', status: 'planned', hours: 16 },
-  { name: 'Scraper Notícias (menções, entrevistas, prêmios)',      area: 'Coleta & Enriquecimento', owner: 'Zé',    priority: 'low',    status: 'planned', hours: 16 },
-  { name: 'n8n — orquestração de lotes e automação',              area: 'Coleta & Enriquecimento', owner: 'Zé',    priority: 'high',   status: 'planned', hours: 32 },
-  { name: 'OpenAI — extração de tópicos + geração de embeddings', area: 'Coleta & Enriquecimento', owner: 'Zé',    priority: 'high',   status: 'planned', hours: 32 },
+  { name: 'Integração HubSpot — importação dos 2.410 contatos',   area: 'Coleta & Enriquecimento', owner: 'Backend',  priority: 'high',   status: 'planned', hours: 24 },
+  { name: 'Scraper LinkedIn (cargo, bio, experiência, posts)',     area: 'Coleta & Enriquecimento', owner: 'Backend',  priority: 'high',   status: 'planned', hours: 40 },
+  { name: 'Scraper Instagram (bio, seguidores, engajamento)',      area: 'Coleta & Enriquecimento', owner: 'Backend',  priority: 'medium', status: 'planned', hours: 24 },
+  { name: 'Scraper Site da empresa (setor, serviços, equipe)',     area: 'Coleta & Enriquecimento', owner: 'Backend',  priority: 'medium', status: 'planned', hours: 16 },
+  { name: 'Scraper Notícias (menções, entrevistas, prêmios)',      area: 'Coleta & Enriquecimento', owner: 'Backend',  priority: 'low',    status: 'planned', hours: 16 },
+  { name: 'n8n — orquestração de lotes e automação',              area: 'Coleta & Enriquecimento', owner: 'Backend',  priority: 'high',   status: 'planned', hours: 32 },
+  { name: 'OpenAI — extração de tópicos + geração de embeddings', area: 'Coleta & Enriquecimento', owner: 'IA',       priority: 'high',   status: 'planned', hours: 32 },
 
   // Camada 2 — Banco de Dados
-  { name: 'Schema relacional de contatos (Supabase / Postgres)',  area: 'Banco de Dados', owner: 'Zé',    priority: 'high',   status: 'planned', hours: 24 },
-  { name: 'pgvector — índice vetorial para busca semântica',      area: 'Banco de Dados', owner: 'Zé',    priority: 'high',   status: 'planned', hours: 20 },
-  { name: 'Sistema de tiers (Inner Circle > A > B > C)',          area: 'Banco de Dados', owner: 'Ana',   priority: 'high',   status: 'planned', hours: 16 },
-  { name: 'Busca textual por nome / empresa',                     area: 'Banco de Dados', owner: 'Ana',   priority: 'medium', status: 'planned', hours: 12 },
-  { name: 'Redis — cache para respostas instantâneas',            area: 'Banco de Dados', owner: 'Ana',   priority: 'low',    status: 'planned', hours: 12 },
+  { name: 'Schema relacional de contatos (Supabase / Postgres)',  area: 'Banco de Dados', owner: 'Backend',  priority: 'high',   status: 'planned', hours: 24 },
+  { name: 'pgvector — índice vetorial para busca semântica',      area: 'Banco de Dados', owner: 'Backend',  priority: 'high',   status: 'planned', hours: 20 },
+  { name: 'Sistema de tiers (Inner Circle > A > B > C)',          area: 'Banco de Dados', owner: 'Backend',  priority: 'high',   status: 'planned', hours: 16 },
+  { name: 'Busca textual por nome / empresa',                     area: 'Banco de Dados', owner: 'Backend',  priority: 'medium', status: 'planned', hours: 12 },
+  { name: 'Redis — cache para respostas instantâneas',            area: 'Banco de Dados', owner: 'Backend',  priority: 'low',    status: 'planned', hours: 12 },
 
   // Camada 3 — IA de Busca
-  { name: 'Busca semântica + híbrida (vetorial + textual)',       area: 'IA de Busca', owner: 'Zé',    priority: 'high',   status: 'planned', hours: 40 },
-  { name: 'Chat em linguagem natural (query → contatos certos)',  area: 'IA de Busca', owner: 'Zé',    priority: 'high',   status: 'planned', hours: 32 },
-  { name: 'Ranking por força da relação (tier-weighted)',         area: 'IA de Busca', owner: 'Zé',    priority: 'high',   status: 'planned', hours: 24 },
-  { name: 'Filtros: cidade, país, tier, setor',                   area: 'IA de Busca', owner: 'Ana',   priority: 'medium', status: 'planned', hours: 16 },
+  { name: 'Busca semântica + híbrida (vetorial + textual)',       area: 'IA de Busca', owner: 'IA',       priority: 'high',   status: 'planned', hours: 40 },
+  { name: 'Chat em linguagem natural (query → contatos certos)',  area: 'IA de Busca', owner: 'IA',       priority: 'high',   status: 'planned', hours: 32 },
+  { name: 'Ranking por força da relação (tier-weighted)',         area: 'IA de Busca', owner: 'IA',       priority: 'high',   status: 'planned', hours: 24 },
+  { name: 'Filtros: cidade, país, tier, setor',                   area: 'IA de Busca', owner: 'Backend',  priority: 'medium', status: 'planned', hours: 16 },
 
   // Camada 4 — Plataforma Web
-  { name: 'Chat de busca (interface linguagem natural)',          area: 'Plataforma Web', owner: 'Marco', priority: 'high',   status: 'planned', hours: 40 },
-  { name: 'Dashboard — visão da rede por tier, cidade, setor',   area: 'Plataforma Web', owner: 'Marco', priority: 'high',   status: 'planned', hours: 32 },
-  { name: 'Filtros + ficha completa enriquecida de contato',     area: 'Plataforma Web', owner: 'Marco', priority: 'high',   status: 'planned', hours: 32 },
-  { name: 'Auth (Supabase Auth) + deploy Vercel',                area: 'Plataforma Web', owner: 'Zé',    priority: 'high',   status: 'planned', hours: 16 },
+  { name: 'Chat de busca (interface linguagem natural)',          area: 'Plataforma Web', owner: 'Frontend', priority: 'high',   status: 'planned', hours: 40 },
+  { name: 'Dashboard — visão da rede por tier, cidade, setor',   area: 'Plataforma Web', owner: 'Frontend', priority: 'high',   status: 'planned', hours: 32 },
+  { name: 'Filtros + ficha completa enriquecida de contato',     area: 'Plataforma Web', owner: 'Frontend', priority: 'high',   status: 'planned', hours: 32 },
+  { name: 'Auth (Supabase Auth) + deploy Vercel',                area: 'Plataforma Web', owner: 'Backend',  priority: 'high',   status: 'planned', hours: 16 },
 
   // Fase 2 — App Mobile
-  { name: 'App iOS — SF Network Intelligence',                   area: 'App Mobile', owner: 'Marco', priority: 'medium', status: 'planned', hours: 160 },
-  { name: 'App Android — SF Network Intelligence',               area: 'App Mobile', owner: 'Marco', priority: 'medium', status: 'planned', hours: 120 },
+  { name: 'App iOS — SF Network Intelligence',                   area: 'App Mobile', owner: 'Mobile',   priority: 'medium', status: 'planned', hours: 160 },
+  { name: 'App Android — SF Network Intelligence',               area: 'App Mobile', owner: 'Mobile',   priority: 'medium', status: 'planned', hours: 120 },
 ]
 
 export const AREA_ORDER = [
@@ -130,11 +130,11 @@ export const AREA_ORDER = [
 ]
 
 export const AREA_META: Record<string, { icon: LucideIcon; initials: string; owner: string; phase: string }> = {
-  'Coleta & Enriquecimento': { icon: Zap,       initials: 'C1', owner: 'Zé',    phase: 'Fase 1' },
-  'Banco de Dados':          { icon: Database,  initials: 'C2', owner: 'Zé',    phase: 'Fase 1' },
-  'IA de Busca':             { icon: Brain,     initials: 'C3', owner: 'Zé',    phase: 'Fase 1' },
-  'Plataforma Web':          { icon: Globe,     initials: 'C4', owner: 'Marco', phase: 'Fase 1' },
-  'App Mobile':              { icon: Smartphone,initials: 'C5', owner: 'Marco', phase: 'Fase 2' },
+  'Coleta & Enriquecimento': { icon: Zap,       initials: 'C1', owner: 'Backend',  phase: 'Fase 1' },
+  'Banco de Dados':          { icon: Database,  initials: 'C2', owner: 'Backend',  phase: 'Fase 1' },
+  'IA de Busca':             { icon: Brain,     initials: 'C3', owner: 'IA',       phase: 'Fase 1' },
+  'Plataforma Web':          { icon: Globe,     initials: 'C4', owner: 'Frontend', phase: 'Fase 1' },
+  'App Mobile':              { icon: Smartphone,initials: 'C5', owner: 'Mobile',   phase: 'Fase 2' },
 }
 
 export function projectsByArea(area: string): Project[] {
@@ -152,10 +152,8 @@ export interface Stakeholder {
 }
 
 export const STAKEHOLDERS: Stakeholder[] = [
-  { name: 'SF',    initials: 'SF', role: 'Sponsor · Cliente',            areas: ['Todas'],                      sponsor: true },
-  { name: 'José Roberto', initials: 'JR', role: 'Co-founder & Principal Engineer',  areas: ['Coleta & Enriquecimento', 'Banco de Dados', 'IA de Busca'], lead: true },
-  { name: 'Marco', initials: 'ML', role: 'Co-founder & CEO · Frontend',  areas: ['Plataforma Web', 'App Mobile'] },
-  { name: 'Ana',   initials: 'AN', role: 'Dev · Backend & Dados',        areas: ['Banco de Dados', 'IA de Busca'] },
+  { name: 'SF',    initials: 'SF', role: 'Sponsor · Cliente',         areas: ['Todas'],  sponsor: true },
+  { name: 'PixelPulseLab', initials: 'PP', role: 'Equipe de entrega', areas: ['Todas'],  lead: true },
 ]
 
 // ─── Roadmap milestones ───────────────────────────────────────────────────────
@@ -177,7 +175,7 @@ export const MILESTONES: Milestone[] = [
     title: 'Kickoff',
     description: 'Alinhamento de escopo, stack, acessos e definição final de prioridades.',
     phase: 'Fase 1',
-    owners: ['Zé', 'Marco', 'SF'],
+    owners: ['Backend', 'Frontend', 'Cliente'],
     hours: 8,
     deliverables: ['Documento de escopo assinado', 'Acessos HubSpot / Supabase / Vercel configurados'],
   },
@@ -187,7 +185,7 @@ export const MILESTONES: Milestone[] = [
     title: 'M1 — Base de dados + enriquecimento rodando',
     description: 'HubSpot importado, pipeline n8n funcional, primeiros contatos enriquecidos via LinkedIn e embeddings gerados.',
     phase: 'Fase 1',
-    owners: ['Zé', 'Ana'],
+    owners: ['Backend', 'IA'],
     hours: 120,
     deliverables: ['2.410 contatos importados', 'Pipeline n8n ativo', 'Primeiros 500 perfis enriquecidos', 'pgvector indexado'],
   },
@@ -197,7 +195,7 @@ export const MILESTONES: Milestone[] = [
     title: 'M2 — IA de busca validada',
     description: 'Busca semântica + híbrida funcionando em staging. Chat em linguagem natural retornando os 15 contatos certos.',
     phase: 'Fase 1',
-    owners: ['Zé', 'Ana'],
+    owners: ['IA', 'Backend'],
     hours: 112,
     deliverables: ['Busca vetorial + textual operacional', 'Ranking por tier funcional', 'Chat testado com 20 queries reais'],
   },
@@ -207,7 +205,7 @@ export const MILESTONES: Milestone[] = [
     title: 'M3 — Plataforma Web v1 em produção',
     description: 'Deploy Vercel com auth, chat de busca, dashboard e ficha de contato. Fase 1 entregue.',
     phase: 'Fase 1',
-    owners: ['Marco', 'Zé'],
+    owners: ['Frontend', 'Backend'],
     hours: 120,
     deliverables: ['Chat de busca em produção', 'Dashboard ativo', 'Filtros + fichas completas', 'Auth funcional', 'Deploy Vercel'],
   },
@@ -217,7 +215,7 @@ export const MILESTONES: Milestone[] = [
     title: 'Validação & Ajustes Finos',
     description: 'Sessão de uso com o cliente. Correções de UX, acurácia da IA e performance.',
     phase: 'Fase 1',
-    owners: ['Zé', 'Marco', 'Ana', 'SF'],
+    owners: ['Backend', 'Frontend', 'IA', 'Cliente'],
     hours: 40,
     deliverables: ['Relatório de usabilidade', 'Ajustes pós-uso real', 'Aceite formal da Fase 1'],
   },
@@ -227,7 +225,7 @@ export const MILESTONES: Milestone[] = [
     title: 'M4 — App iOS beta',
     description: 'Versão beta do app iOS com chat de busca, dashboard e ficha de contato.',
     phase: 'Fase 2',
-    owners: ['Marco'],
+    owners: ['Mobile'],
     hours: 160,
     deliverables: ['App iOS TestFlight', 'Integração com a mesma API da web'],
   },
@@ -237,7 +235,7 @@ export const MILESTONES: Milestone[] = [
     title: 'M5 — App Android beta + Handover',
     description: 'App Android funcional. Documentação técnica completa e entrega do código-fonte.',
     phase: 'Fase 2',
-    owners: ['Marco', 'Zé'],
+    owners: ['Mobile', 'Backend'],
     hours: 128,
     deliverables: ['App Android Play Store', 'Documentação técnica', 'Código-fonte entregue', 'Handover final'],
   },
@@ -245,9 +243,8 @@ export const MILESTONES: Milestone[] = [
 
 // ─── Team / devs ─────────────────────────────────────────────────────────────
 export interface TeamMember {
-  name: string
-  initials: string
   role: string
+  initials: string
   focus: string[]
   hoursPerWeek: number
   color: string
@@ -255,28 +252,27 @@ export interface TeamMember {
 
 export const TEAM: TeamMember[] = [
   {
-    name: 'José Roberto (Zé)',
-    initials: 'JR',
-    role: 'Co-founder & Principal Engineer',
+    role: 'Backend & IA',
+    initials: 'BE',
     focus: ['Coleta & Enriquecimento', 'Banco de Dados', 'IA de Busca'],
     hoursPerWeek: 30,
     color: 'bg-neutral-900',
   },
   {
-    name: 'Marco Lúcio',
-    initials: 'ML',
-    role: 'Co-founder & CEO · Frontend',
+    role: 'Frontend & Mobile',
+    initials: 'FE',
     focus: ['Plataforma Web', 'App Mobile'],
     hoursPerWeek: 25,
     color: 'bg-neutral-600',
   },
   {
-    name: 'Ana',
-    initials: 'AN',
-    role: 'Dev · Backend & Dados',
+    role: 'Backend & Dados',
+    initials: 'BD',
     focus: ['Banco de Dados', 'IA de Busca'],
     hoursPerWeek: 20,
     color: 'bg-neutral-400',
+  },
+]
   },
 ]
 

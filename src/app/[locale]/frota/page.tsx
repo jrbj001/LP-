@@ -193,7 +193,7 @@ export default function FrotaHome() {
               <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">Entrega</span>
             </div>
             <p className="text-[15px] font-semibold text-neutral-900">PixelPulseLab</p>
-            <p className="text-[12px] text-neutral-400 mt-0.5">José Roberto &amp; Marco Lúcio</p>
+            <p className="text-[12px] text-neutral-400 mt-0.5">PixelPulseLab</p>
           </div>
         </div>
       </Reveal>

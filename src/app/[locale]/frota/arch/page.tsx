@@ -141,13 +141,12 @@ export default function FrotaArchPage() {
         <h2 className="text-[15px] font-semibold text-neutral-900 mb-5">Equipe de entrega</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {TEAM.map(m => (
-            <div key={m.name} className="rounded-xl border border-black/[0.06] bg-white p-5">
+            <div key={m.role} className="rounded-xl border border-black/[0.06] bg-white p-5">
               <div className={`w-9 h-9 rounded-full ${m.color} text-white flex items-center justify-center text-[12px] font-semibold mb-4`}>
                 {m.initials}
               </div>
-              <p className="text-[14px] font-semibold text-neutral-900">{m.name}</p>
-              <p className="text-[12px] text-neutral-400 mt-0.5 mb-3">{m.role}</p>
-              <div className="flex flex-wrap gap-1">
+              <p className="text-[14px] font-semibold text-neutral-900">{m.role}</p>
+              <div className="flex flex-wrap gap-1 mt-3">
                 {m.focus.map(f => (
                   <span key={f} className="text-[10px] text-neutral-500 bg-neutral-50 border border-neutral-100 px-2 py-0.5 rounded-full">
                     {f}

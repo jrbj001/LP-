@@ -13,6 +13,14 @@ const PHASE_TEXT: Record<string, string> = {
   'Fase 2': 'text-white',
 }
 
+const OWNER_COLOR: Record<string, string> = {
+  Backend:  'bg-neutral-900',
+  IA:       'bg-neutral-700',
+  Frontend: 'bg-neutral-500',
+  Mobile:   'bg-neutral-400',
+  Cliente:  'bg-emerald-500',
+}
+
 export default function FrotaRoadmapPage() {
   const fase1Total = MILESTONES.filter(m => m.phase === 'Fase 1').reduce((s, m) => s + m.hours, 0)
   const fase2Total = MILESTONES.filter(m => m.phase === 'Fase 2').reduce((s, m) => s + m.hours, 0)
@@ -94,22 +102,19 @@ export default function FrotaRoadmapPage() {
 
                     <p className="text-[13px] text-neutral-500 mb-4">{m.description}</p>
 
-                    {/* Team */}
+                    {/* Roles/owners — sem nomes */}
                     <div className="flex items-center gap-2 mb-4">
-                      {m.owners.map(owner => {
-                        const member = TEAM.find(t => t.name.includes(owner) || t.initials === owner || owner === t.name.split(' ')[0])
-                        return (
-                          <div
-                            key={owner}
-                            className={`w-6 h-6 rounded-full ${member?.color ?? 'bg-neutral-200'} text-white flex items-center justify-center text-[9px] font-semibold`}
-                            title={owner}
-                          >
-                            {owner === 'SF' ? 'SF' : member?.initials ?? owner.slice(0, 2).toUpperCase()}
-                          </div>
-                        )
-                      })}
+                      {m.owners.map(owner => (
+                        <div
+                          key={owner}
+                          className={`w-6 h-6 rounded-full ${OWNER_COLOR[owner] ?? 'bg-neutral-200'} text-white flex items-center justify-center text-[9px] font-semibold`}
+                          title={owner}
+                        >
+                          {owner.slice(0, 2).toUpperCase()}
+                        </div>
+                      ))}
                       <span className="text-[11px] text-neutral-400 ml-1">
-                        {m.owners.filter(o => o !== 'SF').join(', ')}
+                        {m.owners.filter(o => o !== 'Cliente').join(' · ')}
                       </span>
                     </div>
 
@@ -135,31 +140,26 @@ export default function FrotaRoadmapPage() {
         </div>
       </Reveal>
 
-      {/* Resumo por dev */}
+      {/* Resumo por papel */}
       <Reveal>
-        <h2 className="text-[15px] font-semibold text-neutral-900 mb-5">Alocação por desenvolvedor</h2>
+        <h2 className="text-[15px] font-semibold text-neutral-900 mb-5">Alocação por papel</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {TEAM.map(member => {
             const memberProjects = PROJECTS.filter(p =>
-              p.owner === member.name.split(' ')[0] ||
-              p.owner === member.name.split('(')[1]?.replace(')', '') ||
-              (member.initials === 'JR' && p.owner === 'Zé') ||
-              (member.initials === 'ML' && p.owner === 'Marco') ||
-              (member.initials === 'AN' && p.owner === 'Ana')
+              member.focus.some(f => p.area === f)
             )
             const memberHours = memberProjects.reduce((s, p) => s + p.hours, 0)
             const weeksNeeded = Math.ceil(memberHours / member.hoursPerWeek)
 
             return (
-              <div key={member.name} className="rounded-xl border border-black/[0.06] bg-white p-5">
+              <div key={member.role} className="rounded-xl border border-black/[0.06] bg-white p-5">
                 <div className={`w-9 h-9 rounded-full ${member.color} text-white flex items-center justify-center text-[12px] font-semibold mb-4`}>
                   {member.initials}
                 </div>
-                <p className="text-[14px] font-semibold text-neutral-900">{member.name}</p>
-                <p className="text-[12px] text-neutral-400 mt-0.5 mb-4">{member.role}</p>
-                <div className="flex flex-col gap-2">
+                <p className="text-[14px] font-semibold text-neutral-900">{member.role}</p>
+                <div className="flex flex-col gap-2 mt-4">
                   <div className="flex justify-between text-[13px]">
-                    <span className="text-neutral-500">Horas totais</span>
+                    <span className="text-neutral-500">Horas estimadas</span>
                     <span className="font-semibold text-neutral-900">{memberHours}h</span>
                   </div>
                   <div className="flex justify-between text-[13px]">
