@@ -1,7 +1,7 @@
 import {
   Home, Layers, User, FolderKanban, LayoutDashboard,
   FileBarChart, FileText, type LucideIcon,
-  Database, Brain, Globe, Smartphone, Zap, Target,
+  Database, Brain, Globe, Smartphone, Zap, Target, BookOpen,
 } from 'lucide-react'
 
 // ─── Sidebar navigation ──────────────────────────────────────────────────────
@@ -15,6 +15,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Home',            href: '',           icon: Home,            section: 'main' },
+  { label: 'Como trabalhamos',href: '/guide',     icon: BookOpen,        section: 'main' },
   { label: 'Arquitetura',     href: '/arch',      icon: Layers,          section: 'main' },
   { label: 'Roadmap',         href: '/roadmap',   icon: Target,          section: 'main' },
   { label: 'Minha Área',      href: '/my-area',   icon: User,            section: 'workspace' },
