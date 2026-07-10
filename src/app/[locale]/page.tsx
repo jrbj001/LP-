@@ -1,39 +1,25 @@
-import { Nav } from '@/components/nav'
-import { RubikWatermark } from '@/components/rubik-watermark'
-import { Hero } from '@/components/hero'
-import { WhatWeBuild } from '@/components/what-we-build'
-import { Thesis } from '@/components/thesis'
-import { HowItWorks } from '@/components/how-it-works'
-import { Enterprise } from '@/components/enterprise'
-import { Platforms } from '@/components/platforms'
-import { Ventures } from '@/components/ventures'
-import { AdaptiveCore } from '@/components/adaptive-core'
-import { WhyPixelPulse } from '@/components/why-pixelpulse'
-import { Principles } from '@/components/principles'
-import { TechStack } from '@/components/tech-stack'
-import { FinalCTA } from '@/components/final-cta'
-import { Footer } from '@/components/footer'
+import { NavLight } from '@/components/lp/nav'
+import { HeroV2 } from '@/components/lp/hero'
+import { ServicesV2 } from '@/components/lp/services'
+import { CasesV2 } from '@/components/lp/cases'
+import { FrameworkV2 } from '@/components/lp/framework'
+import { TeamV2 } from '@/components/lp/team'
+import { CtaV2 } from '@/components/lp/cta'
+import { FooterLight } from '@/components/lp/footer'
 
 export default function Page() {
   return (
-    <>
-      <RubikWatermark />
-      <Nav />
+    <div className="bg-white">
+      <NavLight />
       <main>
-        <Hero />
-        <WhatWeBuild />
-        <Thesis />
-        <HowItWorks />
-        <Enterprise />
-        <Platforms />
-        <Ventures />
-        <AdaptiveCore />
-        <WhyPixelPulse />
-        <Principles />
-        <TechStack />
-        <FinalCTA />
+        <HeroV2 />
+        <ServicesV2 />
+        <CasesV2 />
+        <FrameworkV2 />
+        <TeamV2 />
+        <CtaV2 />
       </main>
-      <Footer />
-    </>
+      <FooterLight />
+    </div>
   )
 }
