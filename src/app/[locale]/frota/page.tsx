@@ -42,26 +42,24 @@ export default function FrotaHome() {
         </p>
       </Reveal>
 
-      {/* Founder welcome — dois co-founders */}
+      {/* Founder welcome */}
       <Reveal>
         <div className="mb-16 rounded-2xl border border-black/[0.06] bg-white p-8 lg:p-10">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 mb-7">
             Welcome from the Co-founders
           </p>
-          <div className="flex flex-col gap-10">
+          <p className="text-[17px] lg:text-[19px] leading-[1.6] tracking-[-0.01em] text-neutral-800 font-light mb-8">
+            &ldquo;Você tem uma rede valiosa adormecida em uma planilha. O SF Network Intelligence vai transformar seus 2.410 contatos em uma plataforma que responde à pergunta certa, na hora certa — com a pessoa certa na ponta. Não entregamos um sistema, entregamos inteligência de relacionamento.&rdquo;
+          </p>
+          <div className="flex items-center gap-4">
             {FOUNDERS.map((f) => (
-              <div key={f.initials}>
-                <p className="text-[17px] lg:text-[19px] leading-[1.6] tracking-[-0.01em] text-neutral-800 font-light mb-5">
-                  &ldquo;{f.quote}&rdquo;
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-neutral-900 text-white flex items-center justify-center text-[12px] font-semibold flex-shrink-0">
-                    {f.initials}
-                  </div>
-                  <div className="leading-tight">
-                    <p className="text-[13px] font-semibold text-neutral-900">{f.name}</p>
-                    <p className="text-[12px] text-neutral-400">{f.role} — PixelPulseLab</p>
-                  </div>
+              <div key={f.initials} className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-neutral-900 text-white flex items-center justify-center text-[11px] font-semibold flex-shrink-0">
+                  {f.initials}
+                </div>
+                <div className="leading-tight">
+                  <p className="text-[12px] font-semibold text-neutral-900">{f.name}</p>
+                  <p className="text-[11px] text-neutral-400">{f.role}</p>
                 </div>
               </div>
             ))}
