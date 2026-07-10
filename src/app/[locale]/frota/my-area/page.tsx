@@ -20,7 +20,7 @@ export default function FrotaMyAreaPage() {
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 mb-3">Workspace</p>
         <h1 className="text-[28px] lg:text-[34px] font-semibold tracking-[-0.02em] text-neutral-900 mb-2">Minha Área</h1>
         <p className="text-[14px] text-neutral-500 mb-10">
-          Selecione seu nome para ver os módulos e camadas da sua responsabilidade.
+          Selecione seu perfil para ver os módulos e camadas relevantes.
         </p>
       </Reveal>
 
@@ -65,9 +65,8 @@ export default function FrotaMyAreaPage() {
         <Reveal key={person.name}>
           <div className="mb-8">
             <h2 className="text-[18px] font-semibold text-neutral-900 mb-1">
-              Olá, {person.name.split(' ')[0]}
+              {person.role}
             </h2>
-            <p className="text-[13px] text-neutral-400">{person.role}</p>
           </div>
 
           {person.sponsor ? (
@@ -108,7 +107,7 @@ export default function FrotaMyAreaPage() {
             /* Membro da equipe vê suas camadas */
             <div className="flex flex-col gap-6">
               {AREA_ORDER
-                .filter(area => AREA_META[area].owner === person.name || person.areas.includes(area) || person.areas.includes('Todas'))
+                .filter(area => person.areas.includes(area) || person.areas.includes('Todas'))
                 .map(area => {
                   const meta = AREA_META[area]
                   const Icon = meta.icon
