@@ -6,7 +6,7 @@ import { ArrowRight, Users, FolderKanban, Layers, Clock, Activity, Crown, Star, 
 import { Timeline } from '@/components/adaptive/timeline'
 import { Reveal } from '@/components/adaptive/ui'
 import {
-  EXPECTED_RESULTS, CLIENT, AREA_ORDER, AREA_META, projectsByArea, TIMELINE,
+  EXPECTED_RESULTS, CLIENT, FOUNDERS, AREA_ORDER, AREA_META, projectsByArea, TIMELINE,
 } from '@/components/frota/data'
 
 const STATUS_CARDS = [
@@ -42,27 +42,29 @@ export default function FrotaHome() {
         </p>
       </Reveal>
 
-      {/* Founder welcome */}
+      {/* Founder welcome — dois co-founders */}
       <Reveal>
         <div className="mb-16 rounded-2xl border border-black/[0.06] bg-white p-8 lg:p-10">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 mb-5">
-            Welcome from the Founder
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 mb-7">
+            Welcome from the Co-founders
           </p>
-          <p className="text-[19px] lg:text-[21px] leading-[1.55] tracking-[-0.01em] text-neutral-800 font-light">
-            &ldquo;Você tem uma rede valiosa — mas ela está adormecida em uma planilha.
-            O <span className="font-medium text-neutral-900">{CLIENT.product}</span> vai
-            transformar seus <span className="font-medium text-neutral-900">2.410 contatos</span> em
-            uma plataforma que responde à pergunta certa, na hora certa — com a
-            pessoa certa na ponta.&rdquo;
-          </p>
-          <div className="mt-6 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-neutral-900 text-white flex items-center justify-center text-[12px] font-semibold">
-              JB
-            </div>
-            <div className="leading-tight">
-              <p className="text-[13px] font-semibold text-neutral-900">José Roberto Baptista Jr.</p>
-              <p className="text-[12px] text-neutral-400">Founder &amp; Principal Engineer — PixelPulseLab</p>
-            </div>
+          <div className="flex flex-col gap-10">
+            {FOUNDERS.map((f) => (
+              <div key={f.initials}>
+                <p className="text-[17px] lg:text-[19px] leading-[1.6] tracking-[-0.01em] text-neutral-800 font-light mb-5">
+                  &ldquo;{f.quote}&rdquo;
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-neutral-900 text-white flex items-center justify-center text-[12px] font-semibold flex-shrink-0">
+                    {f.initials}
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-[13px] font-semibold text-neutral-900">{f.name}</p>
+                    <p className="text-[12px] text-neutral-400">{f.role} — PixelPulseLab</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </Reveal>
