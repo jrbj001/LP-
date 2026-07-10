@@ -273,8 +273,6 @@ export const TEAM: TeamMember[] = [
     color: 'bg-neutral-400',
   },
 ]
-  },
-]
 
 // ─── Dashboard metrics ────────────────────────────────────────────────────────
 export interface Metric {
