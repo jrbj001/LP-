@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import { FadeIn, FadeInStagger, FadeInItem } from './fade-in'
+import { FadeIn } from './fade-in'
 
 const PLATFORM_KEYS = ['likeme', 'colmeia', 'asset', 'visibility'] as const
 
@@ -50,31 +50,31 @@ function PlatformCard({ platformKey, index }: { platformKey: typeof PLATFORM_KEY
     <motion.div
       variants={{ hidden: { opacity: 0, y: 28 }, visible: { opacity: 1, y: 0 } }}
       transition={{ duration: 0.65, delay: index * 0.08, ease: [0.21, 0.47, 0.32, 0.98] }}
-      className="group relative rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-8 flex flex-col gap-5 overflow-hidden transition-colors duration-300 hover:border-white/[0.12] hover:bg-[#111111]"
+      className="group relative rounded-2xl border border-black/[0.06] bg-white p-8 flex flex-col gap-5 overflow-hidden transition-colors duration-300 hover:border-black/[0.1]"
     >
       <div className="flex items-start justify-between">
-        <div className="w-11 h-11 rounded-xl border border-white/[0.08] bg-white/[0.04] flex items-center justify-center text-text-secondary group-hover:text-text-primary transition-colors duration-300">
+        <div className="w-11 h-11 rounded-xl border border-black/[0.06] bg-neutral-50 flex items-center justify-center text-neutral-500 group-hover:text-neutral-900 transition-colors duration-300">
           {ICONS[platformKey]}
         </div>
-        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-white/[0.08] text-[10px] font-mono tracking-widest uppercase text-text-muted">
-          <span className="w-1.5 h-1.5 rounded-full bg-text-muted animate-pulse" />
+        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-black/[0.06] text-[10px] font-mono tracking-widest uppercase text-neutral-400">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           {t('status')}
         </span>
       </div>
       <div>
-        <h3 className="text-base font-bold text-text-primary mb-1 group-hover:text-white transition-colors duration-200">
+        <h3 className="text-base font-semibold text-neutral-900 mb-1">
           {t(`items.${platformKey}.name`)}
         </h3>
-        <p className="text-[11px] font-mono tracking-[0.12em] uppercase text-text-muted">
+        <p className="text-[11px] font-mono tracking-[0.12em] uppercase text-neutral-400">
           {t(`items.${platformKey}.category`)}
         </p>
       </div>
-      <p className="text-sm text-text-muted leading-relaxed flex-1 group-hover:text-text-secondary transition-colors duration-300">
+      <p className="text-sm text-neutral-500 leading-relaxed flex-1">
         {t(`items.${platformKey}.description`)}
       </p>
       <div className="flex flex-wrap gap-2">
         {caps.map((cap) => (
-          <span key={cap} className="px-2.5 py-1 text-[10px] font-medium text-text-muted border border-white/[0.06] rounded-full group-hover:border-white/[0.1] transition-colors duration-300">
+          <span key={cap} className="px-2.5 py-1 text-[10px] font-medium text-neutral-500 border border-black/[0.06] rounded-full">
             {cap}
           </span>
         ))}
@@ -86,15 +86,15 @@ function PlatformCard({ platformKey, index }: { platformKey: typeof PLATFORM_KEY
 export function Platforms() {
   const t = useTranslations('platforms')
   return (
-    <section className="py-32 px-6 border-b border-white/[0.06]" id="platforms">
-      <div className="mx-auto max-w-[1200px]">
-        <FadeIn><p className="font-mono text-xs tracking-[0.2em] uppercase text-text-muted mb-4">{t('label')}</p></FadeIn>
+    <section className="py-24 lg:py-28 px-6 border-b border-black/[0.06]" id="platforms">
+      <div className="mx-auto max-w-[1120px]">
+        <FadeIn><p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 mb-4">{t('label')}</p></FadeIn>
         <FadeIn delay={0.08}>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-[-0.03em] mb-4 max-w-3xl leading-[1.1]">
-            {t('headline1')}{' '}<span className="text-text-secondary">{t('headline2')}</span>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-[-0.03em] text-neutral-900 mb-4 max-w-3xl leading-[1.1]">
+            {t('headline1')}{' '}<span className="text-neutral-500">{t('headline2')}</span>
           </h2>
         </FadeIn>
-        <FadeIn delay={0.14}><p className="text-text-secondary text-lg max-w-xl mb-16 leading-relaxed">{t('description')}</p></FadeIn>
+        <FadeIn delay={0.14}><p className="text-neutral-500 text-lg max-w-xl mb-12 leading-relaxed">{t('description')}</p></FadeIn>
         <motion.div className="grid grid-cols-1 sm:grid-cols-2 gap-4"
           initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-60px' }}>
           {PLATFORM_KEYS.map((key, i) => (
@@ -102,10 +102,10 @@ export function Platforms() {
           ))}
         </motion.div>
         <FadeIn delay={0.2} className="mt-16">
-          <div className="rounded-2xl border border-white/[0.06] bg-[#0a0a0a] p-8 md:p-12">
+          <div className="rounded-2xl border border-black/[0.06] bg-white p-8 md:p-12">
             <div className="max-w-2xl">
-              <h3 className="text-xl font-bold text-text-primary mb-4">{t('footer_title')}</h3>
-              <p className="text-text-secondary leading-relaxed text-sm md:text-base">{t('footer_body')}</p>
+              <h3 className="text-xl font-semibold text-neutral-900 mb-4">{t('footer_title')}</h3>
+              <p className="text-neutral-500 leading-relaxed text-sm md:text-base">{t('footer_body')}</p>
             </div>
           </div>
         </FadeIn>
