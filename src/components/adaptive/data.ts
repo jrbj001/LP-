@@ -1,7 +1,7 @@
 import {
   Home, Layers, Compass, User, FolderKanban, LayoutDashboard,
   FileBarChart, FileText, type LucideIcon,
-  Target, ClipboardList, Cog, Server, Sparkles,
+  Target, ClipboardList, Cog, Server, Sparkles, ClipboardCheck, Activity,
 } from 'lucide-react'
 
 // ─── Sidebar navigation ──────────────────────────────────────────────────────
@@ -17,9 +17,11 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Home',             href: '',                  icon: Home,            section: 'main' },
   { label: 'Framework',        href: '/framework',        icon: Layers,          section: 'main' },
   { label: 'Discovery',        href: '/discovery',        icon: Compass,         section: 'main' },
+  { label: 'Onboard',          href: '/onboard',          icon: ClipboardCheck,  section: 'main' },
   { label: 'Minha Área',       href: '/my-area',          icon: User,            section: 'workspace' },
   { label: 'Projetos',         href: '/projects',         icon: FolderKanban,    section: 'workspace' },
   { label: 'Dashboard',        href: '/dashboard',        icon: LayoutDashboard, section: 'workspace' },
+  { label: 'Onboarding',       href: '/onboarding',       icon: Activity,        section: 'workspace' },
   { label: 'Executive Review', href: '/executive-review', icon: FileBarChart,    section: 'workspace', locked: true },
   { label: 'Documentos',       href: '/documents',        icon: FileText,        section: 'workspace' },
 ]
@@ -129,12 +131,40 @@ export const EXPECTED_RESULTS: ExpectedResult[] = [
 ]
 
 // ─── Client (Grupo Orfeu) ─────────────────────────────────────────────────────
+export const CLIENT_ID = 'orfeu'
+
 export const CLIENT = {
+  id: CLIENT_ID,
   name: 'Grupo Orfeu',
   sector: 'Café · Agroindústria & Varejo',
+  /** Convida e acompanha o processo — NÃO participa das sessões presenciais */
   facilitator: { name: 'Diego', role: 'Facilitador · Gente & Gestão', initials: 'DI' },
+  /** Host das sessões presenciais de 30min */
+  meetingHost: { name: 'José Roberto', role: 'PixelPulseLab · Principal Engineer', initials: 'JR' },
   sponsor: { name: 'Ricardo Madureira', role: 'Sponsor Executivo' },
   partners: 'José Roberto (Zé) & Marco Lúcio — PixelPulseLab',
+}
+
+/** Janela de agenda presencial (slots de 30min). Amplie weekdays/horas quando precisar. */
+export const SLOT_WINDOW = {
+  clientId: CLIENT_ID,
+  /** Ajuste a data de início do assessment quando definir o calendário real */
+  startDate: '2026-07-21',
+  weekdays: 4,
+  dayStartHour: 9,
+  dayEndHour: 13,
+  host: 'José Roberto',
+  location: 'Presencial' as const,
+}
+
+export const STORAGE_KEY = 'adaptive.orfeu.onboard'
+
+export interface StoredOnboard {
+  clientId: string
+  stakeholder: string
+  whatsapp: string
+  areas?: string
+  role?: string
 }
 
 // ─── Stakeholder & projects ───────────────────────────────────────────────────

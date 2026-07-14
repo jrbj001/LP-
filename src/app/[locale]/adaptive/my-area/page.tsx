@@ -137,10 +137,10 @@ export default function MyAreaPage() {
               <div className="mt-1"><Badge tone="amber">Pending</Badge></div>
             </div>
             <a
-              href={`${base}/discovery/session`}
+              href={`${base}/onboard`}
               className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-all"
             >
-              Start Discovery
+              Iniciar Assessment
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
             </a>
           </div>

@@ -89,10 +89,10 @@ export default function AdaptiveHome() {
 
         <div className="mt-9 flex flex-wrap items-center gap-3">
           <a
-            href={`${base}/discovery`}
+            href={`${base}/onboard`}
             className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-[14px] font-medium hover:bg-neutral-800 transition-all"
           >
-            Start Assessment
+            Iniciar Assessment
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
           </a>
           <a
