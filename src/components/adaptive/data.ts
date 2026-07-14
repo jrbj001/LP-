@@ -1,7 +1,7 @@
 import {
-  Home, Layers, Compass, User, FolderKanban, LayoutDashboard,
+  Home, Layers, User, FolderKanban, LayoutDashboard,
   FileBarChart, FileText, type LucideIcon,
-  Target, ClipboardList, Cog, Server, Sparkles,
+  Target, ClipboardList, Cog, Server, Sparkles, ClipboardCheck, Activity,
 } from 'lucide-react'
 
 // ─── Sidebar navigation ──────────────────────────────────────────────────────
@@ -16,10 +16,11 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Home',             href: '',                  icon: Home,            section: 'main' },
   { label: 'Framework',        href: '/framework',        icon: Layers,          section: 'main' },
-  { label: 'Discovery',        href: '/discovery',        icon: Compass,         section: 'main' },
+  { label: 'Começar',          href: '/onboard',          icon: ClipboardCheck,  section: 'main' },
   { label: 'Minha Área',       href: '/my-area',          icon: User,            section: 'workspace' },
   { label: 'Projetos',         href: '/projects',         icon: FolderKanban,    section: 'workspace' },
   { label: 'Dashboard',        href: '/dashboard',        icon: LayoutDashboard, section: 'workspace' },
+  { label: 'Acompanhamento',   href: '/onboarding',       icon: Activity,        section: 'workspace' },
   { label: 'Executive Review', href: '/executive-review', icon: FileBarChart,    section: 'workspace', locked: true },
   { label: 'Documentos',       href: '/documents',        icon: FileText,        section: 'workspace' },
 ]
@@ -33,11 +34,11 @@ export interface TimelineStep {
 }
 
 export const TIMELINE: TimelineStep[] = [
-  { id: 'kickoff',   title: 'Kickoff',            description: 'Alinhamento de escopo, stakeholders e objetivos do assessment.', status: 'active' },
-  { id: 'discovery', title: 'Discovery Sessions', description: 'Sessões individuais com cada líder de área para entender a realidade operacional.', status: 'upcoming' },
-  { id: 'assessment',title: 'Assessment',         description: 'Análise cruzada de negócio, portfólio, operação, tecnologia e IA.', status: 'upcoming' },
-  { id: 'review',    title: 'Executive Review',   description: 'Apresentação executiva com o Adaptive Index™ e recomendações.', status: 'upcoming' },
-  { id: 'roadmap',   title: 'Roadmap',            description: 'Roadmap adaptativo priorizado por impacto no negócio.', status: 'upcoming' },
+  { id: 'identify',  title: 'Identificar',        description: 'Cada stakeholder confirma nome + WhatsApp (convite Diego).', status: 'active' },
+  { id: 'projects',  title: 'Meus projetos',      description: 'Revisa os projetos do Comitê de TI sob sua responsabilidade.', status: 'upcoming' },
+  { id: 'assessment',title: 'Assessment online',  description: '11 perguntas sobre objetivos, desafios, tecnologia e IA da área.', status: 'upcoming' },
+  { id: 'session',   title: 'Sessão 30 min',      description: 'Agenda presencial com PixelPulseLab para aprofundar o discovery.', status: 'upcoming' },
+  { id: 'review',    title: 'Executive Review',   description: 'Apresentação executiva com Adaptive Index™ e recomendações.', status: 'upcoming' },
 ]
 
 // ─── Framework pillars ────────────────────────────────────────────────────────
@@ -129,12 +130,40 @@ export const EXPECTED_RESULTS: ExpectedResult[] = [
 ]
 
 // ─── Client (Grupo Orfeu) ─────────────────────────────────────────────────────
+export const CLIENT_ID = 'orfeu'
+
 export const CLIENT = {
+  id: CLIENT_ID,
   name: 'Grupo Orfeu',
   sector: 'Café · Agroindústria & Varejo',
+  /** Convida e acompanha o processo — NÃO participa das sessões presenciais */
   facilitator: { name: 'Diego', role: 'Facilitador · Gente & Gestão', initials: 'DI' },
+  /** Host das sessões presenciais de 30min */
+  meetingHost: { name: 'José Roberto', role: 'PixelPulseLab · Principal Engineer', initials: 'JR' },
   sponsor: { name: 'Ricardo Madureira', role: 'Sponsor Executivo' },
   partners: 'José Roberto (Zé) & Marco Lúcio — PixelPulseLab',
+}
+
+/** Janela de agenda presencial (slots de 30min). Amplie weekdays/horas quando precisar. */
+export const SLOT_WINDOW = {
+  clientId: CLIENT_ID,
+  /** Ajuste a data de início do assessment quando definir o calendário real */
+  startDate: '2026-07-21',
+  weekdays: 4,
+  dayStartHour: 9,
+  dayEndHour: 13,
+  host: 'José Roberto',
+  location: 'Presencial' as const,
+}
+
+export const STORAGE_KEY = 'adaptive.orfeu.onboard'
+
+export interface StoredOnboard {
+  clientId: string
+  stakeholder: string
+  whatsapp: string
+  areas?: string
+  role?: string
 }
 
 // ─── Stakeholder & projects ───────────────────────────────────────────────────

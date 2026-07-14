@@ -3,26 +3,73 @@
 import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLocale } from 'next-intl'
+import { useRouter } from 'next/navigation'
 import { ArrowLeft, ArrowRight, Check, CornerDownLeft } from 'lucide-react'
-import { DISCOVERY_QUESTIONS } from './data'
+import { CLIENT, CLIENT_ID, DISCOVERY_QUESTIONS, projectsByRequester } from './data'
+import type { StoredOnboard } from './data'
+import { readOnboard } from '@/lib/adaptive/storage'
+import { SessionCalendar } from './session-calendar'
+
+type Phase = 'loading' | 'questions' | 'saving' | 'calendar' | 'done'
 
 export function DiscoveryFlow() {
   const locale = useLocale()
+  const router = useRouter()
   const base = `/${locale}/adaptive`
   const total = DISCOVERY_QUESTIONS.length
 
+  const [identity, setIdentity] = useState<StoredOnboard | null>(null)
+  const [phase, setPhase] = useState<Phase>('loading')
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<number, string>>({})
-  const [done, setDone] = useState(false)
+  const [slotLabel, setSlotLabel] = useState('')
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const data = readOnboard()
+    if (!data?.stakeholder || !data?.whatsapp) {
+      router.replace(`${base}/onboard`)
+      return
+    }
+    setIdentity(data)
+    setPhase('questions')
+  }, [base, router])
 
   const current = DISCOVERY_QUESTIONS[index]
   const value = answers[current?.id] ?? ''
-  const progress = done ? 100 : Math.round((index / total) * 100)
+  const progress =
+    phase === 'done' || phase === 'calendar'
+      ? 100
+      : Math.round((index / total) * 100)
+
+  const submitAssessment = useCallback(async () => {
+    if (!identity) return
+    setPhase('saving')
+    setError('')
+    try {
+      const res = await fetch('/api/adaptive/assessment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientId: CLIENT_ID,
+          stakeholder: identity.stakeholder,
+          whatsapp: identity.whatsapp,
+          answers,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Falha ao salvar respostas')
+      setPhase('calendar')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao salvar')
+      setPhase('questions')
+    }
+  }, [answers, identity])
 
   const goNext = useCallback(() => {
     if (index < total - 1) setIndex(i => i + 1)
-    else setDone(true)
-  }, [index, total])
+    else void submitAssessment()
+  }, [index, total, submitAssessment])
 
   const goPrev = useCallback(() => {
     if (index > 0) setIndex(i => i - 1)
@@ -35,10 +82,27 @@ export function DiscoveryFlow() {
     }
   }, [goNext])
 
-  // Keyboard shortcut hint reset on question change
-  useEffect(() => { /* focus handled by autoFocus */ }, [index])
+  if (phase === 'loading') {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center text-[13px] text-neutral-400">
+        Carregando sessão…
+      </div>
+    )
+  }
 
-  if (done) {
+  if (phase === 'calendar' && identity) {
+    return (
+      <SessionCalendar
+        identity={identity}
+        onBooked={(label) => {
+          setSlotLabel(label)
+          setPhase('done')
+        }}
+      />
+    )
+  }
+
+  if (phase === 'done') {
     return (
       <div className="min-h-[70vh] flex items-center justify-center px-6">
         <motion.div
@@ -51,19 +115,19 @@ export function DiscoveryFlow() {
             <Check className="w-6 h-6 text-white" strokeWidth={2.5} />
           </div>
           <h2 className="text-[26px] font-semibold tracking-[-0.02em] text-neutral-900">
-            Discovery concluído
+            Tudo certo, {identity?.stakeholder?.split(' ')[0]}
           </h2>
           <p className="mt-3 text-[15px] text-neutral-500 leading-relaxed">
-            Obrigado. Suas respostas foram registradas e serão integradas ao{' '}
-            <span className="font-medium text-neutral-700">Adaptive Assessment™</span>.
-            Você receberá acesso ao Executive Review ao final do processo.
+            Assessment registrado e sessão presencial confirmada
+            {slotLabel ? ` em ${slotLabel}` : ''}.
+            Host: {CLIENT.meetingHost.name}. Suas respostas ficam ligadas aos projetos da Minha Área.
           </p>
           <div className="mt-8 flex items-center justify-center gap-3">
-            <a href={`${base}/dashboard`} className="px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-colors">
-              Ver Dashboard
+            <a href={`${base}/my-area`} className="px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-colors">
+              Voltar à Minha Área
             </a>
-            <a href={base} className="px-5 py-2.5 rounded-full border border-black/[0.1] text-neutral-700 text-[13px] font-medium hover:bg-black/[0.02] transition-colors">
-              Voltar à Home
+            <a href={`${base}/onboarding`} className="px-5 py-2.5 rounded-full border border-black/[0.1] text-neutral-700 text-[13px] font-medium hover:bg-black/[0.02] transition-colors">
+              Acompanhamento
             </a>
           </div>
         </motion.div>
@@ -71,9 +135,16 @@ export function DiscoveryFlow() {
     )
   }
 
+  if (phase === 'saving') {
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center text-[13px] text-neutral-400">
+        Salvando respostas no Adaptive Workspace…
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Progress bar */}
       <div className="fixed top-0 left-0 right-0 lg:left-64 h-1 bg-black/[0.05] z-30">
         <motion.div
           className="h-full bg-neutral-900"
@@ -82,19 +153,31 @@ export function DiscoveryFlow() {
         />
       </div>
 
-      {/* Top meta */}
       <div className="flex items-center justify-between px-6 lg:px-12 pt-8">
-        <a href={`${base}/discovery`} className="text-[12px] text-neutral-400 hover:text-neutral-700 transition-colors">
-          ← Sair
-        </a>
+        <div>
+          <a href={`${base}/my-area`} className="text-[12px] text-neutral-400 hover:text-neutral-700 transition-colors">
+            ← Minha Área / projetos
+          </a>
+          {identity && (
+            <p className="text-[12px] text-neutral-500 mt-1">
+              Passo 3 · <span className="font-medium text-neutral-800">{identity.stakeholder}</span>
+              {(() => {
+                const n = projectsByRequester(identity.stakeholder).length
+                return n > 0 ? ` · ${n} projeto${n === 1 ? '' : 's'} no Comitê` : ''
+              })()}
+            </p>
+          )}
+        </div>
         <span className="text-[12px] font-mono text-neutral-400">
           {index + 1} / {total}
         </span>
       </div>
 
-      {/* Question */}
       <div className="flex-1 flex items-center px-6 lg:px-12">
         <div className="max-w-[640px] mx-auto w-full">
+          {error && (
+            <p className="mb-4 text-[13px] text-rose-600">{error}</p>
+          )}
           <AnimatePresence mode="wait">
             <motion.div
               key={current.id}
@@ -130,7 +213,7 @@ export function DiscoveryFlow() {
                   onClick={goNext}
                   className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-[14px] font-medium hover:bg-neutral-800 transition-all"
                 >
-                  {index === total - 1 ? 'Finalizar' : 'OK'}
+                  {index === total - 1 ? 'Salvar e agendar' : 'OK'}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
                 </button>
                 <span className="hidden sm:flex items-center gap-1.5 text-[11px] text-neutral-400">
@@ -143,7 +226,6 @@ export function DiscoveryFlow() {
         </div>
       </div>
 
-      {/* Bottom nav */}
       <div className="flex items-center justify-end gap-2 px-6 lg:px-12 pb-8">
         <button
           onClick={goPrev}

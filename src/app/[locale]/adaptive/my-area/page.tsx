@@ -5,33 +5,39 @@ import { useLocale } from 'next-intl'
 import { motion } from 'framer-motion'
 import { PageShell, PageHeader, Reveal, Badge } from '@/components/adaptive/ui'
 import { ProjectCard } from '@/components/adaptive/project-card'
+import { JourneyStrip } from '@/components/adaptive/journey-strip'
 import {
   STAKEHOLDERS, findStakeholder, projectsByRequester, CLIENT,
   PROJECTS, AREA_ORDER, AREA_OWNERS, projectsByArea,
 } from '@/components/adaptive/data'
+import { readOnboard, readMyAreaName, writeMyAreaName } from '@/lib/adaptive/storage'
 import { ArrowRight, ChevronDown, Star, Crown } from 'lucide-react'
-
-const STORAGE_KEY = 'adaptive.orfeu.stakeholder'
 
 export default function MyAreaPage() {
   const locale = useLocale()
   const base = `/${locale}/adaptive`
   const [selected, setSelected] = useState<string | null>(null)
+  const [whatsapp, setWhatsapp] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    const saved = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
-    if (saved && findStakeholder(saved)) setSelected(saved)
+    const onboard = readOnboard()
+    const areaName = readMyAreaName()
+    if (onboard?.stakeholder && findStakeholder(onboard.stakeholder)) {
+      setSelected(onboard.stakeholder)
+      setWhatsapp(onboard.whatsapp || null)
+    } else if (areaName && findStakeholder(areaName)) {
+      setSelected(areaName)
+    }
     setReady(true)
   }, [])
 
   function choose(name: string) {
     setSelected(name)
-    localStorage.setItem(STORAGE_KEY, name)
+    writeMyAreaName(name)
   }
   function reset() {
     setSelected(null)
-    localStorage.removeItem(STORAGE_KEY)
   }
 
   if (!ready) return <PageShell><div className="h-[40vh]" /></PageShell>
@@ -41,10 +47,18 @@ export default function MyAreaPage() {
     return (
       <PageShell>
         <PageHeader
-          eyebrow="Minha Área"
+          eyebrow="Passo 2 · Meus projetos"
           title="Quem é você?"
-          subtitle={`Selecione seu nome para ver os projetos da sua área no assessment do ${CLIENT.name}.`}
+          subtitle={`Se ainda não começou pelo convite do Diego, selecione seu nome. O ideal é passar por Começar (WhatsApp) antes do assessment.`}
         />
+        <JourneyStrip current="projects" />
+
+        <div className="mb-6 rounded-xl border border-neutral-200 bg-neutral-50 px-5 py-4 text-[13px] text-neutral-600">
+          Prefere o fluxo completo?{' '}
+          <a href={`${base}/onboard`} className="font-semibold text-neutral-900 underline underline-offset-2">
+            Começar com identificação + WhatsApp
+          </a>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {STAKEHOLDERS.map((s, i) => {
@@ -87,9 +101,9 @@ export default function MyAreaPage() {
     )
   }
 
-  // ── Selected stakeholder view ──
   const person = findStakeholder(selected)!
   const projects = person.sponsor ? PROJECTS : projectsByRequester(selected)
+  const identified = Boolean(whatsapp)
 
   return (
     <PageShell>
@@ -101,16 +115,18 @@ export default function MyAreaPage() {
       </div>
 
       <PageHeader
-        eyebrow={person.sponsor ? 'Visão do Sponsor' : 'Minha Área'}
+        eyebrow={person.sponsor ? 'Visão do Sponsor' : 'Passo 2 · Meus projetos'}
         title={person.name}
         subtitle={
           person.sponsor
-            ? `Guarda-chuva executivo — todo o portfólio do ${CLIENT.name} em uma única visão.`
-            : `Projetos sob sua responsabilidade no assessment do ${CLIENT.name}.`
+            ? `Portfólio completo do ${CLIENT.name}. O assessment dos líderes alimenta esta visão.`
+            : `Estes são os projetos do Comitê de TI sob sua responsabilidade — use-os como contexto no assessment.`
         }
       />
 
-      {/* Profile + status card */}
+      <JourneyStrip current="projects" />
+
+      {/* Bridge card */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -127,48 +143,62 @@ export default function MyAreaPage() {
               {person.sponsor && <Badge tone="neutral">CEO · Sponsor</Badge>}
               {person.facilitator && <Badge tone="amber">Facilitador</Badge>}
             </div>
-            <p className="text-[12px] text-neutral-400">{person.role ?? person.areas.join(' · ')}</p>
+            <p className="text-[12px] text-neutral-400">
+              {person.role ?? person.areas.join(' · ')}
+              {whatsapp ? ` · WhatsApp ${whatsapp}` : ' · WhatsApp pendente'}
+            </p>
           </div>
         </div>
-        {!person.sponsor && (
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-[11px] text-neutral-400">Discovery</p>
-              <div className="mt-1"><Badge tone="amber">Pending</Badge></div>
-            </div>
-            <a
-              href={`${base}/discovery/session`}
-              className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-all"
-            >
-              Start Discovery
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+
+        {person.sponsor ? (
+          <div className="flex flex-wrap gap-2">
+            <a href={`${base}/onboarding`} className="px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800">
+              Acompanhamento
+            </a>
+            <a href={`${base}/dashboard`} className="px-5 py-2.5 rounded-full border border-black/[0.1] text-neutral-700 text-[13px] font-medium">
+              Dashboard
             </a>
           </div>
-        )}
-        {person.sponsor && (
+        ) : identified ? (
           <a
-            href={`${base}/dashboard`}
+            href={`${base}/discovery/session`}
             className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-all"
           >
-            Ver Dashboard executivo
+            Continuar · Assessment
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+          </a>
+        ) : (
+          <a
+            href={`${base}/onboard`}
+            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-all"
+          >
+            Completar identificação
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
           </a>
         )}
       </motion.div>
 
-      {/* Facilitator note */}
+      {!person.sponsor && (
+        <div className="mb-8 rounded-xl border border-sky-100 bg-sky-50/70 px-5 py-3.5 text-[13px] text-sky-900 leading-relaxed">
+          <strong>Como isso se conecta:</strong> abaixo estão seus projetos já mapeados no Comitê.
+          No próximo passo (Assessment) você responde sobre objetivos, desafios e oportunidades —
+          especialmente destas iniciativas. Depois agenda 30 min presenciais com a PixelPulseLab.
+        </div>
+      )}
+
       {person.facilitator && (
         <div className="mb-8 rounded-xl border border-amber-100 bg-amber-50/60 px-5 py-3.5 flex items-center gap-3">
           <Star className="w-4 h-4 text-amber-500 fill-amber-500 flex-shrink-0" strokeWidth={0} />
           <p className="text-[13px] text-amber-800">
-            Como facilitador, você acompanha todas as áreas em{' '}
-            <a href={`${base}/projects`} className="font-semibold underline underline-offset-2">Projetos</a> e{' '}
-            <a href={`${base}/dashboard`} className="font-semibold underline underline-offset-2">Dashboard</a>.
+            Como facilitador do convite, acompanhe o progresso em{' '}
+            <a href={`${base}/onboarding`} className="font-semibold underline underline-offset-2">Acompanhamento</a>
+            {' '}e o portfólio em{' '}
+            <a href={`${base}/projects`} className="font-semibold underline underline-offset-2">Projetos</a>.
+            Você não participa das sessões presenciais.
           </p>
         </div>
       )}
 
-      {/* Sponsor: full portfolio grouped by area */}
       {person.sponsor ? (
         <>
           <div className="flex items-baseline justify-between mb-5">
@@ -211,16 +241,41 @@ export default function MyAreaPage() {
       ) : (
         <>
           <div className="flex items-baseline justify-between mb-5">
-            <h2 className="text-[15px] font-semibold text-neutral-900">Seus projetos</h2>
-            <span className="text-[12px] text-neutral-400">{projects.length} {projects.length === 1 ? 'projeto' : 'projetos'}</span>
+            <h2 className="text-[15px] font-semibold text-neutral-900">Seus projetos no assessment</h2>
+            <a href={`${base}/projects`} className="text-[12px] text-neutral-500 hover:text-neutral-800 underline underline-offset-2">
+              Ver portfólio completo
+            </a>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
             {projects.map((p, i) => (
               <Reveal key={p.name} delay={i * 0.05}>
                 <ProjectCard project={p} showArea={person.areas.length > 1} />
               </Reveal>
             ))}
+            {projects.length === 0 && (
+              <p className="text-[13px] text-neutral-500 col-span-2">
+                Nenhum projeto listado no seu nome — mesmo assim complete o assessment sobre a realidade da sua área.
+              </p>
+            )}
           </div>
+
+          {identified && (
+            <div className="rounded-2xl border border-black/[0.06] bg-neutral-900 text-white p-6 flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex-1">
+                <p className="text-[15px] font-semibold">Pronto para o assessment?</p>
+                <p className="text-[13px] text-white/60 mt-1">
+                  11 perguntas sobre estes projetos e a operação da área · depois agenda de 30 min.
+                </p>
+              </div>
+              <a
+                href={`${base}/discovery/session`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-neutral-900 text-[13px] font-medium"
+              >
+                Ir para o Assessment
+                <ArrowRight className="w-4 h-4" strokeWidth={2} />
+              </a>
+            </div>
+          )}
         </>
       )}
     </PageShell>
