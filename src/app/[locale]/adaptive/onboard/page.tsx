@@ -9,51 +9,11 @@ import { CLIENT, CLIENT_ID, STAKEHOLDERS } from '@/components/adaptive/data'
 import { writeOnboard } from '@/lib/adaptive/storage'
 import { ArrowRight } from 'lucide-react'
 
-const SITE_URL = 'https://pixelpulselab.dev'
-
 function maskWhatsApp(raw: string): string {
   const d = raw.replace(/\D/g, '').slice(0, 11)
   if (d.length <= 2) return d
   if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
-}
-
-function EmailTemplate({ locale }: { locale: string }) {
-  const link = `${SITE_URL}/${locale}/adaptive/onboard`
-
-  return (
-    <div className="rounded-2xl border border-dashed border-black/[0.08] bg-white/60 p-6">
-      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400 mb-2">
-        E-mail modelo · Diego
-      </p>
-      <p className="text-[13px] text-neutral-600 leading-relaxed whitespace-pre-wrap">
-{`Assunto: Adaptive Assessment™ — ${CLIENT.name} · sua participação
-
-Olá,
-
-Você foi convidado(a) a participar do Adaptive Assessment™ do ${CLIENT.name}.
-
-O portfólio do Comitê de TI já está mapeado. Agora precisamos da sua visão sobre a área — e de um horário presencial de 30 minutos com a PixelPulseLab.
-
-Acesse o workspace:
-${link}
-
-O que fazer (cerca de 25–30 min no total, online):
-1) Identifique-se e informe seu WhatsApp
-2) Revise seus projetos na Minha Área
-3) Responda o assessment (11 perguntas)
-4) Escolha data e horário da sessão presencial de 30 min
-
-Importante: eu (Diego) facilito o processo e acompanho o andamento, mas a sessão presencial será com a equipe PixelPulseLab.
-
-Qualquer dúvida, responda este e-mail.
-
-Obrigado,
-${CLIENT.facilitator.name}
-${CLIENT.facilitator.role} · ${CLIENT.name}`}
-      </p>
-    </div>
-  )
 }
 
 export default function OnboardPage() {
@@ -186,10 +146,6 @@ export default function OnboardPage() {
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
           </button>
         </div>
-      </Reveal>
-
-      <Reveal delay={0.08}>
-        <EmailTemplate locale={locale} />
       </Reveal>
     </PageShell>
   )
