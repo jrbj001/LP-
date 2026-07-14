@@ -1,5 +1,5 @@
 import {
-  Home, Layers, Compass, User, FolderKanban, LayoutDashboard,
+  Home, Layers, User, FolderKanban, LayoutDashboard,
   FileBarChart, FileText, type LucideIcon,
   Target, ClipboardList, Cog, Server, Sparkles, ClipboardCheck, Activity,
 } from 'lucide-react'
@@ -16,12 +16,11 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { label: 'Home',             href: '',                  icon: Home,            section: 'main' },
   { label: 'Framework',        href: '/framework',        icon: Layers,          section: 'main' },
-  { label: 'Discovery',        href: '/discovery',        icon: Compass,         section: 'main' },
-  { label: 'Onboard',          href: '/onboard',          icon: ClipboardCheck,  section: 'main' },
+  { label: 'Começar',          href: '/onboard',          icon: ClipboardCheck,  section: 'main' },
   { label: 'Minha Área',       href: '/my-area',          icon: User,            section: 'workspace' },
   { label: 'Projetos',         href: '/projects',         icon: FolderKanban,    section: 'workspace' },
   { label: 'Dashboard',        href: '/dashboard',        icon: LayoutDashboard, section: 'workspace' },
-  { label: 'Onboarding',       href: '/onboarding',       icon: Activity,        section: 'workspace' },
+  { label: 'Acompanhamento',   href: '/onboarding',       icon: Activity,        section: 'workspace' },
   { label: 'Executive Review', href: '/executive-review', icon: FileBarChart,    section: 'workspace', locked: true },
   { label: 'Documentos',       href: '/documents',        icon: FileText,        section: 'workspace' },
 ]
@@ -35,11 +34,11 @@ export interface TimelineStep {
 }
 
 export const TIMELINE: TimelineStep[] = [
-  { id: 'kickoff',   title: 'Kickoff',            description: 'Alinhamento de escopo, stakeholders e objetivos do assessment.', status: 'active' },
-  { id: 'discovery', title: 'Discovery Sessions', description: 'Sessões individuais com cada líder de área para entender a realidade operacional.', status: 'upcoming' },
-  { id: 'assessment',title: 'Assessment',         description: 'Análise cruzada de negócio, portfólio, operação, tecnologia e IA.', status: 'upcoming' },
-  { id: 'review',    title: 'Executive Review',   description: 'Apresentação executiva com o Adaptive Index™ e recomendações.', status: 'upcoming' },
-  { id: 'roadmap',   title: 'Roadmap',            description: 'Roadmap adaptativo priorizado por impacto no negócio.', status: 'upcoming' },
+  { id: 'identify',  title: 'Identificar',        description: 'Cada stakeholder confirma nome + WhatsApp (convite Diego).', status: 'active' },
+  { id: 'projects',  title: 'Meus projetos',      description: 'Revisa os projetos do Comitê de TI sob sua responsabilidade.', status: 'upcoming' },
+  { id: 'assessment',title: 'Assessment online',  description: '11 perguntas sobre objetivos, desafios, tecnologia e IA da área.', status: 'upcoming' },
+  { id: 'session',   title: 'Sessão 30 min',      description: 'Agenda presencial com PixelPulseLab para aprofundar o discovery.', status: 'upcoming' },
+  { id: 'review',    title: 'Executive Review',   description: 'Apresentação executiva com Adaptive Index™ e recomendações.', status: 'upcoming' },
 ]
 
 // ─── Framework pillars ────────────────────────────────────────────────────────

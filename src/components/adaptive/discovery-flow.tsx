@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, ArrowRight, Check, CornerDownLeft } from 'lucide-react'
-import { CLIENT, CLIENT_ID, DISCOVERY_QUESTIONS } from './data'
+import { CLIENT, CLIENT_ID, DISCOVERY_QUESTIONS, projectsByRequester } from './data'
 import type { StoredOnboard } from './data'
 import { readOnboard } from '@/lib/adaptive/storage'
 import { SessionCalendar } from './session-calendar'
@@ -120,14 +120,14 @@ export function DiscoveryFlow() {
           <p className="mt-3 text-[15px] text-neutral-500 leading-relaxed">
             Assessment registrado e sessão presencial confirmada
             {slotLabel ? ` em ${slotLabel}` : ''}.
-            Host: {CLIENT.meetingHost.name}. Diego acompanha o processo como facilitador.
+            Host: {CLIENT.meetingHost.name}. Suas respostas ficam ligadas aos projetos da Minha Área.
           </p>
           <div className="mt-8 flex items-center justify-center gap-3">
-            <a href={`${base}/onboarding`} className="px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-colors">
-              Ver Onboarding
+            <a href={`${base}/my-area`} className="px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-colors">
+              Voltar à Minha Área
             </a>
-            <a href={base} className="px-5 py-2.5 rounded-full border border-black/[0.1] text-neutral-700 text-[13px] font-medium hover:bg-black/[0.02] transition-colors">
-              Voltar à Home
+            <a href={`${base}/onboarding`} className="px-5 py-2.5 rounded-full border border-black/[0.1] text-neutral-700 text-[13px] font-medium hover:bg-black/[0.02] transition-colors">
+              Acompanhamento
             </a>
           </div>
         </motion.div>
@@ -155,12 +155,16 @@ export function DiscoveryFlow() {
 
       <div className="flex items-center justify-between px-6 lg:px-12 pt-8">
         <div>
-          <a href={`${base}/onboard`} className="text-[12px] text-neutral-400 hover:text-neutral-700 transition-colors">
-            ← Trocar identidade
+          <a href={`${base}/my-area`} className="text-[12px] text-neutral-400 hover:text-neutral-700 transition-colors">
+            ← Minha Área / projetos
           </a>
           {identity && (
             <p className="text-[12px] text-neutral-500 mt-1">
-              Respondendo como <span className="font-medium text-neutral-800">{identity.stakeholder}</span>
+              Passo 3 · <span className="font-medium text-neutral-800">{identity.stakeholder}</span>
+              {(() => {
+                const n = projectsByRequester(identity.stakeholder).length
+                return n > 0 ? ` · ${n} projeto${n === 1 ? '' : 's'} no Comitê` : ''
+              })()}
             </p>
           )}
         </div>

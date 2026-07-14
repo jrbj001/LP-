@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl'
 import { ArrowRight, Users, FolderKanban, Compass, Clock, Activity, Crown, Star, Building2 } from 'lucide-react'
 import { Timeline } from '@/components/adaptive/timeline'
 import { Reveal } from '@/components/adaptive/ui'
+import { JourneyStrip } from '@/components/adaptive/journey-strip'
 import {
   EXPECTED_RESULTS, CLIENT, AREA_ORDER, AREA_OWNERS, projectsByArea,
 } from '@/components/adaptive/data'
@@ -38,9 +39,11 @@ export default function AdaptiveHome() {
         </h2>
         <p className="mb-10 text-[14px] text-neutral-500">
           Facilitação de <span className="font-medium text-neutral-700">{CLIENT.facilitator.name}</span> · {CLIENT.facilitator.role}.
-          Cada líder acessa sua própria área em <span className="font-medium text-neutral-700">Minha Área</span>.
+          Os 31 projetos do Comitê já estão mapeados — o assessment conecta cada líder aos projetos da sua área.
         </p>
       </Reveal>
+
+      <JourneyStrip current="identify" />
 
       {/* Founder welcome */}
       <Reveal>
@@ -92,14 +95,14 @@ export default function AdaptiveHome() {
             href={`${base}/onboard`}
             className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-[14px] font-medium hover:bg-neutral-800 transition-all"
           >
-            Iniciar Assessment
+            Começar (identificação)
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
           </a>
           <a
-            href={`${base}/framework`}
+            href={`${base}/my-area`}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-black/[0.1] text-neutral-700 text-[14px] font-medium hover:bg-black/[0.02] transition-all"
           >
-            Conhecer o Framework
+            Ver Minha Área / Projetos
           </a>
         </div>
       </motion.section>
@@ -198,13 +201,21 @@ export default function AdaptiveHome() {
           })}
         </div>
 
-        <a
-          href={`${base}/my-area`}
-          className="group mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-[14px] font-medium hover:bg-neutral-800 transition-all"
-        >
-          Selecione seu nome em Minha Área
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-        </a>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <a
+            href={`${base}/onboard`}
+            className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-[14px] font-medium hover:bg-neutral-800 transition-all"
+          >
+            Começar identificação
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+          </a>
+          <a
+            href={`${base}/my-area`}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-black/[0.1] text-neutral-700 text-[14px] font-medium"
+          >
+            Ir para Minha Área
+          </a>
+        </div>
       </Reveal>
 
       {/* Expected results */}

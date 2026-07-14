@@ -63,8 +63,8 @@ export default function OnboardingDashboardPage() {
     <PageShell>
       <PageHeader
         eyebrow="Workspace · Ops"
-        title="Onboarding & Assessment"
-        subtitle={`Acompanhamento do processo Adaptive do ${CLIENT.name}. Facilitador do convite: ${CLIENT.facilitator.name}. Host das sessões: ${CLIENT.meetingHost.name}.`}
+        title="Acompanhamento"
+        subtitle={`Ops: quem identificou, quem respondeu o assessment e quem agendou. Ligado aos projetos do Comitê. Facilitador: ${CLIENT.facilitator.name}. Host: ${CLIENT.meetingHost.name}.`}
       />
 
       <Reveal>

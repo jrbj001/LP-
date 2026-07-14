@@ -4,15 +4,56 @@ import { useMemo, useState } from 'react'
 import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { PageShell, PageHeader, Reveal } from '@/components/adaptive/ui'
+import { JourneyStrip } from '@/components/adaptive/journey-strip'
 import { CLIENT, CLIENT_ID, STAKEHOLDERS } from '@/components/adaptive/data'
 import { writeOnboard } from '@/lib/adaptive/storage'
 import { ArrowRight } from 'lucide-react'
+
+const SITE_URL = 'https://pixelpulselab.dev'
 
 function maskWhatsApp(raw: string): string {
   const d = raw.replace(/\D/g, '').slice(0, 11)
   if (d.length <= 2) return d
   if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
+}
+
+function EmailTemplate({ locale }: { locale: string }) {
+  const link = `${SITE_URL}/${locale}/adaptive/onboard`
+
+  return (
+    <div className="rounded-2xl border border-dashed border-black/[0.08] bg-white/60 p-6">
+      <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400 mb-2">
+        E-mail modelo · Diego
+      </p>
+      <p className="text-[13px] text-neutral-600 leading-relaxed whitespace-pre-wrap">
+{`Assunto: Adaptive Assessment™ — ${CLIENT.name} · sua participação
+
+Olá,
+
+Você foi convidado(a) a participar do Adaptive Assessment™ do ${CLIENT.name}.
+
+O portfólio do Comitê de TI já está mapeado. Agora precisamos da sua visão sobre a área — e de um horário presencial de 30 minutos com a PixelPulseLab.
+
+Acesse o workspace:
+${link}
+
+O que fazer (cerca de 25–30 min no total, online):
+1) Identifique-se e informe seu WhatsApp
+2) Revise seus projetos na Minha Área
+3) Responda o assessment (11 perguntas)
+4) Escolha data e horário da sessão presencial de 30 min
+
+Importante: eu (Diego) facilito o processo e acompanho o andamento, mas a sessão presencial será com a equipe PixelPulseLab.
+
+Qualquer dúvida, responda este e-mail.
+
+Obrigado,
+${CLIENT.facilitator.name}
+${CLIENT.facilitator.role} · ${CLIENT.name}`}
+      </p>
+    </div>
+  )
 }
 
 export default function OnboardPage() {
@@ -63,7 +104,8 @@ export default function OnboardPage() {
         role: person?.role,
       })
 
-      router.push(`${base}/discovery/session`)
+      // Passo 2: revisar projetos na Minha Área antes do assessment
+      router.push(`${base}/my-area`)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro inesperado')
     } finally {
@@ -74,10 +116,12 @@ export default function OnboardPage() {
   return (
     <PageShell>
       <PageHeader
-        eyebrow="Adaptive Onboard"
+        eyebrow="Passo 1 · Começar"
         title={<>Identifique-se<br />para começar</>}
-        subtitle="Este convite foi enviado por Diego (Facilitador · Grupo Orfeu). Complete o assessment e escolha um horário presencial de 30 minutos com a PixelPulseLab."
+        subtitle="Convite enviado por Diego (Facilitador). Em seguida você revisa seus projetos do Comitê de TI, responde o assessment e agenda a sessão presencial."
       />
+
+      <JourneyStrip current="identify" />
 
       <Reveal>
         <div className="rounded-2xl border border-black/[0.06] bg-white p-8 mb-6">
@@ -138,33 +182,14 @@ export default function OnboardPage() {
             disabled={loading}
             className="mt-6 group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-[14px] font-medium hover:bg-neutral-800 disabled:opacity-50 transition-all"
           >
-            {loading ? 'Salvando…' : 'Continuar para o Assessment'}
+            {loading ? 'Salvando…' : 'Continuar · ver meus projetos'}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
           </button>
         </div>
       </Reveal>
 
       <Reveal delay={0.08}>
-        <div className="rounded-2xl border border-dashed border-black/[0.08] bg-white/60 p-6">
-          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400 mb-2">
-            E-mail modelo · Diego
-          </p>
-          <p className="text-[13px] text-neutral-600 leading-relaxed whitespace-pre-wrap">
-{`Olá,
-
-Você foi convidado(a) a participar do Adaptive Assessment™ do ${CLIENT.name}.
-
-1) Acesse: ${typeof window !== 'undefined' ? window.location.origin : ''}/${locale}/adaptive/onboard
-2) Identifique-se e informe seu WhatsApp
-3) Responda as 11 perguntas (~15–20 min)
-4) Escolha um horário presencial de 30 minutos
-
-Qualquer dúvida, responda este e-mail.
-
-— ${CLIENT.facilitator.name}
-${CLIENT.facilitator.role}`}
-          </p>
-        </div>
+        <EmailTemplate locale={locale} />
       </Reveal>
     </PageShell>
   )
