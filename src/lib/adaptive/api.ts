@@ -16,11 +16,11 @@ export function requireNotion() {
 }
 
 export function assertOpsSecret(req: Request): NextResponse | null {
-  const secret = process.env.ADAPTIVE_OPS_SECRET
+  const secret = process.env.ADAPTIVE_OPS_SECRET?.trim()
   if (!secret) return null // open if not set (local dev)
-  const header = req.headers.get('x-adaptive-ops-secret')
+  const header = req.headers.get('x-adaptive-ops-secret')?.trim()
   const url = new URL(req.url)
-  const query = url.searchParams.get('secret')
+  const query = url.searchParams.get('secret')?.trim()
   if (header === secret || query === secret) return null
   return jsonError('Unauthorized', 401)
 }
