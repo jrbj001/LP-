@@ -34,6 +34,14 @@ export default function OnboardingDashboardPage() {
       const qs = new URLSearchParams({ clientId: CLIENT_ID })
       if (secret) qs.set('secret', secret)
       const res = await fetch(`/api/adaptive/progress?${qs}`)
+      const ct = res.headers.get('content-type') || ''
+      if (!ct.includes('application/json')) {
+        throw new Error(
+          res.status === 401
+            ? 'Unauthorized — informe o Ops secret'
+            : 'Não foi possível carregar o progresso. Tente atualizar novamente.'
+        )
+      }
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Falha ao carregar')
       setRows(data.rows || [])
