@@ -7,11 +7,11 @@ import { PageShell, PageHeader, Reveal, Badge } from '@/components/adaptive/ui'
 import { ProjectCard } from '@/components/adaptive/project-card'
 import { JourneyStrip } from '@/components/adaptive/journey-strip'
 import {
-  STAKEHOLDERS, findStakeholder, projectsByRequester, CLIENT,
+  STAKEHOLDERS, findStakeholder, projectsByRequester, CLIENT, hasFullAccess,
   PROJECTS, AREA_ORDER, AREA_OWNERS, projectsByArea,
 } from '@/components/adaptive/data'
 import { readOnboard, readMyAreaName, writeMyAreaName } from '@/lib/adaptive/storage'
-import { ArrowRight, ChevronDown, Star, Crown } from 'lucide-react'
+import { ArrowRight, ChevronDown, Star, Crown, Users } from 'lucide-react'
 
 export default function MyAreaPage() {
   const locale = useLocale()
@@ -62,13 +62,14 @@ export default function MyAreaPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {STAKEHOLDERS.map((s, i) => {
-            const count = s.sponsor ? PROJECTS.length : projectsByRequester(s.name).length
+            const full = hasFullAccess(s)
+            const count = full ? PROJECTS.length : projectsByRequester(s.name).length
             return (
               <Reveal key={s.name} delay={i * 0.03}>
                 <button
                   onClick={() => choose(s.name)}
                   className={`group w-full text-left rounded-xl border bg-white p-5 hover:shadow-[0_2px_18px_rgba(0,0,0,0.05)] transition-all duration-200 ${
-                    s.sponsor ? 'border-neutral-900/20 hover:border-neutral-900/40' : 'border-black/[0.06] hover:border-black/[0.14]'
+                    full ? 'border-neutral-900/20 hover:border-neutral-900/40' : 'border-black/[0.06] hover:border-black/[0.14]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -80,17 +81,19 @@ export default function MyAreaPage() {
                         <p className="text-[14px] font-semibold text-neutral-900 truncate">{s.name}</p>
                         {s.sponsor && <Crown className="w-3.5 h-3.5 text-neutral-900 fill-neutral-900 flex-shrink-0" strokeWidth={0} />}
                         {s.facilitator && <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 flex-shrink-0" strokeWidth={0} />}
+                        {s.consultant && <Users className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" strokeWidth={2} />}
                       </div>
                       <p className="text-[12px] text-neutral-400 truncate">{s.role ?? s.areas.join(' · ')}</p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-600 group-hover:translate-x-0.5 transition-all flex-shrink-0" strokeWidth={2} />
                   </div>
-                  <div className="mt-4 pt-3 border-t border-black/[0.05] flex items-center justify-between">
+                  <div className="mt-4 pt-3 border-t border-black/[0.05] flex items-center justify-between gap-2">
                     <span className="text-[12px] text-neutral-500">
-                      {s.sponsor ? `${count} projetos · todas as áreas` : `${count} ${count === 1 ? 'projeto' : 'projetos'}`}
+                      {full ? `${count} projetos · visão completa` : `${count} ${count === 1 ? 'projeto' : 'projetos'}`}
                     </span>
-                    {s.sponsor && <Badge tone="neutral">CEO · Sponsor</Badge>}
+                    {s.sponsor && <Badge tone="neutral">Sponsor</Badge>}
                     {s.facilitator && <Badge tone="amber">Facilitador</Badge>}
+                    {s.consultant && <Badge tone="muted">Consultor</Badge>}
                   </div>
                 </button>
               </Reveal>
@@ -102,8 +105,10 @@ export default function MyAreaPage() {
   }
 
   const person = findStakeholder(selected)!
-  const projects = person.sponsor ? PROJECTS : projectsByRequester(selected)
+  const full = hasFullAccess(person)
+  const projects = full ? PROJECTS : projectsByRequester(selected)
   const identified = Boolean(whatsapp)
+  const leadership = STAKEHOLDERS.filter(s => !hasFullAccess(s))
 
   return (
     <PageShell>
@@ -115,18 +120,17 @@ export default function MyAreaPage() {
       </div>
 
       <PageHeader
-        eyebrow={person.sponsor ? 'Visão do Sponsor' : 'Passo 2 · Meus projetos'}
+        eyebrow={full ? 'Visão completa · Portfólio' : 'Passo 2 · Meus projetos'}
         title={person.name}
         subtitle={
-          person.sponsor
-            ? `Portfólio completo do ${CLIENT.name}. O assessment dos líderes alimenta esta visão.`
+          full
+            ? `Apoio à priorização com ${CLIENT.sponsor.name} e ${CLIENT.facilitator.name}. Visão de todos os projetos e stakeholders do ${CLIENT.name}.`
             : `Estes são os projetos do Comitê de TI sob sua responsabilidade — use-os como contexto no assessment.`
         }
       />
 
       <JourneyStrip current="projects" />
 
-      {/* Bridge card */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -138,47 +142,60 @@ export default function MyAreaPage() {
             {person.initials}
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <p className="text-[14px] font-semibold text-neutral-900">{person.name}</p>
-              {person.sponsor && <Badge tone="neutral">CEO · Sponsor</Badge>}
+              {person.sponsor && <Badge tone="neutral">Sponsor</Badge>}
               {person.facilitator && <Badge tone="amber">Facilitador</Badge>}
+              {person.consultant && <Badge tone="muted">Consultor</Badge>}
             </div>
             <p className="text-[12px] text-neutral-400">
               {person.role ?? person.areas.join(' · ')}
+              {person.email ? ` · ${person.email}` : ''}
               {whatsapp ? ` · WhatsApp ${whatsapp}` : ' · WhatsApp pendente'}
             </p>
           </div>
         </div>
 
-        {person.sponsor ? (
-          <div className="flex flex-wrap gap-2">
-            <a href={`${base}/onboarding`} className="px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800">
-              Acompanhamento
+        <div className="flex flex-wrap gap-2">
+          {full && (
+            <>
+              <a href={`${base}/onboarding`} className="px-5 py-2.5 rounded-full border border-black/[0.1] text-neutral-700 text-[13px] font-medium hover:bg-black/[0.02]">
+                Acompanhamento
+              </a>
+              <a href={`${base}/dashboard`} className="px-5 py-2.5 rounded-full border border-black/[0.1] text-neutral-700 text-[13px] font-medium hover:bg-black/[0.02]">
+                Dashboard
+              </a>
+            </>
+          )}
+          {identified ? (
+            <a
+              href={`${base}/discovery/session`}
+              className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-all"
+            >
+              Continuar · Assessment
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
             </a>
-            <a href={`${base}/dashboard`} className="px-5 py-2.5 rounded-full border border-black/[0.1] text-neutral-700 text-[13px] font-medium">
-              Dashboard
+          ) : (
+            <a
+              href={`${base}/onboard`}
+              className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-all"
+            >
+              Completar identificação
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
             </a>
-          </div>
-        ) : identified ? (
-          <a
-            href={`${base}/discovery/session`}
-            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-all"
-          >
-            Continuar · Assessment
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-          </a>
-        ) : (
-          <a
-            href={`${base}/onboard`}
-            className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-neutral-900 text-white text-[13px] font-medium hover:bg-neutral-800 transition-all"
-          >
-            Completar identificação
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-          </a>
-        )}
+          )}
+        </div>
       </motion.div>
 
-      {!person.sponsor && (
+      {full && (
+        <div className="mb-8 rounded-xl border border-violet-100 bg-violet-50/60 px-5 py-3.5 text-[13px] text-violet-900 leading-relaxed">
+          <strong>Consultoria de priorização:</strong> você tem a mesma visão ampla de Ricardo e Diego —
+          portfólio completo e lista de stakeholders. Também passa pelo onboarding (identificação + assessment + agenda)
+          para alimentar o Adaptive com a perspectiva de priorização.
+        </div>
+      )}
+
+      {!full && (
         <div className="mb-8 rounded-xl border border-sky-100 bg-sky-50/70 px-5 py-3.5 text-[13px] text-sky-900 leading-relaxed">
           <strong>Como isso se conecta:</strong> abaixo estão seus projetos já mapeados no Comitê.
           No próximo passo (Assessment) você responde sobre objetivos, desafios e oportunidades —
@@ -192,20 +209,42 @@ export default function MyAreaPage() {
           <p className="text-[13px] text-amber-800">
             Como facilitador do convite, acompanhe o progresso em{' '}
             <a href={`${base}/onboarding`} className="font-semibold underline underline-offset-2">Acompanhamento</a>
-            {' '}e o portfólio em{' '}
-            <a href={`${base}/projects`} className="font-semibold underline underline-offset-2">Projetos</a>.
-            Você não participa das sessões presenciais.
+            {' '}e o portfólio abaixo. Felipe e Selton apoiam a priorização com a mesma visão.
           </p>
         </div>
       )}
 
-      {person.sponsor ? (
+      {full && (
         <>
+          <div className="flex items-baseline justify-between mb-5">
+            <h2 className="text-[15px] font-semibold text-neutral-900">Stakeholders no assessment</h2>
+            <span className="text-[12px] text-neutral-400">{leadership.length} líderes de área</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-10">
+            {leadership.map((s, i) => (
+              <Reveal key={s.name} delay={i * 0.02}>
+                <div className="rounded-xl border border-black/[0.06] bg-white p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-black/[0.06] flex items-center justify-center text-[11px] font-semibold text-neutral-600">
+                      {s.initials}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-semibold text-neutral-900 truncate">{s.name}</p>
+                      <p className="text-[11px] text-neutral-400 truncate">
+                        {s.areas.join(' · ')} · {projectsByRequester(s.name).length} projetos
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
           <div className="flex items-baseline justify-between mb-5">
             <h2 className="text-[15px] font-semibold text-neutral-900">Portfólio completo</h2>
             <span className="text-[12px] text-neutral-400">{projects.length} projetos · {AREA_ORDER.length} áreas</span>
           </div>
-          <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-10 mb-10">
             {AREA_ORDER.map((area, ai) => {
               const areaProjects = projectsByArea(area)
               if (areaProjects.length === 0) return null
@@ -238,7 +277,9 @@ export default function MyAreaPage() {
             })}
           </div>
         </>
-      ) : (
+      )}
+
+      {!full && (
         <>
           <div className="flex items-baseline justify-between mb-5">
             <h2 className="text-[15px] font-semibold text-neutral-900">Seus projetos no assessment</h2>
@@ -258,25 +299,27 @@ export default function MyAreaPage() {
               </p>
             )}
           </div>
-
-          {identified && (
-            <div className="rounded-2xl border border-black/[0.06] bg-neutral-900 text-white p-6 flex flex-col sm:flex-row sm:items-center gap-4">
-              <div className="flex-1">
-                <p className="text-[15px] font-semibold">Pronto para o assessment?</p>
-                <p className="text-[13px] text-white/60 mt-1">
-                  11 perguntas sobre estes projetos e a operação da área · depois agenda de 30 min.
-                </p>
-              </div>
-              <a
-                href={`${base}/discovery/session`}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-neutral-900 text-[13px] font-medium"
-              >
-                Ir para o Assessment
-                <ArrowRight className="w-4 h-4" strokeWidth={2} />
-              </a>
-            </div>
-          )}
         </>
+      )}
+
+      {identified && (
+        <div className="rounded-2xl border border-black/[0.06] bg-neutral-900 text-white p-6 flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex-1">
+            <p className="text-[15px] font-semibold">Pronto para o assessment?</p>
+            <p className="text-[13px] text-white/60 mt-1">
+              {full
+                ? 'Complete o assessment com a visão de priorização · depois agenda de 30 min.'
+                : '11 perguntas sobre estes projetos e a operação da área · depois agenda de 30 min.'}
+            </p>
+          </div>
+          <a
+            href={`${base}/discovery/session`}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-neutral-900 text-[13px] font-medium"
+          >
+            Ir para o Assessment
+            <ArrowRight className="w-4 h-4" strokeWidth={2} />
+          </a>
+        </div>
       )}
     </PageShell>
   )

@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         facilitator: CLIENT.facilitator.name,
         meetingHost: CLIENT.meetingHost.name,
         areas: person.areas.join(', '),
-        role: person.role || (person.sponsor ? 'Sponsor' : person.facilitator ? 'Facilitador' : 'Stakeholder'),
+        role: person.role || (person.sponsor ? 'Sponsor' : person.facilitator ? 'Facilitador' : person.consultant ? 'Consultor' : 'Stakeholder'),
       }
     )
 

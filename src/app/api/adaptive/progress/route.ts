@@ -27,7 +27,7 @@ export async function GET(req: Request) {
         client: clientId,
         stakeholder: s.name,
         areas: s.areas.join(', '),
-        role: s.role || (s.sponsor ? 'Sponsor' : s.facilitator ? 'Facilitador' : 'Stakeholder'),
+        role: s.role || (s.sponsor ? 'Sponsor' : s.facilitator ? 'Facilitador' : s.consultant ? 'Consultor' : 'Stakeholder'),
         whatsapp: '',
         status: 'Not started' as ProgressStatus,
         facilitator: CLIENT.facilitator.name,

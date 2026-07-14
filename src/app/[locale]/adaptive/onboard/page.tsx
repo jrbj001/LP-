@@ -104,7 +104,10 @@ export default function OnboardPage() {
             <option value="">Selecione seu nome…</option>
             {STAKEHOLDERS.map(s => (
               <option key={s.name} value={s.name}>
-                {s.name}{s.sponsor ? ' · Sponsor' : ''}{s.facilitator ? ' · Facilitador' : ''}
+                {s.name}
+                {s.sponsor ? ' · Sponsor' : ''}
+                {s.facilitator ? ' · Facilitador' : ''}
+                {s.consultant ? ' · Consultor' : ''}
               </option>
             ))}
           </select>

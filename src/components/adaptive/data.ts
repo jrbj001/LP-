@@ -1,7 +1,7 @@
 import {
   Home, Layers, User, FolderKanban, LayoutDashboard,
   FileBarChart, FileText, type LucideIcon,
-  Target, ClipboardList, Cog, Server, Sparkles, ClipboardCheck, Activity,
+  Target, ClipboardList, Cog, Server, Sparkles, ClipboardCheck, Activity, Mic2,
 } from 'lucide-react'
 
 // ─── Sidebar navigation ──────────────────────────────────────────────────────
@@ -21,6 +21,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Projetos',         href: '/projects',         icon: FolderKanban,    section: 'workspace' },
   { label: 'Dashboard',        href: '/dashboard',        icon: LayoutDashboard, section: 'workspace' },
   { label: 'Acompanhamento',   href: '/onboarding',       icon: Activity,        section: 'workspace' },
+  { label: 'Reuniões',         href: '/meetings',         icon: Mic2,            section: 'workspace' },
   { label: 'Executive Review', href: '/executive-review', icon: FileBarChart,    section: 'workspace', locked: true },
   { label: 'Documentos',       href: '/documents',        icon: FileText,        section: 'workspace' },
 ]
@@ -255,14 +256,33 @@ export interface Stakeholder {
   name: string
   initials: string
   areas: string[]
+  email?: string
   facilitator?: boolean
   sponsor?: boolean
+  /** Apoia sponsor/facilitador na priorização — visão de todo o portfólio */
+  consultant?: boolean
   role?: string
 }
 
 export const STAKEHOLDERS: Stakeholder[] = [
   { name: 'Ricardo Madureira', initials: 'RM', areas: ['Todas as áreas'], sponsor: true, role: 'CEO · Sponsor Executivo' },
-  { name: 'Diego',         initials: 'DI', areas: ['Inteligência'],           facilitator: true, role: 'Facilitador · Gente & Gestão' },
+  { name: 'Diego',         initials: 'DI', areas: ['Todas as áreas'], facilitator: true, role: 'Facilitador · Gente & Gestão' },
+  {
+    name: 'Felipe Szpigel',
+    initials: 'FS',
+    areas: ['Todas as áreas'],
+    email: 'fszpigel@gmail.com',
+    consultant: true,
+    role: 'Consultor · Priorização',
+  },
+  {
+    name: 'Selton Cordts',
+    initials: 'SC',
+    areas: ['Todas as áreas'],
+    email: 'selton.cordts@gmail.com',
+    consultant: true,
+    role: 'Consultor · Priorização',
+  },
   { name: 'Cristiane',     initials: 'CR', areas: ['Comercial'] },
   { name: 'Joyce',         initials: 'JO', areas: ['Comercial'] },
   { name: 'Silvia',        initials: 'SI', areas: ['Comercial'] },
@@ -281,6 +301,11 @@ export const STAKEHOLDERS: Stakeholder[] = [
 
 export function findStakeholder(name: string): Stakeholder | undefined {
   return STAKEHOLDERS.find(s => s.name === name)
+}
+
+/** Sponsor, facilitador e consultores veem todo o portfólio + stakeholders */
+export function hasFullAccess(s: Stakeholder): boolean {
+  return Boolean(s.sponsor || s.facilitator || s.consultant)
 }
 
 export const PROJECT_STATUS_META: Record<ProjectStatus, { label: string; tone: 'green' | 'amber' | 'muted' | 'neutral' }> = {
