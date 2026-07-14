@@ -5,12 +5,19 @@ import { PageShell, PageHeader, Reveal } from '@/components/adaptive/ui'
 import { CLIENT, CLIENT_ID } from '@/components/adaptive/data'
 import type { ProgressRow, ProgressStatus } from '@/lib/adaptive/types'
 
+const OPS_SECRET_KEY = 'adaptive.ops.secret'
+
 const STATUS_STYLE: Record<ProgressStatus, string> = {
   'Not started': 'bg-neutral-100 text-neutral-500',
   'Identified': 'bg-amber-100 text-amber-700',
   'Assessment done': 'bg-sky-100 text-sky-700',
   'Session booked': 'bg-emerald-100 text-emerald-700',
   'Done': 'bg-violet-100 text-violet-700',
+}
+
+function readSavedSecret() {
+  if (typeof window === 'undefined') return ''
+  return sessionStorage.getItem(OPS_SECRET_KEY)?.trim() || ''
 }
 
 export default function OnboardingDashboardPage() {
@@ -21,33 +28,42 @@ export default function OnboardingDashboardPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [loaded, setLoaded] = useState(false)
+  const [needsSecret, setNeedsSecret] = useState(false)
 
-  useEffect(() => {
-    const saved = sessionStorage.getItem('adaptive.ops.secret')
-    if (saved) setSecret(saved)
-  }, [])
-
-  const load = useCallback(async () => {
+  const load = useCallback(async (overrideSecret?: string) => {
+    const token = (overrideSecret ?? secret).trim()
     setLoading(true)
     setError('')
+    setNeedsSecret(false)
     try {
       const qs = new URLSearchParams({ clientId: CLIENT_ID })
-      if (secret) qs.set('secret', secret)
-      const res = await fetch(`/api/adaptive/progress?${qs}`)
+      const res = await fetch(`/api/adaptive/progress?${qs}`, {
+        headers: token ? { 'x-adaptive-ops-secret': token } : undefined,
+      })
       const ct = res.headers.get('content-type') || ''
       if (!ct.includes('application/json')) {
-        throw new Error(
-          res.status === 401
-            ? 'Unauthorized — informe o Ops secret'
-            : 'Não foi possível carregar o progresso. Tente atualizar novamente.'
-        )
+        throw new Error('Não foi possível carregar o progresso. Tente atualizar novamente.')
       }
       const data = await res.json()
+      if (res.status === 401) {
+        setNeedsSecret(true)
+        setLoaded(false)
+        setRows([])
+        setCounts({ total: 0, identified: 0, assessmentDone: 0, sessionBooked: 0 })
+        throw new Error(
+          token
+            ? 'Ops secret inválido. Confira o valor de ADAPTIVE_OPS_SECRET e tente de novo.'
+            : 'Este painel é protegido. Cole o Ops secret e clique em Atualizar.'
+        )
+      }
       if (!res.ok) throw new Error(data.error || 'Falha ao carregar')
       setRows(data.rows || [])
       setCounts(data.counts)
       setLoaded(true)
-      if (secret) sessionStorage.setItem('adaptive.ops.secret', secret)
+      if (token) {
+        sessionStorage.setItem(OPS_SECRET_KEY, token)
+        setSecret(token)
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro')
     } finally {
@@ -56,9 +72,12 @@ export default function OnboardingDashboardPage() {
   }, [secret])
 
   useEffect(() => {
-    // Auto-try once (works if ADAPTIVE_OPS_SECRET unset in local)
-    void load()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    const saved = readSavedSecret()
+    if (saved) setSecret(saved)
+    void load(saved)
+    // bootstrap only
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const filtered = useMemo(
     () => (filter === 'all' ? rows : rows.filter(r => r.status === filter)),
@@ -76,12 +95,18 @@ export default function OnboardingDashboardPage() {
       />
 
       <Reveal>
-        <div className="rounded-xl border border-black/[0.06] bg-white p-4 mb-8 flex flex-col sm:flex-row gap-3 sm:items-center">
+        <div className={`rounded-xl border bg-white p-4 mb-8 flex flex-col sm:flex-row gap-3 sm:items-center ${
+          needsSecret ? 'border-amber-200' : 'border-black/[0.06]'
+        }`}>
           <input
             type="password"
             value={secret}
             onChange={e => setSecret(e.target.value)}
-            placeholder="Ops secret (se configurado)"
+            onKeyDown={e => {
+              if (e.key === 'Enter') void load()
+            }}
+            placeholder="Ops secret"
+            autoComplete="off"
             className="flex-1 rounded-lg border border-black/[0.1] px-3 py-2 text-[13px] outline-none focus:border-neutral-900"
           />
           <button
@@ -94,8 +119,18 @@ export default function OnboardingDashboardPage() {
         </div>
       </Reveal>
 
-      {error && (
+      {needsSecret && !loaded && (
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] text-amber-900 leading-relaxed">
+          Painel protegido pelo Ops secret (variável <code className="text-[12px]">ADAPTIVE_OPS_SECRET</code> no ambiente).
+          Cole o secret, pressione Enter ou clique em Atualizar.
+        </div>
+      )}
+
+      {error && !needsSecret && (
         <p className="text-[13px] text-rose-600 mb-6">{error}</p>
+      )}
+      {error && needsSecret && (
+        <p className="text-[13px] text-amber-800 mb-6">{error}</p>
       )}
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-10">
@@ -171,6 +206,13 @@ export default function OnboardingDashboardPage() {
                   <tr>
                     <td colSpan={6} className="px-5 py-10 text-center text-[13px] text-neutral-400">
                       Nenhum stakeholder neste filtro.
+                    </td>
+                  </tr>
+                )}
+                {!loaded && !loading && (
+                  <tr>
+                    <td colSpan={6} className="px-5 py-10 text-center text-[13px] text-neutral-400">
+                      Informe o Ops secret para ver o acompanhamento.
                     </td>
                   </tr>
                 )}
