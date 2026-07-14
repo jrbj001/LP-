@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { useLocale } from 'next-intl'
-import { ArrowRight, Users, FolderKanban, Compass, Clock, Activity, Crown, Star, Building2 } from 'lucide-react'
+import { ArrowRight, Users, FolderKanban, Compass, Clock, Activity, Crown, Star } from 'lucide-react'
 import { Timeline } from '@/components/adaptive/timeline'
 import { Reveal } from '@/components/adaptive/ui'
 import { JourneyStrip } from '@/components/adaptive/journey-strip'
@@ -142,17 +142,15 @@ export default function AdaptiveHome() {
       {/* Governance */}
       <Reveal className="mb-16">
         <h2 className="text-[15px] font-semibold text-neutral-900 mb-5">Governança do Assessment</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Sponsor */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="rounded-xl border border-neutral-900/15 bg-white p-5">
             <div className="flex items-center gap-2 mb-4">
               <Crown className="w-4 h-4 text-neutral-900 fill-neutral-900" strokeWidth={0} />
               <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">Sponsor</span>
             </div>
             <p className="text-[15px] font-semibold text-neutral-900">{CLIENT.sponsor.name}</p>
-            <p className="text-[12px] text-neutral-400 mt-0.5">CEO · {CLIENT.sponsor.role}</p>
+            <p className="text-[12px] text-neutral-400 mt-0.5">CEO · Sponsor Executivo</p>
           </div>
-          {/* Facilitator */}
           <div className="rounded-xl border border-amber-100 bg-white p-5">
             <div className="flex items-center gap-2 mb-4">
               <Star className="w-4 h-4 text-amber-500 fill-amber-500" strokeWidth={0} />
@@ -161,16 +159,26 @@ export default function AdaptiveHome() {
             <p className="text-[15px] font-semibold text-neutral-900">{CLIENT.facilitator.name}</p>
             <p className="text-[12px] text-neutral-400 mt-0.5">{CLIENT.facilitator.role}</p>
           </div>
-          {/* Delivery */}
-          <div className="rounded-xl border border-black/[0.06] bg-white p-5">
+          <div className="rounded-xl border border-sky-100 bg-white p-5 sm:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <Building2 className="w-4 h-4 text-neutral-300" strokeWidth={1.75} />
-              <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">Entrega</span>
+              <Users className="w-4 h-4 text-sky-600" strokeWidth={1.75} />
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">Consultores · Priorização</span>
             </div>
-            <p className="text-[15px] font-semibold text-neutral-900">PixelPulseLab</p>
-            <p className="text-[12px] text-neutral-400 mt-0.5">José Roberto &amp; Marco Lúcio</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p className="text-[15px] font-semibold text-neutral-900">Felipe Szpigel</p>
+                <p className="text-[12px] text-neutral-400 mt-0.5">fszpigel@gmail.com</p>
+              </div>
+              <div>
+                <p className="text-[15px] font-semibold text-neutral-900">Selton Cordts</p>
+                <p className="text-[12px] text-neutral-400 mt-0.5">selton.cordts@gmail.com</p>
+              </div>
+            </div>
           </div>
         </div>
+        <p className="mt-3 text-[12px] text-neutral-400">
+          Entrega: PixelPulseLab · {CLIENT.meetingHost.name} &amp; Marco Lúcio
+        </p>
       </Reveal>
 
       {/* Areas & leaders */}
