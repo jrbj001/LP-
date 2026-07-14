@@ -50,21 +50,21 @@ interface Brand {
 
 const BRANDS: Brand[] = [
   // Row 1
-  { name: 'Vercel',       category: 'Deploy',    color: '#ffffff', si: siVercel },
+  { name: 'Vercel',       category: 'Deploy',    color: '#000000', si: siVercel },
   { name: 'Google Cloud', category: 'Cloud',     color: '#4285F4', si: siGooglecloud },
   { name: 'OpenAI',       category: 'AI',        color: '#412991', custom: 'openai' },
   { name: 'Anthropic',    category: 'AI',        color: '#D97757', si: siAnthropic },
   { name: 'Claude',       category: 'AI',        color: '#D97757', custom: 'claude' },
   { name: 'DeepSeek',     category: 'AI',        color: '#4D6BFE', si: siDeepseek },
-  { name: 'GitHub',       category: 'Code',      color: '#ffffff', si: siGithub },
-  { name: 'Cursor',       category: 'IDE',       color: '#ffffff', custom: 'cursor' },
+  { name: 'GitHub',       category: 'Code',      color: '#171717', si: siGithub },
+  { name: 'Cursor',       category: 'IDE',       color: '#171717', custom: 'cursor' },
   { name: 'Supabase',     category: 'Database',  color: '#3ECF8E', si: siSupabase },
   { name: 'PostgreSQL',   category: 'Database',  color: '#4169E1', si: siPostgresql },
   { name: 'SQL Server',   category: 'Database',  color: '#CC2927', custom: 'sqlserver' },
   { name: 'Firebase',     category: 'Backend',   color: '#DD2C00', si: siFirebase },
   // Row 2
   { name: 'Upstash',      category: 'Cache',     color: '#00E9A3', si: siUpstash },
-  { name: 'Railway',      category: 'Deploy',    color: '#ffffff', si: siRailway },
+  { name: 'Railway',      category: 'Deploy',    color: '#0B0D0E', si: siRailway },
   { name: 'Azure',        category: 'Cloud',     color: '#0078D4', custom: 'azure' },
   { name: 'Slack',        category: 'Comms',     color: '#4A154B', custom: 'slack' },
   { name: 'Jira',         category: 'Planning',  color: '#0052CC', si: siJira },
@@ -87,34 +87,31 @@ function BrandCard({ brand }: { brand: Brand }) {
 
   return (
     <div
-      className="group flex items-center gap-3 px-5 py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.12] transition-all duration-300 cursor-default flex-shrink-0"
+      className="group flex items-center gap-3 px-5 py-3 rounded-xl border border-black/[0.06] bg-white hover:border-black/[0.1] transition-all duration-300 cursor-default flex-shrink-0"
     >
-      {/* Icon */}
       <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
         {svgPath ? (
           <svg
             viewBox={iconData?.viewBox ?? '0 0 24 24'}
             className="w-full h-full transition-all duration-300"
-            style={{ fill: 'rgba(255,255,255,0.35)' }}
+            style={{ fill: 'rgba(23,23,23,0.35)' }}
             onMouseEnter={e => { (e.currentTarget as SVGElement).style.fill = brand.color }}
-            onMouseLeave={e => { (e.currentTarget as SVGElement).style.fill = 'rgba(255,255,255,0.35)' }}
+            onMouseLeave={e => { (e.currentTarget as SVGElement).style.fill = 'rgba(23,23,23,0.35)' }}
           >
             <path d={svgPath} />
           </svg>
         ) : (
-          <span className="text-[10px] font-bold text-white/40 font-mono">
+          <span className="text-[10px] font-bold text-neutral-400 font-mono">
             {brand.name.slice(0, 2).toUpperCase()}
           </span>
         )}
       </div>
 
-      {/* Name */}
-      <span className="text-sm font-medium text-white/50 group-hover:text-white/80 transition-colors whitespace-nowrap">
+      <span className="text-sm font-medium text-neutral-500 group-hover:text-neutral-800 transition-colors whitespace-nowrap">
         {brand.name}
       </span>
 
-      {/* Category badge */}
-      <span className="text-[10px] font-mono tracking-wider uppercase text-white/20 group-hover:text-white/40 transition-colors">
+      <span className="text-[10px] font-mono tracking-wider uppercase text-neutral-300 group-hover:text-neutral-500 transition-colors">
         {brand.category}
       </span>
     </div>
@@ -128,9 +125,8 @@ function MarqueeRow({ brands, reverse = false }: { brands: Brand[]; reverse?: bo
 
   return (
     <div className="relative overflow-hidden">
-      {/* Fade masks */}
-      <div className="absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-black to-transparent pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-black to-transparent pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-r from-[#fbfbfa] to-transparent pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-24 z-10 bg-gradient-to-l from-[#fbfbfa] to-transparent pointer-events-none" />
 
       <div
         className="flex gap-3 w-max"
@@ -149,7 +145,7 @@ function MarqueeRow({ brands, reverse = false }: { brands: Brand[]; reverse?: bo
 // ─── Section ──────────────────────────────────────────────────────────────────
 export function TechStack() {
   return (
-    <section className="py-24 border-b border-white/[0.06] overflow-hidden" id="stack">
+    <section className="py-20 lg:py-24 border-b border-black/[0.06] overflow-hidden" id="stack">
       <style>{`
         @keyframes marquee-left {
           0%   { transform: translateX(0) }
@@ -159,16 +155,12 @@ export function TechStack() {
           0%   { transform: translateX(-33.333%) }
           100% { transform: translateX(0) }
         }
-        @keyframes marquee-left:hover,
-        @keyframes marquee-right:hover {
-          animation-play-state: paused;
-        }
       `}</style>
 
-      <div className="mx-auto max-w-[1200px] px-6 mb-12">
-        <p className="font-mono text-xs tracking-[0.2em] uppercase text-text-muted mb-4">Technology Stack</p>
-        <h2 className="text-3xl sm:text-4xl font-bold tracking-[-0.03em] max-w-xl">
-          Tools We Build With<span className="text-text-secondary"> Every Day</span>
+      <div className="mx-auto max-w-[1120px] px-6 mb-12">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 mb-4">Technology Stack</p>
+        <h2 className="text-2xl sm:text-3xl font-semibold tracking-[-0.03em] text-neutral-900 max-w-xl">
+          Tools We Build With<span className="text-neutral-500"> Every Day</span>
         </h2>
       </div>
 

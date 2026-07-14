@@ -3,138 +3,142 @@
     "cta": "Fale Conosco"
   },
   "hero": {
-    "eyebrow": "Empresa de Produto & Infraestrutura de IA",
-    "headline1": "Construindo Plataformas de Inteligência",
-    "headline2": "para Operações Reais",
-    "description": "Desenvolvemos plataformas nativas de IA, sistemas de inteligência adaptativa e software operacional que ajudam organizações a automatizar fluxos complexos, tomar melhores decisões e criar vantagens competitivas duradouras.",
+    "eyebrow": "Produto & Infraestrutura de IA",
+    "headline1": "Plataformas de inteligência",
+    "headline2": "para operações reais",
+    "description": "Construímos sistemas nativos de IA e software operacional que ajudam organizações a automatizar fluxos complexos, decidir com mais clareza e operar com confiança.",
     "cta_primary": "Fale Conosco",
-    "cta_secondary": "Explorar Ventures"
+    "cta_secondary": "Ver Ventures"
   },
   "build": {
     "label": "O Que Construímos",
-    "headline1": "Construímos Inteligência,",
-    "headline2": "Não Apenas Software",
-    "description": "A PixelPulse combina engenharia de software, inteligência artificial e expertise operacional para criar sistemas que resolvem problemas reais.",
+    "headline1": "Sistemas que entram na operação",
+    "headline2": "e permanecem lá.",
+    "description": "Não entregamos demos isoladas. Construímos plataformas onde dados, fluxos e IA convivem no cotidiano do negócio — com estabilidade e rastreabilidade.",
     "cards": {
       "platforms": {
-        "title": "Plataformas de Inteligência",
-        "description": "Plataformas nativas de IA construídas em torno de tomada de decisão e fluxos operacionais."
+        "title": "Plataformas de decisão",
+        "description": "Aplicações nativas de IA desenhadas em torno de fluxos reais: contexto, regras e suporte à decisão no mesmo lugar em que o time trabalha.",
+        "outcome": "Da pergunta à ação, sem mudar de ferramenta"
       },
       "vision": {
-        "title": "Sistemas de Visão Computacional",
-        "description": "Plataformas de inteligência visual que transformam imagens e ambientes em insights acionáveis."
+        "title": "Visão computacional",
+        "description": "Pipelines que transformam imagens e evidências de campo em sinal operacional — monitoramento, conformidade e visibilidade com base em evidência.",
+        "outcome": "O que o campo vê, o sistema registra"
       },
       "operational": {
-        "title": "Inteligência Operacional",
-        "description": "Sistemas que convertem operações complexas em processos mensuráveis, escaláveis e inteligentes."
+        "title": "Inteligência operacional",
+        "description": "Processos complexos, hoje manuais ou fragmentados, viram sistemas mensuráveis: estados claros, histórico e indicadores que o negócio confia.",
+        "outcome": "Operação observável, não caixa-preta"
       },
       "products": {
-        "title": "Produtos de Inteligência",
-        "description": "Produtos nascidos de padrões descobertos em implantações do mundo real."
+        "title": "Produtos reutilizáveis",
+        "description": "Padrões que se repetem em implantações viram produtos internos e externos — menos reinventar, mais acelerar a próxima entrega.",
+        "outcome": "Conhecimento que vira capacidade"
       }
     }
   },
   "thesis": {
     "label": "Nossa Tese",
-    "headline1": "O Futuro Não São Mais Aplicações de IA.",
-    "headline2": "É Inteligência Operacional Adaptativa.",
-    "p1": "A maioria das organizações está experimentando modelos de linguagem. Poucas estão construindo inteligência que se acumula ao longo do tempo.",
-    "p2": "Acreditamos que a IA não deve viver dentro de interfaces de chat isoladas. Ela deve se tornar parte do tecido operacional de uma organização.",
-    "p3": "Sistemas de inteligência adaptativa aprendem continuamente. Acumulam conhecimento. Entendem contexto. Apoiam decisões. Evoluem junto com o negócio.",
-    "p4": "Este é o futuro que estamos construindo."
+    "headline1": "IA útil vive na operação,",
+    "headline2": "não em interfaces isoladas.",
+    "p1": "Muitas organizações experimentam modelos de linguagem. Poucas constroem inteligência que se acumula com o uso.",
+    "p2": "Acreditamos que a IA deve integrar o tecido operacional — contextos, decisões e processos do dia a dia.",
+    "p3": "Sistemas adaptativos aprendem, retêm conhecimento, entendem contexto e evoluem junto com o negócio.",
+    "p4": "É isso que construímos, com rigor e estabilidade."
   },
   "how": {
-    "label": "Como a PixelPulse Funciona",
-    "headline1": "Dos Desafios Operacionais",
-    "headline2": "às Plataformas de Inteligência",
-    "description": "Não inventamos problemas em laboratório. Construímos produtos a partir dos desafios que resolvemos no mundo real.",
+    "label": "Como Funcionamos",
+    "headline1": "Dos desafios reais",
+    "headline2": "às plataformas de inteligência",
+    "description": "Não inventamos problemas em laboratório. Construímos a partir do que resolvemos em campo.",
     "loop": "↻ Ciclo contínuo",
-    "p1": "Cada projeto nos expõe a desafios operacionais reais. Os padrões mais valiosos se tornam inteligência reutilizável. Essa inteligência fortalece nosso Adaptive Core. As capacidades mais fortes se tornam produtos. Os produtos criam novas oportunidades.",
-    "p2": "Este ciclo melhora continuamente tudo que construímos.",
+    "p1": "Cada projeto revela desafios operacionais. Os padrões mais úteis viram inteligência reutilizável no Adaptive Core. As capacidades maduras viram produtos — e abrem novas oportunidades.",
+    "p2": "O ciclo melhora, de forma consistente, tudo o que entregamos.",
     "steps": {
-      "s1": { "label": "Plataformas Enterprise", "sub": "Desafios do mundo real" },
+      "s1": { "label": "Plataformas Enterprise", "sub": "Desafios reais" },
       "s2": { "label": "Conhecimento Operacional", "sub": "Padrões & insights" },
       "s3": { "label": "Adaptive Core", "sub": "Inteligência reutilizável" },
-      "s4": { "label": "Produtos de Inteligência", "sub": "Soluções escaláveis" },
+      "s4": { "label": "Produtos", "sub": "Soluções escaláveis" },
       "s5": { "label": "Novas Oportunidades", "sub": "Crescimento contínuo" }
     }
   },
   "enterprise": {
     "label": "Plataformas Enterprise",
-    "headline1": "Construindo Sistemas para",
-    "headline2": "Operações Complexas",
-    "description": "Parceiros de organizações para projetar, desenvolver e evoluir plataformas de inteligência em múltiplas indústrias.",
+    "headline1": "Sistemas para",
+    "headline2": "operações complexas",
+    "description": "Projetamos, desenvolvemos e evoluímos plataformas de inteligência com organizações em múltiplos setores.",
     "domains_label": "Domínios",
     "capabilities": {
-      "c1": { "title": "Aplicações Nativas de IA", "description": "Aplicações projetadas em torno de inteligência desde o primeiro dia." },
-      "c2": { "title": "Visão Computacional", "description": "Compreensão de imagens, análise visual e monitoramento operacional." },
-      "c3": { "title": "Inteligência de Dados", "description": "Transformando conjuntos de dados complexos em conhecimento acionável." },
-      "c4": { "title": "Sistemas Operacionais", "description": "Fluxos de trabalho inteligentes, automação e suporte à decisão." },
-      "c5": { "title": "Plataformas Enterprise", "description": "Arquiteturas modernas projetadas para escala e adaptabilidade." }
+      "c1": { "title": "Aplicações Nativas de IA", "description": "Aplicações desenhadas em torno de inteligência desde o início." },
+      "c2": { "title": "Visão Computacional", "description": "Compreensão de imagem, análise visual e monitoramento operacional." },
+      "c3": { "title": "Inteligência de Dados", "description": "Dados complexos transformados em conhecimento acionável." },
+      "c4": { "title": "Sistemas Operacionais", "description": "Fluxos inteligentes, automação e suporte à decisão." },
+      "c5": { "title": "Plataformas Enterprise", "description": "Arquiteturas modernas para escala e continuidade." }
     }
   },
   "platforms": {
-    "label": "Plataformas de Inteligência em Produção",
-    "headline1": "Plataformas reais construídas em",
+    "label": "Em Produção",
+    "headline1": "Plataformas reais em",
     "headline2": "saúde, territórios, ativos e visão",
-    "description": "Cada implantação gera conhecimento operacional que contribui para a evolução do nosso Adaptive Core.",
+    "description": "Cada implantação gera conhecimento operacional que alimenta o Adaptive Core.",
     "status": "Em Produção",
-    "footer_title": "Construído através de Operações Reais",
-    "footer_body": "Ao contrário de empresas que começam com produtos e buscam problemas, a PixelPulseLab desenvolve plataformas de inteligência junto a ambientes operacionais reais. A experiência adquirida nessas implantações fortalece nosso Adaptive Core e acelera a criação de futuros produtos de inteligência.",
+    "footer_title": "Construído em operações reais",
+    "footer_body": "Desenvolvemos plataformas junto a ambientes operacionais reais. A experiência dessas implantações fortalece nossa base e acelera novos produtos com mais previsibilidade.",
     "items": {
       "likeme": {
         "name": "LikeMe",
-        "category": "Plataforma de Inteligência em Saúde",
-        "description": "Plataforma digital projetada para conectar pessoas, comunidades e especialistas por meio de experiências inteligentes voltadas à saúde.",
+        "category": "Inteligência em Saúde",
+        "description": "Plataforma digital que conecta pessoas, comunidades e especialistas em experiências voltadas à saúde.",
         "capabilities": ["Comunidades", "Engajamento", "Conteúdo", "Ecossistema de Saúde"]
       },
       "colmeia": {
         "name": "Colmeia",
-        "category": "Plataforma de Inteligência Territorial",
-        "description": "Plataforma projetada para organizar, visualizar e analisar informações territoriais e operacionais em escala.",
+        "category": "Inteligência Territorial",
+        "description": "Organiza, visualiza e analisa informações territoriais e operacionais em escala.",
         "capabilities": ["Inteligência Geográfica", "Planejamento", "Visualização", "Analytics"]
       },
       "asset": {
         "name": "Asset Intelligence",
-        "category": "Plataforma de Inteligência de Ativos",
-        "description": "Construída dentro do ecossistema Colmeia, ajuda organizações a estruturar, monitorar e extrair inteligência de inventários de ativos e recursos operacionais.",
-        "capabilities": ["Mapeamento de Ativos", "Inteligência de Inventário", "Visibilidade Operacional", "Planejamento Estratégico"]
+        "category": "Inteligência de Ativos",
+        "description": "No ecossistema Colmeia, estrutura, monitora e extrai inteligência de inventários e recursos operacionais.",
+        "capabilities": ["Mapeamento de Ativos", "Inventário", "Visibilidade Operacional", "Planejamento"]
       },
       "visibility": {
         "name": "Visibility Intelligence",
-        "category": "Plataforma de Visão Computacional",
-        "description": "Sistema de inteligência visual que analisa imagens e execução em campo para avaliar visibilidade, exposição e desempenho operacional.",
+        "category": "Visão Computacional",
+        "description": "Analisa imagens e execução em campo para avaliar visibilidade, exposição e desempenho operacional.",
         "capabilities": ["Visão Computacional", "Análise de Imagem", "Visibilidade de Marca", "Insights de IA"]
       }
     }
   },
   "ventures": {
     "label": "Venture Studio",
-    "headline1": "Construindo a Próxima Geração de",
-    "headline2": "Produtos de Inteligência",
-    "description": "Nosso venture studio transforma expertise operacional em produtos de inteligência escaláveis.",
+    "headline1": "Produtos de inteligência",
+    "headline2": "nascidos da operação",
+    "description": "Transformamos expertise operacional em produtos escaláveis, com foco em confiabilidade.",
     "items": {
       "credix": {
         "name": "Credix",
-        "category": "Plataforma de Inteligência Fiscal",
-        "description": "Automatizando análise fiscal, interpretação tributária e fluxos de conformidade.",
+        "category": "Inteligência Fiscal",
+        "description": "Análise fiscal, interpretação tributária e fluxos de conformidade.",
         "status": "Em Construção"
       },
       "qa": {
         "name": "QA Agent",
-        "category": "Plataforma de Inteligência de Engenharia",
-        "description": "Garantia de qualidade de software e insights de engenharia alimentados por IA.",
+        "category": "Inteligência de Engenharia",
+        "description": "Qualidade de software e insights de engenharia com IA.",
         "status": "Em Construção"
       },
       "monitoring": {
         "name": "Project Monitoring",
-        "category": "Plataforma de Inteligência de Entrega",
-        "description": "Visibilidade operacional, detecção de riscos e monitoramento de performance de engenharia.",
+        "category": "Inteligência de Entrega",
+        "description": "Visibilidade operacional, riscos e performance de engenharia.",
         "status": "Em Construção"
       },
       "core": {
         "name": "Adaptive Core",
-        "category": "Plataforma de Infraestrutura de Inteligência",
+        "category": "Infraestrutura de Inteligência",
         "description": "A fundação proprietária por trás de cada sistema PixelPulse.",
         "status": "Plataforma Interna"
       }
@@ -142,11 +146,11 @@
   },
   "adaptive": {
     "label": "Adaptive Core",
-    "headline1": "A Camada de Inteligência",
-    "headline2": "Por Trás de Tudo Que Construímos",
-    "description": "Cada engajamento fortalece uma fundação de inteligência reutilizável. O Adaptive Core é a infraestrutura interna que alimenta o ecossistema PixelPulse.",
-    "capabilities_label": "Capacidades Principais",
-    "capabilities": ["Raciocínio Contextual", "Memória Operacional", "Gestão de Conhecimento", "Orquestração de IA", "Inteligência Reutilizável", "Escalabilidade de Plataforma"],
+    "headline1": "A camada de inteligência",
+    "headline2": "por trás do que construímos",
+    "description": "Cada engajamento reforça uma base reutilizável. O Adaptive Core é a infraestrutura interna do ecossistema PixelPulse.",
+    "capabilities_label": "Capacidades",
+    "capabilities": ["Raciocínio Contextual", "Memória Operacional", "Gestão de Conhecimento", "Orquestração de IA", "Inteligência Reutilizável", "Escalabilidade"],
     "layers": {
       "l1": { "label": "Camada de Dados", "description": "Ingestão, normalização e armazenamento" },
       "l2": { "label": "Camada de Conhecimento", "description": "Extração, indexação e recuperação" },
@@ -157,8 +161,8 @@
   },
   "why": {
     "label": "Por que PixelPulse",
-    "headline1": "Construído como uma Empresa de Produto.",
-    "headline2": "Não uma Consultoria.",
+    "headline1": "Empresa de produto,",
+    "headline2": "não consultoria pontual.",
     "col_traditional": "Consultoria Tradicional",
     "col_pixel": "PixelPulse",
     "rows": {
@@ -168,32 +172,32 @@
       "r4": { "traditional": "Código customizado", "pixel": "Mentalidade de produto" },
       "r5": { "traditional": "Conhecimento fica nos projetos", "pixel": "Conhecimento vira ativo" }
     },
-    "closing": "Cada engajamento fortalece nosso ecossistema. Cada implantação melhora nossa plataforma. Cada solução contribui para uma rede crescente de produtos e capacidades de inteligência."
+    "closing": "Cada engajamento fortalece o ecossistema. Cada implantação melhora a plataforma. Cada solução contribui para uma base crescente de capacidades."
   },
   "principles": {
-    "label": "Princípios de Engenharia",
-    "headline1": "Engenharia para a",
-    "headline2": "Era Adaptativa",
+    "label": "Princípios",
+    "headline1": "Engenharia com",
+    "headline2": "clareza e resiliência",
     "items": {
-      "p1": { "title": "Pensamento Nativo de IA", "description": "Projetamos sistemas em torno de inteligência desde o início." },
-      "p2": { "title": "Adaptativo por Design", "description": "Sistemas devem evoluir através do uso e feedback." },
-      "p3": { "title": "Infraestrutura Primeiro", "description": "Arquitetura reutilizável cria valor de longo prazo." },
-      "p4": { "title": "Inteligência Explicável", "description": "IA enterprise deve permanecer compreensível e auditável." },
-      "p5": { "title": "Confiabilidade Enterprise", "description": "Sistemas operacionais exigem confiança e resiliência." },
-      "p6": { "title": "Times Pequenos e de Elite", "description": "Engenharia excepcional sobre complexidade organizacional." }
+      "p1": { "title": "Nativo de IA", "description": "Projetamos sistemas em torno de inteligência desde o início." },
+      "p2": { "title": "Adaptativo por design", "description": "Sistemas devem evoluir com uso e feedback." },
+      "p3": { "title": "Infraestrutura primeiro", "description": "Arquitetura reutilizável gera valor duradouro." },
+      "p4": { "title": "Inteligência explicável", "description": "IA enterprise precisa ser compreensível e auditável." },
+      "p5": { "title": "Confiabilidade", "description": "Sistemas operacionais exigem estabilidade e confiança." },
+      "p6": { "title": "Times enxutos", "description": "Excelência técnica acima de complexidade organizacional." }
     }
   },
   "cta": {
-    "label": "Começar",
-    "headline1": "Vamos Construir a Próxima Geração de",
-    "headline2": "Plataformas de Inteligência",
-    "description": "Seja criando uma nova plataforma nativa de IA ou explorando um futuro produto de inteligência, a PixelPulseLab pode ajudar a transformar complexidade operacional em vantagem competitiva.",
+    "label": "Próximo passo",
+    "headline1": "Vamos conversar sobre",
+    "headline2": "sua próxima plataforma",
+    "description": "Seja uma plataforma nativa de IA ou a evolução de um produto operacional, podemos ajudar a transformar complexidade em sistemas confiáveis.",
     "btn_primary": "Fale Conosco",
     "btn_secondary": "Iniciar Conversa"
   },
   "footer": {
-    "tagline": "Cognição adaptativa, entregue como código.",
-    "description": "PixelPulseLab é uma Empresa de Produto & Infraestrutura de IA que constrói sistemas de inteligência adaptativa e plataformas de inteligência para operações do mundo real. Combinamos engenharia de software, inteligência artificial e expertise operacional para criar sistemas que aprendem, se adaptam e escalam.",
+    "tagline": "Inteligência adaptativa, entregue como código.",
+    "description": "PixelPulseLab é uma empresa de produto e infraestrutura de IA. Construímos sistemas adaptativos e plataformas para operações reais — com engenharia, inteligência artificial e expertise operacional.",
     "links": "Links"
   }
 }

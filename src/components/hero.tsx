@@ -3,70 +3,45 @@
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 
-const nodes = [
-  { x: 15, y: 30 }, { x: 38, y: 18 }, { x: 62, y: 25 },
-  { x: 82, y: 35 }, { x: 50, y: 55 }, { x: 75, y: 65 },
-]
-const edges: [number, number][] = [[0,1],[1,2],[2,3],[1,4],[2,4],[3,5],[4,5],[0,4]]
-
-function NetworkAnimation() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <svg className="absolute top-0 right-0 w-[70%] h-full opacity-[0.07]" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-        {edges.map(([from, to], i) => (
-          <motion.line key={i} x1={nodes[from].x} y1={nodes[from].y} x2={nodes[to].x} y2={nodes[to].y} stroke="white" strokeWidth="0.15"
-            initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 2, delay: 0.5 + i * 0.15, ease: 'easeOut' }} />
-        ))}
-        {nodes.map((node, i) => (
-          <motion.circle key={i} cx={node.x} cy={node.y} r="0.8" fill="white"
-            initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 + i * 0.12 }} />
-        ))}
-        {nodes.map((node, i) => (
-          <motion.circle key={`p-${i}`} cx={node.x} cy={node.y} r="0.8" fill="none" stroke="white" strokeWidth="0.1"
-            initial={{ scale: 1, opacity: 0.4 }} animate={{ scale: 4, opacity: 0 }}
-            transition={{ duration: 3, delay: 1.5 + i * 0.4, repeat: Infinity, repeatDelay: 2 }} />
-        ))}
-      </svg>
-      <div className="absolute top-[20%] right-[10%] w-[500px] h-[500px] rounded-full bg-white/[0.02] blur-[120px]" />
-    </div>
-  )
-}
-
 export function Hero() {
   const t = useTranslations('hero')
   return (
-    <section className="relative min-h-screen flex items-center pt-[72px]">
-      <NetworkAnimation />
-      <div className="relative z-10 mx-auto max-w-[1200px] px-6 py-24 md:py-32">
-        <motion.p className="font-mono text-xs tracking-[0.2em] uppercase text-text-muted mb-8"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.2 }}>
+    <section className="relative pt-28 pb-20 md:pt-36 md:pb-28">
+      <div className="relative z-10 mx-auto max-w-[1120px] px-6 w-full">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 mb-8">
           {t('eyebrow')}
-        </motion.p>
-        <motion.h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-[-0.03em] max-w-4xl mb-8"
-          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}>
+        </p>
+
+        <motion.h1
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.25rem] font-semibold leading-[1.08] tracking-[-0.03em] text-neutral-900 max-w-3xl mb-6"
+          initial={{ opacity: 0.01, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: [0.21, 0.47, 0.32, 0.98] }}
+        >
           {t('headline1')}{' '}
-          <span className="text-text-secondary">{t('headline2')}</span>
+          <span className="text-neutral-500">{t('headline2')}</span>
         </motion.h1>
-        <motion.p className="text-base sm:text-lg text-text-secondary max-w-2xl leading-relaxed mb-12"
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}>
+
+        <p className="text-[17px] text-neutral-500 max-w-xl leading-relaxed mb-10">
           {t('description')}
-        </motion.p>
-        <motion.div className="flex flex-wrap gap-4"
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}>
-          <a href="#cta" className="px-7 py-3.5 text-sm font-medium bg-white text-black rounded-full hover:bg-white/90 transition-all hover:shadow-[0_0_30px_rgba(255,255,255,0.12)]">
+        </p>
+
+        <div className="flex flex-wrap gap-3">
+          <a
+            href="#cta"
+            className="px-6 py-3 text-sm font-medium bg-neutral-900 text-white rounded-full hover:bg-neutral-800 transition-colors"
+          >
             {t('cta_primary')}
           </a>
-          <a href="#ventures" className="px-7 py-3.5 text-sm font-medium border border-white/[0.14] rounded-full text-text-secondary hover:text-text-primary hover:border-white/30 transition-all">
+          <a
+            href="#ventures"
+            className="px-6 py-3 text-sm font-medium border border-black/[0.1] rounded-full text-neutral-600 hover:text-neutral-900 hover:border-black/[0.2] transition-colors"
+          >
             {t('cta_secondary')}
           </a>
-        </motion.div>
+        </div>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/[0.08] to-transparent" />
     </section>
   )
 }

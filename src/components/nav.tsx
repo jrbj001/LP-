@@ -25,7 +25,6 @@ export function Nav() {
   }, [])
 
   function switchLocale(next: string) {
-    // Replace current locale prefix in path
     const segments = pathname.split('/')
     segments[1] = next
     router.push(segments.join('/') || '/')
@@ -35,39 +34,38 @@ export function Nav() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-black/80 backdrop-blur-xl border-b border-white/[0.06] shadow-[0_1px_12px_rgba(0,0,0,0.4)]'
+          ? 'bg-[#fbfbfa]/90 backdrop-blur-xl border-b border-black/[0.06]'
           : 'bg-transparent'
       }`}
     >
-      <div className="mx-auto max-w-[1200px] px-6 h-[72px] flex items-center justify-between">
-        <a href="#" className="flex items-center gap-3 group">
-            <AnimatedMark className="w-7 h-7 flex-shrink-0" />
-          <span className="text-[15px] font-semibold tracking-[-0.02em] text-white/90 group-hover:text-white transition-colors">
+      <div className="mx-auto max-w-[1120px] px-6 h-16 flex items-center justify-between">
+        <a href={`/${locale}`} className="flex items-center gap-2.5 group">
+          <AnimatedMark className="w-8 h-8 flex-shrink-0" />
+          <span className="text-[15px] font-semibold tracking-[-0.03em] text-neutral-900">
             PixelPulseLab
-            <span className="text-white/30 font-normal">.dev</span>
+            <span className="font-mono font-normal text-neutral-400">.dev</span>
           </span>
         </a>
 
-        <div className="flex items-center gap-3">
-          {/* Client portal link */}
+        <div className="flex items-center gap-2 sm:gap-3">
           <a
             href={`/${locale}/client`}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono tracking-wider text-white/40 hover:text-white/70 border border-white/[0.08] hover:border-white/[0.18] rounded-lg transition-all duration-200"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono tracking-wider text-neutral-500 hover:text-neutral-900 border border-black/[0.08] hover:border-black/[0.14] rounded-md transition-colors"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             Portal
           </a>
 
-          {/* Language switcher */}
-          <div className="flex border border-white/[0.1] rounded-lg overflow-hidden">
+          <div className="flex border border-black/[0.08] rounded-md overflow-hidden">
             {LOCALES.map(({ code, label }) => (
               <button
                 key={code}
+                type="button"
                 onClick={() => switchLocale(code)}
-                className={`px-3 py-1.5 text-[11px] font-mono tracking-wide transition-colors ${
+                className={`px-2.5 py-1.5 text-[11px] font-mono tracking-wide transition-colors ${
                   locale === code
-                    ? 'bg-white/[0.1] text-white'
-                    : 'text-white/30 hover:text-white/60'
+                    ? 'bg-neutral-900 text-white'
+                    : 'text-neutral-400 hover:text-neutral-700'
                 }`}
               >
                 {label}
@@ -77,7 +75,7 @@ export function Nav() {
 
           <a
             href="#cta"
-            className="px-5 py-2.5 text-sm font-medium bg-white text-black rounded-full hover:bg-white/90 transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.12)]"
+            className="px-4 py-2 text-sm font-medium bg-neutral-900 text-white rounded-full hover:bg-neutral-800 transition-colors"
           >
             {t('cta')}
           </a>

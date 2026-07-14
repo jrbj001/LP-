@@ -1,5 +1,4 @@
 import { Nav } from '@/components/nav'
-import { RubikWatermark } from '@/components/rubik-watermark'
 import { Hero } from '@/components/hero'
 import { WhatWeBuild } from '@/components/what-we-build'
 import { Thesis } from '@/components/thesis'
@@ -16,8 +15,7 @@ import { Footer } from '@/components/footer'
 
 export default function Page() {
   return (
-    <>
-      <RubikWatermark />
+    <div className="lp-scope min-h-screen bg-[#fbfbfa] text-neutral-900">
       <Nav />
       <main>
         <Hero />
@@ -34,6 +32,6 @@ export default function Page() {
         <FinalCTA />
       </main>
       <Footer />
-    </>
+    </div>
   )
 }
