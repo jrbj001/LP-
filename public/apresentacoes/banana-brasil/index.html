@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análise de Mercado e Diagnóstico Digital — Banana Brasil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF6EA; --paper-2:#F4ECD8; --ink:#241A10; --ink-2:#5A4C3A;
+    --banana:#F5B301; --banana-lite:#FFD24A; --leaf:#1F5C3D; --leaf-lite:#3E8E63;
+    --alert:#D9482B; --line:rgba(36,26,16,.14); --line-strong:rgba(36,26,16,.30);
+    --card:#FFFDF7; --maxw:820px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans-serif;font-size:17px;line-height:1.66;-webkit-font-smoothing:antialiased;}
+  .mono{font-family:'Space Mono',monospace}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 26px}
+  a{color:var(--leaf)}
+
+  /* cover */
+  .cover{border-bottom:3px solid var(--ink);padding:64px 0 30px;position:relative;overflow:hidden}
+  .cover:before{content:"";position:absolute;inset:0;background:radial-gradient(700px 300px at 90% -20%,rgba(245,179,1,.26),transparent 60%);pointer-events:none}
+  .cover .wrap{position:relative;z-index:1}
+  .kicker{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--leaf);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .kicker .dot{width:10px;height:10px;border-radius:50%;background:var(--banana)}
+  h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(30px,5.4vw,52px);line-height:1.02;letter-spacing:-.025em;margin:18px 0 10px;max-width:18ch}
+  .coversub{color:var(--ink-2);font-size:18px;max-width:60ch}
+  .meta{display:flex;gap:26px;flex-wrap:wrap;margin-top:24px;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2)}
+  .meta b{color:var(--ink);display:block;font-size:12px;margin-top:2px}
+
+  /* TOC */
+  .toc{background:var(--paper-2);border-bottom:1px solid var(--line);padding:20px 0}
+  .toc .wrap{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 30px}
+  .toc a{display:flex;gap:10px;text-decoration:none;color:var(--ink);font-size:14px;padding:5px 0;border-bottom:1px dotted var(--line)}
+  .toc a:hover{color:var(--leaf)}
+  .toc .tn{font-family:'Space Mono',monospace;color:var(--banana);font-weight:700;font-size:12px;flex:0 0 26px}
+
+  /* body */
+  main{padding:18px 0 40px}
+  section{padding:34px 0;border-bottom:1px solid var(--line)}
+  .secnum{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--leaf)}
+  h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(24px,3.6vw,34px);line-height:1.06;letter-spacing:-.02em;margin:8px 0 16px;max-width:24ch}
+  h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:21px;letter-spacing:-.01em;margin:26px 0 8px}
+  h4{font-family:'Inter';font-weight:700;font-size:16px;margin:18px 0 4px}
+  p{margin:0 0 14px;color:#33271a}
+  p.lead{font-size:19px;color:var(--ink);font-weight:500}
+  strong{color:var(--ink)}
+  em{color:var(--leaf);font-style:normal;font-weight:600}
+
+  ul,ol{margin:0 0 16px 4px;padding-left:20px}
+  li{margin:0 0 8px;color:#33271a}
+  li::marker{color:var(--banana)}
+  ol li::marker{color:var(--leaf);font-family:'Space Mono',monospace;font-weight:700}
+
+  /* data callout */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+  .st{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px}
+  .st .v{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:30px;line-height:1;letter-spacing:-.02em}
+  .st .v .u{color:var(--banana)}
+  .st .v.leaf{color:var(--leaf)}
+  .st .v.alert{color:var(--alert)}
+  .st .l{font-size:12.5px;color:var(--ink-2);margin-top:8px;line-height:1.4}
+  .st .s{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--line-strong);margin-top:7px}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+  caption{text-align:left;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);padding-bottom:8px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--leaf);border-bottom:2px solid var(--ink)}
+  tbody tr:nth-child(even){background:rgba(244,236,216,.5)}
+  td.n{font-family:'Space Mono',monospace;font-weight:700;color:var(--ink);white-space:nowrap}
+
+  blockquote{border-left:3px solid var(--banana);margin:18px 0;padding:4px 0 4px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:19px;color:var(--ink);max-width:58ch}
+  blockquote cite{display:block;font-family:'Inter';font-style:normal;font-weight:500;font-size:13px;color:var(--ink-2);margin-top:8px}
+
+  .box{border:1px solid var(--line-strong);border-radius:14px;padding:20px 22px;margin:20px 0;background:var(--card)}
+  .box.leaf{border-color:var(--leaf-lite);background:rgba(31,92,61,.05)}
+  .box.alert{border-color:var(--alert);background:rgba(217,72,43,.05)}
+  .box h4{margin-top:0;color:var(--ink)}
+  .tag{display:inline-block;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:6px;background:var(--ink);color:var(--paper);margin-bottom:10px}
+  .tag.leaf{background:var(--leaf)} .tag.alert{background:var(--alert)} .tag.banana{background:var(--banana);color:var(--ink)}
+
+  .disclaim{font-family:'Space Mono',monospace;font-size:11.5px;line-height:1.6;color:var(--ink-2);border-top:1px dashed var(--line-strong);padding-top:12px;margin-top:8px}
+
+  /* references */
+  .refs{padding:30px 0 60px}
+  .refs ol{font-size:13px;color:var(--ink-2);columns:1}
+  .refs li{margin-bottom:7px}
+  .refs li b{color:var(--ink)}
+
+  footer{background:var(--ink);color:var(--paper);padding:24px 0}
+  footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase}
+  footer .banana{color:var(--banana-lite)}
+
+  @media (max-width:680px){
+    body{font-size:16px}
+    .stats{grid-template-columns:1fr}
+    .toc .wrap{grid-template-columns:1fr}
+    table{font-size:13.5px}
+    th,td{padding:9px 8px}
+  }
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="wrap">
+    <div class="kicker"><span class="dot"></span> Análise de Mercado &amp; Diagnóstico Digital</div>
+    <h1>Saudabilidade, comércio social e o conteúdo de gente real.</h1>
+    <p class="coversub">Uma análise da oportunidade de crescimento digital da Banana Brasil — demanda da categoria, o novo canal de venda, o comportamento do consumidor e os casos que já provaram o modelo (Bold e MaryRuth).</p>
+    <div class="meta">
+      <div>Objeto<b>Banana Brasil — snacks saudáveis</b></div>
+      <div>Foco<b>D2C · UGC · comércio social · IA</b></div>
+      <div>Elaboração<b>Pixel Consulting · PixelPulseLab</b></div>
+      <div>Data<b>Junho de 2026</b></div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Índice">
+  <div class="wrap">
+    <a href="#sumario"><span class="tn">00</span> Sumário executivo</a>
+    <a href="#escopo"><span class="tn">01</span> Contexto e escopo</a>
+    <a href="#demanda"><span class="tn">02</span> O mercado: demanda</a>
+    <a href="#canal"><span class="tn">03</span> O mercado: canal</a>
+    <a href="#ugc"><span class="tn">04</span> Por que o UGC funciona</a>
+    <a href="#bold"><span class="tn">05</span> Benchmark — Bold</a>
+    <a href="#maryruth"><span class="tn">06</span> Benchmark — MaryRuth</a>
+    <a href="#ia"><span class="tn">07</span> IA aplicada ao consumo</a>
+    <a href="#diagnostico"><span class="tn">08</span> Diagnóstico Banana Brasil</a>
+    <a href="#oportunidade"><span class="tn">09</span> A oportunidade</a>
+    <a href="#recomendacoes"><span class="tn">10</span> Recomendações</a>
+    <a href="#fontes"><span class="tn">11</span> Fontes</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- 00 -->
+<section id="sumario">
+  <div class="secnum">00 — Sumário executivo</div>
+  <h2>A marca já venceu a gôndola; a próxima década se joga no conteúdo.</h2>
+  <p class="lead">A Banana Brasil construiu, em mais de quatro décadas, três ativos caros e difíceis de replicar: marca com autoridade em saudabilidade, distribuição nacional e um portfólio largo de produtos de impulso. O que ainda não existe é o motor que converte esses ativos em demanda digital — criadores de conteúdo em escala, comércio social e uma camada de inteligência que mede tudo.</p>
+  <p>Três forças de mercado convergem exatamente sobre a categoria da marca. A <strong>demanda</strong> por saudabilidade e proteína saiu do nicho fitness e virou comportamento de massa. O <strong>canal</strong> de comércio social — liderado pelo TikTok Shop — explodiu no Brasil em 2025–2026 e é especialmente eficiente para produtos de ticket baixo e recompra alta. E o <strong>comportamento</strong> do consumidor migrou a confiança do anúncio de marca para o conteúdo de pessoas reais (UGC).</p>
+  <p>Dois casos provam que isso não é teoria. A <strong>Bold</strong>, na mesma prateleira da Banana Brasil, saiu de R$80 milhões para uma trajetória de R$500 milhões+ usando um exército de criadores — mantendo 75% do faturamento no varejo físico. A <strong>MaryRuth</strong> (EUA) mostra o estágio seguinte: ultrapassou US$100 milhões/ano combinando UGC, comércio social e uma camada robusta de dados e atribuição.</p>
+  <p>O diagnóstico desta análise é direto: a Banana Brasil não tem um problema de marca nem de produto — tem uma <em>lacuna de motor e de instrumentação</em>. É a lacuna mais barata de fechar e a de maior retorno, porque os ativos caros já estão pagos.</p>
+</section>
+
+<!-- 01 -->
+<section id="escopo">
+  <div class="secnum">01 — Contexto e escopo</div>
+  <h2>O que foi analisado.</h2>
+  <p>A Banana Brasil é uma marca catarinense fundada em 1985, hoje com mais de 40 anos de história, reconhecida como uma das líderes do mercado de snacks saudáveis no país. Começou com a banana-passa artesanal e expandiu para um portfólio amplo: barras proteicas (Supino, Supino Protein, Protein+), barras de castanhas (Nutsbar), banana-passa e bites, linhas Só Frutas, Levittá e uma linha Kids — com posicionamento clean label, opções sem glúten, veganas e sem adição de açúcar.</p>
+  <p>A distribuição é majoritariamente física: grandes redes de supermercados, lojas especializadas e pequeno varejo em todo o território nacional, com expansão internacional em curso. A marca opera ainda um e-commerce próprio com Clube de Fidelidade, frete grátis acima de R$149,99 e parcelamento — além de uma presença social relevante (cerca de 124 mil seguidores no Instagram, presença no YouTube e um perfil de TikTok ainda incipiente).</p>
+  <p>Esta análise cobre quatro frentes: (1) o mercado de demanda — saudabilidade e proteína; (2) o canal de comércio social no Brasil; (3) o comportamento do consumidor e a mecânica do conteúdo gerado por usuário; e (4) os benchmarks de marcas que já executaram o modelo. Conclui com o diagnóstico da posição atual da Banana Brasil, a oportunidade e recomendações estratégicas.</p>
+  <div class="box">
+    <h4>Nota de identificação</h4>
+    <p style="margin:0">Esta análise trata da <strong>bananabrasil.com.br</strong> — a marca catarinense de snacks saudáveis — e não da homônima "BanaBrazil" (bananada, da Nutrephos Norte), que é empresa distinta.</p>
+  </div>
+</section>
+
+<!-- 02 -->
+<section id="demanda">
+  <div class="secnum">02 — O mercado: o vetor de demanda</div>
+  <h2>A saudabilidade deixou de ser tendência e virou regra.</h2>
+  <p class="lead">O consumo de proteína e de alimentos funcionais migrou do público "marombado" para o consumidor geral, puxado por conveniência, bem-estar e pela "snackificação" das refeições — a substituição de refeições por opções práticas e nutritivas.</p>
+
+  <div class="stats">
+    <div class="st"><div class="v">R$<span class="u">100</span> bi</div><div class="l">movimentados pelo segmento de alimentos saudáveis/proteicos no Brasil em 2023</div><div class="s">ABIA</div></div>
+    <div class="st"><div class="v leaf">+17%</div><div class="l">de alta na "cesta de saudabilidade" no início de 2025</div><div class="s">Scanntech</div></div>
+    <div class="st"><div class="v">59%</div><div class="l">dos consumidores topam pagar mais por produtos que melhoram a saúde</div><div class="s">NielsenIQ</div></div>
+  </div>
+
+  <h3>A nutrição esportiva deve dobrar</h3>
+  <p>Segundo a Euromonitor, o mercado de suplementos esportivos no Brasil alcançou R$4,3 bilhões em 2023 e tem previsão de dobrar de tamanho até 2028, chegando a R$9,5 bilhões. O whey protein responde por cerca de dois terços da categoria, mas o crescimento mais acelerado está nas formas de consumo prático — barras e bebidas. As bebidas proteicas prontas para consumo (com 20g ou mais por porção) cresceram 272% entre 2019 e 2023.</p>
+  <p>Um dado relevante para a confiança: cerca de <strong>51% dos consumidores de suplementos proteicos afirmam ter sido indicados por um profissional de saúde</strong> — o que ancora a categoria em credibilidade, não só em estética. E o mercado ainda é concentrado: poucas empresas detêm cerca de 70% da participação, o que abre espaço para uma marca com história, produto clean label e boa execução digital.</p>
+
+  <table>
+    <caption>Dimensões e projeções da categoria</caption>
+    <thead><tr><th>Indicador</th><th>Valor</th><th>Fonte</th></tr></thead>
+    <tbody>
+      <tr><td>Segmento de alimentos saudáveis/proteicos no Brasil (2023)</td><td class="n">~R$100 bi</td><td>ABIA</td></tr>
+      <tr><td>Nutrição esportiva no Brasil — 2023 → 2028</td><td class="n">R$4,3 → 9,5 bi</td><td>Euromonitor</td></tr>
+      <tr><td>Bebidas proteicas prontas (20g+), 2019–2023</td><td class="n">+272%</td><td>Euromonitor</td></tr>
+      <tr><td>Cesta de saudabilidade — início de 2025</td><td class="n">+17%</td><td>Scanntech</td></tr>
+      <tr><td>Barra de proteína (global) — 2025 → 2034</td><td class="n">US$5,5 → 10,6 bi · CAGR 7,8%</td><td>Fortune Business Insights</td></tr>
+      <tr><td>Snacks "better for you" (global) — até 2033</td><td class="n">~US$53 bi</td><td>Future Market Insights</td></tr>
+    </tbody>
+  </table>
+
+  <h3>As tendências que moldam a gôndola</h3>
+  <ul>
+    <li><strong>Dupla função (saudável + indulgente):</strong> a barra de proteína compete com a sobremesa, não só com o pós-treino. Sabores como chocolate, doce de leite e cookies puxam o crescimento.</li>
+    <li><strong>Snackificação:</strong> famílias menores, rotina acelerada e moradias compactas levam à substituição de refeições por snacks práticos.</li>
+    <li><strong>Estética de estilo de vida:</strong> embalagens vibrantes e linguagem de bem-estar (não de academia) ampliam o público — caminho já trilhado por marcas como Bold, Vitafor e Dux.</li>
+    <li><strong>Papel das redes sociais:</strong> a própria expansão da categoria é atribuída, em boa parte, ao consumo exibido por criadores no Instagram e no TikTok.</li>
+  </ul>
+</section>
+
+<!-- 03 -->
+<section id="canal">
+  <div class="secnum">03 — O mercado: o vetor de canal</div>
+  <h2>O comércio social chegou — e favorece o produto de impulso.</h2>
+  <p class="lead">Lançado no Brasil em maio de 2025, o TikTok Shop tornou-se em um ano a maior novidade do e-commerce nacional. Diferente dos marketplaces de busca ativa, ele opera na camada anterior: cria a intenção de compra enquanto o usuário consome conteúdo.</p>
+
+  <div class="stats">
+    <div class="st"><div class="v"><span class="u">102</span>x</div><div class="l">crescimento do GMV diário médio em 1 ano (mai/25 → mai/26)</div><div class="s">TikTok Shop</div></div>
+    <div class="st"><div class="v leaf">134 mi</div><div class="l">usuários ativos no Brasil — 3º maior mercado global do TikTok</div><div class="s">TikTok / BTG</div></div>
+    <div class="st"><div class="v">57,8%</div><div class="l">de quem descobre um produto no app conclui a compra ali mesmo</div><div class="s">Pesquisa interna TikTok</div></div>
+  </div>
+
+  <h3>Os números do primeiro ano</h3>
+  <p>O salto foi atípico para o e-commerce brasileiro. O GMV passou de cerca de US$1 milhão no primeiro mês para aproximadamente US$46 milhões mensais em poucos meses — crescimento que analistas do Itaú BBA e do BTG Pactual classificaram como uma ameaça real aos incumbentes. O BTG descreveu o TikTok como um "duplo flywheel": uma plataforma que compete simultaneamente em mídia e em e-commerce. O Santander projeta que o canal pode capturar até <strong>9% de todo o varejo digital brasileiro até 2028 — algo como R$39 bilhões</strong>.</p>
+
+  <table>
+    <caption>TikTok Shop Brasil — primeiro ano de operação</caption>
+    <thead><tr><th>Métrica</th><th>Variação / valor</th></tr></thead>
+    <tbody>
+      <tr><td>GMV diário médio (mai/25 → mai/26)</td><td class="n">+102x</td></tr>
+      <tr><td>Número de lives diárias</td><td class="n">+20x</td></tr>
+      <tr><td>Receita gerada por lives</td><td class="n">+161x</td></tr>
+      <tr><td>Criadores afiliados ativos</td><td class="n">+46x</td></tr>
+      <tr><td>Usuários ativos no Brasil</td><td class="n">134 milhões</td></tr>
+      <tr><td>Conversão dentro do app (quem descobre, compra)</td><td class="n">57,8%</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Por que isso casa com barra de proteína</h3>
+  <p>As regras do canal favorecem exatamente o perfil da Banana Brasil. Segundo o TikTok for Business: produtos de <strong>ticket baixo (até cerca de R$150) convertem melhor por impulso</strong>; as <strong>lives chegam a converter até 10x mais que anúncios tradicionais</strong>; e os <strong>micro-criadores (10 mil a 100 mil seguidores) geram engajamento cerca de 60% maior</strong> e CTR de até 3x nos links de produto, em comparação com mega-influenciadores. Uma barra de R$8 a R$15, com recompra alta, é o combustível ideal para conteúdo de criador somado a oferta por tempo limitado.</p>
+
+  <div class="box leaf">
+    <span class="tag leaf">Sinal de mercado</span>
+    <p style="margin:0">A Natura, presente no TikTok Shop desde o primeiro dia, realizou uma mega live de mais de 12 horas na Black Friday de 2025 que representou <strong>25% do faturamento da marca no período</strong>. Outras lives trouxeram mais de 80% de clientes novos. É a prova de que o formato não é vitrine — é canal de receita.</p>
+  </div>
+</section>
+
+<!-- 04 -->
+<section id="ugc">
+  <div class="secnum">04 — O comportamento: por que o UGC funciona</div>
+  <h2>O consumidor confia em pessoas, não em anúncios.</h2>
+  <p class="lead">O conteúdo gerado por usuário (UGC) deixou de ser um complemento e virou a força mais influente do marketing digital — porque resolve o problema central da publicidade: a desconfiança.</p>
+
+  <div class="stats">
+    <div class="st"><div class="v leaf">92%</div><div class="l">confiam mais em conteúdo de pessoas reais do que em publicidade de marca</div><div class="s">Estudos de UGC, 2025–26</div></div>
+    <div class="st"><div class="v">+29%</div><div class="l">de conversão em páginas de produto que exibem UGC</div><div class="s">Yotpo / agregados</div></div>
+    <div class="st"><div class="v alert">16%</div><div class="l">das marcas têm uma estratégia de UGC dedicada — o espaço está aberto</div><div class="s">Fortune Business Insights</div></div>
+  </div>
+
+  <h3>A mecânica do retorno</h3>
+  <ul>
+    <li><strong>Confiança e conversão:</strong> além de 92% de confiança superior à publicidade, 84% dos consumidores confiam mais numa marca quando ela exibe UGC; e 88% dizem que autenticidade é fator decisivo na escolha de uma marca.</li>
+    <li><strong>Performance e custo:</strong> marcas que usam UGC reportam cerca de +20% de ROI; anúncios baseados em UGC alcançam +73% de engajamento frente a peças de estúdio; e o UGC gera, em média, várias vezes mais engajamento orgânico que o conteúdo de marca.</li>
+    <li><strong>Economia de escala:</strong> o seguidor não importa para audiências de prospecção — micro e nano criadores entregam conteúdo de qualidade a uma fração do custo de um influenciador, com mais autenticidade.</li>
+    <li><strong>Efeito de alavanca:</strong> um único post orgânico forte pode ser amplificado por mídia paga, multiplicando o alcance original em ordens de grandeza.</li>
+  </ul>
+
+  <blockquote>O fato de apenas 16% das marcas terem uma estratégia de UGC dedicada é a melhor notícia desta análise: a vantagem não está em descobrir o modelo, e sim em executá-lo com disciplina antes do concorrente.</blockquote>
+</section>
+
+<!-- 05 -->
+<section id="bold">
+  <div class="secnum">05 — Benchmark: Bold Snacks</div>
+  <h2>O espelho brasileiro — mesma prateleira, modelo provado.</h2>
+  <p class="lead">A Bold é o caso mais relevante porque joga na categoria exata da Banana Brasil: barras de proteína de ticket baixo, recompra na gôndola. Provou que o motor de criadores funciona na realidade brasileira.</p>
+
+  <div class="stats">
+    <div class="st"><div class="v">R$80 mi</div><div class="l">faturamento em 2022…</div><div class="s">Exame</div></div>
+    <div class="st"><div class="v leaf">R$180 mi</div><div class="l">…dobrou na projeção de 2023</div><div class="s">Exame</div></div>
+    <div class="st"><div class="v"><span class="u">700</span></div><div class="l">criadores de conteúdo na rede da marca</div><div class="s">Exame / CDL</div></div>
+  </div>
+
+  <h3>O que fizeram</h3>
+  <p>Fundada em 2018 por Gabriel Ferreira, a Bold nasceu vendendo suplementos em pó, fracassou nesse modelo e pivotou para barras de proteína, com reposicionamento total da imagem — cores vibrantes, linguagem de estilo de vida. Sem verba de marketing, a estratégia inicial foi recrutar pessoas que praticavam esporte e estilo de vida saudável (não fitness puro) para inserir o produto no conteúdo delas. Esse núcleo cresceu até cerca de 700 criadores, e a marca cultivou uma comunidade própria — os "Boldlovers". A mídia paga em escala só veio depois, em cima do conteúdo orgânico que já funcionava.</p>
+
+  <h3>O ponto mais importante para a Banana Brasil</h3>
+  <p>O digital não substituiu a gôndola — turbinou. Mesmo nativa digital, a Bold construiu cerca de <strong>8 mil pontos de venda físicos e mais de 150 mil clientes no e-commerce</strong>, com <strong>75% do faturamento ainda vindo do varejo físico</strong> (supermercados, farmácias, lojas de suplementos). O conteúdo gera a procura; a venda acontece em todos os canais. A leitura honesta da categoria: o modelo funcionou porque a categoria pediu — ticket baixo, compra por impulso, recompra na prateleira. É exatamente a categoria da Banana Brasil.</p>
+
+  <div class="box leaf">
+    <span class="tag leaf">Implicação</span>
+    <p style="margin:0">A Banana Brasil parte de um ponto melhor do que a Bold em 2018: tem <strong>40+ anos de marca</strong>, distribuição nacional já estabelecida e um portfólio mais largo. Tem os ativos que a Bold levou anos para construir — falta o motor que a Bold construiu primeiro.</p>
+  </div>
+</section>
+
+<!-- 06 -->
+<section id="maryruth">
+  <div class="secnum">06 — Benchmark: MaryRuth Organics</div>
+  <h2>O estágio avançado — UGC, comércio social e inteligência.</h2>
+  <p class="lead">A MaryRuth (EUA, vitaminas e suplementos) mostra para onde o modelo evolui: de motor de conteúdo para uma máquina de receita instrumentada por dados, com atribuição e dashboards em tempo real.</p>
+
+  <div class="stats">
+    <div class="st"><div class="v leaf">+US$100 mi</div><div class="l">faturamento anual, com motor movido a criadores</div><div class="s">Lumanu</div></div>
+    <div class="st"><div class="v">220%</div><div class="l">crescimento ano a ano; 58% das views ligadas a conteúdo de TikTok Shop</div><div class="s">NutraIngredients</div></div>
+    <div class="st"><div class="v"><span class="u">45</span>%</div><div class="l">de alta na conversão ao incorporar Q&amp;A ao vivo</div><div class="s">FordeBaker</div></div>
+  </div>
+
+  <h3>O que fizeram</h3>
+  <ul>
+    <li><strong>Separaram influência de performance:</strong> influenciadores para alcance; criadores de UGC para gerar conteúdo barato e eficiente para anúncios — "o número de seguidores não importa para audiências de prospecção".</li>
+    <li><strong>Live 24/7 no TikTok Shop</strong> como motor full-funnel — que, segundo a própria empresa, ergue também as vendas em DTC, Amazon e varejo físico.</li>
+    <li><strong>"Credibility playbook":</strong> guardrails de claims e tom de marca combinados com liberdade criativa, permitindo escalar criadores sem perder confiança nem conformidade.</li>
+    <li><strong>Framework de tendência:</strong> só perseguem uma trend quando há "trend fit + brand fit + product readiness" — disciplina para não correr atrás de todo viral.</li>
+  </ul>
+
+  <h3>A camada de inteligência (o que distingue o estágio avançado)</h3>
+  <ul>
+    <li><strong>Dashboards em tempo real e atribuição:</strong> a empresa opera com o conceito de T-ROM (retorno total sobre o investimento em marketing), modelagem de atribuição e holdout tests para medir o lift real do social sobre os demais canais.</li>
+    <li><strong>Otimização do D2C com IA:</strong> um smart cart com cross-sell e upsell de assinatura respondeu por cerca de 30% da receita adicional do e-commerce; o foco declarado foi AOV (ticket médio) e crescimento de assinaturas.</li>
+    <li><strong>Loyalty conectado a reviews e UGC:</strong> a integração de fidelidade com conteúdo gerou +136% de LTV de membros.</li>
+  </ul>
+
+  <blockquote>Crescimento difuso vira crescimento medido quando cada real de conteúdo é atribuído a um resultado.<cite>— Princípio operacional do caso MaryRuth: dominar os números e deixar os dados decidirem.</cite></blockquote>
+</section>
+
+<!-- 07 -->
+<section id="ia">
+  <div class="secnum">07 — IA aplicada a marcas de consumo</div>
+  <h2>A vantagem deixou de ser só tamanho.</h2>
+  <p class="lead">Para marcas de consumo, a IA passou de experimento a capacidade essencial. E há um detalhe contraintuitivo: setores tradicionais tendem a colher ganhos maiores justamente por partirem de uma base menos digitalizada.</p>
+
+  <div class="stats">
+    <div class="st"><div class="v">71%</div><div class="l">dos líderes de CPG adotaram IA em 2024 (era 42% no ano anterior)</div><div class="s">CoLoop / setor</div></div>
+    <div class="st"><div class="v leaf">+30%</div><div class="l">de aumento de vendas da Unilever em mercados-chave ao ligar clima à previsão de demanda</div><div class="s">SR Analytics</div></div>
+    <div class="st"><div class="v"><span class="u">60–90</span></div><div class="l">dias para os primeiros ganhos operacionais (quick wins)</div><div class="s">Benchmarks de CPG</div></div>
+  </div>
+
+  <h3>Onde a IA gera valor para uma marca como a Banana Brasil</h3>
+  <ul>
+    <li><strong>Descoberta e curadoria de criadores:</strong> ferramentas de IA automatizam seleção e previsão de performance, viabilizando operar com pools muito maiores de micro e nano criadores — escala que seria inviável manualmente.</li>
+    <li><strong>Produção de conteúdo:</strong> a GenAI permite gerar e testar dezenas de variações criativas em paralelo, multiplicando o output sem inflar equipe.</li>
+    <li><strong>Inteligência de consumo e social listening:</strong> sistemas modernos processam milhões de conversas em tempo real, detectando tendência, sabor e sentimento antes do concorrente — com ganhos relatados de até 43% em velocidade de resposta a crises.</li>
+    <li><strong>BI e previsão:</strong> dashboards com previsão de demanda e planejamento de cenário entregam, segundo benchmarks de CPG, ganhos típicos de +5% a +10% de acurácia de forecast e +15% a +25% de efetividade promocional nos primeiros ciclos.</li>
+  </ul>
+
+  <div class="box">
+    <span class="tag banana">Leitura estratégica</span>
+    <p style="margin:0">Análises de mercado (NIQ/Kearney) apontam que a IA democratiza capacidades que antes exigiam grandes orçamentos — reduzindo a barreira para marcas desafiantes e erodindo vantagens que pareciam duráveis. Para uma marca de 40+ anos com ativos consolidados, isso significa poder se mover na velocidade de uma nativa digital sem abrir mão do que já construiu.</p>
+  </div>
+</section>
+
+<!-- 08 -->
+<section id="diagnostico">
+  <div class="secnum">08 — Diagnóstico Banana Brasil</div>
+  <h2>Ativos maduros, motor verde.</h2>
+  <p class="lead">A avaliação por dimensão mostra um contraste nítido: marca e distribuição estão maduras; venda direta, UGC, comércio social e inteligência ainda são potencial não realizado.</p>
+
+  <div class="box leaf">
+    <span class="tag leaf">Ativos já maduros</span>
+    <ul style="margin-bottom:0">
+      <li><strong>Marca e legado:</strong> 40+ anos, pioneirismo na categoria, reputação de saudabilidade real (clean label).</li>
+      <li><strong>Distribuição nacional</strong> consolidada em grandes redes, lojas especializadas e pequeno varejo.</li>
+      <li><strong>Portfólio largo e segmentado:</strong> Supino, Protein+, Nutsbar, banana-passa, Só Frutas, Levittá, linha Kids.</li>
+      <li><strong>Base social e e-commerce próprio:</strong> ~124 mil seguidores no Instagram, YouTube e loja com Clube de Fidelidade já em operação.</li>
+      <li><strong>Abertura cultural à IA:</strong> a liderança já passou por capacitação em IA para gestão — o terreno interno está preparado.</li>
+    </ul>
+  </div>
+
+  <div class="box alert">
+    <span class="tag alert">Lacunas que travam o próximo salto</span>
+    <ul style="margin-bottom:0">
+      <li><strong>UGC esporádico:</strong> publis pontuais, sem uma máquina de dezenas/centenas de criadores como Bold ou MaryRuth.</li>
+      <li><strong>TikTok sem motor:</strong> presença existe, mas sem cadência de conteúdo, programa de afiliados nem comércio social ativo.</li>
+      <li><strong>D2C tímido</strong> frente à força no varejo — ticket médio, assinatura e recompra subexplorados.</li>
+      <li><strong>Voz institucional:</strong> conteúdo "de marca para fora", pouco conteúdo "de gente para gente" — onde mora a confiança.</li>
+      <li><strong>Dados em silos:</strong> e-commerce, varejo, marketplace e social não conversam — sem BI único, sem atribuição, sem previsão de demanda.</li>
+    </ul>
+  </div>
+
+  <h3>Posição no espectro de maturidade (estimativa qualitativa)</h3>
+  <table>
+    <caption>Maturidade por dimensão — leitura desta análise</caption>
+    <thead><tr><th>Dimensão</th><th>Hoje</th><th>Comentário</th></tr></thead>
+    <tbody>
+      <tr><td>Marca &amp; confiança</td><td class="n">Madura</td><td>Maior ativo; base para conteúdo educativo e de credibilidade.</td></tr>
+      <tr><td>Distribuição física</td><td class="n">Madura</td><td>Canal principal; deve ser turbinado, não substituído.</td></tr>
+      <tr><td>Venda direta (D2C)</td><td class="n">Inicial</td><td>Existe, mas subaproveitada em AOV, assinatura e recompra.</td></tr>
+      <tr><td>Motor de UGC</td><td class="n">Verde</td><td>Sem máquina de criadores em escala.</td></tr>
+      <tr><td>Comércio social</td><td class="n">Verde</td><td>TikTok incipiente; sem afiliados nem lives.</td></tr>
+      <tr><td>Inteligência / BI</td><td class="n">Verde</td><td>Dados fragmentados; sem painel único nem atribuição.</td></tr>
+    </tbody>
+  </table>
+  <p>A conclusão do diagnóstico é que a lacuna é de <em>motor e instrumentação</em> — e essa é a lacuna mais barata de fechar e a de maior retorno, porque os ativos caros (marca, distribuição, portfólio) já existem e estão pagos.</p>
+</section>
+
+<!-- 09 -->
+<section id="oportunidade">
+  <div class="secnum">09 — A oportunidade</div>
+  <h2>Quatro frentes de valor — todas medidas em resultado de negócio.</h2>
+  <p class="lead">Fechar a lacuna libera valor em quatro direções. A maior delas talvez não seja o D2C em si, e sim o efeito de procura que o conteúdo cria sobre a distribuição que a marca já tem.</p>
+
+  <ol>
+    <li><strong>Receita direta nova (D2C + comércio social).</strong> Um canal hoje quase inexistente, com a maior eficiência de descoberta para produtos de impulso, margem cheia (sem o desconto do varejo) e dado de cliente próprio para retargeting. Inclui TikTok Shop, lives e afiliados, além do upgrade do e-commerce (kits/box, assinatura sobre o Clube de Fidelidade).</li>
+    <li><strong>Efeito halo no varejo (sell-out).</strong> O conteúdo gera procura nos pontos de venda onde a marca já está, fortalece o argumento de sell-in com as grandes redes e defende espaço de gôndola frente a entrantes digitais. É o efeito que a MaryRuth mede com lift regional e que a Bold vive na prática.</li>
+    <li><strong>Eficiência de conteúdo (custo e velocidade).</strong> UGC custa uma fração do conteúdo de estúdio e performa melhor; com IA na produção, é possível testar dezenas de variações por semana sem crescer equipe na mesma proporção.</li>
+    <li><strong>Decisão baseada em dado (BI + previsão).</strong> Um painel único acima de vendas, varejo, marketplace e social, com atribuição (T-ROM), CAC por criador, previsão de demanda e social listening — substituindo intuição por um ciclo de testar-e-aprender.</li>
+  </ol>
+
+  <h3>Cenário ilustrativo de impacto (12–18 meses)</h3>
+  <table>
+    <caption>Faixas de referência a partir dos casos estudados e de benchmarks de mercado</caption>
+    <thead><tr><th>Indicador</th><th>Faixa de referência</th></tr></thead>
+    <tbody>
+      <tr><td>Custo de produção de conteúdo</td><td class="n">−40% a −60%</td></tr>
+      <tr><td>Conversão no D2C com UGC nas páginas de produto</td><td class="n">+29%</td></tr>
+      <tr><td>Efetividade de promoção com apoio de IA</td><td class="n">+15% a +25%</td></tr>
+      <tr><td>Acurácia de previsão de demanda</td><td class="n">+5% a +10%</td></tr>
+    </tbody>
+  </table>
+  <p class="disclaim">Cenário ilustrativo construído a partir de casos públicos (Bold, MaryRuth) e benchmarks de mercado (TikTok for Business, NielsenIQ, estudos de UGC e de IA em CPG). Não constitui promessa de resultado nem recomendação de investimento. Os números reais dependem do baseline atual da marca, da execução e de validação posterior.</p>
+</section>
+
+<!-- 10 -->
+<section id="recomendacoes">
+  <div class="secnum">10 — Recomendações estratégicas</div>
+  <h2>O que a análise sugere fazer — em ordem de prioridade.</h2>
+  <p class="lead">As recomendações abaixo decorrem diretamente do diagnóstico. São direcionais e independentes de qualquer fornecedor.</p>
+
+  <ol>
+    <li><strong>Construir um motor de UGC, não campanhas avulsas.</strong> Sair da publi pontual para uma operação contínua de micro e nano criadores, com briefing, direitos de uso e um "credibility playbook" que proteja os claims (clean label, sem glúten, vegano). É a peça que separa a Banana Brasil da Bold hoje.</li>
+    <li><strong>Tratar o conteúdo como gerador de procura para todos os canais.</strong> Medir o efeito halo no sell-out do varejo, não só a venda direta. O objetivo é pull, não apenas e-commerce.</li>
+    <li><strong>Ativar o comércio social com disciplina de SKU-herói.</strong> Abrir e operar o TikTok Shop com poucos produtos campeões, ofertas por tempo limitado, programa de afiliados e calendário de lives — o formato de maior conversão.</li>
+    <li><strong>Aprofundar o D2C sobre a base que já existe.</strong> Usar o Clube de Fidelidade como alavanca de assinatura e recompra; aumentar o ticket médio com kits/box e cross-sell; exibir UGC nas páginas de produto como prova social.</li>
+    <li><strong>Instalar a camada de inteligência desde o início.</strong> Um dashboard único conectando D2C, varejo, marketplace e social, com atribuição, CAC por criador e previsão de demanda. Sem instrumentação, o motor cresce sem foco.</li>
+    <li><strong>Usar IA para escalar sem inflar headcount.</strong> Aplicar IA na descoberta de criadores, na produção/teste de variações de conteúdo e no social listening — capturando o ganho desproporcional típico de quem parte de uma base menos digitalizada.</li>
+  </ol>
+
+  <div class="box">
+    <h4>Sequência sugerida</h4>
+    <p style="margin:0"><strong>Curto prazo (0–90 dias):</strong> baseline real dos canais, primeira leva de criadores, dashboard inicial (vendas + social) e 2–3 quick wins. <strong>Médio prazo (3–6 meses):</strong> motor de UGC em ritmo, TikTok Shop + lives + afiliados, upgrade do D2C, atribuição ativa. <strong>Horizonte (6–18 meses):</strong> previsão de demanda, expansão de SKUs/canais e medição do efeito halo no varejo.</p>
+  </div>
+</section>
+
+<!-- 11 -->
+<section id="fontes" class="refs">
+  <div class="secnum">11 — Fontes</div>
+  <h2 style="font-size:24px">Referências consultadas.</h2>
+  <ol>
+    <li><b>Banana Brasil</b> — site oficial (produtos, blog "40 anos", FAQ/Clube de Fidelidade) e perfil institucional no LinkedIn (capacitação de liderança em IA, abr/2026).</li>
+    <li><b>Euromonitor</b> — nutrição esportiva no Brasil (R$4,3 bi em 2023 → R$9,5 bi em 2028); bebidas proteicas prontas +272% (2019–2023). Via Diário do Comércio / Bloomberg Línea / Qualyvac.</li>
+    <li><b>ABIA</b> — segmento de alimentos saudáveis/proteicos (~R$100 bi em 2023). Via Bloomberg Línea / BHB Food.</li>
+    <li><b>Scanntech</b> — cesta de saudabilidade +17% no início de 2025.</li>
+    <li><b>NielsenIQ</b> — 59% dos consumidores dispostos a pagar mais por produtos que melhoram a saúde.</li>
+    <li><b>Fortune Business Insights</b> — mercado global de barras de proteína (US$5,5→10,6 bi até 2034; CAGR 7,8%).</li>
+    <li><b>Future Market Insights</b> — snacks "better for you" (~US$53 bi até 2033). Via Food Connection.</li>
+    <li><b>TikTok Shop / TikTok for Business</b> — dados do 1º ano no Brasil (GMV +102x; 134 mi usuários; lives +20x/receita +161x; afiliados +46x; conversão 57,8%). Via Central do Varejo, Eletrolar News, SpaceMoney, E-commerce Brasil.</li>
+    <li><b>Itaú BBA / BTG Pactual / Santander</b> — análise competitiva do TikTok Shop; projeção de até 9% do varejo digital (~R$39 bi) até 2028. Via InvestNews, Brasil 247, CRM Bonus.</li>
+    <li><b>Bold Snacks</b> — faturamento (R$80 mi 2022 → R$180 mi 2023; meta R$500 mi+ 2027), ~700 criadores, 75% no varejo físico, ~8 mil PDV, +150 mil clientes e-commerce. Via Exame, CDL Divinópolis, FoodBiz, ABC da Comunicação, Substack "Construindo Próximos Gigantes".</li>
+    <li><b>MaryRuth Organics</b> — +US$100 mi/ano, 220% YoY, 58% das views via TikTok Shop, +45% conversão com Q&amp;A ao vivo, T-ROM/atribuição, smart cart (~30% receita adicional), +136% LTV. Via Lumanu, NutraIngredients, Intentwise, Rebuy, FordeBaker, Bubblehouse.</li>
+    <li><b>UGC</b> — 92% de confiança vs. publicidade; +29% conversão com UGC; +20% ROI; +73% engajamento em ads; 16% das marcas com estratégia dedicada; micro-criadores +60% engajamento. Via Fortune Business Insights, Tellos, Loop.fans, Archive, The Campus Agency.</li>
+    <li><b>IA em CPG/marketing</b> — 71% de adoção (2024); Unilever +30% vendas / +10% acurácia; quick wins 60–90 dias; IA para descoberta de criadores (Dentsu/Later). Via SR Analytics, CoLoop, NielsenIQ, TCS, NIQ/Kearney, MarketingProfs.</li>
+  </ol>
+  <p class="disclaim">Dados de mercado coletados em junho de 2026 a partir de fontes públicas. Projeções e estimativas de terceiros podem variar conforme metodologia. Esta análise tem caráter informativo e estratégico; não constitui aconselhamento financeiro ou de investimento.</p>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>Pixel Consulting · <span class="banana">PixelPulseLab</span> — São Paulo · Miami · Lisboa</div>
+    <div>Análise de Mercado · Banana Brasil · Jun 2026</div>
+  </div>
+</footer>
+
+</body>
+</html>
