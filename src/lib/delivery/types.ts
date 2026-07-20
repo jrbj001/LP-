@@ -40,6 +40,8 @@ export interface PrRow {
   deletions: number
   changedFiles: number
   commitCount: number
+  /** Horas estimadas desta PR (parcela do gitHours pelo peso de linhas). */
+  estimatedHours: number
 }
 
 export interface ModuleGroup {
@@ -52,6 +54,11 @@ export interface ModuleGroup {
   description: string
   /** Presente apenas em módulos de esforço manual. */
   manualHours?: number
+  estimatedHours: number
+  linesAdded: number
+  linesDeleted: number
+  firstMergedAt?: string
+  lastMergedAt?: string
 }
 
 export interface PeriodStats {
@@ -79,11 +86,59 @@ export interface EffortEstimate {
   fixPct: number
 }
 
+/** KPIs de negócio derivados do período. */
+export interface DeliveryKpis {
+  /** PRs mescladas por semana. */
+  velocityPrPerWeek: number
+  /** % do esforço/commits em features vs correções. */
+  featureRatioPct: number
+  /** Correções / features — saúde do produto (menor = melhor). */
+  fixToFeatureRatio: number
+  /** Média de linhas por PR. */
+  avgLinesPerPr: number
+  /** Média de arquivos por PR. */
+  avgFilesPerPr: number
+  /** Horas médias por PR (estimadas). */
+  avgHoursPerPr: number
+  /** Share do produto com mais entrega (nome + %). */
+  topProduct: { name: string; pct: number } | null
+  /** Net code: adds - dels. */
+  netLines: number
+}
+
+export interface WeeklyBucket {
+  weekStart: string
+  label: string
+  prs: number
+  features: number
+  fixes: number
+  linesAdded: number
+  hours: number
+}
+
+export interface RoadmapMilestone {
+  id: string
+  date: string
+  title: string
+  type: DeliveryType | 'infra'
+  product: string
+  hours: number
+  prNumbers: number[]
+  status: 'done'
+}
+
 export interface RepoStatus {
   repo: string
   ok: boolean
-  /** 'token' = repo privado sem GITHUB_TOKEN; senão mensagem curta. */
+  /** 'token' | 'rate' | mensagem. */
   error?: string
+}
+
+export interface ProductBreakdown {
+  product: string
+  prs: number
+  hours: number
+  linesAdded: number
 }
 
 export interface DeliveryReport {
@@ -92,6 +147,10 @@ export interface DeliveryReport {
   periodDays: number
   stats: PeriodStats
   estimate: EffortEstimate
+  kpis: DeliveryKpis
+  weekly: WeeklyBucket[]
+  roadmap: RoadmapMilestone[]
+  byProduct: ProductBreakdown[]
   modules: ModuleGroup[]
   prs: PrRow[]
   repos: RepoStatus[]

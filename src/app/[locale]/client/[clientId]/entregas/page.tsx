@@ -3,11 +3,17 @@ import { notFound } from 'next/navigation'
 import { getClient } from '@/lib/client/registry'
 import { getDeliveryReport } from '@/lib/delivery/service'
 import {
+  AiAnalysisPanel,
   EffortSection,
+  KpiStrip,
+  MixChart,
   ModulesSection,
+  ProductChart,
   PrsTable,
   ReportPeriod,
+  RoadmapTimeline,
   SummaryStrip,
+  WeeklyChart,
 } from '@/components/client/delivery-report'
 import type { DeliveryReport } from '@/lib/delivery/types'
 
@@ -49,8 +55,7 @@ export default async function EntregasPage({ params, searchParams }: Props) {
   const blockedRepos = report?.repos.filter(r => !r.ok) ?? []
 
   return (
-    <div className="mx-auto max-w-[880px] px-6 pt-12 sm:pt-16 pb-20">
-      {/* Header do relatório */}
+    <div className="mx-auto max-w-[960px] px-6 pt-12 sm:pt-16 pb-20">
       <header className="border-b-2 border-neutral-900 pb-5 mb-9 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>
           <p className="text-[12px] text-neutral-400 uppercase tracking-[0.08em] mb-1.5">
@@ -63,7 +68,6 @@ export default async function EntregasPage({ params, searchParams }: Props) {
         {report && <ReportPeriod report={report} />}
       </header>
 
-      {/* Seletor de período */}
       <div className="flex gap-1.5 mb-8">
         {[
           { d: 30, label: '30 dias' },
@@ -113,9 +117,33 @@ export default async function EntregasPage({ params, searchParams }: Props) {
 
       {report && (
         <>
-          <div className="mb-10">
+          <div className="mb-8">
             <SummaryStrip report={report} />
           </div>
+
+          <section className="mb-10">
+            <SectionTitle>KPIs de negócio</SectionTitle>
+            <KpiStrip kpis={report.kpis} />
+          </section>
+
+          <section className="mb-10">
+            <SectionTitle>Gráficos</SectionTitle>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+              <WeeklyChart weekly={report.weekly} />
+              <MixChart report={report} />
+            </div>
+            <ProductChart byProduct={report.byProduct} />
+          </section>
+
+          <section className="mb-10">
+            <SectionTitle>Roadmap — linha do tempo</SectionTitle>
+            <RoadmapTimeline roadmap={report.roadmap} />
+          </section>
+
+          <section className="mb-10">
+            <SectionTitle>Análise com IA</SectionTitle>
+            <AiAnalysisPanel clientId={client.slug} periodDays={days} clientName={client.name} />
+          </section>
 
           <section className="mb-11">
             <SectionTitle>Estimativa de esforço</SectionTitle>
