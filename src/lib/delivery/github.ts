@@ -9,18 +9,22 @@ export class GitHubError extends Error {
   }
 }
 
+function githubToken(): string | undefined {
+  return process.env.GITHUB_TOKEN || process.env.GITHUB_PAT || undefined
+}
+
 function headers(): Record<string, string> {
   const h: Record<string, string> = {
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
   }
-  const token = process.env.GITHUB_TOKEN
+  const token = githubToken()
   if (token) h.Authorization = `Bearer ${token}`
   return h
 }
 
 export function hasGitHubToken(): boolean {
-  return Boolean(process.env.GITHUB_TOKEN)
+  return Boolean(githubToken())
 }
 
 /** Sem cache Next — o período (30/60/90) muda a query e não pode reaproveitar resposta. */
