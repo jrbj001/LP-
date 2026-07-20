@@ -4,7 +4,8 @@ import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { PageShell, PageHeader, Reveal } from '@/components/adaptive/ui'
 import { CLIENT } from '@/components/adaptive/data'
-import type { ProgressRow, ProgressStatus } from '@/lib/adaptive/types'
+import { DISCOVERY_QUESTIONS } from '@/lib/adaptive/progress'
+import type { AssessmentRow, ProgressRow, ProgressStatus } from '@/lib/adaptive/types'
 
 const STATUS_STYLE: Record<ProgressStatus, string> = {
   'Not started': 'bg-neutral-100 text-neutral-500',
@@ -23,16 +24,19 @@ type Counts = {
 
 export function OnboardingDashboard({
   rows,
+  assessments,
   counts,
   error,
 }: {
   rows: ProgressRow[]
+  assessments: AssessmentRow[]
   counts: Counts
   error?: string
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [filter, setFilter] = useState<'all' | ProgressStatus>('all')
+  const [openAssessment, setOpenAssessment] = useState<string | null>(null)
 
   const filtered = useMemo(
     () => (filter === 'all' ? rows : rows.filter(r => r.status === filter)),
@@ -148,6 +152,72 @@ export function OnboardingDashboard({
           </div>
         </div>
       </Reveal>
+
+      {assessments.length > 0 && (
+        <Reveal>
+          <div className="mt-12 mb-6">
+            <h2 className="text-[18px] font-semibold text-neutral-900">Assessments enviados</h2>
+            <p className="text-[13px] text-neutral-500 mt-1">
+              Respostas Q1–Q11 sincronizadas do Notion. Clique para expandir.
+            </p>
+          </div>
+          <div className="space-y-3">
+            {assessments.map(a => {
+              const open = openAssessment === a.id
+              const filled = Object.keys(a.answers).length
+              return (
+                <div key={a.id} className="rounded-2xl border border-black/[0.06] bg-white overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setOpenAssessment(open ? null : a.id)}
+                    className="w-full flex flex-wrap items-center justify-between gap-3 px-5 py-4 text-left hover:bg-black/[0.01] transition-colors"
+                  >
+                    <div>
+                      <p className="text-[14px] font-semibold text-neutral-900">{a.stakeholder}</p>
+                      <p className="text-[12px] text-neutral-500 mt-0.5">
+                        {a.completedAt
+                          ? new Date(a.completedAt).toLocaleString('pt-BR')
+                          : '—'}
+                        {' · '}
+                        {filled}/11 respostas
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-sky-100 text-sky-700">
+                        {a.status || 'Submitted'}
+                      </span>
+                      <a
+                        href={a.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="text-[12px] text-neutral-500 hover:text-neutral-800 underline underline-offset-2"
+                      >
+                        Notion
+                      </a>
+                    </div>
+                  </button>
+                  {open && (
+                    <div className="border-t border-black/[0.05] px-5 py-4 space-y-4 bg-[#fafaf8]">
+                      {DISCOVERY_QUESTIONS.map(q => (
+                        <div key={q.id}>
+                          <p className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 mb-1">
+                            Q{q.id}
+                          </p>
+                          <p className="text-[13px] font-medium text-neutral-800">{q.question}</p>
+                          <p className="text-[13px] text-neutral-600 mt-1 leading-relaxed whitespace-pre-wrap">
+                            {a.answers[q.id]?.trim() || '—'}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </Reveal>
+      )}
     </PageShell>
   )
 }
