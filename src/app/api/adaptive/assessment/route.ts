@@ -1,7 +1,28 @@
 import { NextResponse } from 'next/server'
 import { jsonError, requireNotion } from '@/lib/adaptive/api'
-import { createAssessment } from '@/lib/adaptive/notion'
+import { backfillAssessmentAnswers, createAssessment, listAssessments } from '@/lib/adaptive/notion'
 import { CLIENT, DISCOVERY_QUESTIONS } from '@/components/adaptive/data'
+
+export async function GET(req: Request) {
+  const blocked = requireNotion()
+  if (blocked) return blocked
+
+  try {
+    const { searchParams } = new URL(req.url)
+    const clientId = String(searchParams.get('clientId') || CLIENT.id)
+    const sync = searchParams.get('sync') === '1'
+
+    if (sync) {
+      await backfillAssessmentAnswers(clientId)
+    }
+
+    const assessments = await listAssessments(clientId)
+    return NextResponse.json({ ok: true, assessments })
+  } catch (e) {
+    console.error('[adaptive/assessment GET]', e)
+    return jsonError(e instanceof Error ? e.message : 'Erro ao listar assessments', 500)
+  }
+}
 
 export async function POST(req: Request) {
   const blocked = requireNotion()

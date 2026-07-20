@@ -34,6 +34,18 @@ export interface SessionSlot {
   location: string
 }
 
+export interface AssessmentRow {
+  id: string
+  url: string
+  name: string
+  client: string
+  stakeholder: string
+  whatsapp: string
+  status: string
+  completedAt: string
+  answers: Record<number, string>
+}
+
 export interface ProgressRow {
   id: string
   name: string

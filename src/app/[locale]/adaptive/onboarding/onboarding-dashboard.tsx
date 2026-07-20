@@ -3,8 +3,8 @@
 import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { PageShell, PageHeader, Reveal } from '@/components/adaptive/ui'
-import { CLIENT } from '@/components/adaptive/data'
-import type { ProgressRow, ProgressStatus } from '@/lib/adaptive/types'
+import { CLIENT, DISCOVERY_QUESTIONS } from '@/components/adaptive/data'
+import type { AssessmentRow, ProgressRow, ProgressStatus } from '@/lib/adaptive/types'
 
 const STATUS_STYLE: Record<ProgressStatus, string> = {
   'Not started': 'bg-neutral-100 text-neutral-500',
@@ -21,18 +21,49 @@ type Counts = {
   sessionBooked: number
 }
 
+function formatCompletedAt(iso: string): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso.slice(0, 10)
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+function AssessmentAnswers({ answers }: { answers: Record<number, string> }) {
+  return (
+    <div className="space-y-4 pt-1 pb-2">
+      {DISCOVERY_QUESTIONS.map(q => {
+        const answer = answers[q.id]?.trim()
+        return (
+          <div key={q.id}>
+            <p className="text-[12px] font-medium text-neutral-800">
+              <span className="text-neutral-400 mr-1.5">Q{q.id}.</span>
+              {q.question}
+            </p>
+            <p className="mt-1 text-[13px] text-neutral-600 leading-relaxed whitespace-pre-wrap">
+              {answer || '—'}
+            </p>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export function OnboardingDashboard({
   rows,
+  assessments = [],
   counts,
   error,
 }: {
   rows: ProgressRow[]
+  assessments?: AssessmentRow[]
   counts: Counts
   error?: string
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [filter, setFilter] = useState<'all' | ProgressStatus>('all')
+  const [openId, setOpenId] = useState<string | null>(null)
 
   const filtered = useMemo(
     () => (filter === 'all' ? rows : rows.filter(r => r.status === filter)),
@@ -146,6 +177,68 @@ export function OnboardingDashboard({
               </tbody>
             </table>
           </div>
+        </div>
+      </Reveal>
+
+      <Reveal>
+        <div className="mt-12 mb-4">
+          <h2 className="text-[18px] font-semibold text-neutral-900">Assessments enviados</h2>
+          <p className="text-[13px] text-neutral-500 mt-1">
+            Respostas Q1–Q11 de cada stakeholder. Clique para expandir.
+          </p>
+        </div>
+      </Reveal>
+
+      <Reveal>
+        <div className="rounded-2xl border border-black/[0.06] bg-white overflow-hidden divide-y divide-black/[0.04]">
+          {assessments.length === 0 && (
+            <p className="px-5 py-10 text-center text-[13px] text-neutral-400">
+              Nenhum assessment enviado ainda.
+            </p>
+          )}
+          {assessments.map(a => {
+            const open = openId === a.id
+            const answered = Object.keys(a.answers).length
+            return (
+              <div key={a.id}>
+                <button
+                  type="button"
+                  onClick={() => setOpenId(open ? null : a.id)}
+                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left hover:bg-neutral-50/80 transition-colors"
+                  aria-expanded={open}
+                >
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-medium text-neutral-900 truncate">{a.stakeholder}</p>
+                    <p className="text-[11px] text-neutral-400 mt-0.5">
+                      {formatCompletedAt(a.completedAt)}
+                      {a.whatsapp ? ` · ${a.whatsapp}` : ''}
+                      {` · ${answered}/11 respostas`}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-[12px] text-neutral-500 tabular-nums">
+                    {open ? 'Fechar' : 'Ver respostas'}
+                  </span>
+                </button>
+                {open && (
+                  <div className="px-5 pb-5 border-t border-black/[0.04] bg-neutral-50/50">
+                    <div className="pt-4">
+                      <AssessmentAnswers answers={a.answers} />
+                      {a.url && (
+                        <a
+                          href={a.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block mt-3 text-[12px] text-neutral-500 underline underline-offset-2 hover:text-neutral-800"
+                        >
+                          Abrir no Notion
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </Reveal>
     </PageShell>

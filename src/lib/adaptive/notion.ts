@@ -4,7 +4,7 @@ import type {
   PartialPageObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints'
 import { generateSlotCandidates, formatSlotLabel, type SlotWindowConfig } from './slots'
-import type { AssessmentPayload, OnboardIdentity, ProgressRow, ProgressStatus, SessionSlot } from './types'
+import type { AssessmentPayload, AssessmentRow, OnboardIdentity, ProgressRow, ProgressStatus, SessionSlot } from './types'
 
 function env(name: string): string {
   const v = process.env[name]
@@ -150,6 +150,48 @@ export async function listProgress(clientId: string): Promise<ProgressRow[]> {
 
 // ─── Assessments ─────────────────────────────────────────────────────────────
 
+const ANSWER_PROP_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const
+
+function answerPropName(id: number): string {
+  return `Q${id}`
+}
+
+function richTextProp(content: string) {
+  return { rich_text: [{ text: { content: content.slice(0, 2000) || '—' } }] }
+}
+
+function answerProperties(answers: Record<number, string>): Record<string, ReturnType<typeof richTextProp>> {
+  const props: Record<string, ReturnType<typeof richTextProp>> = {}
+  for (const id of ANSWER_PROP_IDS) {
+    props[answerPropName(id)] = richTextProp(answers[id]?.trim() || '—')
+  }
+  return props
+}
+
+function isMeaningfulAnswer(value: string): boolean {
+  const v = value.trim()
+  return Boolean(v) && v !== '—'
+}
+
+function mapAssessment(page: PageObjectResponse): AssessmentRow {
+  const answers: Record<number, string> = {}
+  for (const id of ANSWER_PROP_IDS) {
+    const value = textProp(page, answerPropName(id)).trim()
+    if (isMeaningfulAnswer(value)) answers[id] = value
+  }
+  return {
+    id: page.id,
+    url: page.url,
+    name: textProp(page, 'Name'),
+    client: textProp(page, 'Client'),
+    stakeholder: textProp(page, 'Stakeholder'),
+    whatsapp: textProp(page, 'WhatsApp'),
+    status: textProp(page, 'Status') || 'Submitted',
+    completedAt: textProp(page, 'CompletedAt'),
+    answers,
+  }
+}
+
 export async function createAssessment(payload: AssessmentPayload): Promise<string> {
   const n = notion()
   const now = new Date().toISOString()
@@ -185,6 +227,7 @@ export async function createAssessment(payload: AssessmentPayload): Promise<stri
       WhatsApp: { phone_number: payload.whatsapp },
       Status: { select: { name: 'Submitted' } },
       CompletedAt: { date: { start: now } },
+      ...answerProperties(payload.answers),
     },
     children: [
       {
@@ -203,6 +246,81 @@ export async function createAssessment(payload: AssessmentPayload): Promise<stri
   })
 
   return page.id
+}
+
+export async function listAssessments(clientId: string): Promise<AssessmentRow[]> {
+  const res = await queryDataSource(env('NOTION_ASSESSMENTS_DB_ID'), {
+    filter: { property: 'Client', select: { equals: clientId } },
+    sorts: [{ property: 'CompletedAt', direction: 'descending' }],
+    page_size: 100,
+  })
+
+  return res.results
+    .map(r => asPage(r))
+    .filter((p): p is PageObjectResponse => Boolean(p))
+    .map(mapAssessment)
+}
+
+/** Backfill: copia respostas do body da página para as propriedades Q1–Q11. */
+export async function syncAssessmentAnswersFromBody(pageId: string): Promise<AssessmentRow | null> {
+  const n = notion()
+  const pageRes = await n.pages.retrieve({ page_id: pageId })
+  const page = asPage(pageRes)
+  if (!page) return null
+
+  const existing = mapAssessment(page)
+  const hasAll = ANSWER_PROP_IDS.every(id => isMeaningfulAnswer(existing.answers[id] || ''))
+  if (hasAll) return existing
+
+  const answers: Record<number, string> = { ...existing.answers }
+  let cursor: string | undefined
+  let currentQ: number | null = null
+
+  do {
+    const blocks = await n.blocks.children.list({
+      block_id: pageId,
+      start_cursor: cursor,
+      page_size: 100,
+    })
+
+    for (const block of blocks.results) {
+      if (!('type' in block)) continue
+      if (block.type === 'heading_3' && 'heading_3' in block) {
+        const text = block.heading_3.rich_text.map(t => t.plain_text).join('')
+        const match = text.match(/^Q(\d+)\./)
+        currentQ = match ? Number(match[1]) : null
+      } else if (block.type === 'paragraph' && 'paragraph' in block && currentQ) {
+        const text = block.paragraph.rich_text.map(t => t.plain_text).join('').trim()
+        if (isMeaningfulAnswer(text) && !isMeaningfulAnswer(answers[currentQ] || '')) {
+          answers[currentQ] = text
+        }
+        currentQ = null
+      }
+    }
+
+    cursor = blocks.has_more ? blocks.next_cursor ?? undefined : undefined
+  } while (cursor)
+
+  await n.pages.update({
+    page_id: pageId,
+    properties: answerProperties(answers),
+  })
+
+  const updated = asPage(await n.pages.retrieve({ page_id: pageId }))
+  return updated ? mapAssessment(updated) : null
+}
+
+export async function backfillAssessmentAnswers(clientId: string): Promise<number> {
+  const rows = await listAssessments(clientId)
+  let synced = 0
+  for (const row of rows) {
+    const missing = ANSWER_PROP_IDS.some(id => !isMeaningfulAnswer(row.answers[id] || ''))
+    if (!missing) continue
+    await syncAssessmentAnswersFromBody(row.id)
+    synced++
+    await new Promise(r => setTimeout(r, 250))
+  }
+  return synced
 }
 
 // ─── Sessions / slots ────────────────────────────────────────────────────────

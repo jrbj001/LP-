@@ -1,9 +1,10 @@
 import { CLIENT, STAKEHOLDERS } from '@/components/adaptive/data'
-import { isNotionConfigured, listProgress } from '@/lib/adaptive/notion'
-import type { ProgressRow, ProgressStatus } from '@/lib/adaptive/types'
+import { isNotionConfigured, listAssessments, listProgress, backfillAssessmentAnswers } from '@/lib/adaptive/notion'
+import type { AssessmentRow, ProgressRow, ProgressStatus } from '@/lib/adaptive/types'
 
 export type OnboardingProgress = {
   rows: ProgressRow[]
+  assessments: AssessmentRow[]
   counts: {
     total: number
     identified: number
@@ -20,7 +21,17 @@ export async function getOnboardingProgress(clientId = CLIENT.id): Promise<Onboa
     )
   }
 
-  const rows = await listProgress(clientId)
+  try {
+    await backfillAssessmentAnswers(clientId)
+  } catch (e) {
+    console.warn('[onboarding] backfill assessments:', e)
+  }
+
+  const [rows, assessments] = await Promise.all([
+    listProgress(clientId),
+    listAssessments(clientId),
+  ])
+
   const byName = new Map(rows.map(r => [r.stakeholder, r]))
   const merged: ProgressRow[] = STAKEHOLDERS.map(s => {
     const existing = byName.get(s.name)
@@ -42,12 +53,16 @@ export async function getOnboardingProgress(clientId = CLIENT.id): Promise<Onboa
 
   return {
     rows: merged,
+    assessments,
     counts: {
       total: merged.length,
       identified: merged.filter(r => r.status !== 'Not started').length,
-      assessmentDone: merged.filter(r =>
-        ['Assessment done', 'Session booked', 'Done'].includes(r.status)
-      ).length,
+      assessmentDone: Math.max(
+        merged.filter(r =>
+          ['Assessment done', 'Session booked', 'Done'].includes(r.status)
+        ).length,
+        assessments.length
+      ),
       sessionBooked: merged.filter(r =>
         ['Session booked', 'Done'].includes(r.status)
       ).length,
