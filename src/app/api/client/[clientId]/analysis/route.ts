@@ -74,11 +74,16 @@ export async function POST(
   }
 
   try {
-    const report = await getDeliveryReport(client.delivery.repos, days, client.delivery.manualEffort)
+    const report = await getDeliveryReport(
+      client.slug,
+      client.delivery.repos,
+      days,
+      client.delivery.manualEffort
+    )
 
     if (report.prs.length === 0 && report.modules.every(m => !m.manualHours)) {
       return NextResponse.json(
-        { ok: false, error: 'Sem entregas no período para analisar. Verifique GITHUB_TOKEN e o filtro de dias.' },
+        { ok: false, error: 'Sem entregas no período para analisar. Verifique GITHUB_TOKEN / GITHUB_PAT e o filtro de dias.' },
         { status: 400 }
       )
     }

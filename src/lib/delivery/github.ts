@@ -59,7 +59,11 @@ export interface GhPullDetail extends GhPullSummary {
 
 export interface GhCommit {
   sha: string
-  commit: { message: string }
+  commit: {
+    message: string
+    author: { date: string } | null
+    committer: { date: string } | null
+  }
   parents: { sha: string }[]
 }
 

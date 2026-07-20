@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getClient } from '@/lib/client/registry'
 import { getDeliveryReport } from '@/lib/delivery/service'
@@ -15,13 +14,14 @@ import {
   SummaryStrip,
   WeeklyChart,
 } from '@/components/client/delivery-report'
+import { CacheRefreshLink, PeriodSwitcher } from '@/components/client/period-switcher'
 import type { DeliveryReport } from '@/lib/delivery/types'
 
 export const dynamic = 'force-dynamic'
 
 type Props = {
   params: Promise<{ locale: string; clientId: string }>
-  searchParams: Promise<{ periodo?: string }>
+  searchParams: Promise<{ periodo?: string; refresh?: string }>
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -33,20 +33,27 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 export default async function EntregasPage({ params, searchParams }: Props) {
-  const [{ locale, clientId }, { periodo }] = await Promise.all([params, searchParams])
+  const [{ locale, clientId }, { periodo, refresh }] = await Promise.all([params, searchParams])
   const client = getClient(clientId)
   if (!client) notFound()
 
   const repos = client.delivery?.repos ?? []
   const days = periodo === '30' ? 30 : periodo === '60' ? 60 : 90
+  const forceRefresh = refresh === '1'
   const base = `/${locale}/client/${client.slug}/entregas`
 
-  let report: DeliveryReport | null = null
+  let report: (DeliveryReport & { cacheHit: boolean; cacheFetchedAt: string }) | null = null
   let loadError: string | null = null
 
   if (repos.length > 0) {
     try {
-      report = await getDeliveryReport(repos, days, client.delivery?.manualEffort)
+      report = await getDeliveryReport(
+        client.slug,
+        repos,
+        days,
+        client.delivery?.manualEffort,
+        { forceRefresh }
+      )
     } catch (e) {
       loadError = e instanceof Error ? e.message : 'Erro ao gerar relatório'
     }
@@ -68,24 +75,16 @@ export default async function EntregasPage({ params, searchParams }: Props) {
         {report && <ReportPeriod report={report} />}
       </header>
 
-      <div className="flex gap-1.5 mb-8">
-        {[
-          { d: 30, label: '30 dias' },
-          { d: 60, label: '60 dias' },
-          { d: 90, label: '90 dias' },
-        ].map(p => (
-          <Link
-            key={p.d}
-            href={`${base}?periodo=${p.d}`}
-            className={`px-3.5 py-1.5 rounded-full text-[12px] font-medium border transition-colors ${
-              days === p.d
-                ? 'bg-neutral-900 text-white border-neutral-900'
-                : 'bg-white text-neutral-600 border-black/[0.08] hover:border-neutral-300'
-            }`}
-          >
-            {p.label}
-          </Link>
-        ))}
+      <div className="mb-8">
+        <PeriodSwitcher base={base} days={days} />
+        {report && (
+          <CacheRefreshLink
+            base={base}
+            days={days}
+            cacheHit={report.cacheHit}
+            cacheFetchedAt={report.cacheFetchedAt}
+          />
+        )}
       </div>
 
       {repos.length === 0 && (
@@ -106,9 +105,9 @@ export default async function EntregasPage({ params, searchParams }: Props) {
             <p key={r.repo}>
               <span className="font-mono">{r.repo}</span>
               {r.error === 'token'
-                ? ' — repositório privado aguardando token de acesso (GITHUB_TOKEN); números abaixo não incluem este repo.'
+                ? ' — repositório privado aguardando token de acesso (GITHUB_TOKEN / GITHUB_PAT); números abaixo não incluem este repo.'
                 : r.error === 'rate'
-                  ? ' — limite da API pública do GitHub atingido; configure GITHUB_TOKEN para leitura estável.'
+                  ? ' — limite da API pública do GitHub atingido; configure GITHUB_TOKEN ou GITHUB_PAT.'
                   : ` — ${r.error}`}
             </p>
           ))}

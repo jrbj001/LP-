@@ -2,6 +2,13 @@ import { DEFAULT_EFFORT_CONFIG } from './config'
 import { classifyProduct, classifyType, humanizeTitle, moduleKey, moduleName } from './classify'
 import { computeEstimate, manualItemsInPeriod } from './effort'
 import {
+  isCacheFresh,
+  readDeliveryCache,
+  writeDeliveryCache,
+  type CachedCommit,
+  type DeliveryCachePayload,
+} from './cache'
+import {
   GitHubError,
   getPullDetail,
   hasGitHubToken,
@@ -23,11 +30,12 @@ import type {
   WeeklyBucket,
 } from './types'
 
+/** Sempre buscamos esta janela e filtramos 30/60/90 em cima do cache. */
+export const CACHE_WINDOW_DAYS = 90
+
 interface RepoResult {
   prs: Omit<PrRow, 'estimatedHours'>[]
-  commits: number
-  featureCommits: number
-  fixCommits: number
+  commits: CachedCommit[]
 }
 
 function weekStartOf(iso: string): string {
@@ -77,20 +85,18 @@ async function fetchRepo(repo: RepoConfig, since: Date, until: Date): Promise<Re
     })
   }
 
-  const workCommits = commits.filter(c => c.parents.length <= 1)
-  let featureCommits = 0
-  let fixCommits = 0
-  for (const c of workCommits) {
+  const cachedCommits: CachedCommit[] = []
+  for (const c of commits) {
+    if (c.parents.length > 1) continue
+    const date = c.commit.author?.date || c.commit.committer?.date
+    if (!date) continue
     const firstLine = c.commit.message.split('\n')[0]
-    const type = classifyType(firstLine)
-    if (type === 'feature') featureCommits++
-    else if (type === 'fix') fixCommits++
+    cachedCommits.push({ date, type: classifyType(firstLine) })
   }
 
-  return { prs, commits: workCommits.length, featureCommits, fixCommits }
+  return { prs, commits: cachedCommits }
 }
 
-/** Peso logarítmico evita que 1 PR gigante (lockfile/bundle) monopolize as horas. */
 function allocateHours(prs: Omit<PrRow, 'estimatedHours'>[], gitHours: number): PrRow[] {
   if (prs.length === 0) return []
   if (gitHours <= 0) return prs.map(p => ({ ...p, estimatedHours: 0 }))
@@ -140,7 +146,6 @@ function buildModules(prs: PrRow[]): ModuleGroup[] {
 function buildWeekly(prs: PrRow[], periodStart: Date, periodEnd: Date): WeeklyBucket[] {
   const map = new Map<string, WeeklyBucket>()
 
-  // Preenche todas as semanas do período (mesmo sem PRs) — 30/60/90 ficam visualmente distintos
   const cursor = new Date(`${weekStartOf(periodStart.toISOString())}T00:00:00Z`)
   const end = periodEnd.getTime()
   while (cursor.getTime() <= end) {
@@ -180,7 +185,12 @@ function buildWeekly(prs: PrRow[], periodStart: Date, periodEnd: Date): WeeklyBu
   return [...map.values()].sort((a, b) => (a.weekStart > b.weekStart ? 1 : -1))
 }
 
-function buildKpis(stats: PeriodStats, prs: PrRow[], weeks: number, byProduct: ProductBreakdown[]): DeliveryKpis {
+function buildKpis(
+  stats: PeriodStats,
+  prs: PrRow[],
+  weeks: number,
+  byProduct: ProductBreakdown[]
+): DeliveryKpis {
   const n = prs.length || 1
   const featPrs = prs.filter(p => p.type === 'feature').length
   const fixPrs = prs.filter(p => p.type === 'fix').length
@@ -233,47 +243,72 @@ function buildByProduct(prs: PrRow[]): ProductBreakdown[] {
     .sort((a, b) => b.hours - a.hours)
 }
 
-export async function getDeliveryReport(
+function repoErrorMessage(e: unknown): string {
+  const status = e instanceof GitHubError ? e.status : 0
+  if (status === 403 && !hasGitHubToken()) return 'rate'
+  if ((status === 404 || status === 401) && !hasGitHubToken()) return 'token'
+  return e instanceof Error ? e.message : 'Erro desconhecido'
+}
+
+async function fetchWindowData(
   repos: RepoConfig[],
-  periodDays: number,
-  manualEffort: ManualEffortItem[] = []
-): Promise<DeliveryReport> {
-  const periodEnd = new Date()
-  const periodStart = new Date(periodEnd.getTime() - periodDays * 86_400_000)
+  windowDays: number
+): Promise<DeliveryCachePayload> {
+  const windowEnd = new Date()
+  const windowStart = new Date(windowEnd.getTime() - windowDays * 86_400_000)
 
   const statuses: RepoStatus[] = []
   const rawPrs: Omit<PrRow, 'estimatedHours'>[] = []
-  let commits = 0
-  let featureCommits = 0
-  let fixCommits = 0
+  const allCommits: CachedCommit[] = []
 
   for (const repo of repos) {
     const full = `${repo.owner}/${repo.repo}`
     try {
-      const result = await fetchRepo(repo, periodStart, periodEnd)
+      const result = await fetchRepo(repo, windowStart, windowEnd)
       rawPrs.push(...result.prs)
-      commits += result.commits
-      featureCommits += result.featureCommits
-      fixCommits += result.fixCommits
+      allCommits.push(...result.commits)
       statuses.push({ repo: full, ok: true })
     } catch (e) {
-      const status = e instanceof GitHubError ? e.status : 0
-      let error: string
-      if (status === 403 && !hasGitHubToken()) {
-        error = 'rate'
-      } else if ((status === 404 || status === 401) && !hasGitHubToken()) {
-        error = 'token'
-      } else {
-        error = e instanceof Error ? e.message : 'Erro desconhecido'
-      }
-      statuses.push({ repo: full, ok: false, error })
+      statuses.push({ repo: full, ok: false, error: repoErrorMessage(e) })
     }
   }
 
   rawPrs.sort((a, b) => (b.mergedAt > a.mergedAt ? 1 : -1))
 
+  return {
+    fetchedAt: new Date().toISOString(),
+    windowDays,
+    windowStart: windowStart.toISOString(),
+    windowEnd: windowEnd.toISOString(),
+    repos: statuses,
+    prs: rawPrs,
+    commits: allCommits,
+  }
+}
+
+function buildReportFromCache(
+  cache: DeliveryCachePayload,
+  periodDays: number,
+  manualEffort: ManualEffortItem[]
+): DeliveryReport {
+  const periodEnd = new Date()
+  const periodStart = new Date(periodEnd.getTime() - periodDays * 86_400_000)
+
+  const rawPrs = cache.prs.filter(p => {
+    const t = new Date(p.mergedAt)
+    return t >= periodStart && t <= periodEnd
+  })
+
+  const periodCommits = cache.commits.filter(c => {
+    const t = new Date(c.date)
+    return t >= periodStart && t <= periodEnd
+  })
+
+  const featureCommits = periodCommits.filter(c => c.type === 'feature').length
+  const fixCommits = periodCommits.filter(c => c.type === 'fix').length
+
   const stats: PeriodStats = {
-    commits,
+    commits: periodCommits.length,
     pullRequests: rawPrs.length,
     featureCommits,
     fixCommits,
@@ -306,23 +341,54 @@ export async function getDeliveryReport(
     })),
   ]
 
-  const weekly = buildWeekly(allPrs, periodStart, periodEnd)
-  const kpis = buildKpis(stats, allPrs, estimate.weeks, byProduct)
-  const roadmap = buildRoadmap(modules)
-
   return {
     periodStart: periodStart.toISOString(),
     periodEnd: periodEnd.toISOString(),
     periodDays,
     stats,
     estimate,
-    kpis,
-    weekly,
-    roadmap,
+    kpis: buildKpis(stats, allPrs, estimate.weeks, byProduct),
+    weekly: buildWeekly(allPrs, periodStart, periodEnd),
+    roadmap: buildRoadmap(modules),
     byProduct,
     modules,
     prs: allPrs,
-    repos: statuses,
-    generatedAt: new Date().toISOString(),
+    repos: cache.repos,
+    generatedAt: cache.fetchedAt,
+  }
+}
+
+export async function getDeliveryReport(
+  clientId: string,
+  repos: RepoConfig[],
+  periodDays: number,
+  manualEffort: ManualEffortItem[] = [],
+  options?: { forceRefresh?: boolean }
+): Promise<DeliveryReport & { cacheHit: boolean; cacheFetchedAt: string }> {
+  let cache = await readDeliveryCache(clientId)
+  const allFailed = Boolean(cache && cache.repos.length > 0 && cache.repos.every(r => !r.ok))
+  const fresh = Boolean(
+    cache &&
+      isCacheFresh(cache) &&
+      cache.windowDays >= CACHE_WINDOW_DAYS &&
+      !allFailed &&
+      !options?.forceRefresh
+  )
+
+  let cacheHit = false
+  if (fresh && cache) {
+    cacheHit = true
+  } else {
+    cache = await fetchWindowData(repos, CACHE_WINDOW_DAYS)
+    if (cache.repos.some(r => r.ok) || cache.prs.length > 0) {
+      await writeDeliveryCache(clientId, cache)
+    }
+  }
+
+  const report = buildReportFromCache(cache, periodDays, manualEffort)
+  return {
+    ...report,
+    cacheHit,
+    cacheFetchedAt: cache.fetchedAt,
   }
 }
