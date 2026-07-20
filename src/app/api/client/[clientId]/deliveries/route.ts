@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getClient } from '@/lib/client/registry'
 import { getDeliveryReport } from '@/lib/delivery/service'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ clientId: string }> }
@@ -22,7 +24,10 @@ export async function GET(
 
   try {
     const report = await getDeliveryReport(client.delivery.repos, days, client.delivery.manualEffort)
-    return NextResponse.json({ ok: true, ...report })
+    return NextResponse.json(
+      { ok: true, ...report },
+      { headers: { 'Cache-Control': 'no-store' } }
+    )
   } catch (e) {
     console.error('[client/deliveries]', e)
     return NextResponse.json(

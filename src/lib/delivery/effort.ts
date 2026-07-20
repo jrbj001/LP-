@@ -46,7 +46,8 @@ export function computeEstimate(
     totalHoursMax: roundTo(totalHours * (1 + cfg.variancePct / 100), cfg.roundingHours),
     weeks,
     hoursPerWeek: roundTo(totalHours / weeks, 5),
-    personMonths: Number((totalHours / cfg.hoursPerPersonMonth / (periodDays / 30)).toFixed(1)),
+    // Equivalente ao relatório Colmeia: horas / 160 (não dilui pelo tamanho do período)
+    personMonths: Number((totalHours / cfg.hoursPerPersonMonth).toFixed(1)),
     featPct: classified ? Math.round((stats.featureCommits / classified) * 100) : 0,
     fixPct: classified ? Math.round((stats.fixCommits / classified) * 100) : 0,
   }

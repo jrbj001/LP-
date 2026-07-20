@@ -44,26 +44,32 @@ function weekLabel(weekStart: string): string {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', timeZone: 'UTC' })
 }
 
-async function fetchRepo(repo: RepoConfig, since: Date, maxPulls: number): Promise<RepoResult> {
+async function fetchRepo(repo: RepoConfig, since: Date, until: Date): Promise<RepoResult> {
   const { owner, repo: name } = repo
 
   const [pulls, commits] = await Promise.all([
-    listMergedPulls(owner, name, since, maxPulls),
+    listMergedPulls(owner, name, since, until),
     listCommitsSince(owner, name, since).catch(() => []),
   ])
 
   const prs: RepoResult['prs'] = []
   for (const pr of pulls) {
     const detail = await getPullDetail(owner, name, pr.number)
-    const type = classifyType(pr.title, pr.head.ref)
+    const branch = detail.head?.ref || pr.head.ref || ''
+    const mergedAt = detail.merged_at || pr.merged_at
+    if (!mergedAt) continue
+    const mergedDate = new Date(mergedAt)
+    if (mergedDate < since || mergedDate > until) continue
+
+    const type = classifyType(detail.title || pr.title, branch)
     prs.push({
       number: pr.number,
       repo: `${owner}/${name}`,
-      branch: pr.head.ref,
-      title: humanizeTitle(pr.title),
+      branch,
+      title: humanizeTitle(detail.title || pr.title),
       type,
-      product: classifyProduct(repo, pr.title, pr.head.ref),
-      mergedAt: pr.merged_at!,
+      product: classifyProduct(repo, detail.title || pr.title, branch),
+      mergedAt,
       additions: detail.additions,
       deletions: detail.deletions,
       changedFiles: detail.changed_files,
@@ -84,13 +90,14 @@ async function fetchRepo(repo: RepoConfig, since: Date, maxPulls: number): Promi
   return { prs, commits: workCommits.length, featureCommits, fixCommits }
 }
 
+/** Peso logarítmico evita que 1 PR gigante (lockfile/bundle) monopolize as horas. */
 function allocateHours(prs: Omit<PrRow, 'estimatedHours'>[], gitHours: number): PrRow[] {
   if (prs.length === 0) return []
   if (gitHours <= 0) return prs.map(p => ({ ...p, estimatedHours: 0 }))
-  const totalLines = prs.reduce((acc, p) => acc + Math.max(1, p.additions), 0)
-  return prs.map(p => {
-    const weight = Math.max(1, p.additions) / totalLines
-    const hours = Math.round(gitHours * weight * 2) / 2
+  const weights = prs.map(p => Math.log2(1 + Math.max(1, p.additions)))
+  const totalWeight = weights.reduce((a, b) => a + b, 0)
+  return prs.map((p, i) => {
+    const hours = Math.round(((gitHours * weights[i]) / totalWeight) * 2) / 2
     return { ...p, estimatedHours: Math.max(0.5, hours) }
   })
 }
@@ -130,8 +137,26 @@ function buildModules(prs: PrRow[]): ModuleGroup[] {
   return groups.sort((a, b) => b.estimatedHours - a.estimatedHours || b.commitCount - a.commitCount)
 }
 
-function buildWeekly(prs: PrRow[]): WeeklyBucket[] {
+function buildWeekly(prs: PrRow[], periodStart: Date, periodEnd: Date): WeeklyBucket[] {
   const map = new Map<string, WeeklyBucket>()
+
+  // Preenche todas as semanas do período (mesmo sem PRs) — 30/60/90 ficam visualmente distintos
+  const cursor = new Date(`${weekStartOf(periodStart.toISOString())}T00:00:00Z`)
+  const end = periodEnd.getTime()
+  while (cursor.getTime() <= end) {
+    const key = cursor.toISOString().slice(0, 10)
+    map.set(key, {
+      weekStart: key,
+      label: weekLabel(key),
+      prs: 0,
+      features: 0,
+      fixes: 0,
+      linesAdded: 0,
+      hours: 0,
+    })
+    cursor.setUTCDate(cursor.getUTCDate() + 7)
+  }
+
   for (const pr of prs) {
     const key = weekStartOf(pr.mergedAt)
     const bucket =
@@ -215,7 +240,6 @@ export async function getDeliveryReport(
 ): Promise<DeliveryReport> {
   const periodEnd = new Date()
   const periodStart = new Date(periodEnd.getTime() - periodDays * 86_400_000)
-  const maxPulls = hasGitHubToken() ? 60 : 15
 
   const statuses: RepoStatus[] = []
   const rawPrs: Omit<PrRow, 'estimatedHours'>[] = []
@@ -226,7 +250,7 @@ export async function getDeliveryReport(
   for (const repo of repos) {
     const full = `${repo.owner}/${repo.repo}`
     try {
-      const result = await fetchRepo(repo, periodStart, maxPulls)
+      const result = await fetchRepo(repo, periodStart, periodEnd)
       rawPrs.push(...result.prs)
       commits += result.commits
       featureCommits += result.featureCommits
@@ -282,7 +306,7 @@ export async function getDeliveryReport(
     })),
   ]
 
-  const weekly = buildWeekly(allPrs)
+  const weekly = buildWeekly(allPrs, periodStart, periodEnd)
   const kpis = buildKpis(stats, allPrs, estimate.weeks, byProduct)
   const roadmap = buildRoadmap(modules)
 

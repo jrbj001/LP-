@@ -102,18 +102,20 @@ export function WeeklyChart({ weekly }: { weekly: WeeklyBucket[] }) {
       </h3>
       <div className="flex items-end gap-2 h-40">
         {weekly.map(w => {
-          const h = Math.max(8, (w.prs / max) * 100)
+          const h = w.prs === 0 ? 0 : Math.max(8, (w.prs / max) * 100)
           return (
             <div key={w.weekStart} className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
-              <span className="text-[10px] text-neutral-500 tabular-nums">{w.prs}</span>
+              <span className="text-[10px] text-neutral-500 tabular-nums">{w.prs || ''}</span>
               <div className="w-full flex flex-col justify-end h-28">
                 <div
-                  className="w-full rounded-t-md bg-neutral-900/90 hover:bg-neutral-800 transition-colors"
+                  className={`w-full rounded-t-md transition-colors ${
+                    w.prs ? 'bg-neutral-900/90 hover:bg-neutral-800' : 'bg-transparent'
+                  }`}
                   style={{ height: `${h}%` }}
-                  title={`${w.prs} PRs · ${w.features} feat · ${w.fixes} fix · ~${w.hours}h`}
+                  title={`${w.label}: ${w.prs} PRs · ${w.features} feat · ${w.fixes} fix · ~${w.hours}h`}
                 />
               </div>
-              <span className="text-[10px] text-neutral-400 truncate w-full text-center">{w.label}</span>
+              <span className="text-[9px] text-neutral-400 truncate w-full text-center">{w.label}</span>
             </div>
           )
         })}
