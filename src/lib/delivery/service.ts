@@ -1,164 +1,176 @@
 import { DEFAULT_EFFORT_CONFIG } from './config'
-import { classifyProduct, classifyType, humanizeTitle } from './classify'
-import { computeEffort } from './effort'
+import { classifyProduct, classifyType, humanizeTitle, moduleKey, moduleName } from './classify'
+import { computeEstimate, manualItemsInPeriod } from './effort'
 import {
   GitHubError,
   getPullDetail,
   hasGitHubToken,
+  listCommitsSince,
   listMergedPulls,
-  listProductionDeployments,
-  listPullCommits,
-  listPullReviews,
 } from './github'
 import type {
-  DeliveriesData,
-  DeliveryItem,
-  DeliverySummary,
-  DeliveryWeek,
+  DeliveryReport,
+  DeliveryType,
+  ManualEffortItem,
+  ModuleGroup,
+  PeriodStats,
+  PrRow,
   RepoConfig,
   RepoStatus,
 } from './types'
 
-function initials(login: string): string {
-  return login.slice(0, 2).toUpperCase()
+interface RepoResult {
+  prs: PrRow[]
+  commits: number
+  featureCommits: number
+  fixCommits: number
 }
 
-/** Segunda-feira (UTC) da semana da data. */
-function weekStartOf(iso: string): string {
-  const d = new Date(iso)
-  const day = d.getUTCDay()
-  const diff = day === 0 ? 6 : day - 1
-  d.setUTCDate(d.getUTCDate() - diff)
-  d.setUTCHours(0, 0, 0, 0)
-  return d.toISOString().slice(0, 10)
-}
-
-async function fetchRepoDeliveries(repo: RepoConfig, since: Date, maxPulls: number): Promise<DeliveryItem[]> {
+async function fetchRepo(repo: RepoConfig, since: Date, maxPulls: number): Promise<RepoResult> {
   const { owner, repo: name } = repo
 
-  const [pulls, deployments] = await Promise.all([
+  const [pulls, commits] = await Promise.all([
     listMergedPulls(owner, name, since, maxPulls),
-    listProductionDeployments(owner, name).catch(() => []),
+    listCommitsSince(owner, name, since).catch(() => []),
   ])
 
-  const items: DeliveryItem[] = []
-
+  const prs: PrRow[] = []
   for (const pr of pulls) {
-    const [detail, reviews, commits] = await Promise.all([
-      getPullDetail(owner, name, pr.number),
-      listPullReviews(owner, name, pr.number).catch(() => []),
-      listPullCommits(owner, name, pr.number).catch(() => []),
-    ])
-
+    const detail = await getPullDetail(owner, name, pr.number)
     const type = classifyType(pr.title, pr.head.ref)
-    const reviewRounds = reviews.filter(r => r.state === 'APPROVED' || r.state === 'CHANGES_REQUESTED').length
-    const reviewApproved = reviews.some(r => r.state === 'APPROVED')
-
-    const commitDates = commits
-      .map(c => c.commit.author?.date ?? c.commit.committer?.date)
-      .filter((d): d is string => Boolean(d))
-      .map(d => new Date(d))
-
-    const mergedAt = pr.merged_at!
-    const deployedToProduction = deployments.some(
-      d => d.sha === pr.merge_commit_sha || new Date(d.created_at) >= new Date(mergedAt)
-    )
-
-    const effort = computeEffort({
-      type,
-      commitDates,
-      linesChanged: detail.additions + detail.deletions,
-      reviewRounds,
-      cfg: DEFAULT_EFFORT_CONFIG,
-    })
-
-    items.push({
-      id: `${owner}/${name}#${pr.number}`,
+    prs.push({
+      number: pr.number,
       repo: `${owner}/${name}`,
-      prNumber: pr.number,
-      product: classifyProduct(repo, pr.title, pr.head.ref),
+      branch: pr.head.ref,
       title: humanizeTitle(pr.title),
       type,
-      mergedAt,
-      authorInitials: pr.user ? initials(pr.user.login) : '—',
-      filesChanged: detail.changed_files,
+      product: classifyProduct(repo, pr.title, pr.head.ref),
+      mergedAt: pr.merged_at!,
       additions: detail.additions,
       deletions: detail.deletions,
-      reviewApproved,
-      deployedToProduction,
-      effort,
+      changedFiles: detail.changed_files,
+      commitCount: detail.commits,
     })
   }
 
-  return items
-}
-
-function buildSummary(items: DeliveryItem[], periodDays: number): DeliverySummary {
-  const byProductMap = new Map<string, { deliveries: number; hours: number }>()
-  for (const item of items) {
-    const entry = byProductMap.get(item.product) ?? { deliveries: 0, hours: 0 }
-    entry.deliveries++
-    entry.hours += item.effort.billableHours
-    byProductMap.set(item.product, entry)
+  // Commits do período (sem merges) classificados pela mensagem
+  const workCommits = commits.filter(c => c.parents.length <= 1)
+  let featureCommits = 0
+  let fixCommits = 0
+  for (const c of workCommits) {
+    const firstLine = c.commit.message.split('\n')[0]
+    const type = classifyType(firstLine)
+    if (type === 'feature') featureCommits++
+    else if (type === 'fix') fixCommits++
   }
 
-  return {
-    periodDays,
-    totalDeliveries: items.length,
-    features: items.filter(i => i.type === 'feature').length,
-    fixes: items.filter(i => i.type === 'fix').length,
-    improvements: items.filter(i => i.type === 'improvement').length,
-    maintenance: items.filter(i => i.type === 'maintenance').length,
-    productionDeploys: items.filter(i => i.deployedToProduction).length,
-    totalHours: Number(items.reduce((acc, i) => acc + i.effort.billableHours, 0).toFixed(1)),
-    byProduct: [...byProductMap.entries()]
-      .map(([product, v]) => ({ product, deliveries: v.deliveries, hours: Number(v.hours.toFixed(1)) }))
-      .sort((a, b) => b.hours - a.hours),
-  }
+  return { prs, commits: workCommits.length, featureCommits, fixCommits }
 }
 
-export async function getDeliveries(repos: RepoConfig[], periodDays: number): Promise<DeliveriesData> {
-  const since = new Date(Date.now() - periodDays * 86_400_000)
-  // Sem token o rate limit é 60 req/h — limita PRs processadas por repo
-  const maxPulls = hasGitHubToken() ? 50 : 10
+function buildModules(prs: PrRow[]): ModuleGroup[] {
+  const map = new Map<string, PrRow[]>()
+  for (const pr of prs) {
+    const key = moduleKey(pr.branch)
+    const list = map.get(key) ?? []
+    list.push(pr)
+    map.set(key, list)
+  }
+
+  const groups: ModuleGroup[] = []
+  for (const [key, items] of map) {
+    const typePriority: DeliveryType[] = ['feature', 'improvement', 'fix', 'maintenance']
+    const type = typePriority.find(t => items.some(i => i.type === t)) ?? 'improvement'
+    const titles = [...new Set(items.map(i => i.title))]
+
+    groups.push({
+      key,
+      name: moduleName(key),
+      type,
+      product: items[0].product,
+      commitCount: items.reduce((acc, i) => acc + i.commitCount, 0),
+      prNumbers: items.map(i => i.number).sort((a, b) => b - a),
+      description: titles.join('. ') + '.',
+    })
+  }
+
+  return groups.sort((a, b) => b.commitCount - a.commitCount)
+}
+
+export async function getDeliveryReport(
+  repos: RepoConfig[],
+  periodDays: number,
+  manualEffort: ManualEffortItem[] = []
+): Promise<DeliveryReport> {
+  const periodEnd = new Date()
+  const periodStart = new Date(periodEnd.getTime() - periodDays * 86_400_000)
+  const maxPulls = hasGitHubToken() ? 60 : 15
 
   const statuses: RepoStatus[] = []
-  const allItems: DeliveryItem[] = []
+  const allPrs: PrRow[] = []
+  let commits = 0
+  let featureCommits = 0
+  let fixCommits = 0
 
   for (const repo of repos) {
     const full = `${repo.owner}/${repo.repo}`
     try {
-      const items = await fetchRepoDeliveries(repo, since, maxPulls)
-      allItems.push(...items)
+      const result = await fetchRepo(repo, periodStart, maxPulls)
+      allPrs.push(...result.prs)
+      commits += result.commits
+      featureCommits += result.featureCommits
+      fixCommits += result.fixCommits
       statuses.push({ repo: full, ok: true })
     } catch (e) {
       const status = e instanceof GitHubError ? e.status : 0
-      const needsToken = (status === 404 || status === 401) && !hasGitHubToken()
-      statuses.push({
-        repo: full,
-        ok: false,
-        error: needsToken || status === 403 ? 'token' : e instanceof Error ? e.message : 'Erro desconhecido',
-      })
+      let error: string
+      if (status === 403 && !hasGitHubToken()) {
+        error = 'rate'
+      } else if ((status === 404 || status === 401) && !hasGitHubToken()) {
+        error = 'token'
+      } else {
+        error = e instanceof Error ? e.message : 'Erro desconhecido'
+      }
+      statuses.push({ repo: full, ok: false, error })
     }
   }
 
-  allItems.sort((a, b) => (b.mergedAt > a.mergedAt ? 1 : -1))
+  allPrs.sort((a, b) => (b.mergedAt > a.mergedAt ? 1 : -1))
 
-  const weekMap = new Map<string, DeliveryItem[]>()
-  for (const item of allItems) {
-    const key = weekStartOf(item.mergedAt)
-    const list = weekMap.get(key) ?? []
-    list.push(item)
-    weekMap.set(key, list)
+  const stats: PeriodStats = {
+    commits,
+    pullRequests: allPrs.length,
+    featureCommits,
+    fixCommits,
+    filesChanged: allPrs.reduce((acc, p) => acc + p.changedFiles, 0),
+    linesAdded: allPrs.reduce((acc, p) => acc + p.additions, 0),
+    linesDeleted: allPrs.reduce((acc, p) => acc + p.deletions, 0),
   }
 
-  const weeks: DeliveryWeek[] = [...weekMap.entries()]
-    .sort(([a], [b]) => (b > a ? 1 : -1))
-    .map(([weekStart, items]) => ({ weekStart, items }))
+  const manualInPeriod = manualItemsInPeriod(manualEffort, periodStart, periodEnd)
+  const estimate = computeEstimate(stats, manualInPeriod, periodDays, DEFAULT_EFFORT_CONFIG)
+
+  const modules: ModuleGroup[] = [
+    ...buildModules(allPrs),
+    ...manualInPeriod.map(item => ({
+      key: `manual-${item.label.toLowerCase().replace(/\s+/g, '-')}`,
+      name: item.label,
+      type: 'infra' as const,
+      product: '—',
+      commitCount: 0,
+      prNumbers: [],
+      description: item.description ?? '',
+      manualHours: item.hours,
+    })),
+  ]
 
   return {
-    summary: buildSummary(allItems, periodDays),
-    weeks,
+    periodStart: periodStart.toISOString(),
+    periodEnd: periodEnd.toISOString(),
+    periodDays,
+    stats,
+    estimate,
+    modules,
+    prs: allPrs,
     repos: statuses,
     generatedAt: new Date().toISOString(),
   }

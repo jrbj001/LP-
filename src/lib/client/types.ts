@@ -1,4 +1,4 @@
-import type { RepoConfig } from '@/lib/delivery/types'
+import type { ManualEffortItem, RepoConfig } from '@/lib/delivery/types'
 
 export type ClientStatus = 'pilot' | 'active'
 
@@ -49,5 +49,7 @@ export interface ClientWorkspace {
   /** Repositórios GitHub que alimentam a aba Entregas. */
   delivery?: {
     repos: RepoConfig[]
+    /** Esforço sem commits visíveis (infra, migrações) somado ao billing. */
+    manualEffort?: ManualEffortItem[]
   }
 }

@@ -74,6 +74,16 @@ export const be180Ooh: ClientWorkspace = {
         label: 'Image Brand Processing',
       },
     ],
+    manualEffort: [
+      {
+        label: 'Migração para Novo Backend',
+        hours: 80,
+        description:
+          'Migração completa da camada de backend para a nova arquitetura. Trabalho de infraestrutura sem commits diretos visíveis no histórico de produto — refatoração interna, reestruturação de serviços e estabilização do ambiente.',
+        from: '2026-06-07',
+        to: '2026-07-07',
+      },
+    ],
   },
   docs: {
     eyebrow: 'Documentação',

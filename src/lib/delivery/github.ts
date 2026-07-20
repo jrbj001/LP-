@@ -40,7 +40,6 @@ export interface GhPullSummary {
   number: number
   title: string
   merged_at: string | null
-  merge_commit_sha: string | null
   user: { login: string } | null
   head: { ref: string }
 }
@@ -49,20 +48,13 @@ export interface GhPullDetail extends GhPullSummary {
   additions: number
   deletions: number
   changed_files: number
+  commits: number
 }
 
-export interface GhReview {
-  state: 'APPROVED' | 'CHANGES_REQUESTED' | 'COMMENTED' | 'DISMISSED' | 'PENDING'
-}
-
-export interface GhPrCommit {
-  commit: { author: { date: string } | null; committer: { date: string } | null }
-}
-
-export interface GhDeployment {
-  environment: string
-  created_at: string
+export interface GhCommit {
   sha: string
+  commit: { message: string }
+  parents: { sha: string }[]
 }
 
 // ─── Chamadas ────────────────────────────────────────────────────────────────
@@ -85,7 +77,6 @@ export async function listMergedPulls(
       if (pr.merged_at && new Date(pr.merged_at) >= since) merged.push(pr)
     }
 
-    // Página já toda anterior ao período — não há mais o que buscar
     const oldest = batch[batch.length - 1]
     if (oldest?.merged_at && new Date(oldest.merged_at) < since) break
   }
@@ -95,20 +86,20 @@ export async function listMergedPulls(
     .slice(0, maxPulls)
 }
 
+/** Detalhe da PR: linhas, arquivos e nº de commits (campo `commits`). */
 export function getPullDetail(owner: string, repo: string, number: number): Promise<GhPullDetail> {
   return gh<GhPullDetail>(`/repos/${owner}/${repo}/pulls/${number}`)
 }
 
-export function listPullReviews(owner: string, repo: string, number: number): Promise<GhReview[]> {
-  return gh<GhReview[]>(`/repos/${owner}/${repo}/pulls/${number}/reviews?per_page=100`)
-}
-
-export function listPullCommits(owner: string, repo: string, number: number): Promise<GhPrCommit[]> {
-  return gh<GhPrCommit[]>(`/repos/${owner}/${repo}/pulls/${number}/commits?per_page=100`)
-}
-
-/** Deployments de produção do repo (a Vercel registra deployments no GitHub). */
-export async function listProductionDeployments(owner: string, repo: string): Promise<GhDeployment[]> {
-  const all = await gh<GhDeployment[]>(`/repos/${owner}/${repo}/deployments?per_page=100`)
-  return all.filter(d => /prod/i.test(d.environment))
+/** Commits do branch padrão desde uma data (para stats do período). */
+export async function listCommitsSince(owner: string, repo: string, since: Date): Promise<GhCommit[]> {
+  const commits: GhCommit[] = []
+  for (let page = 1; page <= 3; page++) {
+    const batch = await gh<GhCommit[]>(
+      `/repos/${owner}/${repo}/commits?since=${since.toISOString()}&per_page=100&page=${page}`
+    )
+    commits.push(...batch)
+    if (batch.length < 100) break
+  }
+  return commits
 }

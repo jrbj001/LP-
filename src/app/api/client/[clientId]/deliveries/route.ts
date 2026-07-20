@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getClient } from '@/lib/client/registry'
-import { getDeliveries } from '@/lib/delivery/service'
+import { getDeliveryReport } from '@/lib/delivery/service'
 
 export async function GET(
   req: Request,
@@ -17,15 +17,16 @@ export async function GET(
   }
 
   const { searchParams } = new URL(req.url)
-  const days = searchParams.get('days') === '30' ? 30 : 90
+  const daysParam = searchParams.get('days')
+  const days = daysParam === '30' ? 30 : daysParam === '60' ? 60 : 90
 
   try {
-    const data = await getDeliveries(client.delivery.repos, days)
-    return NextResponse.json({ ok: true, ...data })
+    const report = await getDeliveryReport(client.delivery.repos, days, client.delivery.manualEffort)
+    return NextResponse.json({ ok: true, ...report })
   } catch (e) {
     console.error('[client/deliveries]', e)
     return NextResponse.json(
-      { ok: false, error: e instanceof Error ? e.message : 'Erro ao buscar entregas' },
+      { ok: false, error: e instanceof Error ? e.message : 'Erro ao gerar relatório' },
       { status: 500 }
     )
   }

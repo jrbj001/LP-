@@ -1,77 +1,53 @@
 import type { EffortConfig } from './config'
-import type { DeliveryType, EffortBreakdown } from './types'
-
-/**
- * Sinal 1 — Sessões de trabalho (algoritmo git-hours):
- * commits ordenados por data; gaps < sessionGapMinutes pertencem à mesma
- * sessão e contam integralmente; cada sessão iniciada soma um baseline.
- */
-export function sessionHours(commitDates: Date[], cfg: EffortConfig): number {
-  if (commitDates.length === 0) return 0
-
-  const sorted = [...commitDates].sort((a, b) => a.getTime() - b.getTime())
-  const gapMs = cfg.sessionGapMinutes * 60_000
-
-  let hours = cfg.sessionBaselineHours
-  for (let i = 1; i < sorted.length; i++) {
-    const diff = sorted[i].getTime() - sorted[i - 1].getTime()
-    if (diff <= gapMs) {
-      hours += diff / 3_600_000
-    } else {
-      hours += cfg.sessionBaselineHours
-    }
-  }
-  return hours
-}
-
-/**
- * Sinal 2 — Complexidade da entrega:
- * base(tipo) × fator_tamanho + rodadas_de_review × horas_por_rodada.
- */
-export function complexityHours(
-  type: DeliveryType,
-  linesChanged: number,
-  reviewRounds: number,
-  cfg: EffortConfig
-): { hours: number; baseHours: number; sizeFactor: number } {
-  const baseHours = cfg.baseHoursByType[type]
-  const raw = Math.log2(1 + linesChanged / cfg.sizeDivisor)
-  const sizeFactor = Math.min(cfg.sizeFactorMax, Math.max(cfg.sizeFactorMin, raw))
-  const hours = baseHours * sizeFactor + reviewRounds * cfg.reviewRoundHours
-  return { hours, baseHours, sizeFactor }
-}
+import type { EffortEstimate, ManualEffortItem, PeriodStats } from './types'
 
 function roundTo(value: number, step: number): number {
   return Math.round(value / step) * step
 }
 
-/** Blend final: média ponderada dos dois sinais, arredondada, mínimo de 1 passo. */
-export function computeEffort(args: {
-  type: DeliveryType
-  commitDates: Date[]
-  linesChanged: number
-  reviewRounds: number
+/** Filtra itens manuais cujo intervalo intersecta o período do relatório. */
+export function manualItemsInPeriod(
+  items: ManualEffortItem[],
+  periodStart: Date,
+  periodEnd: Date
+): ManualEffortItem[] {
+  return items.filter(item => {
+    const from = item.from ? new Date(`${item.from}T00:00:00Z`) : null
+    const to = item.to ? new Date(`${item.to}T23:59:59Z`) : null
+    if (from && from > periodEnd) return false
+    if (to && to < periodStart) return false
+    return true
+  })
+}
+
+/**
+ * Estimativa de esforço do período:
+ * horas de produto (git) = linhas brutas inseridas / fator efetivo LOC/h,
+ * somadas ao esforço manual declarado (infra sem commits visíveis).
+ */
+export function computeEstimate(
+  stats: PeriodStats,
+  manualItems: ManualEffortItem[],
+  periodDays: number,
   cfg: EffortConfig
-}): EffortBreakdown {
-  const { type, commitDates, linesChanged, reviewRounds, cfg } = args
+): EffortEstimate {
+  const gitHours = roundTo(stats.linesAdded / cfg.effectiveLocPerHour, cfg.roundingHours)
+  const manualHours = manualItems.reduce((acc, i) => acc + i.hours, 0)
+  const totalHours = gitHours + manualHours
 
-  const sessions = sessionHours(commitDates, cfg)
-  const complexity = complexityHours(type, linesChanged, reviewRounds, cfg)
-
-  const blended =
-    sessions > 0
-      ? cfg.sessionWeight * sessions + (1 - cfg.sessionWeight) * complexity.hours
-      : complexity.hours
-
-  const billable = Math.max(cfg.roundingHours, roundTo(blended, cfg.roundingHours))
+  const weeks = Math.max(1, Math.round(periodDays / 7))
+  const classified = stats.featureCommits + stats.fixCommits
 
   return {
-    sessionHours: Number(sessions.toFixed(2)),
-    complexityHours: Number(complexity.hours.toFixed(2)),
-    baseHours: complexity.baseHours,
-    sizeFactor: Number(complexity.sizeFactor.toFixed(2)),
-    reviewRounds,
-    commitCount: commitDates.length,
-    billableHours: billable,
+    gitHours,
+    manualHours,
+    totalHours,
+    totalHoursMin: roundTo(totalHours * (1 - cfg.variancePct / 100), cfg.roundingHours),
+    totalHoursMax: roundTo(totalHours * (1 + cfg.variancePct / 100), cfg.roundingHours),
+    weeks,
+    hoursPerWeek: roundTo(totalHours / weeks, 5),
+    personMonths: Number((totalHours / cfg.hoursPerPersonMonth / (periodDays / 30)).toFixed(1)),
+    featPct: classified ? Math.round((stats.featureCommits / classified) * 100) : 0,
+    fixPct: classified ? Math.round((stats.fixCommits / classified) * 100) : 0,
   }
 }

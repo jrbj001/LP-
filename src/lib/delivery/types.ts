@@ -15,46 +15,68 @@ export interface RepoConfig {
   products?: ProductRule[]
 }
 
-export interface EffortBreakdown {
-  /** Horas estimadas pelo sinal de sessões de trabalho (git-hours). */
-  sessionHours: number
-  /** Horas estimadas pelo sinal de complexidade da entrega. */
-  complexityHours: number
-  baseHours: number
-  sizeFactor: number
-  reviewRounds: number
-  commitCount: number
-  /** Resultado final: blend arredondado. */
-  billableHours: number
+/**
+ * Esforço sem commits visíveis no histórico de produto
+ * (ex.: migração de backend, infra, estabilização de ambiente).
+ */
+export interface ManualEffortItem {
+  label: string
+  hours: number
+  description?: string
+  /** Datas ISO (YYYY-MM-DD) — o item entra no período se houver interseção. */
+  from?: string
+  to?: string
 }
 
-export interface DeliveryItem {
-  id: string
+export interface PrRow {
+  number: number
   repo: string
-  prNumber: number
-  product: string
+  branch: string
   title: string
   type: DeliveryType
+  product: string
   mergedAt: string
-  authorInitials: string
-  filesChanged: number
   additions: number
   deletions: number
-  reviewApproved: boolean
-  deployedToProduction: boolean
-  effort: EffortBreakdown
+  changedFiles: number
+  commitCount: number
 }
 
-export interface DeliverySummary {
-  periodDays: number
-  totalDeliveries: number
-  features: number
-  fixes: number
-  improvements: number
-  maintenance: number
-  productionDeploys: number
+export interface ModuleGroup {
+  key: string
+  name: string
+  type: DeliveryType | 'infra'
+  product: string
+  commitCount: number
+  prNumbers: number[]
+  description: string
+  /** Presente apenas em módulos de esforço manual. */
+  manualHours?: number
+}
+
+export interface PeriodStats {
+  commits: number
+  pullRequests: number
+  featureCommits: number
+  fixCommits: number
+  filesChanged: number
+  linesAdded: number
+  linesDeleted: number
+}
+
+export interface EffortEstimate {
+  gitHours: number
+  manualHours: number
   totalHours: number
-  byProduct: { product: string; deliveries: number; hours: number }[]
+  /** Faixa de variação (±variancePct). */
+  totalHoursMin: number
+  totalHoursMax: number
+  weeks: number
+  hoursPerWeek: number
+  personMonths: number
+  /** Percentuais da distribuição feat/fix sobre commits classificados. */
+  featPct: number
+  fixPct: number
 }
 
 export interface RepoStatus {
@@ -64,14 +86,14 @@ export interface RepoStatus {
   error?: string
 }
 
-export interface DeliveryWeek {
-  weekStart: string
-  items: DeliveryItem[]
-}
-
-export interface DeliveriesData {
-  summary: DeliverySummary
-  weeks: DeliveryWeek[]
+export interface DeliveryReport {
+  periodStart: string
+  periodEnd: string
+  periodDays: number
+  stats: PeriodStats
+  estimate: EffortEstimate
+  modules: ModuleGroup[]
+  prs: PrRow[]
   repos: RepoStatus[]
   generatedAt: string
 }
