@@ -12,12 +12,19 @@ import type {
   WeeklyBucket,
 } from '@/lib/delivery/types'
 
-const TYPE_TAG: Record<DeliveryType | 'infra', { label: string; className: string }> = {
+const TYPE_TAG: Record<DeliveryType | 'infra' | 'bug' | 'evolution', { label: string; className: string }> = {
   feature: { label: 'feature', className: 'text-blue-800 bg-blue-50 border-blue-200' },
   fix: { label: 'fix', className: 'text-rose-800 bg-rose-50 border-rose-200' },
+  bug: { label: 'bug', className: 'text-rose-800 bg-rose-50 border-rose-200' },
+  evolution: { label: 'evolução', className: 'text-violet-800 bg-violet-50 border-violet-200' },
   improvement: { label: 'melhoria', className: 'text-sky-800 bg-sky-50 border-sky-200' },
   maintenance: { label: 'manutenção', className: 'text-neutral-600 bg-neutral-100 border-neutral-200' },
   infra: { label: 'infra', className: 'text-neutral-600 bg-neutral-100 border-neutral-200' },
+}
+
+function prTypeTag(pr: Pick<PrRow, 'type' | 'fixKind'>) {
+  if (pr.type === 'fix') return TYPE_TAG[pr.fixKind === 'evolution' ? 'evolution' : 'bug']
+  return TYPE_TAG[pr.type]
 }
 
 function fmt(n: number): string {
@@ -40,16 +47,21 @@ export function SummaryStrip({ report }: { report: DeliveryReport }) {
     { val: fmt(s.commits), lbl: 'Commits' },
     { val: fmt(s.pullRequests), lbl: 'Pull Requests' },
     { val: fmt(s.featureCommits), lbl: 'Features' },
-    { val: fmt(s.fixCommits), lbl: 'Correções' },
+    { val: fmt(s.bugFixCommits), lbl: 'Bugs' },
+    { val: fmt(s.evolutionFixCommits), lbl: 'Evoluções' },
     { val: fmt(s.filesChanged), lbl: 'Arquivos' },
     { val: `+${fmt(s.linesAdded)}`, lbl: 'Linhas' },
   ]
   return (
-    <div className="grid grid-cols-3 sm:grid-cols-6 gap-px bg-black/[0.08] border border-black/[0.08] rounded-lg overflow-hidden">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-px bg-black/[0.08] border border-black/[0.08] rounded-lg overflow-hidden">
       {cells.map(c => (
-        <div key={c.lbl} className="bg-white px-3 py-4 text-center">
-          <span className="block text-[22px] font-bold text-neutral-900 leading-tight tabular-nums">{c.val}</span>
-          <span className="block text-[10px] text-neutral-400 uppercase tracking-wider mt-1">{c.lbl}</span>
+        <div key={c.lbl} className="bg-white px-2 sm:px-3 py-3 sm:py-4 text-center min-w-0">
+          <span className="block text-[18px] sm:text-[22px] font-bold text-neutral-900 leading-tight tabular-nums truncate">
+            {c.val}
+          </span>
+          <span className="block text-[9px] sm:text-[10px] text-neutral-400 uppercase tracking-wider mt-1">
+            {c.lbl}
+          </span>
         </div>
       ))}
     </div>
@@ -63,9 +75,14 @@ export function KpiStrip({ kpis }: { kpis: DeliveryKpis }) {
     { val: fmt(kpis.velocityPrPerWeek), lbl: 'PRs / semana', hint: 'Velocidade de entrega' },
     { val: `${kpis.featureRatioPct}%`, lbl: 'Foco em feat', hint: 'Share de features vs fixes' },
     {
-      val: kpis.fixToFeatureRatio >= 9.9 ? '—' : kpis.fixToFeatureRatio.toLocaleString('pt-BR'),
-      lbl: 'Fix / Feat',
-      hint: 'Saúde: menor é melhor',
+      val: kpis.bugToFeatureRatio >= 9.9 ? '—' : kpis.bugToFeatureRatio.toLocaleString('pt-BR'),
+      lbl: 'Bug / Feat',
+      hint: 'Defeitos vs novidades',
+    },
+    {
+      val: kpis.evolutionToFeatureRatio >= 9.9 ? '—' : kpis.evolutionToFeatureRatio.toLocaleString('pt-BR'),
+      lbl: 'Evol / Feat',
+      hint: 'Ajustes incrementais',
     },
     { val: `~${fmt(kpis.avgHoursPerPr)}h`, lbl: 'Horas / PR', hint: 'Tamanho médio da entrega' },
     { val: fmt(kpis.avgLinesPerPr), lbl: 'Linhas / PR', hint: 'Complexidade média' },
@@ -76,7 +93,7 @@ export function KpiStrip({ kpis }: { kpis: DeliveryKpis }) {
     },
   ]
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
       {cells.map(c => (
         <div key={c.lbl} className="rounded-xl border border-black/[0.06] bg-white px-4 py-4">
           <p className="text-[22px] font-bold text-neutral-900 tabular-nums leading-none">{c.val}</p>
@@ -96,29 +113,36 @@ export function WeeklyChart({ weekly }: { weekly: WeeklyBucket[] }) {
     return <p className="text-[13px] text-neutral-400 py-8 text-center">Sem dados semanais no período.</p>
   }
   return (
-    <div className="rounded-xl border border-black/[0.06] bg-white p-5">
+    <div className="rounded-xl border border-black/[0.06] bg-white p-4 sm:p-5 h-full">
       <h3 className="text-[12px] font-semibold uppercase tracking-wider text-neutral-400 mb-4">
         Entregas por semana
       </h3>
-      <div className="flex items-end gap-2 h-40">
-        {weekly.map(w => {
-          const h = w.prs === 0 ? 0 : Math.max(8, (w.prs / max) * 100)
-          return (
-            <div key={w.weekStart} className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
-              <span className="text-[10px] text-neutral-500 tabular-nums">{w.prs || ''}</span>
-              <div className="w-full flex flex-col justify-end h-28">
-                <div
-                  className={`w-full rounded-t-md transition-colors ${
-                    w.prs ? 'bg-neutral-900/90 hover:bg-neutral-800' : 'bg-transparent'
-                  }`}
-                  style={{ height: `${h}%` }}
-                  title={`${w.label}: ${w.prs} PRs · ${w.features} feat · ${w.fixes} fix · ~${w.hours}h`}
-                />
+      <div className="overflow-x-auto -mx-1 px-1 pb-1">
+        <div
+          className="flex items-end gap-1.5 sm:gap-2 h-40 sm:h-44"
+          style={{ minWidth: `${Math.max(weekly.length * 40, 280)}px` }}
+        >
+          {weekly.map(w => {
+            const h = w.prs === 0 ? 0 : Math.max(8, (w.prs / max) * 100)
+            return (
+              <div key={w.weekStart} className="flex-1 flex flex-col items-center gap-1.5 min-w-[28px] max-w-[56px]">
+                <span className="text-[10px] text-neutral-500 tabular-nums">{w.prs || ''}</span>
+                <div className="w-full flex flex-col justify-end h-28 sm:h-32">
+                  <div
+                    className={`w-full rounded-t-md transition-colors ${
+                      w.prs ? 'bg-neutral-900/90 hover:bg-neutral-800' : 'bg-transparent'
+                    }`}
+                    style={{ height: `${h}%` }}
+                    title={`${w.label}: ${w.prs} PRs · ${w.features} feat · ${w.bugs} bug · ${w.evolutions} evol · ~${w.hours}h`}
+                  />
+                </div>
+                <span className="text-[8px] sm:text-[9px] text-neutral-400 truncate w-full text-center">
+                  {w.label}
+                </span>
               </div>
-              <span className="text-[9px] text-neutral-400 truncate w-full text-center">{w.label}</span>
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
     </div>
   )
@@ -126,19 +150,19 @@ export function WeeklyChart({ weekly }: { weekly: WeeklyBucket[] }) {
 
 export function MixChart({ report }: { report: DeliveryReport }) {
   const feat = report.estimate.featPct
-  const fix = report.estimate.fixPct
-  const other = Math.max(0, 100 - feat - fix)
+  const bug = report.estimate.bugPct
+  const evolution = report.estimate.evolutionPct
   const r = 42
   const c = 2 * Math.PI * r
   const segments = [
     { pct: feat, color: '#171717', label: 'Features' },
-    { pct: fix, color: '#a3a3a3', label: 'Correções' },
-    { pct: other, color: '#e5e5e5', label: 'Outros' },
+    { pct: bug, color: '#e11d48', label: 'Bugs' },
+    { pct: evolution, color: '#7c3aed', label: 'Evoluções' },
   ]
   let offset = 0
 
   return (
-    <div className="rounded-xl border border-black/[0.06] bg-white p-5 flex flex-col sm:flex-row items-center gap-6">
+    <div className="rounded-xl border border-black/[0.06] bg-white p-4 sm:p-5 h-full flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
       <svg viewBox="0 0 120 120" className="w-32 h-32 shrink-0">
         <circle cx="60" cy="60" r={r} fill="none" stroke="#f5f5f5" strokeWidth="14" />
         {segments.map(seg => {
@@ -276,7 +300,7 @@ export function EffortSection({ report }: { report: DeliveryReport }) {
   ]
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
       <div className="rounded-lg bg-[#f7f7f5] px-6 py-5">
         <h3 className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-3.5">
           Métricas do período
@@ -312,13 +336,22 @@ export function EffortSection({ report }: { report: DeliveryReport }) {
             <div className="h-full bg-neutral-900 rounded-full" style={{ width: `${e.featPct}%` }} />
           </div>
         </div>
-        <div>
+        <div className="mb-3">
           <div className="flex justify-between text-[12px] text-neutral-500 mb-1.5">
-            <span>fix (correções)</span>
-            <span className="tabular-nums">{e.fixPct}%</span>
+            <span>bug (defeitos corrigidos)</span>
+            <span className="tabular-nums">{e.bugPct}%</span>
           </div>
           <div className="h-1.5 bg-black/[0.07] rounded-full overflow-hidden">
-            <div className="h-full bg-neutral-400 rounded-full" style={{ width: `${e.fixPct}%` }} />
+            <div className="h-full bg-rose-500 rounded-full" style={{ width: `${e.bugPct}%` }} />
+          </div>
+        </div>
+        <div>
+          <div className="flex justify-between text-[12px] text-neutral-500 mb-1.5">
+            <span>evolução (ajustes incrementais em fix)</span>
+            <span className="tabular-nums">{e.evolutionPct}%</span>
+          </div>
+          <div className="h-1.5 bg-black/[0.07] rounded-full overflow-hidden">
+            <div className="h-full bg-violet-500 rounded-full" style={{ width: `${e.evolutionPct}%` }} />
           </div>
         </div>
         <p className="mt-5 text-[11px] text-neutral-400 leading-relaxed">
@@ -405,7 +438,7 @@ export function ModulesSection({ modules }: { modules: ModuleGroup[] }) {
 
 function PrDetailRow({ pr }: { pr: PrRow }) {
   const [open, setOpen] = useState(false)
-  const tag = TYPE_TAG[pr.type]
+  const tag = prTypeTag(pr)
   return (
     <>
       <tr
@@ -580,14 +613,18 @@ export function AiAnalysisPanel({
 
 export function ReportPeriod({ report }: { report: DeliveryReport }) {
   return (
-    <p className="text-[13px] text-neutral-500 leading-relaxed text-right">
+    <p className="text-[12px] sm:text-[13px] text-neutral-500 leading-relaxed text-left lg:text-right">
       <strong className="text-neutral-900 font-semibold">
         {fmtDateLong(report.periodStart)} → {fmtDateLong(report.periodEnd)}
       </strong>
-      <br />
-      Fonte: git log · {report.repos.map(r => r.repo.split('/')[1]).join(' · ')}
-      <br />
-      Gerado em {fmtDateLong(report.generatedAt)}
+      <br className="hidden sm:block" />
+      <span className="sm:hidden"> · </span>
+      <span className="block sm:inline text-neutral-400 sm:text-neutral-500">
+        Fonte: git log · {report.repos.map(r => r.repo.split('/')[1]).join(' · ')}
+      </span>
+      <br className="hidden sm:block" />
+      <span className="sm:hidden"> · </span>
+      <span className="block sm:inline">Gerado em {fmtDateLong(report.generatedAt)}</span>
     </p>
   )
 }

@@ -50,5 +50,7 @@ export function computeEstimate(
     personMonths: Number((totalHours / cfg.hoursPerPersonMonth).toFixed(1)),
     featPct: classified ? Math.round((stats.featureCommits / classified) * 100) : 0,
     fixPct: classified ? Math.round((stats.fixCommits / classified) * 100) : 0,
+    bugPct: classified ? Math.round((stats.bugFixCommits / classified) * 100) : 0,
+    evolutionPct: classified ? Math.round((stats.evolutionFixCommits / classified) * 100) : 0,
   }
 }

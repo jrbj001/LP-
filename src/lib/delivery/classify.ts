@@ -1,4 +1,4 @@
-import type { DeliveryType, RepoConfig } from './types'
+import type { DeliveryType, FixKind, RepoConfig } from './types'
 
 const CONVENTIONAL: [RegExp, DeliveryType][] = [
   [/^(feat|feature)[:(!/]/i, 'feature'],
@@ -29,6 +29,49 @@ export function classifyType(title: string, branch = ''): DeliveryType {
     if (re.test(haystack)) return type
   }
   return 'improvement'
+}
+
+const BUG_SIGNALS: RegExp[] = [
+  /\b(bug|bugs|hotfix|bugfix)\b/i,
+  /\b(erro|falha|crash|exception|regress\w*|quebrad\w*|incidente)\b/i,
+  /\b(corrig\w+|conserta\w+)\b/i,
+  /\b(null|undefined|500|404|502|timeout)\b/i,
+  /\b(n[aã]o funciona|nao carrega|n[aã]o abre|nao abre)\b/i,
+]
+
+const EVOLUTION_SIGNALS: RegExp[] = [
+  /\b(evolu\w+|evolui\w+|melhoria\w*|melhora\w*|aprimora\w*|enhance\w*)\b/i,
+  /\b(ajust\w+|atualiza\w+|otimiza\w+|refactor\w*|\bperf\b)\b/i,
+  /\b(ux|ui|layout|responsiv\w*|acessibil\w*|padroniza\w*|reorganiza\w*)\b/i,
+  /\b(polish|refin\w*|limpeza|cleanup|upgrade)\b/i,
+  /\b(novo fluxo|novo campo|expand\w*|increment\w*)\b/i,
+]
+
+/**
+ * Separa entregas `fix` em bug (defeito/retrabalho) vs evolução (ajuste/melhoria incremental).
+ * Usa título e branch — convenções `fix/` genéricas tendem a evolução quando não há sinal de bug.
+ */
+export function classifyFixKind(title: string, branch = ''): FixKind {
+  const t = title.trim()
+  const b = branch.trim()
+  const haystack = `${t} ${b.replace(/[-_/]/g, ' ')}`
+
+  if (/^(hotfix|bugfix)([/:(]|$)/i.test(b) || /^(hotfix|bugfix)[:(!/]/i.test(t)) {
+    return 'bug'
+  }
+
+  const hasBug = BUG_SIGNALS.some(re => re.test(haystack))
+  const hasEvo = EVOLUTION_SIGNALS.some(re => re.test(haystack))
+
+  if (hasBug && !hasEvo) return 'bug'
+  if (hasEvo && !hasBug) return 'evolution'
+  if (hasBug && hasEvo) return 'bug'
+
+  if (/^fix[/:]/i.test(b) || /^fix[:(!/]/i.test(t)) {
+    return 'evolution'
+  }
+
+  return 'bug'
 }
 
 /** Atribui a entrega a um produto do repo (regras regex) ou ao produto padrão. */

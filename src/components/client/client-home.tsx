@@ -1,8 +1,19 @@
 import type { ClientWorkspace } from '@/lib/client/types'
+import type { DeliveryTeaser } from '@/lib/delivery/teaser'
+import { DeliveryHighlight } from '@/components/client/delivery-highlight'
 import { Onboarding } from '@/components/client/onboarding'
 import { DocsPortal } from '@/components/client/docs-portal'
 
-export function ClientHome({ client }: { client: ClientWorkspace }) {
+type Props = {
+  client: ClientWorkspace
+  locale: string
+  deliveryTeaser?: DeliveryTeaser | null
+}
+
+export function ClientHome({ client, locale, deliveryTeaser }: Props) {
+  const hasDelivery = Boolean(client.delivery?.repos.length)
+  const entregasHref = `/${locale}/client/${client.slug}/entregas?periodo=90`
+
   return (
     <>
       <section id="inicio" className="scroll-mt-20">
@@ -23,6 +34,27 @@ export function ClientHome({ client }: { client: ClientWorkspace }) {
           <p className="mt-5 text-[16px] sm:text-[17px] text-neutral-500 max-w-xl leading-relaxed">
             {client.tagline}
           </p>
+
+          {hasDelivery && (
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <a
+                href={entregasHref}
+                className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[14px] font-semibold text-white transition-opacity hover:opacity-90"
+                style={{ backgroundColor: client.accent }}
+              >
+                Ver entregas
+                <span aria-hidden>→</span>
+              </a>
+              <a
+                href="#onboarding"
+                className="inline-flex items-center rounded-full border border-black/[0.08] bg-white px-5 py-2.5 text-[14px] font-medium text-neutral-700 hover:border-black/[0.14] transition-colors"
+              >
+                Onboarding
+              </a>
+            </div>
+          )}
+
+          <DeliveryHighlight client={client} locale={locale} teaser={deliveryTeaser} />
 
           <div className="flex flex-wrap gap-8 mt-10">
             {client.stats.map(stat => (

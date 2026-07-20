@@ -1,10 +1,11 @@
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import path from 'path'
-import type { DeliveryType, PrRow, RepoStatus } from './types'
+import type { DeliveryType, FixKind, PrRow, RepoStatus } from './types'
 
 export interface CachedCommit {
   date: string
   type: DeliveryType
+  fixKind?: FixKind
 }
 
 export interface DeliveryCachePayload {

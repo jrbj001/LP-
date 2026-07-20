@@ -1,5 +1,8 @@
 export type DeliveryType = 'feature' | 'fix' | 'improvement' | 'maintenance'
 
+/** Dentro de entregas classificadas como fix: defeito vs evolução incremental. */
+export type FixKind = 'bug' | 'evolution'
+
 /** Regra de produto dentro de um repo (ex.: Banco de Ativos dentro do Colmeia). */
 export interface ProductRule {
   label: string
@@ -34,6 +37,8 @@ export interface PrRow {
   branch: string
   title: string
   type: DeliveryType
+  /** Presente quando type === 'fix'. */
+  fixKind?: FixKind
   product: string
   mergedAt: string
   additions: number
@@ -66,6 +71,8 @@ export interface PeriodStats {
   pullRequests: number
   featureCommits: number
   fixCommits: number
+  bugFixCommits: number
+  evolutionFixCommits: number
   filesChanged: number
   linesAdded: number
   linesDeleted: number
@@ -84,6 +91,8 @@ export interface EffortEstimate {
   /** Percentuais da distribuição feat/fix sobre commits classificados. */
   featPct: number
   fixPct: number
+  bugPct: number
+  evolutionPct: number
 }
 
 /** KPIs de negócio derivados do período. */
@@ -94,6 +103,10 @@ export interface DeliveryKpis {
   featureRatioPct: number
   /** Correções / features — saúde do produto (menor = melhor). */
   fixToFeatureRatio: number
+  /** Bugs / features — retrabalho por defeito (menor = melhor). */
+  bugToFeatureRatio: number
+  /** Evoluções (fix) / features — ajustes incrementais. */
+  evolutionToFeatureRatio: number
   /** Média de linhas por PR. */
   avgLinesPerPr: number
   /** Média de arquivos por PR. */
@@ -112,6 +125,8 @@ export interface WeeklyBucket {
   prs: number
   features: number
   fixes: number
+  bugs: number
+  evolutions: number
   linesAdded: number
   hours: number
 }

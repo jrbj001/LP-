@@ -1,5 +1,5 @@
 import { DEFAULT_EFFORT_CONFIG } from './config'
-import { classifyProduct, classifyType, humanizeTitle, moduleKey, moduleName } from './classify'
+import { classifyProduct, classifyFixKind, classifyType, humanizeTitle, moduleKey, moduleName } from './classify'
 import { computeEstimate, manualItemsInPeriod } from './effort'
 import {
   isCacheFresh,
@@ -19,6 +19,7 @@ import type {
   DeliveryKpis,
   DeliveryReport,
   DeliveryType,
+  FixKind,
   ManualEffortItem,
   ModuleGroup,
   PeriodStats,
@@ -52,6 +53,16 @@ function weekLabel(weekStart: string): string {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', timeZone: 'UTC' })
 }
 
+function fixKindOf(type: DeliveryType, title: string, branch: string, stored?: FixKind): FixKind | undefined {
+  if (type !== 'fix') return undefined
+  return stored ?? classifyFixKind(title, branch)
+}
+
+function enrichPr<T extends Omit<PrRow, 'estimatedHours'>>(pr: T): T {
+  if (pr.type !== 'fix') return pr
+  return { ...pr, fixKind: fixKindOf(pr.type, pr.title, pr.branch, pr.fixKind) }
+}
+
 async function fetchRepo(repo: RepoConfig, since: Date, until: Date): Promise<RepoResult> {
   const { owner, repo: name } = repo
 
@@ -69,13 +80,16 @@ async function fetchRepo(repo: RepoConfig, since: Date, until: Date): Promise<Re
     const mergedDate = new Date(mergedAt)
     if (mergedDate < since || mergedDate > until) continue
 
-    const type = classifyType(detail.title || pr.title, branch)
+    const rawTitle = detail.title || pr.title
+    const type = classifyType(rawTitle, branch)
+    const fixKind = type === 'fix' ? classifyFixKind(rawTitle, branch) : undefined
     prs.push({
       number: pr.number,
       repo: `${owner}/${name}`,
       branch,
-      title: humanizeTitle(detail.title || pr.title),
+      title: humanizeTitle(rawTitle),
       type,
+      fixKind,
       product: classifyProduct(repo, detail.title || pr.title, branch),
       mergedAt,
       additions: detail.additions,
@@ -91,7 +105,12 @@ async function fetchRepo(repo: RepoConfig, since: Date, until: Date): Promise<Re
     const date = c.commit.author?.date || c.commit.committer?.date
     if (!date) continue
     const firstLine = c.commit.message.split('\n')[0]
-    cachedCommits.push({ date, type: classifyType(firstLine) })
+    const type = classifyType(firstLine)
+    cachedCommits.push({
+      date,
+      type,
+      fixKind: type === 'fix' ? classifyFixKind(firstLine) : undefined,
+    })
   }
 
   return { prs, commits: cachedCommits }
@@ -156,6 +175,8 @@ function buildWeekly(prs: PrRow[], periodStart: Date, periodEnd: Date): WeeklyBu
       prs: 0,
       features: 0,
       fixes: 0,
+      bugs: 0,
+      evolutions: 0,
       linesAdded: 0,
       hours: 0,
     })
@@ -172,12 +193,18 @@ function buildWeekly(prs: PrRow[], periodStart: Date, periodEnd: Date): WeeklyBu
         prs: 0,
         features: 0,
         fixes: 0,
+        bugs: 0,
+        evolutions: 0,
         linesAdded: 0,
         hours: 0,
       } satisfies WeeklyBucket)
     bucket.prs++
     if (pr.type === 'feature') bucket.features++
-    if (pr.type === 'fix') bucket.fixes++
+    if (pr.type === 'fix') {
+      bucket.fixes++
+      if (pr.fixKind === 'evolution') bucket.evolutions++
+      else bucket.bugs++
+    }
     bucket.linesAdded += pr.additions
     bucket.hours += pr.estimatedHours
     map.set(key, bucket)
@@ -194,6 +221,8 @@ function buildKpis(
   const n = prs.length || 1
   const featPrs = prs.filter(p => p.type === 'feature').length
   const fixPrs = prs.filter(p => p.type === 'fix').length
+  const bugPrs = prs.filter(p => p.type === 'fix' && p.fixKind !== 'evolution').length
+  const evolutionPrs = prs.filter(p => p.type === 'fix' && p.fixKind === 'evolution').length
   const top = byProduct[0]
   const totalHours = byProduct.reduce((acc, p) => acc + p.hours, 0)
 
@@ -205,6 +234,9 @@ function buildKpis(
         ? Math.round((featPrs / (featPrs + fixPrs)) * 100)
         : 0,
     fixToFeatureRatio: featPrs === 0 ? (fixPrs > 0 ? 9.9 : 0) : Number((fixPrs / featPrs).toFixed(2)),
+    bugToFeatureRatio: featPrs === 0 ? (bugPrs > 0 ? 9.9 : 0) : Number((bugPrs / featPrs).toFixed(2)),
+    evolutionToFeatureRatio:
+      featPrs === 0 ? (evolutionPrs > 0 ? 9.9 : 0) : Number((evolutionPrs / featPrs).toFixed(2)),
     avgLinesPerPr: Math.round(prs.reduce((acc, p) => acc + p.additions + p.deletions, 0) / n),
     avgFilesPerPr: Number((prs.reduce((acc, p) => acc + p.changedFiles, 0) / n).toFixed(1)),
     avgHoursPerPr: Number((prs.reduce((acc, p) => acc + p.estimatedHours, 0) / n).toFixed(1)),
@@ -297,7 +329,7 @@ function buildReportFromCache(
   const rawPrs = cache.prs.filter(p => {
     const t = new Date(p.mergedAt)
     return t >= periodStart && t <= periodEnd
-  })
+  }).map(enrichPr)
 
   const periodCommits = cache.commits.filter(c => {
     const t = new Date(c.date)
@@ -305,13 +337,21 @@ function buildReportFromCache(
   })
 
   const featureCommits = periodCommits.filter(c => c.type === 'feature').length
-  const fixCommits = periodCommits.filter(c => c.type === 'fix').length
+  const bugFixCommits = periodCommits.filter(
+    c => c.type === 'fix' && (c.fixKind ?? 'bug') !== 'evolution'
+  ).length
+  const evolutionFixCommits = periodCommits.filter(
+    c => c.type === 'fix' && c.fixKind === 'evolution'
+  ).length
+  const fixCommits = bugFixCommits + evolutionFixCommits
 
   const stats: PeriodStats = {
     commits: periodCommits.length,
     pullRequests: rawPrs.length,
     featureCommits,
     fixCommits,
+    bugFixCommits,
+    evolutionFixCommits,
     filesChanged: rawPrs.reduce((acc, p) => acc + p.changedFiles, 0),
     linesAdded: rawPrs.reduce((acc, p) => acc + p.additions, 0),
     linesDeleted: rawPrs.reduce((acc, p) => acc + p.deletions, 0),

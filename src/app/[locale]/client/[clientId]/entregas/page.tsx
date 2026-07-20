@@ -62,20 +62,24 @@ export default async function EntregasPage({ params, searchParams }: Props) {
   const blockedRepos = report?.repos.filter(r => !r.ok) ?? []
 
   return (
-    <div className="mx-auto max-w-[960px] px-6 pt-12 sm:pt-16 pb-20">
-      <header className="border-b-2 border-neutral-900 pb-5 mb-9 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
-        <div>
+    <div className="w-full pt-8 sm:pt-10 lg:pt-12 pb-16 sm:pb-20">
+      <header className="border-b-2 border-neutral-900 pb-5 mb-8 sm:mb-10 flex flex-col lg:flex-row lg:justify-between lg:items-end gap-4 lg:gap-8">
+        <div className="min-w-0">
           <p className="text-[12px] text-neutral-400 uppercase tracking-[0.08em] mb-1.5">
             {client.name}
           </p>
-          <h1 className="text-[24px] sm:text-[26px] font-bold tracking-[-0.02em] text-neutral-900">
+          <h1 className="text-[22px] sm:text-[26px] lg:text-[28px] font-bold tracking-[-0.02em] text-neutral-900">
             Relatório de Entregas
           </h1>
         </div>
-        {report && <ReportPeriod report={report} />}
+        {report && (
+          <div className="shrink-0 lg:text-right">
+            <ReportPeriod report={report} />
+          </div>
+        )}
       </header>
 
-      <div className="mb-8">
+      <div className="mb-8 sm:mb-10">
         <PeriodSwitcher base={base} days={days} />
         {report && (
           <CacheRefreshLink
@@ -125,36 +129,44 @@ export default async function EntregasPage({ params, searchParams }: Props) {
             <KpiStrip kpis={report.kpis} />
           </section>
 
-          <section className="mb-10">
+          <section className="mb-10 lg:mb-12">
             <SectionTitle>Gráficos</SectionTitle>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-              <WeeklyChart weekly={report.weekly} />
-              <MixChart report={report} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-12 gap-4">
+              <div className="lg:col-span-2 2xl:col-span-7">
+                <WeeklyChart weekly={report.weekly} />
+              </div>
+              <div className="lg:col-span-2 2xl:col-span-5">
+                <MixChart report={report} />
+              </div>
+              <div className="lg:col-span-2 2xl:col-span-12">
+                <ProductChart byProduct={report.byProduct} />
+              </div>
             </div>
-            <ProductChart byProduct={report.byProduct} />
           </section>
 
-          <section className="mb-10">
-            <SectionTitle>Roadmap — linha do tempo</SectionTitle>
-            <RoadmapTimeline roadmap={report.roadmap} />
-          </section>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-10 mb-10 lg:mb-12">
+            <section>
+              <SectionTitle>Roadmap — linha do tempo</SectionTitle>
+              <RoadmapTimeline roadmap={report.roadmap} />
+            </section>
 
-          <section className="mb-10">
-            <SectionTitle>Análise com IA</SectionTitle>
-            <AiAnalysisPanel clientId={client.slug} periodDays={days} clientName={client.name} />
-          </section>
+            <section>
+              <SectionTitle>Análise com IA</SectionTitle>
+              <AiAnalysisPanel clientId={client.slug} periodDays={days} clientName={client.name} />
+            </section>
+          </div>
 
-          <section className="mb-11">
+          <section className="mb-10 lg:mb-12">
             <SectionTitle>Estimativa de esforço</SectionTitle>
             <EffortSection report={report} />
           </section>
 
-          <section className="mb-11">
+          <section className="mb-10 lg:mb-12">
             <SectionTitle>Módulos e funcionalidades entregues</SectionTitle>
             <ModulesSection modules={report.modules} />
           </section>
 
-          <section className="mb-11">
+          <section className="mb-10 lg:mb-12">
             <SectionTitle>
               Pull Requests mescladas ({report.stats.pullRequests} no período)
             </SectionTitle>

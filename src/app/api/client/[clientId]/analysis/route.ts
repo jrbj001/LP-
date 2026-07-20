@@ -15,6 +15,10 @@ function buildPrompt(clientName: string, report: DeliveryReport): string {
       ...report.kpis,
       fixToFeatureRatio:
         report.kpis.fixToFeatureRatio >= 9.9 ? 'n/d (sem features)' : report.kpis.fixToFeatureRatio,
+      bugToFeatureRatio:
+        report.kpis.bugToFeatureRatio >= 9.9 ? 'n/d (sem features)' : report.kpis.bugToFeatureRatio,
+      evolutionToFeatureRatio:
+        report.kpis.evolutionToFeatureRatio >= 9.9 ? 'n/d (sem features)' : report.kpis.evolutionToFeatureRatio,
     },
     produtos: report.byProduct,
     modulos: report.modules.slice(0, 12).map(m => ({
@@ -38,7 +42,7 @@ ${JSON.stringify(payload, null, 2)}
 Estruture a resposta em 4 blocos curtos, com títulos em negrito na primeira linha de cada bloco:
 1. Visão geral — o que foi entregue e o valor percebido
 2. Ritmo e capacidade — velocidade, horas, pessoa-mês, concentração por produto
-3. Saúde da entrega — relação feat/fix, riscos ou sinais de retrabalho
+3. Saúde da entrega — relação feat/fix, distinção bug vs evolução (dentro dos fixes), riscos ou sinais de retrabalho
 4. Recomendações — 2 a 4 ações concretas para o próximo ciclo
 
 Regras: máximo ~350 palavras; não invente números fora do JSON; não cite paths, diffs ou código; não use markdown de código; parágrafos separados por linha em branco.`
