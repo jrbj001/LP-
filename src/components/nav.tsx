@@ -53,7 +53,7 @@ export function Nav() {
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono tracking-wider text-neutral-500 hover:text-neutral-900 border border-black/[0.08] hover:border-black/[0.14] rounded-md transition-colors"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            Portal
+            Área do Cliente
           </a>
 
           <div className="flex border border-black/[0.08] rounded-md overflow-hidden">

@@ -4,7 +4,7 @@ import type {
   PartialPageObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints'
 import { generateSlotCandidates, formatSlotLabel, type SlotWindowConfig } from './slots'
-import type { AssessmentPayload, OnboardIdentity, ProgressRow, ProgressStatus, SessionSlot } from './types'
+import type { AssessmentPayload, AssessmentRow, OnboardIdentity, ProgressRow, ProgressStatus, SessionSlot } from './types'
 
 function env(name: string): string {
   const v = process.env[name]
@@ -150,13 +150,128 @@ export async function listProgress(clientId: string): Promise<ProgressRow[]> {
 
 // ─── Assessments ─────────────────────────────────────────────────────────────
 
+const QUESTION_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] as const
+
+function answerText(raw: unknown): string {
+  return String(raw ?? '').trim()
+}
+
+function normalizeAnswers(raw: Record<number, string>): Record<number, string> {
+  const out: Record<number, string> = {}
+  const bag = raw as Record<string | number, string>
+  for (const id of QUESTION_IDS) {
+    const value = answerText(bag[id] ?? bag[String(id)])
+    if (value) out[id] = value
+  }
+  return out
+}
+
+/** Normaliza chaves JSON ("1") para número e grava Q1–Q11 como rich_text no Notion. */
+function answerProperties(answers: Record<number, string>): Record<string, { rich_text: { text: { content: string } }[] }> {
+  const normalized = normalizeAnswers(answers)
+  const props: Record<string, { rich_text: { text: { content: string } }[] }> = {}
+  for (const id of QUESTION_IDS) {
+    const content = (normalized[id] || '—').slice(0, 2000)
+    props[`Q${id}`] = { rich_text: [{ text: { content } }] }
+  }
+  return props
+}
+
+function answersFromPage(page: PageObjectResponse): Record<number, string> {
+  const answers: Record<number, string> = {}
+  for (const id of QUESTION_IDS) {
+    const value = textProp(page, `Q${id}`).trim()
+    if (value && value !== '—') answers[id] = value
+  }
+  return answers
+}
+
+async function parseAnswersFromBlocks(pageId: string): Promise<Record<number, string>> {
+  const answers: Record<number, string> = {}
+  let cursor: string | undefined
+  let currentQ: number | null = null
+
+  do {
+    const res = await notion().blocks.children.list({
+      block_id: pageId,
+      start_cursor: cursor,
+      page_size: 100,
+    })
+
+    for (const block of res.results) {
+      if (!('type' in block)) continue
+      if (block.type === 'heading_3') {
+        const line = block.heading_3.rich_text.map(t => t.plain_text).join('')
+        const match = line.match(/^Q(\d+)\./)
+        currentQ = match ? parseInt(match[1], 10) : null
+      } else if (block.type === 'paragraph' && currentQ) {
+        const text = block.paragraph.rich_text.map(t => t.plain_text).join('').trim()
+        if (text && text !== '—') answers[currentQ] = text
+        currentQ = null
+      }
+    }
+
+    cursor = res.has_more ? res.next_cursor ?? undefined : undefined
+  } while (cursor)
+
+  return answers
+}
+
+export async function listAssessments(clientId: string): Promise<AssessmentRow[]> {
+  const res = await queryDataSource(env('NOTION_ASSESSMENTS_DB_ID'), {
+    filter: { property: 'Client', select: { equals: clientId } },
+    sorts: [{ property: 'CompletedAt', direction: 'descending' }],
+    page_size: 100,
+  })
+
+  return res.results
+    .map(r => asPage(r))
+    .filter((p): p is PageObjectResponse => Boolean(p))
+    .map(page => ({
+      id: page.id,
+      url: page.url,
+      name: textProp(page, 'Name'),
+      client: textProp(page, 'Client'),
+      stakeholder: textProp(page, 'Stakeholder'),
+      whatsapp: textProp(page, 'WhatsApp'),
+      status: textProp(page, 'Status'),
+      completedAt: textProp(page, 'CompletedAt'),
+      answers: answersFromPage(page),
+    }))
+}
+
+/** Preenche Q1–Q11 a partir do body quando as colunas estão vazias (idempotente). */
+export async function backfillAssessmentAnswers(clientId: string): Promise<number> {
+  const rows = await listAssessments(clientId)
+  let synced = 0
+
+  for (const row of rows) {
+    const filled = QUESTION_IDS.filter(id => answerText(row.answers[id])).length
+    if (filled >= QUESTION_IDS.length) continue
+
+    const fromBlocks = await parseAnswersFromBlocks(row.id)
+    if (Object.keys(fromBlocks).length === 0) continue
+
+    const merged: Record<number, string> = { ...fromBlocks, ...row.answers }
+    await notion().pages.update({
+      page_id: row.id,
+      properties: answerProperties(merged),
+    })
+    synced++
+  }
+
+  return synced
+}
+
 export async function createAssessment(payload: AssessmentPayload): Promise<string> {
   const n = notion()
   const now = new Date().toISOString()
   const title = `${payload.clientId} · ${payload.stakeholder} · ${now.slice(0, 10)}`
 
+  const normalizedAnswers = normalizeAnswers(payload.answers)
+
   const answerBlocks = payload.questions.flatMap(q => {
-    const answer = (payload.answers[q.id]?.trim() || '—').slice(0, 2000)
+    const answer = (normalizedAnswers[q.id] || '—').slice(0, 2000)
     const qLine = `Q${q.id}. ${q.question}`.slice(0, 2000)
     return [
       {
@@ -185,6 +300,7 @@ export async function createAssessment(payload: AssessmentPayload): Promise<stri
       WhatsApp: { phone_number: payload.whatsapp },
       Status: { select: { name: 'Submitted' } },
       CompletedAt: { date: { start: now } },
+      ...answerProperties(normalizedAnswers),
     },
     children: [
       {
