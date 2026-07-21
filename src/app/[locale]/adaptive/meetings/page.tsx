@@ -43,13 +43,27 @@ export default function MeetingsPage() {
                   <p className="text-[13px] text-neutral-600 leading-relaxed line-clamp-2">
                     {m.synopsis}
                   </p>
-                  <div className="mt-4 flex items-center justify-between">
+                  <div className="mt-4 flex items-center justify-between gap-3">
                     <span className="text-[12px] text-neutral-400">
                       {m.tasks.length} tarefa{m.tasks.length === 1 ? '' : 's'} · {m.topics.length} tópicos
                     </span>
-                    <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-neutral-700 group-hover:text-neutral-900">
-                      Abrir relatório
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+                    <span className="inline-flex items-center gap-3">
+                      {m.reportUrl && (
+                        <a
+                          href={m.reportUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={e => e.stopPropagation()}
+                          className="inline-flex items-center gap-1 text-[12px] text-neutral-500 hover:text-neutral-800 underline underline-offset-2"
+                        >
+                          Notion
+                          <ExternalLink className="w-3 h-3" strokeWidth={2} />
+                        </a>
+                      )}
+                      <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-neutral-700 group-hover:text-neutral-900">
+                        Abrir relatório
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+                      </span>
                     </span>
                   </div>
                 </div>
