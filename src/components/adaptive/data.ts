@@ -22,7 +22,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard',        href: '/dashboard',        icon: LayoutDashboard, section: 'workspace' },
   { label: 'Acompanhamento',   href: '/onboarding',       icon: Activity,        section: 'workspace' },
   { label: 'Reuniões',         href: '/meetings',         icon: Mic2,            section: 'workspace' },
-  { label: 'Executive Review', href: '/executive-review', icon: FileBarChart,    section: 'workspace', locked: true },
+  { label: 'Executive Review', href: '/executive-review', icon: FileBarChart,    section: 'workspace' },
   { label: 'Documentos',       href: '/documents',        icon: FileText,        section: 'workspace' },
 ]
 
@@ -328,6 +328,8 @@ const TOTAL_PROJECTS = PROJECTS.length
 const TOTAL_AREAS = AREA_ORDER.length
 
 // ─── Dashboard metrics ────────────────────────────────────────────────────────
+// Métricas dinâmicas: use buildDashboardMetrics() de executive-review-data.ts
+
 export interface Metric {
   label: string
   value: string
@@ -335,13 +337,14 @@ export interface Metric {
   hint: string
 }
 
+/** @deprecated Use buildDashboardMetrics() — mantido para compatibilidade */
 export const DASHBOARD_METRICS: Metric[] = [
-  { label: 'Assessment Progress', value: '0%',                       hint: 'aguardando kickoff' },
+  { label: 'Assessment Progress', value: '56%',                      hint: '9/16 respondidos' },
   { label: 'Projects Mapped',     value: String(TOTAL_PROJECTS),     hint: 'no Comitê de TI' },
   { label: 'Áreas',               value: String(TOTAL_AREAS),        hint: 'em avaliação' },
   { label: 'Stakeholders',        value: String(UNIQUE_REQUESTERS),  hint: 'solicitantes mapeados' },
-  { label: 'Discovery Sessions',  value: `0/${TOTAL_AREAS}`,         hint: 'a agendar' },
-  { label: 'Quick Wins',          value: '—',                        hint: 'após Discovery' },
-  { label: 'Critical Risks',      value: '—',                        hint: 'após Discovery' },
-  { label: 'AI Opportunities',    value: '—',                        hint: 'após Discovery' },
+  { label: 'Discovery Sessions',  value: `4/${TOTAL_AREAS}`,         hint: '1 sessão presencial agendada' },
+  { label: 'Quick Wins',          value: '6',                        hint: 'Fase 1 mapeados' },
+  { label: 'Critical Risks',      value: '6',                        hint: 'identificados na prévia' },
+  { label: 'AI Opportunities',    value: '7',                        hint: 'mapeadas' },
 ]
