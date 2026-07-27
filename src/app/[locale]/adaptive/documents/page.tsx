@@ -1,17 +1,31 @@
 'use client'
 
+import Link from 'next/link'
+import { useLocale } from 'next-intl'
 import { PageShell, PageHeader, Reveal, Badge } from '@/components/adaptive/ui'
-import { FileText, Download } from 'lucide-react'
+import { GUIDE_META } from '@/components/guides/valor-hora-data'
+import { FileText, Download, ExternalLink } from 'lucide-react'
 
 const DOCS = [
-  { name: 'Adaptive Enterprise™ — Overview', type: 'PDF', size: '2.4 MB', status: 'available' },
-  { name: 'Guia da Discovery Session', type: 'PDF', size: '1.1 MB', status: 'available' },
-  { name: 'Escopo do Assessment', type: 'PDF', size: '860 KB', status: 'available' },
-  { name: 'Executive Review — Relatório Final', type: 'PDF', size: '—', status: 'locked' },
-  { name: 'Adaptive Roadmap™', type: 'PDF', size: '—', status: 'locked' },
+  {
+    name: 'Guia de Valores — Desenvolvimento de Software 2026',
+    type: 'Guia web + PDF',
+    size: 'Market Guide',
+    status: 'available' as const,
+    href: '/guides/valor-hora',
+    pdf: GUIDE_META.pdfPath,
+    external: false,
+  },
+  { name: 'Adaptive Enterprise™ — Overview', type: 'PDF', size: '2.4 MB', status: 'available' as const },
+  { name: 'Guia da Discovery Session', type: 'PDF', size: '1.1 MB', status: 'available' as const },
+  { name: 'Escopo do Assessment', type: 'PDF', size: '860 KB', status: 'available' as const },
+  { name: 'Executive Review — Relatório Final', type: 'PDF', size: '—', status: 'locked' as const },
+  { name: 'Adaptive Roadmap™', type: 'PDF', size: '—', status: 'locked' as const },
 ]
 
 export default function DocumentsPage() {
+  const locale = useLocale()
+
   return (
     <PageShell>
       <PageHeader
@@ -23,19 +37,45 @@ export default function DocumentsPage() {
       <div className="rounded-2xl border border-black/[0.06] bg-white divide-y divide-black/[0.05] overflow-hidden">
         {DOCS.map((doc, i) => (
           <Reveal key={doc.name} delay={i * 0.04}>
-            <div className={`flex items-center gap-4 px-6 py-4 ${doc.status === 'available' ? 'hover:bg-black/[0.015]' : 'opacity-60'} transition-colors`}>
+            <div
+              className={`flex flex-wrap items-center gap-4 px-6 py-4 ${
+                doc.status === 'available' ? 'hover:bg-black/[0.015]' : 'opacity-60'
+              } transition-colors`}
+            >
               <div className="w-9 h-9 rounded-lg bg-black/[0.03] flex items-center justify-center flex-shrink-0">
                 <FileText className="w-4 h-4 text-neutral-400" strokeWidth={1.75} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[14px] font-medium text-neutral-900 truncate">{doc.name}</p>
+                <p className="text-[14px] font-medium text-neutral-900">{doc.name}</p>
                 <p className="text-[12px] text-neutral-400">{doc.type} · {doc.size}</p>
               </div>
               {doc.status === 'available' ? (
-                <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium text-neutral-700 hover:bg-black/[0.04] transition-colors">
-                  <Download className="w-3.5 h-3.5" strokeWidth={2} />
-                  Baixar
-                </button>
+                <div className="flex items-center gap-2">
+                  {'href' in doc && doc.href && (
+                    <Link
+                      href={`/${locale}${doc.href}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium text-neutral-700 hover:bg-black/[0.04] transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" strokeWidth={2} />
+                      Abrir
+                    </Link>
+                  )}
+                  {'pdf' in doc && doc.pdf ? (
+                    <a
+                      href={doc.pdf}
+                      download
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium text-neutral-700 hover:bg-black/[0.04] transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" strokeWidth={2} />
+                      PDF
+                    </a>
+                  ) : (
+                    <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium text-neutral-700 hover:bg-black/[0.04] transition-colors">
+                      <Download className="w-3.5 h-3.5" strokeWidth={2} />
+                      Baixar
+                    </button>
+                  )}
+                </div>
               ) : (
                 <Badge tone="muted">Em breve</Badge>
               )}
