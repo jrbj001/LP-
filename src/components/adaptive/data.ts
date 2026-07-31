@@ -189,7 +189,7 @@ export const PROJECTS: Project[] = [
   { name: 'CRM Jornada do Vendedor (Dashboard) API Protheus', area: 'Comercial', requester: 'Cristiane', priority: 'high', status: 'review' },
   { name: 'App Baristas Orfeu',                           area: 'Comercial', requester: 'Joyce',     priority: 'medium', status: 'review' },
   { name: 'Calculadora de Elasticidade de Preço (varejo)',area: 'Comercial', requester: 'Silvia',    priority: 'medium', status: 'review' },
-  { name: 'Faturamento simultâneo — fechamento de mês no Protheus', area: 'Comercial', requester: 'RM', priority: 'high', status: 'review' },
+  { name: 'Faturamento simultâneo — fechamento de mês no Protheus', area: 'Comercial', requester: 'Ricardo Madureira', priority: 'high', status: 'review' },
   { name: 'Automação faturamento pedidos com ruptura canal B2C', area: 'Comercial', requester: 'Cibele', priority: 'high', status: 'review' },
   { name: 'Faturamento automático canais B2B e varejo',  area: 'Comercial', requester: 'Cristiane', priority: 'high',   status: 'review' },
   // Compras
@@ -288,7 +288,6 @@ export const STAKEHOLDERS: Stakeholder[] = [
   { name: 'Cristiane',     initials: 'CR', areas: ['Comercial'] },
   { name: 'Joyce',         initials: 'JO', areas: ['Comercial'] },
   { name: 'Silvia',        initials: 'SI', areas: ['Comercial'] },
-  { name: 'RM',            initials: 'RM', areas: ['Comercial'] },
   { name: 'Cibele',        initials: 'CI', areas: ['Comercial'] },
   { name: 'Alene',         initials: 'AL', areas: ['Compras'] },
   { name: 'Lucas',         initials: 'LU', areas: ['Fazenda'] },
