@@ -12,11 +12,12 @@ import {
   ADAPTIVE_INDEX,
   REVIEW_META,
   CRITICAL_RISKS,
+  SEED_TO_CUP,
   scoreTone,
   SCORE_BAR,
   type DashboardCounts,
 } from '@/components/adaptive/executive-review-data'
-import { ArrowRight, Radar } from 'lucide-react'
+import { ArrowRight, Radar, Coffee } from 'lucide-react'
 
 const PRIORITIES = ['high', 'medium', 'low'] as const
 
@@ -44,6 +45,40 @@ export function DashboardView({ counts }: { counts?: DashboardCounts }) {
         title="Dashboard"
         subtitle={`Visão consolidada do portfólio do ${CLIENT.name}. Scores preliminares com base em ${counts?.assessmentDone ?? REVIEW_META.assessmentsReceived} assessments e ${REVIEW_META.meetingsCompleted} reuniões discovery.`}
       />
+
+      {/* Da semente à xícara — jornada */}
+      <Reveal>
+        <Link
+          href={`${reviewHref}#semente-a-xicara`}
+          className="group block rounded-2xl border border-black/[0.06] bg-[#f7f4ef] p-6 mb-8 hover:border-black/[0.12] transition-colors"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2">
+              <Coffee className="w-4 h-4 text-amber-800/60" strokeWidth={1.75} />
+              <p className="text-[13px] font-semibold text-neutral-900">Da semente à xícara</p>
+              <span className="text-[12px] text-neutral-500 hidden sm:inline">
+                — o dado percorrendo a mesma jornada do grão
+              </span>
+            </div>
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-neutral-600 group-hover:text-neutral-900">
+              Ver no Executive Review
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {SEED_TO_CUP.map((s, i) => (
+              <span key={s.id} className="flex items-center gap-2">
+                <span className="text-[12px] font-medium text-neutral-700 bg-white/80 border border-black/[0.05] rounded-full px-3 py-1">
+                  {s.stage}
+                </span>
+                {i < SEED_TO_CUP.length - 1 && (
+                  <ArrowRight className="w-3 h-3 text-neutral-300 flex-shrink-0" strokeWidth={2} />
+                )}
+              </span>
+            ))}
+          </div>
+        </Link>
+      </Reveal>
 
       {/* Metric cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-12">

@@ -19,7 +19,7 @@ export default function MeetingsPage() {
       />
 
       <div className="flex flex-col gap-3">
-        {MEETINGS.map((m, i) => (
+        {MEETINGS.filter(m => m.clientId === CLIENT.id).map((m, i) => (
           <Reveal key={m.id} delay={i * 0.04}>
             <a
               href={`${base}/${m.id}`}
@@ -73,7 +73,7 @@ export default function MeetingsPage() {
         ))}
       </div>
 
-      {MEETINGS.length === 0 && (
+      {MEETINGS.filter(m => m.clientId === CLIENT.id).length === 0 && (
         <div className="rounded-2xl border border-dashed border-black/[0.08] p-10 text-center text-[13px] text-neutral-400">
           Nenhuma reunião publicada ainda.
         </div>

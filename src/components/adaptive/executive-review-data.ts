@@ -2,11 +2,11 @@
 
 export const REVIEW_META = {
   reviewDate: '2026-07-31T14:00:00-03:00',
-  generatedAt: '2026-07-27',
+  generatedAt: '2026-07-31',
   status: 'preview' as const,
-  assessmentsReceived: 9,
+  assessmentsReceived: 8,
   assessmentsExpected: 16,
-  meetingsCompleted: 4,
+  meetingsCompleted: 5,
   projectsMapped: 31,
   areasMapped: 10,
 }
@@ -17,8 +17,106 @@ export const ASSESSMENT_GAPS = [
   'Rafaela (Financeiro / Gestão)',
   'Augusto Kraft (Diretor Comercial — incluir)',
   'Priscila (Supermercados — incluir)',
-  'Silvia, Alene, Amanda Raquel, Jéssica Viana, Diego (identificados, assessment pendente)',
+  'Silvia, Alene, Amanda Raquel, Jéssica Viana (identificadas, assessment pendente)',
 ]
+
+// ─── Da semente à xícara — storytelling ─────────────────────────────────────────
+
+export const SEED_TO_CUP_INTRO = {
+  eyebrow: 'Da semente à xícara',
+  title: 'O café da Orfeu já percorre essa jornada com excelência. Os dados ainda não.',
+  narrative:
+    'Cada lote da Orfeu nasce na fazenda, passa pelo beneficiamento, pela torra, pela prova dos degustadores, atravessa a logística e chega à xícara do cliente com padrão premium. A informação que acompanha esse café faz o mesmo caminho — só que em papel, planilha, e-mail e sistemas que não conversam. Em cada estação, alguém redigita, reconcilia e corre atrás do dado. O Adaptive Layer™ faz o dado percorrer a mesma jornada do grão: capturado uma vez na origem, fluindo íntegro até a xícara — e voltando como inteligência para cada decisão.',
+  anchors: [
+    {
+      quote:
+        'A excelência operacional só é alcançada quando entendemos toda a jornada do produto, desde a origem da matéria-prima até a experiência do cliente final.',
+      author: 'Gustavo · Diretor de Operações',
+    },
+    {
+      quote: 'Cuidar da qualidade do café na xícara.',
+      author: 'Joyce · Baristas, sobre o objetivo da área',
+    },
+  ],
+}
+
+export interface SeedToCupStage {
+  id: string
+  stage: string
+  owners: string
+  pain: string
+  future: string
+}
+
+export const SEED_TO_CUP: SeedToCupStage[] = [
+  {
+    id: 'fazenda',
+    stage: 'Fazenda · Semente',
+    owners: 'Lucas',
+    pain: 'Custos indiretos apurados à mão; manejo, qualidade e produtividade sem correlação em dados.',
+    future: 'Dados de manejo capturados na origem alimentam BI de correlação e custo por talhão em tempo real.',
+  },
+  {
+    id: 'industria',
+    stage: 'Beneficiamento · Indústria',
+    owners: 'Gustavo',
+    pain: 'TOTVS, Traction, MES e WMS não integrados; BIs por área; beneficiamento em transição 1.0 → 2.0.',
+    future: 'Arquitetura de dados única conecta pessoas, máquinas e processos — decisão operacional em tempo real.',
+  },
+  {
+    id: 'qualidade',
+    stage: 'Qualidade · Sensorial',
+    owners: 'Milena',
+    pain: 'Cupping mensal em papel + Excel; rastreabilidade do café cru e do selo consumindo tempo do time.',
+    future: 'Plataforma única de degustação e rastreabilidade: nota lançada uma vez, ranking, laudo e selo automáticos.',
+  },
+  {
+    id: 'logistica',
+    stage: 'Logística',
+    owners: 'Ricardo Silva',
+    pain: 'Sem visibilidade em tempo real; WMS parcial; EDI ainda sem API; transporte sem previsibilidade.',
+    future: 'WMS em todas as plantas + tracking preditivo — o lote é visível da fazenda ao ponto de venda.',
+  },
+  {
+    id: 'comercial',
+    stage: 'Comercial · Cliente',
+    owners: 'Cristiane · Selton · Cibele · Ricardo CEO',
+    pain: 'Order-to-delivery manual, faturamento B2B redigitado, sem CRM unificado, e-mail fora da Suri.',
+    future: 'Jornada digital B2B ponta a ponta: pedido, faturamento, entrega e pós-venda numa visão 360º do cliente.',
+  },
+  {
+    id: 'xicara',
+    stage: 'Xícara · Experiência',
+    owners: 'Joyce',
+    pain: '45+ checklists de baristas por dia analisados um a um; N2 e treinamentos sem registro estruturado.',
+    future: 'IA resume os checklists do dia e aponta os desvios — o time cuida da xícara, não do relatório.',
+  },
+]
+
+// ─── O ponto crítico em comum ───────────────────────────────────────────────────
+
+export const CRITICAL_ALIGNMENT = {
+  headline: 'O ponto crítico em comum',
+  statement:
+    'As 8 vozes do assessment e as 5 reuniões discovery convergem para a mesma dor: sistemas que não conversam obrigam pessoas a serem a integração — redigitando, conciliando e correndo atrás do dado. O sintoma mais caro está na jornada comercial (order-to-delivery e faturamento B2B manuais, sem CRM), mas a causa é estrutural e atravessa todas as áreas. Por isso a entrega-mãe deste plano é o Adaptive Layer™: a camada que integra os sistemas existentes e devolve às pessoas o tempo que hoje se perde entre eles.',
+  ceo: {
+    name: 'Ricardo Madureira · CEO',
+    alignment: [
+      'Escalar nacionalmente mantendo posicionamento premium — receita orçada superando margem de contribuição.',
+      '"Se fosse CIO por um dia: automatizar todos os processos manuais." Maior desafio declarado: operações manuais e retrabalho.',
+      'Tecnologia atrapalha "quando não é integrada dentro do processo e exige interação humana entre as etapas — gerando erros e retrabalho".',
+      'Segurança de dados e integridade dos bancos como pilar transversal — único tema levantado espontaneamente.',
+    ],
+  },
+  voices: [
+    { name: 'André · TI', quote: 'Faturamento automático B2B e Varejo é o processo nº 1 a automatizar; equipe enxuta para 31 projetos.' },
+    { name: 'Gustavo · Operações', quote: 'CIO por um dia: arquitetura de dados integrada — um único ecossistema digital.' },
+    { name: 'Selton · Consultor Comercial', quote: 'Order-to-delivery multicanais e CRM/jornada do vendedor e do cliente.' },
+    { name: 'Cibele · CX', quote: 'Sistemas não integrados exigem consultas em várias plataformas — retrabalho e jornada quebrada.' },
+    { name: 'Milena · Qualidade', quote: 'Plataforma única e integrada, eliminando controles paralelos e lançamentos manuais.' },
+    { name: 'Ricardo Silva · Logística', quote: 'O maior desafio é visibilidade em tempo real.' },
+  ],
+}
 
 // ─── Adaptive Index™ ────────────────────────────────────────────────────────────
 
@@ -83,13 +181,13 @@ export const RECOMMENDATIONS: Recommendation[] = [
     rank: 2,
     title: 'Piloto Quick Wins + Faturamento B2B',
     detail:
-      'Validar modelo de entrega em 6–8 semanas antes de escalar. Candidatos: conciliação PagBrasil, integração e-mail Suri, resumo IA checklists.',
+      'Validar modelo de entrega em 6–8 semanas antes de escalar. Candidatos: resumo IA checklists, integração e-mail Suri, automação Cropster.',
   },
   {
     rank: 3,
-    title: 'Camada de integração de dados',
+    title: 'Adaptive Layer™ — a entrega-mãe',
     detail:
-      'Construir infraestrutura antes de novos BIs/dashboards — evita multiplicar silos (visão Gustavo + André).',
+      'Camada de integração de dados antes de novos BIs/dashboards — evita multiplicar silos e destrava order-to-delivery, visão 360º e IA (visão Gustavo + André + Selton).',
   },
   {
     rank: 4,
@@ -117,14 +215,6 @@ export interface QuickWin {
 }
 
 export const QUICK_WINS: QuickWin[] = [
-  {
-    id: 'QW-01',
-    title: 'Conciliação PagBrasil (retomar — ~70% pronto)',
-    source: 'Discovery André · projeto Rafaela',
-    effort: 'Médio',
-    impact: 'Alto',
-    pilot: true,
-  },
   {
     id: 'QW-02',
     title: 'Resumo IA de checklists baristas (45+ relatórios/dia → digest)',
@@ -164,6 +254,70 @@ export const QUICK_WINS: QuickWin[] = [
   },
 ]
 
+// ─── Plano de trabalho — entrega-mãe + quick wins ───────────────────────────────
+
+export const ADAPTIVE_LAYER = {
+  title: 'Adaptive Layer™',
+  tagline: 'A entrega-mãe do plano de trabalho',
+  description:
+    'Camada de integração de dados que conecta os sistemas que a Orfeu já tem — sem substituí-los. É construída em paralelo aos quick wins: cada quick win entregue já nasce plugado na camada, e cada integração nova amplia o que a próxima entrega consegue fazer. Ao final, o dado percorre a jornada da semente à xícara sem redigitação.',
+  connects: ['Protheus (400+ regras)', 'WMS', 'Shopify', 'Suri', 'Cropster', 'OpsFactor / sensores', 'Mercado Livre'],
+  unlocks: [
+    'Faturamento automático B2B + Varejo',
+    'Order-to-delivery digital multicanais',
+    'Visão 360º do cliente + VoC',
+    'IA/NLP sobre Protheus (consultas em linguagem natural)',
+    'Rastreabilidade da semente à xícara',
+    'Segurança e integridade de dados por desenho',
+  ],
+}
+
+export interface WorkPlanStep {
+  id: string
+  window: string
+  title: string
+  type: 'quick-win' | 'layer' | 'delivery'
+  detail: string
+}
+
+export const WORK_PLAN: WorkPlanStep[] = [
+  {
+    id: 'wp-1',
+    window: 'Semanas 1–4',
+    title: 'Piloto Quick Wins',
+    type: 'quick-win',
+    detail: 'QW-02 Resumo IA checklists baristas + QW-04 integração e-mail → Suri — valor visível em semanas, validando o modelo Pixel.',
+  },
+  {
+    id: 'wp-2',
+    window: 'Semanas 3–8',
+    title: 'Fundação do Adaptive Layer™',
+    type: 'layer',
+    detail: 'Ramp Protheus (regras customizadas), primeiras integrações WMS + Shopify + Suri. Cada quick win entregue já pluga na camada.',
+  },
+  {
+    id: 'wp-3',
+    window: 'Semanas 6–10',
+    title: 'Quick wins de integração',
+    type: 'quick-win',
+    detail: 'QW-03 relatórios Cropster · QW-05 portal de entregas · QW-06 chamados TI com SLA.',
+  },
+  {
+    id: 'wp-4',
+    window: 'Meses 3–5',
+    title: 'Adaptive Layer™ — faturamento e order-to-delivery',
+    type: 'layer',
+    detail: 'Faturamento automático B2B + Varejo (prioridade nº 1 do comitê e do CEO) e jornada digital de pedidos sobre a camada.',
+  },
+  {
+    id: 'wp-5',
+    window: 'Meses 4–8',
+    title: 'Entrega-mãe em produção',
+    type: 'delivery',
+    detail: 'Camada operante ponta a ponta: CRM/jornada do vendedor, visão 360º do cliente, IA/NLP sobre Protheus e rastreabilidade semente → xícara.',
+  },
+]
+
 // ─── Roadmap phases ─────────────────────────────────────────────────────────────
 
 export interface RoadmapItem {
@@ -188,9 +342,9 @@ export const ROADMAP: RoadmapPhase[] = [
     window: 'Semanas 1–2',
     objective: 'Fechar lacunas antes do Executive Review final.',
     items: [
-      { id: '0-1', title: 'Assessments + sessões: Cristiane, Lucas, Rafaela', notes: 'até 30/07' },
+      { id: '0-1', title: 'Assessments + sessões: Cristiane, Lucas, Rafaela', notes: 'crítico — Comercial, Fazenda e Financeiro' },
       { id: '0-2', title: 'Incluir Augusto Kraft e Priscila no processo', notes: 'Diego' },
-      { id: '0-3', title: 'Completar assessments: Silvia, Alene, Amanda, Jéssica, Diego' },
+      { id: '0-3', title: 'Completar assessments: Silvia, Alene, Amanda, Jéssica' },
       { id: '0-4', title: 'Agendar sessões presenciais 30 min restantes' },
     ],
   },
@@ -198,7 +352,7 @@ export const ROADMAP: RoadmapPhase[] = [
     id: 'phase-1',
     title: 'Fase 1 — Quick Wins',
     window: 'Semanas 3–8',
-    objective: 'Ganhos rápidos de baixo risco — validar modelo Pixel antes de escalar.',
+    objective: 'Ganhos rápidos de baixo risco — validar modelo Pixel antes de escalar. Cada entrega já nasce plugada no Adaptive Layer™.',
     items: QUICK_WINS.map(qw => ({
       id: qw.id,
       title: qw.title,
@@ -207,30 +361,32 @@ export const ROADMAP: RoadmapPhase[] = [
   },
   {
     id: 'phase-2',
-    title: 'Fase 2 — Fundação Digital',
-    window: 'Meses 2–4',
-    objective: 'Camada de infraestrutura de dados antes de projetos isolados.',
+    title: 'Fase 2 — Adaptive Layer™ (entrega-mãe)',
+    window: 'Meses 2–5',
+    objective: 'A camada de integração que resolve a causa comum: dados fluindo entre os sistemas existentes, sem redigitação.',
     items: [
-      { id: 'F-01', title: 'Camada de integração de dados (Protheus ↔ WMS ↔ Shopify ↔ Suri)', notes: 'Pré-requisito para IA' },
+      { id: 'F-01', title: 'Camada de integração de dados (Protheus ↔ WMS ↔ Shopify ↔ Suri ↔ Cropster)', notes: 'Pré-requisito para IA e visão 360º' },
       { id: 'F-02', title: 'Faturamento automático B2B + Varejo', projects: 'Cristiane, André, Cibele, RM', notes: 'Prioridade #1 comitê + CEO' },
-      { id: 'F-03', title: 'Site Compra B2B + Página Office', projects: 'Cristiane', notes: 'Shopify pausado aguardando Pixel' },
-      { id: 'F-04', title: 'Conciliação Mercado Livre', projects: 'Rafaela' },
-      { id: 'F-05', title: 'WMS Botelhos + expansão fábrica', projects: 'Ricardo Silva, Gustavo' },
-      { id: 'F-06', title: 'Segurança da informação / LGPD', projects: 'Diego', notes: 'Pilar transversal — CEO' },
+      { id: 'F-03', title: 'Order-to-delivery digital multicanais', projects: 'Selton, Cristiane', notes: 'Processo #1 do consultor comercial' },
+      { id: 'F-04', title: 'Site Compra B2B + Página Office', projects: 'Cristiane', notes: 'Shopify pausado aguardando Pixel' },
+      { id: 'F-05', title: 'Conciliação Mercado Livre', projects: 'Rafaela' },
+      { id: 'F-06', title: 'WMS Botelhos + expansão fábrica', projects: 'Ricardo Silva, Gustavo' },
+      { id: 'F-07', title: 'Segurança da informação / LGPD', projects: 'Diego', notes: 'Pilar transversal — pedido espontâneo do CEO' },
     ],
   },
   {
     id: 'phase-3',
     title: 'Fase 3 — Transformação Comercial & IA',
     window: 'Meses 4–8',
-    objective: 'Resolver dores estruturais de crescimento nacional.',
+    objective: 'Sobre a camada pronta: resolver as dores estruturais de crescimento nacional.',
     items: [
-      { id: 'T-01', title: 'CRM / Jornada do Vendedor (API Protheus)', projects: 'Cristiane, Amanda, Ricardo CEO' },
+      { id: 'T-01', title: 'CRM / Jornada do Vendedor e do Cliente (API Protheus)', projects: 'Cristiane, Selton, Amanda, Ricardo CEO' },
       { id: 'T-02', title: 'Camada IA/NLP sobre Protheus', projects: 'André', notes: 'Consultas em linguagem natural' },
       { id: 'T-03', title: 'Visão 360º do cliente + VoC', notes: 'Cibele — fora do portfólio hoje' },
-      { id: 'T-04', title: 'Dashboard forecast × realizado', projects: 'Amanda Raquel' },
-      { id: 'T-05', title: 'Calculadora elasticidade de preço', projects: 'Silvia + Ricardo CEO' },
-      { id: 'T-06', title: 'App Baristas Orfeu', projects: 'Joyce' },
+      { id: 'T-04', title: 'GTM regiões + clusterização B2B · gaps Varejo × Nielsen', projects: 'Selton', notes: 'Fora do portfólio hoje' },
+      { id: 'T-05', title: 'Dashboard forecast × realizado', projects: 'Amanda Raquel' },
+      { id: 'T-06', title: 'Calculadora elasticidade de preço', projects: 'Silvia + Ricardo CEO' },
+      { id: 'T-07', title: 'App Baristas Orfeu', projects: 'Joyce' },
     ],
   },
   {
@@ -265,7 +421,7 @@ export const PORTFOLIO_GROUPS: PortfolioGroup[] = [
       'Faturamento automático B2B e Varejo',
       'Site Compra B2B + Página Office',
       'CRM Jornada do Vendedor',
-      'Conciliação Mercado Livre + PagBrasil',
+      'Conciliação Mercado Livre (PagBrasil segue com fornecedor atual)',
       'WMS Botelhos',
       'Segurança da informação / LGPD',
       'Integração OpsFactor × Protheus',
@@ -288,6 +444,8 @@ export const PORTFOLIO_GROUPS: PortfolioGroup[] = [
       'Visão 360º do cliente + VoC (Cibele)',
       'Camada IA/NLP sobre Protheus (André + Ricardo CEO)',
       'Arquitetura de dados integrada Indústria 4.0 (Gustavo)',
+      'Order-to-delivery digital multicanais (Selton)',
+      'GTM regiões + clusterização B2B · gaps Varejo × Nielsen (Selton)',
       'Evolução chatbot — retomar (Cibele Q3)',
     ],
   },
@@ -301,11 +459,13 @@ export interface CrossTheme {
 }
 
 export const CROSS_THEMES: CrossTheme[] = [
-  { theme: 'Automação de processos manuais / faturamento B2B', sources: ['Ricardo CEO', 'André', 'Cibele'] },
-  { theme: 'Integração de sistemas / visão 360º do cliente', sources: ['Cibele', 'Ricardo CEO', 'Gustavo'] },
+  { theme: 'Automação de processos manuais / faturamento B2B', sources: ['Ricardo CEO', 'André', 'Cibele', 'Selton'] },
+  { theme: 'Order-to-delivery e jornada digital B2B', sources: ['Selton', 'Ricardo CEO', 'Cristiane (comitê)'] },
+  { theme: 'Integração de sistemas / visão 360º do cliente', sources: ['Cibele', 'Ricardo CEO', 'Gustavo', 'Milena'] },
   { theme: 'Velocidade de execução de projetos', sources: ['Gustavo', 'André', 'Ricardo Silva'] },
   { theme: 'IA para decisão operacional e relatórios', sources: ['Gustavo', 'Milena', 'Joyce', 'Ricardo CEO'] },
-  { theme: 'Arquitetura de dados integrada (Indústria 4.0)', sources: ['Gustavo'] },
+  { theme: 'Arquitetura de dados integrada (Indústria 4.0)', sources: ['Gustavo', 'Milena'] },
+  { theme: 'Rastreabilidade da semente à xícara', sources: ['Milena', 'Ricardo Silva', 'Gustavo'] },
   { theme: 'Segurança de dados', sources: ['Ricardo CEO', 'Diego'] },
 ]
 
@@ -352,11 +512,11 @@ export interface NextStep {
 }
 
 export const NEXT_STEPS: NextStep[] = [
-  { title: 'Completar assessments: Cristiane, Lucas, Rafaela', owner: 'José Roberto', due: 'até 30/07' },
+  { title: 'Review com Ricardo Madureira', owner: 'José Roberto + Ricardo', due: 'hoje · 31/07 · 14h' },
+  { title: 'Completar assessments: Cristiane, Lucas, Rafaela', owner: 'José Roberto' },
   { title: 'Incluir Augusto Kraft e Priscila no processo', owner: 'Diego', due: 'imediato' },
   { title: 'Consolidar scores finais do Adaptive Index™', owner: 'PixelPulseLab' },
-  { title: 'Preparar proposta comercial Fase 0 + Fase 1', owner: 'PixelPulseLab', due: 'até 30/07' },
-  { title: 'Review com Ricardo Madureira', owner: 'José Roberto + Ricardo', due: '31/07 · 14h' },
+  { title: 'Proposta comercial: piloto Quick Wins + Adaptive Layer™', owner: 'PixelPulseLab', due: 'pós-review' },
   { title: 'Compartilhar mapa de oportunidades com André antes da apresentação', owner: 'José Roberto' },
 ]
 
@@ -397,7 +557,7 @@ export function buildDashboardMetrics(counts?: Partial<DashboardCounts>): Dashbo
     {
       label: 'Discovery Sessions',
       value: `${REVIEW_META.meetingsCompleted}/${REVIEW_META.areasMapped}`,
-      hint: `${sessions} sessão presencial agendada`,
+      hint: `${sessions} sessões concluídas`,
     },
     { label: 'Quick Wins', value: String(QUICK_WINS.length), hint: 'Fase 1 mapeados' },
     { label: 'Critical Risks', value: String(CRITICAL_RISKS.length), hint: 'identificados na prévia' },
