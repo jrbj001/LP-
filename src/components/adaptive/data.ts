@@ -2,6 +2,7 @@ import {
   Home, Layers, User, FolderKanban, LayoutDashboard,
   FileBarChart, FileText, type LucideIcon,
   Target, ClipboardList, Cog, Server, Sparkles, ClipboardCheck, Activity, Mic2,
+  Calculator,
 } from 'lucide-react'
 
 // ─── Sidebar navigation ──────────────────────────────────────────────────────
@@ -24,6 +25,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Reuniões',         href: '/meetings',         icon: Mic2,            section: 'workspace' },
   { label: 'Executive Review', href: '/executive-review', icon: FileBarChart,    section: 'workspace' },
   { label: 'Documentos',       href: '/documents',        icon: FileText,        section: 'workspace' },
+  { label: 'Proposta',         href: '/proposta',         icon: Calculator,      section: 'workspace', locked: true },
 ]
 
 // ─── Assessment timeline ──────────────────────────────────────────────────────

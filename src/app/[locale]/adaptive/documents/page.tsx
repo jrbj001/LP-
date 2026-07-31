@@ -29,6 +29,13 @@ const DOCS = [
     href: '/guides/valor-hora',
     pdf: GUIDE_META.pdfPath,
   },
+  {
+    name: 'Proposta de Trabalho — Squad, Esforço e Investimento',
+    type: 'Página web',
+    size: 'Protegida por senha',
+    status: 'available' as const,
+    href: '/adaptive/proposta',
+  },
   { name: 'Adaptive Enterprise™ — Overview', type: 'PDF', size: '2.4 MB', status: 'available' as const },
   { name: 'Guia da Discovery Session', type: 'PDF', size: '1.1 MB', status: 'available' as const },
   { name: 'Escopo do Assessment', type: 'PDF', size: '860 KB', status: 'available' as const },

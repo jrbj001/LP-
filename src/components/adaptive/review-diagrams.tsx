@@ -183,8 +183,8 @@ export function AgentsDiagram() {
 ──────────────────────────────────────────────────────────────────────────── */
 
 const MOCK_DELIVERIES = [
-  { title: 'QW-01 · Conciliação PagBrasil automática', status: 'done' as const, meta: 'Em produção · semana 3' },
-  { title: 'QW-02 · Resumo IA dos checklists baristas', status: 'done' as const, meta: 'Em produção · semana 4' },
+  { title: 'QW-02 · Resumo IA dos checklists baristas', status: 'done' as const, meta: 'Em produção · semana 3' },
+  { title: 'QW-04 · Integração e-mail → Suri', status: 'done' as const, meta: 'Em produção · semana 4' },
   { title: 'Adaptive Layer™ · conector WMS + Shopify', status: 'progress' as const, meta: 'Em andamento · semana 6' },
   { title: 'Faturamento automático B2B — fase 1', status: 'next' as const, meta: 'Próxima entrega' },
 ]

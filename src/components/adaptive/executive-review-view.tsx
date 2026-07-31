@@ -472,7 +472,7 @@ export function ExecutiveReviewView({
                 </div>
               </div>
               <p className="text-[12px] text-neutral-400 mt-3">
-                Piloto recomendado: QW-01 + QW-04 ou QW-02 — escolha conjunta com André e Ricardo.
+                Piloto recomendado: QW-02 + QW-04 — escolha conjunta com André e Ricardo.
               </p>
             </SubSection>
           </Reveal>

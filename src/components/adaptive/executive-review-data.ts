@@ -181,7 +181,7 @@ export const RECOMMENDATIONS: Recommendation[] = [
     rank: 2,
     title: 'Piloto Quick Wins + Faturamento B2B',
     detail:
-      'Validar modelo de entrega em 6–8 semanas antes de escalar. Candidatos: conciliação PagBrasil, integração e-mail Suri, resumo IA checklists.',
+      'Validar modelo de entrega em 6–8 semanas antes de escalar. Candidatos: resumo IA checklists, integração e-mail Suri, automação Cropster.',
   },
   {
     rank: 3,
@@ -215,14 +215,6 @@ export interface QuickWin {
 }
 
 export const QUICK_WINS: QuickWin[] = [
-  {
-    id: 'QW-01',
-    title: 'Conciliação PagBrasil (retomar — ~70% pronto)',
-    source: 'Discovery André · projeto Rafaela',
-    effort: 'Médio',
-    impact: 'Alto',
-    pilot: true,
-  },
   {
     id: 'QW-02',
     title: 'Resumo IA de checklists baristas (45+ relatórios/dia → digest)',
@@ -269,7 +261,7 @@ export const ADAPTIVE_LAYER = {
   tagline: 'A entrega-mãe do plano de trabalho',
   description:
     'Camada de integração de dados que conecta os sistemas que a Orfeu já tem — sem substituí-los. É construída em paralelo aos quick wins: cada quick win entregue já nasce plugado na camada, e cada integração nova amplia o que a próxima entrega consegue fazer. Ao final, o dado percorre a jornada da semente à xícara sem redigitação.',
-  connects: ['Protheus (400+ regras)', 'WMS', 'Shopify', 'Suri', 'Cropster', 'OpsFactor / sensores', 'Mercado Livre / PagBrasil'],
+  connects: ['Protheus (400+ regras)', 'WMS', 'Shopify', 'Suri', 'Cropster', 'OpsFactor / sensores', 'Mercado Livre'],
   unlocks: [
     'Faturamento automático B2B + Varejo',
     'Order-to-delivery digital multicanais',
@@ -294,7 +286,7 @@ export const WORK_PLAN: WorkPlanStep[] = [
     window: 'Semanas 1–4',
     title: 'Piloto Quick Wins',
     type: 'quick-win',
-    detail: 'QW-01 Conciliação PagBrasil + QW-02 Resumo IA checklists baristas — valor visível em semanas, validando o modelo Pixel.',
+    detail: 'QW-02 Resumo IA checklists baristas + QW-04 integração e-mail → Suri — valor visível em semanas, validando o modelo Pixel.',
   },
   {
     id: 'wp-2',
@@ -308,7 +300,7 @@ export const WORK_PLAN: WorkPlanStep[] = [
     window: 'Semanas 6–10',
     title: 'Quick wins de integração',
     type: 'quick-win',
-    detail: 'QW-04 e-mail → Suri (visão 360º parcial) · QW-03 relatórios Cropster · QW-06 chamados TI com SLA.',
+    detail: 'QW-03 relatórios Cropster · QW-05 portal de entregas · QW-06 chamados TI com SLA.',
   },
   {
     id: 'wp-4',
@@ -429,7 +421,7 @@ export const PORTFOLIO_GROUPS: PortfolioGroup[] = [
       'Faturamento automático B2B e Varejo',
       'Site Compra B2B + Página Office',
       'CRM Jornada do Vendedor',
-      'Conciliação Mercado Livre + PagBrasil',
+      'Conciliação Mercado Livre (PagBrasil segue com fornecedor atual)',
       'WMS Botelhos',
       'Segurança da informação / LGPD',
       'Integração OpsFactor × Protheus',
