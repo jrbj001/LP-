@@ -5,7 +5,7 @@ export const REVIEW_META = {
   generatedAt: '2026-07-31',
   status: 'preview' as const,
   assessmentsReceived: 8,
-  assessmentsExpected: 16,
+  assessmentsExpected: 15,
   meetingsCompleted: 5,
   projectsMapped: 31,
   areasMapped: 10,
@@ -366,7 +366,7 @@ export const ROADMAP: RoadmapPhase[] = [
     objective: 'A camada de integração que resolve a causa comum: dados fluindo entre os sistemas existentes, sem redigitação.',
     items: [
       { id: 'F-01', title: 'Camada de integração de dados (Protheus ↔ WMS ↔ Shopify ↔ Suri ↔ Cropster)', notes: 'Pré-requisito para IA e visão 360º' },
-      { id: 'F-02', title: 'Faturamento automático B2B + Varejo', projects: 'Cristiane, André, Cibele, RM', notes: 'Prioridade #1 comitê + CEO' },
+      { id: 'F-02', title: 'Faturamento automático B2B + Varejo', projects: 'Cristiane, André, Cibele, Ricardo Madureira', notes: 'Prioridade #1 comitê + CEO' },
       { id: 'F-03', title: 'Order-to-delivery digital multicanais', projects: 'Selton, Cristiane', notes: 'Processo #1 do consultor comercial' },
       { id: 'F-04', title: 'Site Compra B2B + Página Office', projects: 'Cristiane', notes: 'Shopify pausado aguardando Pixel' },
       { id: 'F-05', title: 'Conciliação Mercado Livre', projects: 'Rafaela' },

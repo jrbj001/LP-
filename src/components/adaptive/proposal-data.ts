@@ -197,7 +197,7 @@ export const COMMERCIAL_TERMS = [
 ]
 
 export const ASSUMPTIONS = [
-  'Estimativas baseadas no assessment parcial (8/16 stakeholders + 5 discoveries); refinadas após o review final.',
+  'Estimativas baseadas no assessment parcial (8/15 stakeholders + 5 discoveries); refinadas após o review final.',
   'Ramp de 2–3 semanas para as regras customizadas do Protheus, conforme discovery com André.',
   'Custos de cloud, licenças e APIs de terceiros (ex.: LLM) não inclusos.',
   'Conciliação PagBrasil está fora do escopo — em desenvolvimento com outro fornecedor. O Adaptive Layer™ prevê ponto de integração com essa entrega quando concluída.',
