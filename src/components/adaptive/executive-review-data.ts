@@ -1,3 +1,5 @@
+import { PROJECTS } from '@/components/adaptive/data'
+
 // ─── Assessment status ────────────────────────────────────────────────────────
 
 export const REVIEW_META = {
@@ -546,18 +548,18 @@ export interface DashboardCounts {
 export function buildDashboardMetrics(counts?: Partial<DashboardCounts>): DashboardMetric[] {
   const expected = REVIEW_META.assessmentsExpected
   const done = counts?.assessmentDone ?? REVIEW_META.assessmentsReceived
-  const sessions = counts?.sessionBooked ?? 1
   const pct = Math.round((done / expected) * 100)
+  const requesters = new Set(PROJECTS.map(p => p.requester)).size
 
   return [
     { label: 'Assessment Progress', value: `${pct}%`, hint: `${done}/${expected} respondidos` },
     { label: 'Projects Mapped', value: String(REVIEW_META.projectsMapped), hint: 'no Comitê de TI' },
     { label: 'Áreas', value: String(REVIEW_META.areasMapped), hint: 'em avaliação' },
-    { label: 'Stakeholders', value: '15', hint: 'solicitantes mapeados' },
+    { label: 'Stakeholders', value: String(requesters), hint: 'solicitantes mapeados' },
     {
       label: 'Discovery Sessions',
-      value: `${REVIEW_META.meetingsCompleted}/${REVIEW_META.areasMapped}`,
-      hint: `${sessions} sessões concluídas`,
+      value: String(REVIEW_META.meetingsCompleted),
+      hint: 'reuniões transcritas e analisadas',
     },
     { label: 'Quick Wins', value: String(QUICK_WINS.length), hint: 'Fase 1 mapeados' },
     { label: 'Critical Risks', value: String(CRITICAL_RISKS.length), hint: 'identificados na prévia' },
