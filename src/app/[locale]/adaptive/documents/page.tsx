@@ -8,19 +8,32 @@ import { FileText, Download, ExternalLink } from 'lucide-react'
 
 const DOCS = [
   {
+    name: 'Executive Review — Prévia (31/07)',
+    type: 'Página web',
+    size: 'Da semente à xícara',
+    status: 'available' as const,
+    href: '/adaptive/executive-review',
+  },
+  {
+    name: 'Plano de Trabalho — Adaptive Layer™ + Quick Wins',
+    type: 'Página web',
+    size: 'Entrega-mãe',
+    status: 'available' as const,
+    href: '/adaptive/executive-review#plano-de-trabalho',
+  },
+  {
     name: 'Guia de Valores — Desenvolvimento de Software 2026',
     type: 'Guia web + PDF',
     size: 'Market Guide',
     status: 'available' as const,
     href: '/guides/valor-hora',
     pdf: GUIDE_META.pdfPath,
-    external: false,
   },
   { name: 'Adaptive Enterprise™ — Overview', type: 'PDF', size: '2.4 MB', status: 'available' as const },
   { name: 'Guia da Discovery Session', type: 'PDF', size: '1.1 MB', status: 'available' as const },
   { name: 'Escopo do Assessment', type: 'PDF', size: '860 KB', status: 'available' as const },
-  { name: 'Executive Review — Relatório Final', type: 'PDF', size: '—', status: 'locked' as const },
-  { name: 'Adaptive Roadmap™', type: 'PDF', size: '—', status: 'locked' as const },
+  { name: 'Executive Review — Relatório Final', type: 'PDF', size: 'liberação pós-review de 31/07', status: 'locked' as const },
+  { name: 'Adaptive Roadmap™', type: 'PDF', size: 'liberação pós-review de 31/07', status: 'locked' as const },
 ]
 
 export default function DocumentsPage() {
@@ -69,12 +82,12 @@ export default function DocumentsPage() {
                       <Download className="w-3.5 h-3.5" strokeWidth={2} />
                       PDF
                     </a>
-                  ) : (
+                  ) : !('href' in doc && doc.href) ? (
                     <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium text-neutral-700 hover:bg-black/[0.04] transition-colors">
                       <Download className="w-3.5 h-3.5" strokeWidth={2} />
                       Baixar
                     </button>
-                  )}
+                  ) : null}
                 </div>
               ) : (
                 <Badge tone="muted">Em breve</Badge>

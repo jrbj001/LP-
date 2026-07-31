@@ -43,7 +43,8 @@ export function OnboardingDashboard({
     [rows, filter]
   )
 
-  const pct = counts.total ? Math.round((counts.sessionBooked / counts.total) * 100) : 0
+  // Conclusão = assessment respondido (Assessment done / Session booked / Done)
+  const pct = counts.total ? Math.round((counts.assessmentDone / counts.total) * 100) : 0
 
   return (
     <PageShell>

@@ -16,6 +16,11 @@ import {
   AI_OPPORTUNITIES,
   DELIVERY_MODEL,
   NEXT_STEPS,
+  SEED_TO_CUP,
+  SEED_TO_CUP_INTRO,
+  CRITICAL_ALIGNMENT,
+  ADAPTIVE_LAYER,
+  WORK_PLAN,
   formatReviewDate,
   scoreTone,
   SCORE_BAR,
@@ -23,8 +28,14 @@ import {
 import type { ProgressRow } from '@/lib/adaptive/types'
 import {
   Radar, ListChecks, Zap, Sparkles, ChevronDown, Calendar,
-  AlertCircle, Target, ArrowRight, CheckCircle2,
+  AlertCircle, Target, ArrowRight, CheckCircle2, Coffee, Layers, Quote,
 } from 'lucide-react'
+
+const WORK_PLAN_STYLE: Record<string, { dot: string; badge: string; label: string }> = {
+  'quick-win': { dot: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700', label: 'Quick win' },
+  layer: { dot: 'bg-neutral-900', badge: 'bg-neutral-100 text-neutral-700', label: 'Adaptive Layer™' },
+  delivery: { dot: 'bg-violet-500', badge: 'bg-violet-50 text-violet-700', label: 'Entrega-mãe' },
+}
 
 const PORTFOLIO_TONE: Record<string, string> = {
   green: 'border-emerald-100 bg-emerald-50/50',
@@ -92,6 +103,90 @@ export function ExecutiveReviewView({
                 Review: {formatReviewDate(REVIEW_META.reviewDate)}
               </span>
             </div>
+          </div>
+        </div>
+      </Reveal>
+
+      {/* Da semente à xícara — storytelling */}
+      <Reveal>
+        <div id="semente-a-xicara" className="rounded-2xl border border-black/[0.06] bg-[#f7f4ef] p-8 mb-8 overflow-hidden">
+          <div className="flex items-center gap-2 mb-4">
+            <Coffee className="w-4 h-4 text-amber-800/60" strokeWidth={1.75} />
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-amber-900/50">
+              {SEED_TO_CUP_INTRO.eyebrow}
+            </p>
+          </div>
+          <h2 className="text-[24px] sm:text-[28px] font-semibold text-neutral-900 leading-tight max-w-2xl mb-4">
+            {SEED_TO_CUP_INTRO.title}
+          </h2>
+          <p className="text-[14px] text-neutral-600 leading-relaxed max-w-3xl mb-8">
+            {SEED_TO_CUP_INTRO.narrative}
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+            {SEED_TO_CUP_INTRO.anchors.map(a => (
+              <div key={a.author} className="rounded-xl border border-amber-900/10 bg-white/70 p-5">
+                <Quote className="w-3.5 h-3.5 text-amber-800/40 mb-2" strokeWidth={1.75} />
+                <p className="text-[13px] text-neutral-800 leading-relaxed italic">“{a.quote}”</p>
+                <p className="text-[11px] text-neutral-400 mt-2">{a.author}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {SEED_TO_CUP.map((s, i) => (
+              <div key={s.id} className="rounded-xl border border-black/[0.05] bg-white p-5 flex flex-col">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-6 h-6 rounded-full bg-neutral-900 text-white flex items-center justify-center text-[11px] font-semibold flex-shrink-0">
+                    {i + 1}
+                  </span>
+                  <p className="text-[13px] font-semibold text-neutral-900">{s.stage}</p>
+                </div>
+                <p className="text-[12px] text-neutral-500 leading-relaxed">
+                  <span className="font-medium text-rose-600/80">Hoje:</span> {s.pain}
+                </p>
+                <p className="text-[12px] text-neutral-600 leading-relaxed mt-2">
+                  <span className="font-medium text-emerald-700">Com o Adaptive Layer™:</span> {s.future}
+                </p>
+                <p className="text-[11px] text-neutral-400 mt-auto pt-3">{s.owners}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Reveal>
+
+      {/* O ponto crítico em comum */}
+      <Reveal>
+        <div className="rounded-2xl border border-black/[0.06] bg-white p-8 mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <AlertCircle className="w-4 h-4 text-rose-500" strokeWidth={1.75} />
+            <h2 className="text-[18px] font-semibold text-neutral-900">{CRITICAL_ALIGNMENT.headline}</h2>
+          </div>
+          <p className="text-[14px] text-neutral-600 leading-relaxed max-w-3xl mb-7">
+            {CRITICAL_ALIGNMENT.statement}
+          </p>
+
+          <div className="rounded-xl border border-neutral-900/10 bg-neutral-900 text-white p-6 mb-5">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40 mb-3">
+              Alinhamento com {CRITICAL_ALIGNMENT.ceo.name}
+            </p>
+            <ul className="space-y-2.5">
+              {CRITICAL_ALIGNMENT.ceo.alignment.map(item => (
+                <li key={item} className="flex gap-2.5 text-[13px] text-white/80 leading-relaxed">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400/80 mt-0.5 flex-shrink-0" strokeWidth={1.75} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {CRITICAL_ALIGNMENT.voices.map(v => (
+              <div key={v.name} className="rounded-xl border border-black/[0.05] bg-[#fafaf8] p-4">
+                <p className="text-[12px] text-neutral-600 leading-relaxed">“{v.quote}”</p>
+                <p className="text-[11px] font-medium text-neutral-400 mt-2">{v.name}</p>
+              </div>
+            ))}
           </div>
         </div>
       </Reveal>
@@ -245,9 +340,72 @@ export function ExecutiveReviewView({
         </Section>
       </Reveal>
 
+      {/* Plano de trabalho — entrega-mãe + quick wins */}
+      <Reveal>
+        <Section
+          title="Plano de trabalho"
+          subtitle="Uma entrega-mãe com quick wins no caminho"
+          icon={Layers}
+        >
+          <div id="plano-de-trabalho" className="rounded-2xl border border-black/[0.06] bg-neutral-900 text-white p-7 mb-4">
+            <div className="flex flex-wrap items-baseline gap-2 mb-2">
+              <h3 className="text-[18px] font-semibold">{ADAPTIVE_LAYER.title}</h3>
+              <span className="text-[12px] text-white/50">{ADAPTIVE_LAYER.tagline}</span>
+            </div>
+            <p className="text-[13px] text-white/60 leading-relaxed max-w-3xl mb-6">
+              {ADAPTIVE_LAYER.description}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-white/40 mb-2.5">Conecta</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {ADAPTIVE_LAYER.connects.map(c => (
+                    <span key={c} className="text-[11px] px-2.5 py-1 rounded-full bg-white/10 text-white/80">
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-white/40 mb-2.5">Destrava</p>
+                <ul className="space-y-1.5">
+                  {ADAPTIVE_LAYER.unlocks.map(u => (
+                    <li key={u} className="flex gap-2 text-[12px] text-white/75">
+                      <span className="text-emerald-400/80">·</span>
+                      {u}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-black/[0.06] bg-white p-7">
+            <div className="relative flex flex-col gap-6 before:absolute before:left-[7px] before:top-2 before:bottom-2 before:w-px before:bg-black/[0.08]">
+              {WORK_PLAN.map(step => {
+                const style = WORK_PLAN_STYLE[step.type]
+                return (
+                  <div key={step.id} className="relative pl-8">
+                    <span className={`absolute left-0 top-1.5 w-[15px] h-[15px] rounded-full border-2 border-white ${style.dot}`} />
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <p className="text-[14px] font-semibold text-neutral-900">{step.title}</p>
+                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${style.badge}`}>
+                        {style.label}
+                      </span>
+                      <span className="text-[11px] text-neutral-400">{step.window}</span>
+                    </div>
+                    <p className="text-[13px] text-neutral-500 leading-relaxed max-w-2xl">{step.detail}</p>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </Section>
+      </Reveal>
+
       {/* Roadmap phases */}
       <Reveal>
-        <Section title="Adaptive Roadmap™" subtitle="Plano faseado por impacto, risco e esforço" icon={Target}>
+        <Section title="Adaptive Roadmap™" subtitle="Detalhamento faseado por impacto, risco e esforço" icon={Target}>
           <div className="flex flex-col gap-2">
             {ROADMAP.map(phase => {
               const open = openPhase === phase.id

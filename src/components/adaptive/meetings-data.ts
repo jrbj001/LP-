@@ -21,6 +21,34 @@ export interface Meeting {
 
 export const MEETINGS: Meeting[] = [
   {
+    id: 'discovery-milena-2026-07-23',
+    title: 'Discovery Interview — Milena (Qualidade / Sensorial)',
+    date: '2026-07-23T08:59:00-03:00',
+    duration: '~30 min',
+    source: 'Read AI',
+    reportUrl: 'https://app.notion.com/p/3a65615ab274808f8153f3a79c42d6d8',
+    attendees: ['José Roberto', 'Milena'],
+    synopsis:
+      'Sessão de discovery com Milena (qualidade e análise sensorial). Dores centrais: avaliação mensal de cupping ainda em papel + Excel, e rastreabilidade de lotes/selo de café consumindo tempo do time. Interesse em app unificado (sensorial + rastreabilidade), alinhado ao precedente Pixel de rastreabilidade de cacau na Amazônia. Findings entram no consolidado do portal e no comitê de priorização.',
+    topics: [
+      'Papel de Milena: qualidade, tasting e comitê de projetos',
+      'Cupping competitivo mensal: formulário em papel e consolidação manual no Excel',
+      'App de análise sensorial: entrada direta pelos provadores e ranking automático',
+      'Selo de café (Milena + Claudete): publicação iminente ligada ao tasting',
+      'Rastreabilidade de lotes como maior dor operacional da área',
+      'Visão de app único: avaliações + rastreabilidade para todos os stakeholders',
+      'Caso análogo Pixel: rastreabilidade de cacau na Amazônia',
+      'Portal do cliente e consolidação com demais sessões do assessment',
+    ],
+    tasks: [
+      { title: 'Compartilhar portal e consolidado das conversas com Milena', owner: 'PixelPulseLab' },
+      { title: 'Apresentar o portal do cliente a todos os stakeholders', owner: 'José Roberto' },
+      { title: 'Avaliar app de cupping competitivo no lugar do fluxo Excel', owner: 'PixelPulseLab' },
+      { title: 'Avaliar solução de rastreabilidade de lotes e processo do selo', owner: 'PixelPulseLab' },
+    ],
+    clientId: 'orfeu',
+  },
+  {
     id: 'discovery-ricardo-2026-07-22',
     title: 'Discovery Interview — Ricardo Madureira (CEO)',
     date: '2026-07-22T11:30:00-03:00',
