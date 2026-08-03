@@ -21,6 +21,38 @@ export interface Meeting {
 
 export const MEETINGS: Meeting[] = [
   {
+    id: 'discovery-cristiane-selton-2026-08-03',
+    title: 'Discovery Interview — Cristiane + Selton (B2B Comercial)',
+    date: '2026-08-03T17:00:00-03:00',
+    duration: '~60 min',
+    source: 'Read AI',
+    reportUrl: 'https://app.notion.com/p/3b15615ab27481c5bbbceb43dff82c1d',
+    attendees: ['José Roberto', 'Cristiane', 'Selton Cordts'],
+    synopsis:
+      'Discovery com Cristiane (B2B Nacional Channel Manager — HORECA e office) e Selton Cordts (consultor de estruturação comercial desde 2022). Canal B2B cresceu 55% de 2024 para 2025; meta ~40% em 2025. Jornada comercial já mapeada no Miro (4 anos de trabalho conjunto), mas o order-to-delivery ainda é cheio de intervenções manuais — um back-office dedicado só a isso. Prioridade alinhada: Adaptive Layer™ focando order-to-delivery B2B. Contexto crítico: saída do Caio (inteligência) e app de jornada de vendas (Agenda, Funil, CRM, calculadora, faturamento) que ele integrou ao Protheus — Ricardo pediu que a Pixel avalie assumir a evolução.',
+    topics: [
+      'Papel de Cristiane: canal B2B Nacional (HORECA + office) · SP, RJ, Brasília e Minas',
+      'Crescimento 55% 2024→2025 · meta ~40% em 2025 · time enxuto e geografia grande',
+      'Selton: estruturação comercial, KPIs, rotina de vendedores e classificação de clientes',
+      'Jornada comercial completa mapeada no Miro (vendedor, barista, coordenação)',
+      'Order-to-delivery com intervenções manuais em cada etapa (financeiro + logística)',
+      'Dois canais de entrada: pedido do vendedor e pedido direto do PDV/cliente (Shopify etc.) → Protheus',
+      'Fechamento de mês caótico: números não integrados, consolidação por telefone',
+      'Visão Pixel: Adaptive Layer™ + quick wins · entrega = produto em produção e em uso',
+      'Saída do Caio e app de jornada de vendas (Agenda, Funil, CRM, pricing, faturamento)',
+      'App já integrado ao Protheus · propostas comerciais ainda manuais em Word/e-mail',
+      'Avaliar Pixel assumir a evolução do app como parte do order-to-delivery',
+    ],
+    tasks: [
+      { title: 'Enviar Miro do processo comercial (PDF) para José Roberto', owner: 'Cristiane' },
+      { title: 'Atualizar plano de trabalho com order-to-delivery B2B como foco principal', owner: 'José Roberto' },
+      { title: 'Trocar contatos por e-mail com Cristiane e Selton', owner: 'José Roberto' },
+      { title: 'Avaliar assumir a evolução do app de jornada de vendas (contexto Caio)', owner: 'PixelPulseLab' },
+      { title: 'Reportar bug de agenda/acesso da plataforma (relatado por Selton)', owner: 'PixelPulseLab' },
+    ],
+    clientId: 'orfeu',
+  },
+  {
     id: 'discovery-milena-2026-07-23',
     title: 'Discovery Interview — Milena (Qualidade / Sensorial)',
     date: '2026-07-23T08:59:00-03:00',

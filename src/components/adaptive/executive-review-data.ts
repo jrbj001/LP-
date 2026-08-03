@@ -8,7 +8,7 @@ export const REVIEW_META = {
   status: 'preview' as const,
   assessmentsReceived: 8,
   assessmentsExpected: 15,
-  meetingsCompleted: 5,
+  meetingsCompleted: 6,
   projectsMapped: 31,
   areasMapped: 10,
 }
@@ -100,7 +100,7 @@ export const SEED_TO_CUP: SeedToCupStage[] = [
 export const CRITICAL_ALIGNMENT = {
   headline: 'O ponto crítico em comum',
   statement:
-    'As 8 vozes do assessment e as 5 reuniões discovery convergem para a mesma dor: sistemas que não conversam obrigam pessoas a serem a integração — redigitando, conciliando e correndo atrás do dado. O sintoma mais caro está na jornada comercial (order-to-delivery e faturamento B2B manuais, sem CRM), mas a causa é estrutural e atravessa todas as áreas. Por isso a entrega-mãe deste plano é o Adaptive Layer™: a camada que integra os sistemas existentes e devolve às pessoas o tempo que hoje se perde entre eles.',
+    'As 8 vozes do assessment e as 6 reuniões discovery convergem para a mesma dor: sistemas que não conversam obrigam pessoas a serem a integração — redigitando, conciliando e correndo atrás do dado. O sintoma mais caro está na jornada comercial (order-to-delivery e faturamento B2B manuais, sem CRM), mas a causa é estrutural e atravessa todas as áreas. Por isso a entrega-mãe deste plano é o Adaptive Layer™: a camada que integra os sistemas existentes e devolve às pessoas o tempo que hoje se perde entre eles.',
   ceo: {
     name: 'Ricardo Madureira · CEO',
     alignment: [
