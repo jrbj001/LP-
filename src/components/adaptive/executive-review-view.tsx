@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useLocale } from 'next-intl'
 import { PageShell, PageHeader, Reveal, Badge } from '@/components/adaptive/ui'
 import { CLIENT } from '@/components/adaptive/data'
 import {
@@ -140,6 +141,7 @@ export function ExecutiveReviewView({
   progressRows?: ProgressRow[]
   assessmentCount?: number
 }) {
+  const locale = useLocale()
   const [openPhase, setOpenPhase] = useState<string>('phase-1')
   const activeChapter = useScrollSpy(CHAPTERS.map(c => c.id))
   const received = assessmentCount ?? REVIEW_META.assessmentsReceived
@@ -510,9 +512,15 @@ export function ExecutiveReviewView({
                 <h3 className="text-[18px] font-semibold">{ADAPTIVE_LAYER.title}</h3>
                 <span className="text-[12px] text-white/50">{ADAPTIVE_LAYER.tagline}</span>
               </div>
-              <p className="text-[13px] text-white/60 leading-relaxed max-w-3xl">
+              <p className="text-[13px] text-white/60 leading-relaxed max-w-3xl mb-5">
                 {ADAPTIVE_LAYER.description}
               </p>
+              <a
+                href={`/${locale}/pixel`}
+                className="inline-flex items-center gap-2 text-[12px] font-medium text-emerald-300 hover:text-emerald-200 transition-colors"
+              >
+                Pixel · o modelo e SDK desta camada →
+              </a>
             </div>
           </Reveal>
 

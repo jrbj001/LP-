@@ -1,12 +1,14 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
+import { ArrowRight } from 'lucide-react'
 import { FadeIn, FadeInStagger, FadeInItem } from './fade-in'
 
 const LAYER_KEYS = ['l1', 'l2', 'l3', 'l4', 'l5'] as const
 
 export function AdaptiveCore() {
   const t = useTranslations('adaptive')
+  const locale = useLocale()
   const caps: string[] = t.raw('capabilities') as string[]
 
   return (
@@ -49,6 +51,13 @@ export function AdaptiveCore() {
                   </div>
                 ))}
               </div>
+              <a
+                href={`/${locale}/pixel`}
+                className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-neutral-900 hover:text-neutral-600 transition-colors group"
+              >
+                Conhecer Pixel · Adaptive Layer™
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+              </a>
             </div>
           </FadeIn>
         </div>
