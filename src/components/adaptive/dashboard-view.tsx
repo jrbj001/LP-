@@ -157,7 +157,7 @@ export function DashboardView({ counts }: { counts?: DashboardCounts }) {
                 <span className="text-[16px] text-white/40">/100</span>
               </div>
               <p className="text-[13px] text-white/50 mt-3 max-w-lg leading-relaxed">
-                Estimativa preliminar — será recalibrada após Cristiane, Lucas e Rafaela completarem o assessment.
+                Estimativa preliminar — será recalibrada após os stakeholders pendentes, incluindo Augusto Kraft Baum e Priscila Calvelhe, completarem o assessment.
               </p>
             </div>
             <Link
