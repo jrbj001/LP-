@@ -1,4 +1,4 @@
-import { PROJECTS } from '@/components/adaptive/data'
+import { PROJECTS, STAKEHOLDERS } from '@/components/adaptive/data'
 
 // ─── Assessment status ────────────────────────────────────────────────────────
 
@@ -7,7 +7,7 @@ export const REVIEW_META = {
   generatedAt: '2026-07-31',
   status: 'preview' as const,
   assessmentsReceived: 8,
-  assessmentsExpected: 15,
+  assessmentsExpected: STAKEHOLDERS.length,
   meetingsCompleted: 6,
   projectsMapped: 31,
   areasMapped: 10,
@@ -17,8 +17,8 @@ export const ASSESSMENT_GAPS = [
   'Cristiane (Comercial — crítica para HORECA)',
   'Lucas (Fazenda)',
   'Rafaela (Financeiro / Gestão)',
-  'Augusto Kraft (Diretor Comercial — incluir)',
-  'Priscila (Supermercados — incluir)',
+  'Augusto Kraft Baum (Diretor Comercial — assessment pendente)',
+  'Priscila Calvelhe (Gerente do Varejo — assessment pendente)',
   'Silvia, Alene, Amanda Raquel, Jéssica Viana (identificadas, assessment pendente)',
 ]
 
@@ -345,7 +345,7 @@ export const ROADMAP: RoadmapPhase[] = [
     objective: 'Fechar lacunas antes do Executive Review final.',
     items: [
       { id: '0-1', title: 'Assessments + sessões: Cristiane, Lucas, Rafaela', notes: 'crítico — Comercial, Fazenda e Financeiro' },
-      { id: '0-2', title: 'Incluir Augusto Kraft e Priscila no processo', notes: 'Diego' },
+      { id: '0-2', title: 'Completar assessments: Augusto Kraft Baum e Priscila Calvelhe', notes: 'Comercial e Varejo' },
       { id: '0-3', title: 'Completar assessments: Silvia, Alene, Amanda, Jéssica' },
       { id: '0-4', title: 'Agendar sessões presenciais 30 min restantes' },
     ],
@@ -516,7 +516,7 @@ export interface NextStep {
 export const NEXT_STEPS: NextStep[] = [
   { title: 'Review com Ricardo Madureira', owner: 'José Roberto + Ricardo', due: 'hoje · 31/07 · 14h' },
   { title: 'Completar assessments: Cristiane, Lucas, Rafaela', owner: 'José Roberto' },
-  { title: 'Incluir Augusto Kraft e Priscila no processo', owner: 'Diego', due: 'imediato' },
+  { title: 'Completar assessments: Augusto Kraft Baum e Priscila Calvelhe', owner: 'José Roberto' },
   { title: 'Consolidar scores finais do Adaptive Index™', owner: 'PixelPulseLab' },
   { title: 'Proposta comercial: piloto Quick Wins + Adaptive Layer™', owner: 'PixelPulseLab', due: 'pós-review' },
   { title: 'Compartilhar mapa de oportunidades com André antes da apresentação', owner: 'José Roberto' },
