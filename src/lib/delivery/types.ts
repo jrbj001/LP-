@@ -45,7 +45,7 @@ export interface PrRow {
   deletions: number
   changedFiles: number
   commitCount: number
-  /** Horas estimadas desta PR (parcela do gitHours pelo peso de linhas). */
+  /** Horas estimadas desta PR (linhas inseridas / fator LOC/h). */
   estimatedHours: number
 }
 
