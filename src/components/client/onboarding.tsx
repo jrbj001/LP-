@@ -4,16 +4,27 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { ClientWorkspace } from '@/lib/client/types'
 
-export function Onboarding({ client }: { client: ClientWorkspace }) {
+export function Onboarding({
+  client,
+  embedded = false,
+}: {
+  client: ClientWorkspace
+  embedded?: boolean
+}) {
   const [active, setActive] = useState(0)
+  if (!client.onboarding) return null
+
   const { steps, eyebrow, title, titleAccent } = client.onboarding
   const step = steps[active]
   const accent = client.accent
 
   return (
-    <section id="onboarding" className="py-20 sm:py-24 border-t border-black/[0.05] scroll-mt-20">
-      <div className="mx-auto max-w-[1120px] px-6">
-        <div className="mb-12">
+    <section
+      id="onboarding"
+      className={embedded ? '' : 'py-20 sm:py-24 border-t border-black/[0.05] scroll-mt-20'}
+    >
+      <div className={embedded ? '' : 'mx-auto max-w-[1120px] px-6'}>
+        {!embedded && <div className="mb-12">
           <p className="text-[12px] font-mono uppercase tracking-[0.18em] text-neutral-400 mb-3">
             {eyebrow}
           </p>
@@ -21,7 +32,7 @@ export function Onboarding({ client }: { client: ClientWorkspace }) {
             {title}{' '}
             <span className="text-neutral-500">{titleAccent}</span>
           </h2>
-        </div>
+        </div>}
 
         <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-5">
           <div className="flex flex-col gap-1.5">

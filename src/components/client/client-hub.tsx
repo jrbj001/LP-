@@ -34,7 +34,7 @@ export function ClientHub({ clients }: { clients: ClientWorkspace[] }) {
           Portal do Cliente
         </h1>
         <p className="mt-4 text-[16px] text-neutral-500 max-w-xl leading-relaxed">
-          Acesse o workspace do seu engajamento com a PixelPulseLab — onboarding, documentação e
+          Acesse o workspace do seu engajamento com a PixelPulseLab — projetos, documentação e
           acompanhamento em um só lugar.
         </p>
 

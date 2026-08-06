@@ -6,10 +6,11 @@ import { useLocale } from 'next-intl'
 import type { ClientWorkspace } from '@/lib/client/types'
 
 const NAV_ITEMS = [
-  { path: '', hash: 'inicio', label: 'Home' },
-  { path: '', hash: 'onboarding', label: 'Onboarding' },
-  { path: '', hash: 'docs', label: 'Docs' },
-  { path: '/entregas', hash: '', label: 'Entregas' },
+  { path: '', label: 'Visão geral' },
+  { path: '/reunioes', label: 'Reuniões' },
+  { path: '/documentos', label: 'Documentos' },
+  { path: '/projetos', label: 'Projetos' },
+  { path: '/entregas', label: 'Entregas' },
 ] as const
 
 const SHELL_X = 'px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-14'
@@ -54,21 +55,20 @@ export function ClientShell({
 
           <nav className="hidden sm:flex items-center gap-1">
             {NAV_ITEMS.map(a => {
-              const href = `${base}${a.path}${a.hash ? `#${a.hash}` : ''}`
-              const isEntregas = a.path === '/entregas'
+              const href = `${base}${a.path}`
+              const active = a.path ? pathname.startsWith(href) : pathname === base || pathname === `${base}/`
               return (
-                <a
+                <Link
                   key={a.label}
                   href={href}
-                  className={
-                    isEntregas
-                      ? 'px-3.5 py-1.5 text-[12px] font-semibold text-white rounded-full transition-opacity hover:opacity-90'
-                      : 'px-3 py-1.5 text-[12px] font-medium text-neutral-500 hover:text-neutral-900 rounded-full hover:bg-black/[0.04] transition-colors'
-                  }
-                  style={isEntregas ? { backgroundColor: client.accent } : undefined}
+                  className={`px-3 py-1.5 text-[12px] font-medium rounded-full transition-colors ${
+                    active
+                      ? 'bg-neutral-900 text-white'
+                      : 'text-neutral-500 hover:text-neutral-900 hover:bg-black/[0.04]'
+                  }`}
                 >
                   {a.label}
-                </a>
+                </Link>
               )
             })}
           </nav>
@@ -76,21 +76,20 @@ export function ClientShell({
 
         <nav className="sm:hidden flex gap-1 px-4 pb-3 overflow-x-auto">
           {NAV_ITEMS.map(a => {
-            const href = `${base}${a.path}${a.hash ? `#${a.hash}` : ''}`
-            const isEntregas = a.path === '/entregas'
+            const href = `${base}${a.path}`
+            const active = a.path ? pathname.startsWith(href) : pathname === base || pathname === `${base}/`
             return (
-              <a
+              <Link
                 key={a.label}
                 href={href}
-                className={
-                  isEntregas
-                    ? 'shrink-0 px-3 py-1.5 text-[12px] font-semibold text-white rounded-full'
-                    : 'shrink-0 px-3 py-1.5 text-[12px] font-medium text-neutral-500 border border-black/[0.06] rounded-full bg-white'
-                }
-                style={isEntregas ? { backgroundColor: client.accent } : undefined}
+                className={`shrink-0 px-3 py-1.5 text-[12px] font-medium rounded-full ${
+                  active
+                    ? 'bg-neutral-900 text-white'
+                    : 'text-neutral-500 border border-black/[0.06] bg-white'
+                }`}
               >
                 {a.label}
-              </a>
+              </Link>
             )
           })}
         </nav>

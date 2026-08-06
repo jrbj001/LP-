@@ -100,3 +100,27 @@ body:has(.lp-scope) {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ─── Pixel SDK product LP ─── */
+.pixel-scope {
+  --color-bg: #f2f2f0;
+  --color-surface: #ebebe9;
+  --color-card: #ffffff;
+  --color-text-primary: #171717;
+  --color-text-secondary: #737373;
+  font-family: var(--font-pixel-body), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+.pixel-scope ::selection {
+  background: rgba(16, 185, 129, 0.2);
+  color: #0a0a0a;
+}
+.pixel-scope ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.14);
+}
+body:has(.pixel-scope) {
+  background-color: #0a0a0a;
+  color: #ededed;
+}

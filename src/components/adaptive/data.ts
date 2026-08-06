@@ -150,11 +150,18 @@ export const CLIENT = {
 /** Janela de agenda presencial (slots de 30min). Amplie weekdays/horas quando precisar. */
 export const SLOT_WINDOW = {
   clientId: CLIENT_ID,
-  /** Ajuste a data de início do assessment quando definir o calendário real */
-  startDate: '2026-07-21',
-  weekdays: 4,
+  /**
+   * Data mínima de início da janela de agenda. A geração de slots nunca cria
+   * horários no passado: se esta data já passou, a janela começa no próximo
+   * dia útil automaticamente (ver resolveStartDate em lib/adaptive/slots).
+   * Ajuste para uma data futura quando definir o calendário presencial real.
+   */
+  startDate: '2026-08-06',
+  /** Esta semana + a próxima (7 dias úteis a partir de qui 06/ago). */
+  weekdays: 7,
+  /** Dia útil inteiro (100% disponível): slots de 30min das 09h às 18h. */
   dayStartHour: 9,
-  dayEndHour: 13,
+  dayEndHour: 18,
   host: 'José Roberto',
   location: 'Presencial' as const,
 }
@@ -285,6 +292,8 @@ export const STAKEHOLDERS: Stakeholder[] = [
     consultant: true,
     role: 'Consultor · Priorização',
   },
+  { name: 'Augusto Kraft Baum', initials: 'AK', areas: ['Comercial'], email: 'augusto.kraft@cafeorfeu.com.br', role: 'Diretor Comercial' },
+  { name: 'Priscila Calvelhe',  initials: 'PC', areas: ['Comercial'], email: 'priscila.calvelhe@cafeorfeu.com.br', role: 'Gerente do Varejo' },
   { name: 'Cristiane',     initials: 'CR', areas: ['Comercial'] },
   { name: 'Joyce',         initials: 'JO', areas: ['Comercial'] },
   { name: 'Silvia',        initials: 'SI', areas: ['Comercial'] },

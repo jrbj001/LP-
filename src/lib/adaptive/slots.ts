@@ -26,6 +26,21 @@ function isWeekend(isoDate: string): boolean {
   return day === 0 || day === 6
 }
 
+function todayIso(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+/**
+ * Garante que a janela nunca comece no passado. Se startDate já passou,
+ * usa o próximo dia (amanhã) como base — os fins de semana são pulados
+ * naturalmente pelo gerador de candidatos.
+ */
+export function resolveStartDate(startDate: string): string {
+  const today = todayIso()
+  if (startDate > today) return startDate
+  return addDays(today, 1)
+}
+
 function toSaoPauloIso(date: string, hour: number, minute: number): string {
   const hh = String(hour).padStart(2, '0')
   const mm = String(minute).padStart(2, '0')
@@ -34,7 +49,7 @@ function toSaoPauloIso(date: string, hour: number, minute: number): string {
 
 export function generateSlotCandidates(config: SlotWindowConfig): { start: string; end: string; name: string }[] {
   const out: { start: string; end: string; name: string }[] = []
-  let date = config.startDate
+  let date = resolveStartDate(config.startDate)
   let openDays = 0
   let guard = 0
 

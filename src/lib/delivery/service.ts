@@ -2,7 +2,9 @@ import { DEFAULT_EFFORT_CONFIG } from './config'
 import { classifyProduct, classifyFixKind, classifyType, humanizeTitle, moduleKey, moduleName } from './classify'
 import { computeEstimate, manualItemsInPeriod } from './effort'
 import {
+  CACHE_VERSION,
   isCacheFresh,
+  isCacheUsableAsStale,
   readDeliveryCache,
   writeDeliveryCache,
   type CachedCommit,
@@ -34,9 +36,29 @@ import type {
 /** Sempre buscamos esta janela e filtramos 30/60/90 em cima do cache. */
 export const CACHE_WINDOW_DAYS = 90
 
+/** Detalhe de PR é 1 request cada; em série 45 PRs levam minutos. */
+const PR_DETAIL_CONCURRENCY = 8
+
 interface RepoResult {
   prs: Omit<PrRow, 'estimatedHours'>[]
   commits: CachedCommit[]
+}
+
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>
+): Promise<R[]> {
+  const out = new Array<R>(items.length)
+  let cursor = 0
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (cursor < items.length) {
+      const index = cursor++
+      out[index] = await fn(items[index])
+    }
+  })
+  await Promise.all(workers)
+  return out
 }
 
 function weekStartOf(iso: string): string {
@@ -63,41 +85,52 @@ function enrichPr<T extends Omit<PrRow, 'estimatedHours'>>(pr: T): T {
   return { ...pr, fixKind: fixKindOf(pr.type, pr.title, pr.branch, pr.fixKind) }
 }
 
-async function fetchRepo(repo: RepoConfig, since: Date, until: Date): Promise<RepoResult> {
+async function fetchRepo(
+  repo: RepoConfig,
+  since: Date,
+  until: Date,
+  known: Map<string, Omit<PrRow, 'estimatedHours'>>
+): Promise<RepoResult> {
   const { owner, repo: name } = repo
+  const full = `${owner}/${name}`
 
   const [pulls, commits] = await Promise.all([
     listMergedPulls(owner, name, since, until),
     listCommitsSince(owner, name, since).catch(() => []),
   ])
 
-  const prs: RepoResult['prs'] = []
-  for (const pr of pulls) {
+  const rows = await mapWithConcurrency(pulls, PR_DETAIL_CONCURRENCY, async pr => {
+    // PR mesclada não muda mais: se o detalhe já está em cache, não refazemos o request.
+    const cached = known.get(`${full}#${pr.number}`)
+    if (cached) return cached
+
     const detail = await getPullDetail(owner, name, pr.number)
     const branch = detail.head?.ref || pr.head.ref || ''
     const mergedAt = detail.merged_at || pr.merged_at
-    if (!mergedAt) continue
+    if (!mergedAt) return null
     const mergedDate = new Date(mergedAt)
-    if (mergedDate < since || mergedDate > until) continue
+    if (mergedDate < since || mergedDate > until) return null
 
     const rawTitle = detail.title || pr.title
     const type = classifyType(rawTitle, branch)
     const fixKind = type === 'fix' ? classifyFixKind(rawTitle, branch) : undefined
-    prs.push({
+    return {
       number: pr.number,
-      repo: `${owner}/${name}`,
+      repo: full,
       branch,
       title: humanizeTitle(rawTitle),
       type,
       fixKind,
-      product: classifyProduct(repo, detail.title || pr.title, branch),
+      product: classifyProduct(repo, rawTitle, branch),
       mergedAt,
       additions: detail.additions,
       deletions: detail.deletions,
       changedFiles: detail.changed_files,
       commitCount: detail.commits,
-    })
-  }
+    } satisfies Omit<PrRow, 'estimatedHours'>
+  })
+
+  const prs = rows.filter((row): row is Omit<PrRow, 'estimatedHours'> => row !== null)
 
   const cachedCommits: CachedCommit[] = []
   for (const c of commits) {
@@ -116,15 +149,17 @@ async function fetchRepo(repo: RepoConfig, since: Date, until: Date): Promise<Re
   return { prs, commits: cachedCommits }
 }
 
-function allocateHours(prs: Omit<PrRow, 'estimatedHours'>[], gitHours: number): PrRow[] {
-  if (prs.length === 0) return []
-  if (gitHours <= 0) return prs.map(p => ({ ...p, estimatedHours: 0 }))
-  const weights = prs.map(p => Math.log2(1 + Math.max(1, p.additions)))
-  const totalWeight = weights.reduce((a, b) => a + b, 0)
-  return prs.map((p, i) => {
-    const hours = Math.round(((gitHours * weights[i]) / totalWeight) * 2) / 2
-    return { ...p, estimatedHours: Math.max(0.5, hours) }
-  })
+/**
+ * Horas de cada PR derivadas apenas das próprias linhas inseridas.
+ * Precisa ser independente das outras PRs da janela: se dependesse do pool,
+ * a mesma PR mudaria de esforço entre 30/60/90 dias e um produto poderia
+ * aparecer com mais horas em 30 dias do que em 90.
+ */
+function allocateHours(prs: Omit<PrRow, 'estimatedHours'>[], locPerHour: number): PrRow[] {
+  return prs.map(p => ({
+    ...p,
+    estimatedHours: Math.max(0.5, Math.round((p.additions / locPerHour) * 2) / 2),
+  }))
 }
 
 function buildModules(prs: PrRow[]): ModuleGroup[] {
@@ -261,7 +296,10 @@ function buildRoadmap(modules: ModuleGroup[]): RoadmapMilestone[] {
     .sort((a, b) => (a.date > b.date ? 1 : -1))
 }
 
-function buildByProduct(prs: PrRow[]): ProductBreakdown[] {
+function buildByProduct(
+  prs: PrRow[],
+  manualEffort: ManualEffortItem[] = []
+): ProductBreakdown[] {
   const map = new Map<string, ProductBreakdown>()
   for (const pr of prs) {
     const entry = map.get(pr.product) ?? { product: pr.product, prs: 0, hours: 0, linesAdded: 0 }
@@ -270,6 +308,17 @@ function buildByProduct(prs: PrRow[]): ProductBreakdown[] {
     entry.linesAdded += pr.additions
     map.set(pr.product, entry)
   }
+
+  const manualHours = manualEffort.reduce((sum, item) => sum + item.hours, 0)
+  if (manualHours > 0) {
+    map.set('Infraestrutura / esforço manual', {
+      product: 'Infraestrutura / esforço manual',
+      prs: 0,
+      hours: manualHours,
+      linesAdded: 0,
+    })
+  }
+
   return [...map.values()]
     .map(p => ({ ...p, hours: Number(p.hours.toFixed(1)) }))
     .sort((a, b) => b.hours - a.hours)
@@ -284,10 +333,14 @@ function repoErrorMessage(e: unknown): string {
 
 async function fetchWindowData(
   repos: RepoConfig[],
-  windowDays: number
+  windowDays: number,
+  previous?: DeliveryCachePayload | null
 ): Promise<DeliveryCachePayload> {
   const windowEnd = new Date()
   const windowStart = new Date(windowEnd.getTime() - windowDays * 86_400_000)
+
+  const known = new Map<string, Omit<PrRow, 'estimatedHours'>>()
+  for (const pr of previous?.prs ?? []) known.set(`${pr.repo}#${pr.number}`, pr)
 
   const statuses: RepoStatus[] = []
   const rawPrs: Omit<PrRow, 'estimatedHours'>[] = []
@@ -296,7 +349,7 @@ async function fetchWindowData(
   for (const repo of repos) {
     const full = `${repo.owner}/${repo.repo}`
     try {
-      const result = await fetchRepo(repo, windowStart, windowEnd)
+      const result = await fetchRepo(repo, windowStart, windowEnd, known)
       rawPrs.push(...result.prs)
       allCommits.push(...result.commits)
       statuses.push({ repo: full, ok: true })
@@ -308,6 +361,7 @@ async function fetchWindowData(
   rawPrs.sort((a, b) => (b.mergedAt > a.mergedAt ? 1 : -1))
 
   return {
+    version: CACHE_VERSION,
     fetchedAt: new Date().toISOString(),
     windowDays,
     windowStart: windowStart.toISOString(),
@@ -359,8 +413,8 @@ function buildReportFromCache(
 
   const manualInPeriod = manualItemsInPeriod(manualEffort, periodStart, periodEnd)
   const estimate = computeEstimate(stats, manualInPeriod, periodDays, DEFAULT_EFFORT_CONFIG)
-  const allPrs = allocateHours(rawPrs, estimate.gitHours)
-  const byProduct = buildByProduct(allPrs)
+  const allPrs = allocateHours(rawPrs, DEFAULT_EFFORT_CONFIG.effectiveLocPerHour)
+  const byProduct = buildByProduct(allPrs, manualInPeriod)
 
   const modules: ModuleGroup[] = [
     ...buildModules(allPrs),
@@ -398,37 +452,72 @@ function buildReportFromCache(
   }
 }
 
+/** Uma revalidação por cliente: visitas simultâneas não disparam N fetches no GitHub. */
+const inFlight = new Map<string, Promise<DeliveryCachePayload>>()
+
+function refreshCache(
+  clientId: string,
+  repos: RepoConfig[],
+  previous: DeliveryCachePayload | null
+): Promise<DeliveryCachePayload> {
+  const running = inFlight.get(clientId)
+  if (running) return running
+
+  const task = fetchWindowData(repos, CACHE_WINDOW_DAYS, previous)
+    .then(async fresh => {
+      if (fresh.repos.some(r => r.ok) || fresh.prs.length > 0) {
+        await writeDeliveryCache(clientId, fresh)
+      }
+      return fresh
+    })
+    .finally(() => {
+      inFlight.delete(clientId)
+    })
+
+  inFlight.set(clientId, task)
+  return task
+}
+
 export async function getDeliveryReport(
   clientId: string,
   repos: RepoConfig[],
   periodDays: number,
   manualEffort: ManualEffortItem[] = [],
   options?: { forceRefresh?: boolean }
-): Promise<DeliveryReport & { cacheHit: boolean; cacheFetchedAt: string }> {
-  let cache = await readDeliveryCache(clientId)
-  const allFailed = Boolean(cache && cache.repos.length > 0 && cache.repos.every(r => !r.ok))
-  const fresh = Boolean(
-    cache &&
-      isCacheFresh(cache) &&
-      cache.windowDays >= CACHE_WINDOW_DAYS &&
-      !allFailed &&
-      !options?.forceRefresh
-  )
+): Promise<DeliveryReport & { cacheHit: boolean; cacheStale: boolean; cacheFetchedAt: string }> {
+  const stored = await readDeliveryCache(clientId)
+  const usable =
+    stored &&
+    stored.version === CACHE_VERSION &&
+    stored.windowDays >= CACHE_WINDOW_DAYS &&
+    !(stored.repos.length > 0 && stored.repos.every(r => !r.ok))
+      ? stored
+      : null
 
+  let cache: DeliveryCachePayload
   let cacheHit = false
-  if (fresh && cache) {
+  let cacheStale = false
+
+  if (!usable || options?.forceRefresh) {
+    cache = await refreshCache(clientId, repos, usable)
+  } else if (isCacheFresh(usable)) {
+    cache = usable
     cacheHit = true
+  } else if (isCacheUsableAsStale(usable)) {
+    // Entrega o relatório na hora e busca merges novos ao fundo.
+    cache = usable
+    cacheHit = true
+    cacheStale = true
+    void refreshCache(clientId, repos, usable).catch(() => undefined)
   } else {
-    cache = await fetchWindowData(repos, CACHE_WINDOW_DAYS)
-    if (cache.repos.some(r => r.ok) || cache.prs.length > 0) {
-      await writeDeliveryCache(clientId, cache)
-    }
+    cache = await refreshCache(clientId, repos, usable)
   }
 
   const report = buildReportFromCache(cache, periodDays, manualEffort)
   return {
     ...report,
     cacheHit,
+    cacheStale,
     cacheFetchedAt: cache.fetchedAt,
   }
 }

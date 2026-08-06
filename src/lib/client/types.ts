@@ -23,6 +23,50 @@ export interface ClientContact {
   email?: string
 }
 
+export interface ClientMeeting {
+  id: string
+  title: string
+  date: string
+  duration?: string
+  status: 'scheduled' | 'completed'
+  attendees: string[]
+  summary?: string
+  /** Conteúdo-fonte usado no servidor para gerar o briefing com IA. */
+  aiContext?: string
+  href?: string
+}
+
+export interface ClientDocument {
+  id: string
+  title: string
+  category: string
+  description: string
+  updatedAt?: string
+  status: 'available' | 'draft' | 'coming-soon'
+  href?: string
+  external?: boolean
+}
+
+export type ClientProjectStatus =
+  | 'active'
+  | 'discovery'
+  | 'proposed'
+  | 'deferred'
+  | 'done'
+
+export interface ClientProject {
+  id: string
+  name: string
+  pillar: string
+  description: string
+  status: ClientProjectStatus
+  owner?: string
+  priority?: 'Alta' | 'Média' | 'Baixa'
+  updatedAt?: string
+  href?: string
+  tags?: string[]
+}
+
 export interface ClientWorkspace {
   id: string
   slug: string
@@ -33,12 +77,14 @@ export interface ClientWorkspace {
   accent: string
   contacts: ClientContact[]
   stats: { label: string; value: string }[]
-  onboarding: {
+  /** Legado — clientes maduros usam `projects` no lugar. */
+  onboarding?: {
     eyebrow: string
     title: string
     titleAccent: string
     steps: OnboardingStep[]
   }
+  projects?: ClientProject[]
   docs: {
     eyebrow: string
     title: string
@@ -46,6 +92,8 @@ export interface ClientWorkspace {
     categories: DocCategory[]
     supportEmail: string
   }
+  meetings?: ClientMeeting[]
+  documents?: ClientDocument[]
   /** Repositórios GitHub que alimentam a aba Entregas. */
   delivery?: {
     repos: RepoConfig[]

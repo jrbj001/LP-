@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type {
   DeliveryKpis,
   DeliveryReport,
@@ -535,6 +535,11 @@ export function AiAnalysisPanel({
   const [error, setError] = useState<string | null>(null)
   const [analysis, setAnalysis] = useState<string | null>(null)
 
+  useEffect(() => {
+    setAnalysis(null)
+    setError(null)
+  }, [periodDays])
+
   async function generate() {
     setLoading(true)
     setError(null)
@@ -564,7 +569,7 @@ export function AiAnalysisPanel({
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
         <div>
           <p className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 mb-1">
-            Inteligência · PixelPulseLab
+            Inteligência · PixelPulseLab · {periodDays} dias
           </p>
           <h3 className="text-[16px] font-semibold text-neutral-900">
             Análise executiva com IA

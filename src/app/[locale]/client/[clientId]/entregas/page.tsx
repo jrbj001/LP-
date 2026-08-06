@@ -42,7 +42,9 @@ export default async function EntregasPage({ params, searchParams }: Props) {
   const forceRefresh = refresh === '1'
   const base = `/${locale}/client/${client.slug}/entregas`
 
-  let report: (DeliveryReport & { cacheHit: boolean; cacheFetchedAt: string }) | null = null
+  let report:
+    | (DeliveryReport & { cacheHit: boolean; cacheStale: boolean; cacheFetchedAt: string })
+    | null = null
   let loadError: string | null = null
 
   if (repos.length > 0) {
@@ -68,9 +70,14 @@ export default async function EntregasPage({ params, searchParams }: Props) {
           <p className="text-[12px] text-neutral-400 uppercase tracking-[0.08em] mb-1.5">
             {client.name}
           </p>
-          <h1 className="text-[22px] sm:text-[26px] lg:text-[28px] font-bold tracking-[-0.02em] text-neutral-900">
-            Relatório de Entregas
-          </h1>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="text-[22px] sm:text-[26px] lg:text-[28px] font-bold tracking-[-0.02em] text-neutral-900">
+              Relatório de Entregas
+            </h1>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500 bg-[#f5f5f3] border border-black/[0.06] rounded-full px-2.5 py-1">
+              últimos {days} dias
+            </span>
+          </div>
         </div>
         {report && (
           <div className="shrink-0 lg:text-right">
@@ -86,6 +93,7 @@ export default async function EntregasPage({ params, searchParams }: Props) {
             base={base}
             days={days}
             cacheHit={report.cacheHit}
+            cacheStale={report.cacheStale}
             cacheFetchedAt={report.cacheFetchedAt}
           />
         )}
@@ -152,7 +160,12 @@ export default async function EntregasPage({ params, searchParams }: Props) {
 
             <section>
               <SectionTitle>Análise com IA</SectionTitle>
-              <AiAnalysisPanel clientId={client.slug} periodDays={days} clientName={client.name} />
+              <AiAnalysisPanel
+                key={days}
+                clientId={client.slug}
+                periodDays={days}
+                clientName={client.name}
+              />
             </section>
           </div>
 

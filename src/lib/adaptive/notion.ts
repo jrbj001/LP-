@@ -371,9 +371,38 @@ export async function countSessions(clientId: string): Promise<number> {
   return count
 }
 
+/** Conta sessões cujo início ainda está no futuro (qualquer status). */
+export async function countUpcomingSessions(clientId: string): Promise<number> {
+  let count = 0
+  let cursor: string | undefined
+  const now = new Date()
+
+  do {
+    const res = await queryDataSource(env('NOTION_SESSIONS_DB_ID'), {
+      filter: { property: 'Client', select: { equals: clientId } },
+      page_size: 100,
+      start_cursor: cursor,
+    })
+    for (const r of res.results) {
+      const p = asPage(r)
+      if (!p) continue
+      const start = textProp(p, 'SlotStart')
+      if (start && new Date(start) > now) count++
+    }
+    cursor = res.has_more ? res.next_cursor ?? undefined : undefined
+  } while (cursor)
+
+  return count
+}
+
+/**
+ * Gera slots quando não há nenhuma sessão futura para o cliente.
+ * Assim a janela é regenerada automaticamente quando a anterior expira,
+ * evitando o cenário "nenhum horário disponível" com slots antigos no passado.
+ */
 export async function seedSessionsIfEmpty(config: SlotWindowConfig): Promise<number> {
-  const existing = await countSessions(config.clientId)
-  if (existing > 0) return 0
+  const upcoming = await countUpcomingSessions(config.clientId)
+  if (upcoming > 0) return 0
 
   const n = notion()
   const slots = generateSlotCandidates(config)
