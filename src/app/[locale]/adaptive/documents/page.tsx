@@ -8,12 +8,19 @@ import { FileText, Download, ExternalLink } from 'lucide-react'
 
 const DOCS = [
   {
+    name: 'Adaptive Layer™ — Legado, camada e agentes',
+    type: 'Página web · link exclusivo',
+    size: 'Introdução · sistemas atuais · squad de agentes',
+    status: 'available' as const,
+    href: '/adaptive/adaptive-layer',
+    highlight: true,
+  },
+  {
     name: 'Processo B2B — Order-to-delivery + Quick Wins',
     type: 'Página web · React Flow',
     size: 'Jornada completa · intervenções → QWs',
     status: 'available' as const,
     href: '/adaptive/processo-b2b',
-    highlight: true,
   },
   {
     name: 'Executive Review — UPDATE (drive OTD)',
@@ -59,7 +66,7 @@ export default function DocumentsPage() {
       <PageHeader
         eyebrow="Workspace"
         title="Documentos"
-        subtitle="Drive: Order-to-delivery. Materiais do assessment e entregáveis — jornada B2B com plano embutido em destaque."
+        subtitle="Drive: Order-to-delivery. Materiais do assessment e entregáveis — Adaptive Layer™ (legado + agentes) em destaque."
       />
 
       <div className="rounded-2xl border border-black/[0.06] bg-white divide-y divide-black/[0.05] overflow-hidden">
