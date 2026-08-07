@@ -43,7 +43,7 @@ export function OnboardingDashboard({
     [rows, filter]
   )
 
-  // Conclusão = assessment respondido (Assessment done / Session booked / Done)
+  // Conclusão = status Assessment done ou Done.
   const pct = counts.total ? Math.round((counts.assessmentDone / counts.total) * 100) : 0
 
   return (

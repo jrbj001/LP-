@@ -2,7 +2,7 @@ import {
   Home, Layers, User, FolderKanban, LayoutDashboard,
   FileBarChart, FileText, type LucideIcon,
   Target, ClipboardList, Cog, Server, Sparkles, ClipboardCheck, Activity, Mic2,
-  Calculator,
+  Calculator, Workflow,
 } from 'lucide-react'
 
 // ─── Sidebar navigation ──────────────────────────────────────────────────────
@@ -23,6 +23,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard',        href: '/dashboard',        icon: LayoutDashboard, section: 'workspace' },
   { label: 'Acompanhamento',   href: '/onboarding',       icon: Activity,        section: 'workspace' },
   { label: 'Reuniões',         href: '/meetings',         icon: Mic2,            section: 'workspace' },
+  { label: 'Processo B2B',     href: '/processo-b2b',     icon: Workflow,        section: 'workspace' },
   { label: 'Executive Review', href: '/executive-review', icon: FileBarChart,    section: 'workspace' },
   { label: 'Documentos',       href: '/documents',        icon: FileText,        section: 'workspace' },
   { label: 'Proposta',         href: '/proposta',         icon: Calculator,      section: 'workspace', locked: true },

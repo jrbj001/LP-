@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 export default async function DashboardPage() {
   try {
     const data = await getOnboardingProgress()
-    const assessmentDone = data.assessments.length
+    const assessmentDone = data.counts.assessmentDone
     const sessionBooked = data.counts.sessionBooked
     return <DashboardView counts={{ assessmentDone, sessionBooked }} />
   } catch {

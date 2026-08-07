@@ -1,11 +1,12 @@
 'use client'
 
 import { ADAPTIVE_LAYER } from '@/components/adaptive/executive-review-data'
+import { OTD_AGENTS, type AgentIconKey } from '@/lib/adaptive/b2b-process/agents'
 import {
   Database, Boxes, ShoppingBag, MessageCircle, FlaskConical, Radio, CreditCard,
   ArrowDown, Layers, ShieldCheck, Workflow, Cable, Braces,
-  Bot, TrendingUp, Terminal, HeartHandshake, Gauge, Coffee, ClipboardCheck, Truck,
-  Sparkles, Send, CheckCircle2, Circle,
+  Bot, TrendingUp, HeartHandshake, Gauge, Coffee, Truck,
+  Sparkles, Send, CheckCircle2, Circle, type LucideIcon,
 } from 'lucide-react'
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -97,50 +98,22 @@ function FlowConnector({ label }: { label: string }) {
    Agentes — squad de agentes IA sobre a camada
 ──────────────────────────────────────────────────────────────────────────── */
 
-const AGENTS = [
-  {
-    icon: Terminal,
-    name: 'Copiloto Protheus',
-    role: 'Consultas ao ERP em linguagem natural — sem depender de relatório de TI.',
-    owner: 'André · TI',
-    example: '“Quantos pedidos B2B faturamos ontem por região?”',
-  },
-  {
-    icon: ClipboardCheck,
-    name: 'Agente dos Baristas',
-    role: 'Resume 45+ checklists diários e gera o relatório N2 automaticamente.',
-    owner: 'Joyce · Cafeterias',
-    example: '“3 lojas com anomalia de temperatura hoje. Detalhes?”',
-  },
-  {
-    icon: HeartHandshake,
-    name: 'Agente de CX',
-    role: 'Classifica solicitações, analisa sentimento e sugere respostas.',
-    owner: 'Cibele · CX/CS',
-    example: '“Quais clientes B2B estão em risco este mês?”',
-  },
-  {
-    icon: TrendingUp,
-    name: 'Agente Comercial',
-    role: 'Elasticidade de preço e jornada de vendas automatizada.',
-    owner: 'Ricardo CEO · Silvia',
-    example: '“Simule o impacto de +4% no blend Clássico.”',
-  },
-  {
-    icon: Truck,
-    name: 'Agente de Logística',
-    role: 'Previsibilidade de transporte, tracking e alertas de atraso.',
-    owner: 'Ricardo Silva · Logística',
-    example: '“Quais entregas de amanhã têm risco de atraso?”',
-  },
-  {
-    icon: Coffee,
-    name: 'Agente de Qualidade',
-    role: 'Consolida Cropster e automatiza relatórios sensoriais por lote.',
-    owner: 'Milena · Qualidade',
-    example: '“Compare o cupping dos últimos 5 lotes do sítio Alta.”',
-  },
-]
+const AGENT_ICONS: Record<AgentIconKey, LucideIcon> = {
+  orchestrator: Workflow,
+  commercial: TrendingUp,
+  order: Boxes,
+  finance: CreditCard,
+  logistics: Truck,
+  repurchase: HeartHandshake,
+}
+
+const AGENTS = OTD_AGENTS.map(agent => ({
+  icon: AGENT_ICONS[agent.icon],
+  name: agent.name,
+  role: agent.role,
+  owner: agent.owner,
+  example: agent.example,
+}))
 
 export function AgentsDiagram() {
   return (
@@ -163,7 +136,7 @@ export function AgentsDiagram() {
 
       <div className="flex flex-col items-center gap-1 py-3">
         <ArrowDown className="w-4 h-4 text-neutral-300" strokeWidth={2} />
-        <span className="text-[10px] text-neutral-400 uppercase tracking-[0.14em]">todos consultam a mesma fonte</span>
+        <span className="text-[10px] text-neutral-400 uppercase tracking-[0.14em]">todos operam a mesma jornada</span>
       </div>
 
       <div className="rounded-2xl bg-neutral-900 text-white px-6 py-5 flex flex-wrap items-center justify-center gap-3">
@@ -172,7 +145,7 @@ export function AgentsDiagram() {
           <span className="text-[13px] font-semibold">LLM + Adaptive Layer™</span>
         </div>
         <span className="hidden sm:block text-white/20">·</span>
-        <span className="text-[12px] text-white/50">dados unificados, seguros e auditáveis — um agente por área, uma única verdade</span>
+        <span className="text-[12px] text-white/50">pedido, crédito, faturamento, logística e recompra — uma jornada, uma única verdade</span>
       </div>
     </div>
   )

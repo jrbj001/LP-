@@ -43,8 +43,34 @@ export function DashboardView({ counts }: { counts?: DashboardCounts }) {
       <PageHeader
         eyebrow="Workspace"
         title="Dashboard"
-        subtitle={`Visão consolidada do portfólio do ${CLIENT.name}. Scores preliminares com base em ${counts?.assessmentDone ?? REVIEW_META.assessmentsReceived} assessments e ${REVIEW_META.meetingsCompleted} reuniões discovery.`}
+        subtitle={`Drive: Order-to-delivery. Scores preliminares com ${counts?.assessmentDone ?? REVIEW_META.assessmentsReceived} assessments e ${REVIEW_META.meetingsCompleted} discoveries — QWs = intervenções manuais resolvidas.`}
       />
+
+      {/* Order-to-delivery — drive */}
+      <Reveal>
+        <Link
+          href={`/${locale}/adaptive/processo-b2b`}
+          className="group block rounded-2xl border border-emerald-900/10 bg-emerald-50/50 p-6 mb-4 hover:border-emerald-900/20 transition-colors"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-emerald-800/60 mb-1">
+                Drive · Order-to-delivery
+              </p>
+              <p className="text-[15px] font-semibold text-neutral-900">
+                Intervenções manuais → quick wins → Adaptive Layer™ → LLM
+              </p>
+              <p className="text-[12px] text-neutral-500 mt-1">
+                Cristiane · Selton · André · Ricardo CEO
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-emerald-800">
+              Abrir jornada B2B
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+            </span>
+          </div>
+        </Link>
+      </Reveal>
 
       {/* Da semente à xícara — jornada */}
       <Reveal>
@@ -157,7 +183,7 @@ export function DashboardView({ counts }: { counts?: DashboardCounts }) {
                 <span className="text-[16px] text-white/40">/100</span>
               </div>
               <p className="text-[13px] text-white/50 mt-3 max-w-lg leading-relaxed">
-                Estimativa preliminar — será recalibrada após os stakeholders pendentes, incluindo Augusto Kraft Baum e Priscila Calvelhe, completarem o assessment.
+                Estimativa preliminar — será recalibrada após Cristiane (crítica HORECA/OTD) e demais stakeholders pendentes completarem o assessment.
               </p>
             </div>
             <Link

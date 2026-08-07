@@ -1,4 +1,14 @@
 import { PROJECTS, STAKEHOLDERS } from '@/components/adaptive/data'
+import {
+  OTD_QUICK_WINS,
+  SATELLITE_WINS,
+  OTD_PLAN_SUMMARY,
+  OTD_AI_PLAN_INTRO,
+  OTD_KPIS,
+  OTD_ROI_MODEL,
+} from '@/lib/adaptive/b2b-process/quick-wins'
+import { OTD_AI_OPPORTUNITIES } from '@/lib/adaptive/b2b-process/agents'
+import { OTD_MILESTONES } from '@/lib/adaptive/b2b-process/milestones'
 
 // ─── Assessment status ────────────────────────────────────────────────────────
 
@@ -100,25 +110,27 @@ export const SEED_TO_CUP: SeedToCupStage[] = [
 export const CRITICAL_ALIGNMENT = {
   headline: 'O ponto crítico em comum',
   statement:
-    'As 8 vozes do assessment e as 6 reuniões discovery convergem para a mesma dor: sistemas que não conversam obrigam pessoas a serem a integração — redigitando, conciliando e correndo atrás do dado. O sintoma mais caro está na jornada comercial (order-to-delivery e faturamento B2B manuais, sem CRM), mas a causa é estrutural e atravessa todas as áreas. Por isso a entrega-mãe deste plano é o Adaptive Layer™: a camada que integra os sistemas existentes e devolve às pessoas o tempo que hoje se perde entre eles.',
+    'Palavra-chave: Order-to-delivery. As 6 discoveries convergem para a mesma dor estrutural — sistemas que não conversam — e o sintoma mais caro está na jornada B2B: intervenções manuais em cada etapa do pedido (financeiro + logística), com back-office dedicado só a isso. Cristiane e Selton mapearam a jornada; André confirma faturamento B2B como nº 1; o CEO pede portal B2B e integrações Protheus. Por isso os quick wins deste plano são a resolução de TODAS essas intervenções. Juntos, eles constroem o Adaptive Layer™; o LLM opera sobre o fluxo já limpo.',
   ceo: {
     name: 'Ricardo Madureira · CEO',
     alignment: [
       'Escalar nacionalmente mantendo posicionamento premium — receita orçada superando margem de contribuição.',
       '"Se fosse CIO por um dia: automatizar todos os processos manuais." Maior desafio declarado: operações manuais e retrabalho.',
       'Tecnologia atrapalha "quando não é integrada dentro do processo e exige interação humana entre as etapas — gerando erros e retrabalho".',
-      'Segurança de dados e integridade dos bancos como pilar transversal — único tema levantado espontaneamente.',
+      'Quick wins citados: portal B2B e integrações Protheus; PagBrasil segue com fornecedor atual e entra apenas como ponto futuro de integração · segurança como pilar transversal.',
     ],
   },
   voices: [
+    { name: 'Cristiane · B2B HORECA', quote: 'Canal +55% 2024→2025; order-to-delivery ainda cheio de intervenções manuais em cada etapa.' },
+    { name: 'Selton · Consultor Comercial', quote: 'Jornada mapeada no Miro há 4 anos — prioridade: digitalizar order-to-delivery multicanais.' },
     { name: 'André · TI', quote: 'Faturamento automático B2B e Varejo é o processo nº 1 a automatizar; equipe enxuta para 31 projetos.' },
     { name: 'Gustavo · Operações', quote: 'CIO por um dia: arquitetura de dados integrada — um único ecossistema digital.' },
-    { name: 'Selton · Consultor Comercial', quote: 'Order-to-delivery multicanais e CRM/jornada do vendedor e do cliente.' },
-    { name: 'Cibele · CX', quote: 'Sistemas não integrados exigem consultas em várias plataformas — retrabalho e jornada quebrada.' },
     { name: 'Milena · Qualidade', quote: 'Plataforma única e integrada, eliminando controles paralelos e lançamentos manuais.' },
-    { name: 'Ricardo Silva · Logística', quote: 'O maior desafio é visibilidade em tempo real.' },
+    { name: 'Cibele · CX', quote: 'Sistemas não integrados exigem consultas em várias plataformas — retrabalho e jornada quebrada.' },
   ],
 }
+
+export { OTD_PLAN_SUMMARY, OTD_AI_PLAN_INTRO, OTD_KPIS, OTD_ROI_MODEL }
 
 // ─── Adaptive Index™ ────────────────────────────────────────────────────────────
 
@@ -175,27 +187,27 @@ export interface Recommendation {
 export const RECOMMENDATIONS: Recommendation[] = [
   {
     rank: 1,
-    title: 'Capacidade externa embarcada',
+    title: 'Order-to-delivery — eliminar intervenções manuais',
     detail:
-      'Contratar Pixel como braço de execução — não consultoria rotativa. Continuidade de regras de negócio é crítica (400+ customizações Protheus).',
+      'Palavra-chave do plano. Cada intervenção manual no caminho do pedido (financeiro + logística) vira um quick win. Ver jornada completa em /adaptive/processo-b2b.',
   },
   {
     rank: 2,
-    title: 'Piloto Quick Wins + Faturamento B2B',
+    title: 'Piloto Quick Wins OTD',
     detail:
-      'Validar modelo de entrega em 6–8 semanas antes de escalar. Candidatos: resumo IA checklists, integração e-mail Suri, automação Cropster.',
+      'Começar pelos QWs de maior atrito: proposta/pricing no fluxo, input com ruptura visível e faturamento B2B automático (André #1 + CEO).',
   },
   {
     rank: 3,
     title: 'Adaptive Layer™ — a entrega-mãe',
     detail:
-      'Camada de integração de dados antes de novos BIs/dashboards — evita multiplicar silos e destrava order-to-delivery, visão 360º e IA (visão Gustavo + André + Selton).',
+      'Os QWs OTD nascem plugados na camada (Protheus, WMS, portal, EDI, JV). Sem Layer, cada automação vira silo novo.',
   },
   {
     rank: 4,
-    title: 'Digitalizar contratos comerciais',
+    title: 'LLM sobre o fluxo limpo',
     detail:
-      'Desbloqueia IA sobre Protheus e automação de pricing. Hoje contratos em PDF impedem consultas em linguagem natural.',
+      'Consultas NL, status de pedido e risco de cliente — só depois que as intervenções manuais do OTD caíram.',
   },
   {
     rank: 5,
@@ -205,7 +217,7 @@ export const RECOMMENDATIONS: Recommendation[] = [
   },
 ]
 
-// ─── Quick Wins ─────────────────────────────────────────────────────────────────
+// ─── Quick Wins = resolução das intervenções OTD ───────────────────────────────
 
 export interface QuickWin {
   id: string
@@ -214,62 +226,49 @@ export interface QuickWin {
   effort: 'Baixo' | 'Baixo-Médio' | 'Médio'
   impact: 'Médio' | 'Alto'
   pilot?: boolean
+  intervention?: string
+  interventionDetail?: string
+  businessRisk?: string
+  expectedGain?: string
+  kpis?: string[]
+  stageLabel?: string
+  area?: string
 }
 
-export const QUICK_WINS: QuickWin[] = [
-  {
-    id: 'QW-02',
-    title: 'Resumo IA de checklists baristas (45+ relatórios/dia → digest)',
-    source: 'Joyce · onboarding Q8/Q9',
-    effort: 'Baixo',
-    impact: 'Médio',
-    pilot: true,
-  },
-  {
-    id: 'QW-03',
-    title: 'Automação relatórios Cropster (degustações sensoriais)',
-    source: 'Milena · onboarding Q8/Q9',
-    effort: 'Baixo-Médio',
-    impact: 'Médio',
-  },
-  {
-    id: 'QW-04',
-    title: 'Integração e-mail → Suri (CX 360º parcial)',
-    source: 'Cibele · onboarding Q8',
-    effort: 'Médio',
-    impact: 'Alto',
-    pilot: true,
-  },
-  {
-    id: 'QW-05',
-    title: 'Portal de entregas Pixel para André + comitê TI',
-    source: 'Discovery André + Ricardo CEO',
-    effort: 'Baixo',
-    impact: 'Alto',
-  },
-  {
-    id: 'QW-06',
-    title: 'Sistema de chamados TI com SLA visível',
-    source: 'Ricardo Silva · onboarding Q11',
-    effort: 'Baixo-Médio',
-    impact: 'Médio',
-  },
-]
+/** Drive: cada QW elimina uma intervenção manual do order-to-delivery. */
+export const QUICK_WINS: QuickWin[] = OTD_QUICK_WINS.map(q => ({
+  id: q.id,
+  title: q.title,
+  source: q.source,
+  effort: q.effort,
+  impact: q.impact,
+  pilot: q.pilot,
+  intervention: q.intervention,
+  interventionDetail: q.interventionDetail,
+  businessRisk: q.businessRisk,
+  expectedGain: q.expectedGain,
+  kpis: q.kpis,
+  stageLabel: q.stageLabel,
+  area: q.area,
+}))
+
+/** Trilhas paralelas — permanecem no roadmap; não competem com QWs OTD. */
+export const SATELLITE_QUICK_WINS = SATELLITE_WINS
 
 // ─── Plano de trabalho — entrega-mãe + quick wins ───────────────────────────────
 
 export const ADAPTIVE_LAYER = {
   title: 'Adaptive Layer™',
-  tagline: 'A entrega-mãe do plano de trabalho',
+  tagline: 'A entrega-mãe: Order-to-delivery sem intervenções manuais',
   description:
-    'Camada de integração de dados que conecta os sistemas que a Orfeu já tem — sem substituí-los. É construída em paralelo aos quick wins: cada quick win entregue já nasce plugado na camada, e cada integração nova amplia o que a próxima entrega consegue fazer. Ao final, o dado percorre a jornada da semente à xícara sem redigitação.',
-  connects: ['Protheus (400+ regras)', 'WMS', 'Shopify', 'Suri', 'Cropster', 'OpsFactor / sensores', 'Mercado Livre'],
+    'Camada de integração que conecta os sistemas que a Orfeu já tem — Protheus, WMS, portal, EDI, Jornada do Vendedor — sem substituí-los. Cada quick win do order-to-delivery nasce plugado na camada: juntos eliminam as intervenções manuais (financeiro + logística) no caminho do pedido. No topo, o LLM consulta status, risco e dados comerciais sobre o fluxo já limpo. Trilhas paralelas (qualidade, CX, Indústria 4.0, segurança) também plugam na mesma Layer.',
+  connects: ['Protheus (400+ regras)', 'WMS', 'Portal de Vendas', 'EDI', 'Jornada do Vendedor', 'Shopify', 'Suri', 'Cropster', 'OpsFactor / sensores'],
   unlocks: [
-    'Faturamento automático B2B + Varejo',
-    'Order-to-delivery digital multicanais',
-    'Visão 360º do cliente + VoC',
-    'IA/NLP sobre Protheus (consultas em linguagem natural)',
-    'Rastreabilidade da semente à xícara',
+    'Order-to-delivery digital ponta a ponta (Cris + Selton)',
+    'Faturamento automático B2B + Varejo (André #1)',
+    'Ruptura e crédito visíveis no fluxo',
+    'Tracking e recompra sem planilha/telefone',
+    'IA/LLM sobre Protheus e status de pedido',
     'Segurança e integridade de dados por desenho',
   ],
 }
@@ -278,47 +277,17 @@ export interface WorkPlanStep {
   id: string
   window: string
   title: string
-  type: 'quick-win' | 'layer' | 'delivery'
+  type: 'mobilization' | 'quick-win' | 'layer' | 'delivery'
   detail: string
 }
 
-export const WORK_PLAN: WorkPlanStep[] = [
-  {
-    id: 'wp-1',
-    window: 'Semanas 1–4',
-    title: 'Piloto Quick Wins',
-    type: 'quick-win',
-    detail: 'QW-02 Resumo IA checklists baristas + QW-04 integração e-mail → Suri — valor visível em semanas, validando o modelo Pixel.',
-  },
-  {
-    id: 'wp-2',
-    window: 'Semanas 3–8',
-    title: 'Fundação do Adaptive Layer™',
-    type: 'layer',
-    detail: 'Ramp Protheus (regras customizadas), primeiras integrações WMS + Shopify + Suri. Cada quick win entregue já pluga na camada.',
-  },
-  {
-    id: 'wp-3',
-    window: 'Semanas 6–10',
-    title: 'Quick wins de integração',
-    type: 'quick-win',
-    detail: 'QW-03 relatórios Cropster · QW-05 portal de entregas · QW-06 chamados TI com SLA.',
-  },
-  {
-    id: 'wp-4',
-    window: 'Meses 3–5',
-    title: 'Adaptive Layer™ — faturamento e order-to-delivery',
-    type: 'layer',
-    detail: 'Faturamento automático B2B + Varejo (prioridade nº 1 do comitê e do CEO) e jornada digital de pedidos sobre a camada.',
-  },
-  {
-    id: 'wp-5',
-    window: 'Meses 4–8',
-    title: 'Entrega-mãe em produção',
-    type: 'delivery',
-    detail: 'Camada operante ponta a ponta: CRM/jornada do vendedor, visão 360º do cliente, IA/NLP sobre Protheus e rastreabilidade semente → xícara.',
-  },
-]
+export const WORK_PLAN: WorkPlanStep[] = OTD_MILESTONES.map(milestone => ({
+  id: milestone.id,
+  window: milestone.window,
+  title: milestone.title,
+  type: milestone.type,
+  detail: `${milestone.objective} ${milestone.gate}`,
+}))
 
 // ─── Roadmap phases ─────────────────────────────────────────────────────────────
 
@@ -352,50 +321,63 @@ export const ROADMAP: RoadmapPhase[] = [
   },
   {
     id: 'phase-1',
-    title: 'Fase 1 — Quick Wins',
-    window: 'Semanas 3–8',
-    objective: 'Ganhos rápidos de baixo risco — validar modelo Pixel antes de escalar. Cada entrega já nasce plugada no Adaptive Layer™.',
+    title: 'Fase 1 — Quick Wins OTD',
+    window: 'Semanas 2–14',
+    objective:
+      'Resolver TODAS as intervenções manuais do order-to-delivery (financeiro + logística). Cada QW nasce plugado no Adaptive Layer™.',
     items: QUICK_WINS.map(qw => ({
       id: qw.id,
       title: qw.title,
-      notes: `${qw.effort} esforço · ${qw.impact} impacto`,
+      notes: qw.intervention
+        ? `Manual: ${qw.intervention}`
+        : `${qw.effort} esforço · ${qw.impact} impacto`,
     })),
   },
   {
     id: 'phase-2',
     title: 'Fase 2 — Adaptive Layer™ (entrega-mãe)',
-    window: 'Meses 2–5',
-    objective: 'A camada de integração que resolve a causa comum: dados fluindo entre os sistemas existentes, sem redigitação.',
+    window: 'Semanas 3–Mês 5',
+    objective:
+      'A camada que mantém o OTD limpo: dados fluindo entre Protheus, WMS, portal, EDI e JV — sem redigitação.',
     items: [
-      { id: 'F-01', title: 'Camada de integração de dados (Protheus ↔ WMS ↔ Shopify ↔ Suri ↔ Cropster)', notes: 'Pré-requisito para IA e visão 360º' },
-      { id: 'F-02', title: 'Faturamento automático B2B + Varejo', projects: 'Cristiane, André, Cibele, Ricardo Madureira', notes: 'Prioridade #1 comitê + CEO' },
-      { id: 'F-03', title: 'Order-to-delivery digital multicanais', projects: 'Selton, Cristiane', notes: 'Processo #1 do consultor comercial' },
+      { id: 'F-01', title: 'Camada de integração (Protheus ↔ WMS ↔ Portal ↔ EDI ↔ JV)', notes: 'Pré-requisito para LLM e visão 360º' },
+      { id: 'F-02', title: 'Faturamento automático B2B + Varejo', projects: 'Cristiane, André, Cibele, Ricardo Madureira', notes: 'Prioridade #1 comitê + CEO · QW-OTD-07' },
+      { id: 'F-03', title: 'Order-to-delivery digital multicanais', projects: 'Selton, Cristiane', notes: 'Mapa completo em /processo-b2b' },
       { id: 'F-04', title: 'Site Compra B2B + Página Office', projects: 'Cristiane', notes: 'Shopify pausado aguardando Pixel' },
-      { id: 'F-05', title: 'Conciliação Mercado Livre', projects: 'Rafaela' },
+      { id: 'F-05', title: 'Conciliação Mercado Livre', projects: 'Rafaela', notes: 'PagBrasil com outro fornecedor; Layer preserva ponto futuro de integração' },
       { id: 'F-06', title: 'WMS Botelhos + expansão fábrica', projects: 'Ricardo Silva, Gustavo' },
       { id: 'F-07', title: 'Segurança da informação / LGPD', projects: 'Diego', notes: 'Pilar transversal — pedido espontâneo do CEO' },
     ],
   },
   {
     id: 'phase-3',
-    title: 'Fase 3 — Transformação Comercial & IA',
-    window: 'Meses 4–8',
-    objective: 'Sobre a camada pronta: resolver as dores estruturais de crescimento nacional.',
+    title: 'Fase 3 — LLM + agentes OTD',
+    window: 'Meses 5–8',
+    objective: 'Escopo comercial: Command Center, LLM e agentes operando sobre o OTD estabilizado.',
     items: [
       { id: 'T-01', title: 'CRM / Jornada do Vendedor e do Cliente (API Protheus)', projects: 'Cristiane, Selton, Amanda, Ricardo CEO' },
-      { id: 'T-02', title: 'Camada IA/NLP sobre Protheus', projects: 'André', notes: 'Consultas em linguagem natural' },
+      { id: 'T-02', title: 'Camada IA/LLM sobre Protheus + status pedido', projects: 'André', notes: 'Consultas em linguagem natural' },
+      { id: 'T-AGENTS', title: 'Squad de 6 agentes OTD', projects: 'Cristiane, Selton, André, Operações', notes: 'Guardrails, aprovação humana e auditoria' },
+    ],
+  },
+  {
+    id: 'phase-options',
+    title: 'Opções futuras — Comercial + satélites',
+    window: 'Após M5 · contratação separada',
+    objective: 'Evoluções que podem usar a mesma Layer, mas não integram o preço-base da proposta OTD.',
+    items: [
       { id: 'T-03', title: 'Visão 360º do cliente + VoC', notes: 'Cibele — fora do portfólio hoje' },
       { id: 'T-04', title: 'GTM regiões + clusterização B2B · gaps Varejo × Nielsen', projects: 'Selton', notes: 'Fora do portfólio hoje' },
       { id: 'T-05', title: 'Dashboard forecast × realizado', projects: 'Amanda Raquel' },
       { id: 'T-06', title: 'Calculadora elasticidade de preço', projects: 'Silvia + Ricardo CEO' },
-      { id: 'T-07', title: 'App Baristas Orfeu', projects: 'Joyce' },
+      { id: 'T-07', title: 'Satélites: Cropster, Suri, App Baristas, portal Pixel', notes: 'Trilhas paralelas na Layer' },
     ],
   },
   {
     id: 'phase-4',
-    title: 'Fase 4 — Indústria 4.0 & Agro',
-    window: 'Meses 6–12',
-    objective: 'Referência operacional — visão Gustavo e Milena.',
+    title: 'Opção futura — Indústria 4.0 & Agro',
+    window: 'Contratação separada',
+    objective: 'Fora do preço-base OTD — referência operacional para uma próxima onda.',
     items: [
       { id: 'I-01', title: 'Integração OpsFactor × Protheus', projects: 'Gustavo' },
       { id: 'I-02', title: 'App análise sensorial Cropster (plataforma única)', projects: 'Milena' },
@@ -474,20 +456,20 @@ export const CROSS_THEMES: CrossTheme[] = [
 // ─── AI opportunities ───────────────────────────────────────────────────────────
 
 export interface AiOpportunity {
+  id?: string
   area: string
   opportunity: string
   stakeholder: string
+  enabledBy?: string[]
 }
 
-export const AI_OPPORTUNITIES: AiOpportunity[] = [
-  { area: 'Comercial', opportunity: 'Elasticidade de preço · jornada de vendas automatizada', stakeholder: 'Ricardo CEO / Silvia' },
-  { area: 'TI / ERP', opportunity: 'Camada NLP sobre Protheus — consultas em linguagem natural', stakeholder: 'André' },
-  { area: 'CX / CS', opportunity: 'Classificação de solicitações · análise de sentimento · sugestão de respostas', stakeholder: 'Cibele' },
-  { area: 'Operações', opportunity: 'Tomada de decisão e planejamento operacional em tempo real', stakeholder: 'Gustavo' },
-  { area: 'Qualidade sensorial', opportunity: 'Automação de relatórios e consolidação Cropster', stakeholder: 'Milena' },
-  { area: 'Baristas', opportunity: 'Resumo diário de 45+ checklists · relatório N2', stakeholder: 'Joyce' },
-  { area: 'Logística', opportunity: 'Previsibilidade de transporte e tracking', stakeholder: 'Ricardo Silva' },
-]
+export const AI_OPPORTUNITIES: AiOpportunity[] = OTD_AI_OPPORTUNITIES.map(o => ({
+  id: o.id,
+  area: o.area,
+  opportunity: o.opportunity,
+  stakeholder: o.stakeholder,
+  enabledBy: o.enabledBy,
+}))
 
 // ─── Delivery model ─────────────────────────────────────────────────────────────
 
@@ -497,12 +479,12 @@ export interface DeliveryRow {
 }
 
 export const DELIVERY_MODEL: DeliveryRow[] = [
-  { label: 'Início', value: '1–2 projetos piloto (Quick Wins)' },
-  { label: 'Ramp Protheus', value: '2–3 semanas para regras customizadas' },
-  { label: 'Cadência', value: 'Entregas semanais · portal em tempo real' },
-  { label: 'Billing', value: 'Por entrega em produção (código commitado)' },
+  { label: 'Modelo', value: 'Engagement mensal do squad · outcomes nos gates (A) + capacidade/blended como transparência (B)' },
+  { label: 'Início', value: 'M0 baseline + ramp Protheus; piloto começa na semana 2' },
+  { label: 'Cadência', value: 'Demos semanais · planejamento e comitê quinzenais · gate mensal' },
+  { label: 'Billing', value: 'Fatura mensal liberada após aceite do ciclo — não cobrança hora a hora' },
   { label: 'Parceiros', value: 'José Roberto (engenharia) + Marco Lúcio (comercial)' },
-  { label: 'Governança', value: 'André observador no portal · comitê quinzenal' },
+  { label: 'Governança', value: 'Owners Orfeu validam evidências em até 5 dias úteis; pendência recebe plano corretivo' },
 ]
 
 // ─── Next steps ─────────────────────────────────────────────────────────────────
@@ -514,12 +496,13 @@ export interface NextStep {
 }
 
 export const NEXT_STEPS: NextStep[] = [
-  { title: 'Review com Ricardo Madureira', owner: 'José Roberto + Ricardo', due: 'hoje · 31/07 · 14h' },
-  { title: 'Completar assessments: Cristiane, Lucas, Rafaela', owner: 'José Roberto' },
-  { title: 'Completar assessments: Augusto Kraft Baum e Priscila Calvelhe', owner: 'José Roberto' },
+  { title: 'Capturar baseline OTD no M0 (KPIs, volume, margem e toques manuais)', owner: 'Pixel + Orfeu', due: 'kick-off' },
+  { title: 'Completar assessment Cristiane (crítica HORECA / OTD)', owner: 'José Roberto' },
+  { title: 'Completar assessments: Lucas, Rafaela, Augusto, Priscila', owner: 'José Roberto' },
+  { title: 'Piloto QWs OTD: proposta/pricing + ruptura + faturamento B2B', owner: 'Pixel + André + Cris' },
+  { title: 'Validar ROI com dados reais após estabilização do OTD (M4)', owner: 'Financeiro + Pixel' },
   { title: 'Consolidar scores finais do Adaptive Index™', owner: 'PixelPulseLab' },
-  { title: 'Proposta comercial: piloto Quick Wins + Adaptive Layer™', owner: 'PixelPulseLab', due: 'pós-review' },
-  { title: 'Compartilhar mapa de oportunidades com André antes da apresentação', owner: 'José Roberto' },
+  { title: 'Proposta comercial: engagement por outcome + capacidade/blended', owner: 'PixelPulseLab', due: 'pós-review' },
 ]
 
 export const CRITICAL_RISKS = [
@@ -561,7 +544,7 @@ export function buildDashboardMetrics(counts?: Partial<DashboardCounts>): Dashbo
       value: String(REVIEW_META.meetingsCompleted),
       hint: 'reuniões transcritas e analisadas',
     },
-    { label: 'Quick Wins', value: String(QUICK_WINS.length), hint: 'Fase 1 mapeados' },
+    { label: 'Quick Wins', value: String(QUICK_WINS.length), hint: 'OTD · intervenções → QWs' },
     { label: 'Critical Risks', value: String(CRITICAL_RISKS.length), hint: 'identificados na prévia' },
     { label: 'AI Opportunities', value: String(AI_OPPORTUNITIES.length), hint: 'mapeadas' },
   ]
