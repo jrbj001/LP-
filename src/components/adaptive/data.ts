@@ -26,7 +26,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Processo B2B',     href: '/processo-b2b',     icon: Workflow,        section: 'workspace' },
   { label: 'Executive Review', href: '/executive-review', icon: FileBarChart,    section: 'workspace' },
   { label: 'Documentos',       href: '/documents',        icon: FileText,        section: 'workspace' },
-  { label: 'Adaptive Layer™',  href: '/adaptive-layer',   icon: Server,          section: 'workspace', locked: true },
+  { label: 'Adaptive Layer™',  href: '/adaptive-layer',   icon: Server,          section: 'workspace' },
   { label: 'Proposta',         href: '/proposta',         icon: Calculator,      section: 'workspace', locked: true },
 ]
 

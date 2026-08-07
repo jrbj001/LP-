@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useLocale } from 'next-intl'
 import { PageShell, PageHeader, Reveal, Badge } from '@/components/adaptive/ui'
@@ -17,11 +16,9 @@ import {
 } from '@/components/adaptive/adaptive-layer-doc-data'
 import { stageLabel } from '@/lib/adaptive/b2b-process/agents'
 import {
-  Lock, Unlock, Layers, Server, Bot, Sparkles, ArrowRight,
+  Layers, Server, Bot, Sparkles, ArrowRight,
   CheckCircle2, Cable, Braces, Workflow, ShieldCheck, Info,
 } from 'lucide-react'
-
-const STORAGE_KEY = 'orfeu-adaptive-layer-unlocked'
 
 const CAPABILITY_ICONS = {
   integration: Cable,
@@ -31,90 +28,7 @@ const CAPABILITY_ICONS = {
 } as const
 
 export function AdaptiveLayerDocView() {
-  const [unlocked, setUnlocked] = useState(false)
-  const [ready, setReady] = useState(false)
-
-  useEffect(() => {
-    setUnlocked(sessionStorage.getItem(STORAGE_KEY) === '1')
-    setReady(true)
-  }, [])
-
-  if (!ready) return null
-
-  if (!unlocked) {
-    return (
-      <PasswordGate
-        onUnlock={() => {
-          sessionStorage.setItem(STORAGE_KEY, '1')
-          setUnlocked(true)
-        }}
-      />
-    )
-  }
-
   return <LayerDocContent />
-}
-
-function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
-  const [value, setValue] = useState('')
-  const [error, setError] = useState(false)
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (value.trim().toLowerCase() === LAYER_DOC_META.password) {
-      onUnlock()
-    } else {
-      setError(true)
-    }
-  }
-
-  return (
-    <PageShell>
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Reveal className="w-full max-w-sm">
-          <div className="rounded-2xl border border-black/[0.06] bg-white p-8 text-center">
-            <div className="w-12 h-12 rounded-xl bg-neutral-900 flex items-center justify-center mx-auto mb-5">
-              <Lock className="w-5 h-5 text-white" strokeWidth={1.75} />
-            </div>
-            <h1 className="text-[20px] font-semibold text-neutral-900 tracking-tight">
-              {LAYER_DOC_META.title}
-            </h1>
-            <p className="text-[13px] text-neutral-500 mt-2 leading-relaxed">
-              Documento exclusivo do {LAYER_DOC_META.client}. Digite a senha compartilhada
-              pela PixelPulseLab.
-            </p>
-            <form onSubmit={submit} className="mt-6">
-              <input
-                type="password"
-                value={value}
-                onChange={e => {
-                  setValue(e.target.value)
-                  setError(false)
-                }}
-                placeholder="Senha de acesso"
-                autoFocus
-                className={`w-full rounded-xl border px-4 py-3 text-[14px] text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors ${
-                  error
-                    ? 'border-rose-300 bg-rose-50/50 focus:border-rose-400'
-                    : 'border-black/[0.08] bg-[#fafaf8] focus:border-neutral-900/30'
-                }`}
-              />
-              {error && (
-                <p className="text-[12px] text-rose-600 mt-2">Senha incorreta. Tente novamente.</p>
-              )}
-              <button
-                type="submit"
-                className="w-full mt-3 rounded-xl bg-neutral-900 text-white text-[14px] font-medium py-3 hover:bg-neutral-800 transition-colors inline-flex items-center justify-center gap-2"
-              >
-                <Unlock className="w-4 h-4" strokeWidth={1.75} />
-                Acessar documento
-              </button>
-            </form>
-          </div>
-        </Reveal>
-      </div>
-    </PageShell>
-  )
 }
 
 function LayerDocContent() {
