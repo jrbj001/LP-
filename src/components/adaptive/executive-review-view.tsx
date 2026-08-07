@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useLocale } from 'next-intl'
 import { PageShell, PageHeader, Reveal, Badge } from '@/components/adaptive/ui'
 import { CLIENT } from '@/components/adaptive/data'
@@ -11,6 +12,7 @@ import {
   ADAPTIVE_INDEX,
   RECOMMENDATIONS,
   QUICK_WINS,
+  SATELLITE_QUICK_WINS,
   ROADMAP,
   PORTFOLIO_GROUPS,
   CROSS_THEMES,
@@ -22,6 +24,10 @@ import {
   CRITICAL_ALIGNMENT,
   ADAPTIVE_LAYER,
   WORK_PLAN,
+  OTD_PLAN_SUMMARY,
+  OTD_AI_PLAN_INTRO,
+  OTD_KPIS,
+  OTD_ROI_MODEL,
   formatReviewDate,
   scoreTone,
   SCORE_BAR,
@@ -30,8 +36,8 @@ import { ArchitectureDiagram, AgentsDiagram, ProductDiagram } from '@/components
 import type { ProgressRow } from '@/lib/adaptive/types'
 import {
   Radar, ListChecks, Zap, Sparkles, ChevronDown, Calendar,
-  AlertCircle, Target, ArrowRight, ArrowDown, CheckCircle2, Coffee, Layers, Quote,
-  Handshake, Bot, Network,
+  AlertCircle, Target, ArrowRight, ArrowDown, ArrowUp, CheckCircle2, Coffee, Layers, Quote,
+  Handshake, Bot, Network, Brain, BarChart3, Calculator,
 } from 'lucide-react'
 
 /* ─── Capítulos ──────────────────────────────────────────────────────────── */
@@ -59,7 +65,7 @@ const CHAPTERS: Chapter[] = [
     num: '02',
     label: 'O ponto crítico',
     title: 'O ponto crítico em comum',
-    description: 'O que todas as áreas repetiram, e o alinhamento com a visão do Ricardo.',
+    description: 'O que todas as áreas repetiram — Order-to-delivery com intervenções manuais — e o alinhamento com Cris, Selton e o Ricardo.',
     icon: AlertCircle,
   },
   {
@@ -75,7 +81,7 @@ const CHAPTERS: Chapter[] = [
     num: '04',
     label: 'Oportunidades',
     title: 'Oportunidades',
-    description: 'Recomendações executivas, quick wins e o squad de agentes de IA.',
+    description: 'Recomendações, intervenções→ganhos, KPIs/ROI e o squad de agentes de IA.',
     icon: Sparkles,
   },
   {
@@ -83,7 +89,7 @@ const CHAPTERS: Chapter[] = [
     num: '05',
     label: 'Plano de trabalho',
     title: 'Plano de trabalho',
-    description: 'A entrega-mãe (Adaptive Layer™), a arquitetura e o roadmap faseado.',
+    description: 'QWs OTD → Adaptive Layer™ → LLM, com a jornada B2B mapeada.',
     icon: Layers,
   },
   {
@@ -117,6 +123,7 @@ function useScrollSpy(ids: string[]) {
 }
 
 const WORK_PLAN_STYLE: Record<string, { dot: string; badge: string; label: string }> = {
+  mobilization: { dot: 'bg-sky-500', badge: 'bg-sky-50 text-sky-700', label: 'Mobilização' },
   'quick-win': { dot: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700', label: 'Quick win' },
   layer: { dot: 'bg-neutral-900', badge: 'bg-neutral-100 text-neutral-700', label: 'Adaptive Layer™' },
   delivery: { dot: 'bg-violet-500', badge: 'bg-violet-50 text-violet-700', label: 'Entrega-mãe' },
@@ -293,6 +300,15 @@ export function ExecutiveReviewView({
                       <span className="font-medium text-emerald-700">Com o Adaptive Layer™:</span> {s.future}
                     </p>
                     <p className="text-[11px] text-neutral-400 mt-auto pt-3">{s.owners}</p>
+                    {s.id === 'comercial' && (
+                      <Link
+                        href={`/${locale}/adaptive/processo-b2b`}
+                        className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-neutral-900 underline underline-offset-2"
+                      >
+                        Ver Order-to-delivery completo
+                        <ArrowRight className="w-3 h-3" strokeWidth={2} />
+                      </Link>
+                    )}
                   </div>
                 ))}
               </div>
@@ -419,6 +435,45 @@ export function ExecutiveReviewView({
         {/* ── Capítulo 04 · Oportunidades ───────────────────────────────── */}
         <ChapterSection chapter={CHAPTERS[3]} next={CHAPTERS[4]}>
           <Reveal>
+            <div className="rounded-2xl border border-violet-900/10 bg-violet-50/60 p-6 mb-8">
+              <div className="flex flex-col lg:flex-row gap-5 lg:gap-8">
+                <div className="lg:w-[42%]">
+                  <div className="flex items-center gap-2 text-violet-700 mb-3">
+                    <Brain className="w-4 h-4" strokeWidth={1.75} />
+                    <p className="text-[11px] font-medium uppercase tracking-[0.16em]">
+                      {OTD_AI_PLAN_INTRO.eyebrow}
+                    </p>
+                  </div>
+                  <h3 className="text-[17px] font-semibold text-neutral-900 leading-snug">
+                    {OTD_AI_PLAN_INTRO.title}
+                  </h3>
+                  <p className="text-[13px] text-neutral-600 mt-3 leading-relaxed">
+                    {OTD_AI_PLAN_INTRO.narrative}
+                  </p>
+                </div>
+                <div className="flex-1 rounded-xl border border-violet-900/10 bg-white/70 p-5">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400 mb-3">
+                    O que a IA conclui
+                  </p>
+                  <div className="space-y-3">
+                    {OTD_AI_PLAN_INTRO.conclusions.map((conclusion, index) => (
+                      <div key={conclusion} className="flex gap-3">
+                        <span className="w-5 h-5 rounded-full bg-violet-100 text-violet-700 text-[10px] font-semibold flex items-center justify-center shrink-0">
+                          {index + 1}
+                        </span>
+                        <p className="text-[12px] text-neutral-700 leading-relaxed">{conclusion}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-neutral-400 mt-4 pt-4 border-t border-violet-900/10 leading-relaxed">
+                    {OTD_AI_PLAN_INTRO.caveat}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal>
             <SubSection title="Recomendações executivas" subtitle="Top 5 prioridades para o comitê de TI" icon={ListChecks}>
               <div className="flex flex-col gap-3">
                 {RECOMMENDATIONS.map(r => (
@@ -437,55 +492,202 @@ export function ExecutiveReviewView({
           </Reveal>
 
           <Reveal>
-            <SubSection title="Quick Wins" subtitle="Alto impacto · baixo esforço · Fase 1" icon={Zap}>
-              <div className="rounded-2xl border border-black/[0.06] bg-white overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left min-w-[640px]">
-                    <thead>
-                      <tr className="border-b border-black/[0.05] text-[11px] uppercase tracking-wider text-neutral-400">
-                        <th className="px-5 py-3 font-medium">ID</th>
-                        <th className="px-5 py-3 font-medium">Iniciativa</th>
-                        <th className="px-5 py-3 font-medium">Origem</th>
-                        <th className="px-5 py-3 font-medium">Esforço</th>
-                        <th className="px-5 py-3 font-medium">Impacto</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {QUICK_WINS.map(qw => (
-                        <tr key={qw.id} className="border-b border-black/[0.04] last:border-0">
-                          <td className="px-5 py-3.5">
-                            <span className="text-[12px] font-mono text-neutral-500">{qw.id}</span>
-                            {qw.pilot && (
-                              <span className="ml-2 text-[10px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                                piloto
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-5 py-3.5 text-[13px] font-medium text-neutral-900">{qw.title}</td>
-                          <td className="px-5 py-3.5 text-[12px] text-neutral-500">{qw.source}</td>
-                          <td className="px-5 py-3.5 text-[12px] text-neutral-600">{qw.effort}</td>
-                          <td className="px-5 py-3.5">
-                            <Badge tone={qw.impact === 'Alto' ? 'green' : 'muted'}>{qw.impact}</Badge>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+            <SubSection
+              title="Quick Wins OTD"
+              subtitle="Cada quick win elimina uma intervenção manual — com risco, ganho esperado e como medir"
+              icon={Zap}
+            >
+              <div className="mb-4 flex flex-wrap gap-3">
+                <Link
+                  href={`/${locale}/adaptive/processo-b2b#quick-wins`}
+                  className="inline-flex items-center gap-1.5 text-[13px] font-medium text-neutral-900 underline underline-offset-2"
+                >
+                  Ver detalhe completo das intervenções e ganhos
+                  <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+                </Link>
+                <Link
+                  href={`/${locale}/adaptive/processo-b2b`}
+                  className="inline-flex items-center gap-1.5 text-[13px] font-medium text-neutral-500 hover:text-neutral-900 underline underline-offset-2"
+                >
+                  Mapa da jornada B2B
+                  <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+                </Link>
               </div>
-              <p className="text-[12px] text-neutral-400 mt-3">
-                Piloto recomendado: QW-02 + QW-04 — escolha conjunta com André e Ricardo.
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-5">
+                {QUICK_WINS.map(qw => (
+                  <div key={qw.id} className="rounded-2xl border border-black/[0.06] bg-white p-5">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className="text-[11px] font-mono text-emerald-700">{qw.id}</span>
+                      {qw.pilot && (
+                        <span className="text-[9px] font-semibold uppercase tracking-wider rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5">
+                          Piloto
+                        </span>
+                      )}
+                      <span className="text-[10px] text-neutral-400 ml-auto">
+                        {qw.stageLabel} · {qw.area}
+                      </span>
+                    </div>
+                    <p className="text-[13px] font-semibold text-neutral-900">{qw.title}</p>
+                    <p className="text-[11px] text-rose-700/80 mt-2 leading-relaxed">
+                      Manual: {qw.intervention}
+                    </p>
+                    {qw.interventionDetail && (
+                      <p className="text-[11px] text-neutral-500 mt-1.5 leading-relaxed">
+                        {qw.interventionDetail}
+                      </p>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                      {qw.businessRisk && (
+                        <div className="rounded-lg bg-amber-50/70 border border-amber-900/10 p-3">
+                          <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-amber-700/70 mb-1">
+                            Risco
+                          </p>
+                          <p className="text-[11px] text-neutral-700 leading-relaxed">{qw.businessRisk}</p>
+                        </div>
+                      )}
+                      {qw.expectedGain && (
+                        <div className="rounded-lg bg-emerald-50/70 border border-emerald-900/10 p-3">
+                          <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-emerald-700/70 mb-1">
+                            Ganho
+                          </p>
+                          <p className="text-[11px] text-neutral-700 leading-relaxed">{qw.expectedGain}</p>
+                        </div>
+                      )}
+                    </div>
+                    {qw.kpis && qw.kpis.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {qw.kpis.slice(0, 3).map(kpi => (
+                          <span
+                            key={kpi}
+                            className="text-[10px] text-neutral-600 rounded-full border border-black/[0.06] bg-[#fafaf8] px-2 py-0.5"
+                          >
+                            {kpi}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 mt-3 text-[11px] text-neutral-400">
+                      <span>{qw.effort} esforço</span>
+                      <span>·</span>
+                      <Badge tone={qw.impact === 'Alto' ? 'green' : 'muted'}>{qw.impact}</Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <p className="text-[12px] text-neutral-500 leading-relaxed">
+                Piloto recomendado: QW-OTD-02 (proposta/pricing) + QW-OTD-05 (ruptura) + QW-OTD-07 (faturamento B2B) —
+                escolha conjunta com André, Cristiane e Ricardo. {OTD_PLAN_SUMMARY.formula}
               </p>
+              <div className="mt-6 rounded-xl border border-black/[0.06] bg-neutral-50 p-5">
+                <p className="text-[12px] font-semibold text-neutral-800 mb-2">Trilhas satélites (não competem com QWs OTD)</p>
+                <ul className="space-y-1.5">
+                  {SATELLITE_QUICK_WINS.map(s => (
+                    <li key={s.id} className="text-[12px] text-neutral-600">
+                      <span className="font-mono text-neutral-400 mr-2">{s.id}</span>
+                      {s.title}
+                      <span className="text-neutral-400"> · {s.source}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </SubSection>
           </Reveal>
 
           <Reveal>
-            <SubSection title="AI Opportunity Map™" subtitle="Onde IA gera maior valor" icon={Sparkles}>
+            <SubSection
+              title="KPIs e ROI para a empresa"
+              subtitle="Baseline no M0, acompanhamento nos quick wins e comprovação do benefício após o OTD estabilizado"
+              icon={BarChart3}
+            >
+              <div className="mb-4">
+                <Link
+                  href={`/${locale}/adaptive/processo-b2b#kpi-roi`}
+                  className="inline-flex items-center gap-1.5 text-[13px] font-medium text-neutral-900 underline underline-offset-2"
+                >
+                  Ver modelo completo de KPIs e ROI
+                  <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-4">
+                {OTD_KPIS.map(kpi => {
+                  const DirectionIcon = kpi.direction === 'reduzir' ? ArrowDown : ArrowUp
+                  return (
+                    <div key={kpi.id} className="rounded-xl border border-black/[0.06] bg-white p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-[13px] font-semibold text-neutral-900">{kpi.label}</p>
+                        <span
+                          className={`rounded-full p-1 ${
+                            kpi.direction === 'reduzir'
+                              ? 'bg-sky-50 text-sky-700'
+                              : 'bg-emerald-50 text-emerald-700'
+                          }`}
+                        >
+                          <DirectionIcon className="w-3 h-3" strokeWidth={2} />
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-neutral-500 mt-2 leading-relaxed">{kpi.purpose}</p>
+                      <p className="text-[10px] font-mono text-neutral-600 mt-3 leading-relaxed">{kpi.formula}</p>
+                      <p className="text-[10px] text-neutral-400 mt-2">
+                        {kpi.owner} · {kpi.cadence}
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="rounded-2xl border border-black/[0.06] bg-neutral-900 text-white p-6">
+                <div className="flex items-center gap-2 text-emerald-400 mb-3">
+                  <Calculator className="w-4 h-4" strokeWidth={1.75} />
+                  <p className="text-[11px] font-medium uppercase tracking-[0.15em]">Modelo de retorno</p>
+                </div>
+                <h3 className="text-[16px] font-semibold">{OTD_ROI_MODEL.title}</h3>
+                <p className="text-[12px] text-white/55 mt-2 leading-relaxed max-w-3xl">
+                  {OTD_ROI_MODEL.principle}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-5">
+                  {OTD_ROI_MODEL.valueLevers.map(lever => (
+                    <div key={lever.label} className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-4">
+                      <p className="text-[12px] font-semibold text-white">{lever.label}</p>
+                      <p className="text-[11px] font-mono text-emerald-300 mt-1.5">{lever.formula}</p>
+                      <p className="text-[10px] text-white/40 mt-2 leading-relaxed">{lever.examples}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 pt-4 border-t border-white/[0.08] space-y-1.5">
+                  {OTD_ROI_MODEL.formulas.map(formula => (
+                    <p key={formula} className="text-[11px] font-mono text-white/65">{formula}</p>
+                  ))}
+                </div>
+              </div>
+            </SubSection>
+          </Reveal>
+
+          <Reveal>
+            <SubSection
+              title="AI Opportunity Map™ · Order-to-delivery"
+              subtitle="Onde IA elimina exceções — só depois que o quick win correspondente limpa a etapa"
+              icon={Sparkles}
+            >
+              <div className="mb-4">
+                <Link
+                  href={`/${locale}/adaptive/processo-b2b#oportunidades-ia`}
+                  className="inline-flex items-center gap-1.5 text-[13px] font-medium text-neutral-900 underline underline-offset-2"
+                >
+                  Ver oportunidades por etapa do processo
+                  <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+                </Link>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {AI_OPPORTUNITIES.map(a => (
-                  <div key={a.area} className="rounded-xl border border-black/[0.06] bg-white p-5">
+                  <div key={a.id ?? a.area} className="rounded-xl border border-black/[0.06] bg-white p-5">
                     <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-400 mb-1">{a.area}</p>
                     <p className="text-[13px] font-medium text-neutral-900 leading-snug">{a.opportunity}</p>
+                    {a.enabledBy && a.enabledBy.length > 0 && (
+                      <p className="text-[10px] text-emerald-700/80 mt-2">
+                        habilitado por {a.enabledBy.join(' · ')}
+                      </p>
+                    )}
                     <p className="text-[11px] text-neutral-400 mt-2">{a.stakeholder}</p>
                   </div>
                 ))}
@@ -495,11 +697,20 @@ export function ExecutiveReviewView({
 
           <Reveal>
             <SubSection
-              title="O squad de agentes"
-              subtitle="Um agente de IA por área — todos sobre a mesma camada de dados"
+              title="Squad de agentes Order-to-delivery"
+              subtitle="Agentes especializados por etapa — todos operando a mesma jornada sobre a Adaptive Layer™"
               icon={Bot}
             >
               <AgentsDiagram />
+              <div className="mt-4">
+                <Link
+                  href={`/${locale}/adaptive/processo-b2b#atuacao-agentes`}
+                  className="inline-flex items-center gap-1.5 text-[13px] font-medium text-neutral-900 underline underline-offset-2"
+                >
+                  Ver como os agentes atuam em cada etapa do processo
+                  <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+                </Link>
+              </div>
             </SubSection>
           </Reveal>
         </ChapterSection>
@@ -516,8 +727,14 @@ export function ExecutiveReviewView({
                 {ADAPTIVE_LAYER.description}
               </p>
               <a
+                href={`/${locale}/adaptive/processo-b2b#leitura-ia`}
+                className="inline-flex items-center gap-2 text-[12px] font-medium text-emerald-300 hover:text-emerald-200 transition-colors mr-4"
+              >
+                Jornada B2B · leitura IA + KPIs/ROI →
+              </a>
+              <a
                 href={`/${locale}/pixel`}
-                className="inline-flex items-center gap-2 text-[12px] font-medium text-emerald-300 hover:text-emerald-200 transition-colors"
+                className="inline-flex items-center gap-2 text-[12px] font-medium text-white/50 hover:text-white/80 transition-colors"
               >
                 Pixel · o modelo e SDK desta camada →
               </a>
@@ -658,7 +875,7 @@ export function ExecutiveReviewView({
           </Reveal>
 
           <Reveal>
-            <SubSection title="Próximos passos" subtitle="Até 31/07">
+            <SubSection title="Próximos passos" subtitle="Do baseline M0 ao ROI comprovado">
               <div className="rounded-2xl border border-black/[0.06] bg-white p-5">
                 <ul className="space-y-3">
                   {NEXT_STEPS.map(step => (

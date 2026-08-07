@@ -63,7 +63,7 @@ export async function getOnboardingProgress(clientId = CLIENT.id): Promise<Onboa
       total: merged.length,
       identified: merged.filter(r => r.status !== 'Not started').length,
       assessmentDone: merged.filter(r =>
-        ['Assessment done', 'Session booked', 'Done'].includes(r.status)
+        ['Assessment done', 'Done'].includes(r.status)
       ).length,
       sessionBooked: merged.filter(r =>
         ['Session booked', 'Done'].includes(r.status)
