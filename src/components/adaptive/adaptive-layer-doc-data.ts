@@ -10,11 +10,10 @@ import {
 } from '@/lib/adaptive/b2b-process/agents'
 
 export const LAYER_DOC_META = {
-  password: 'orfeu-layer',
   title: 'Adaptive Layer™',
   client: 'Grupo Orfeu',
   date: '07/08/2026',
-  validity: 'Documento exclusivo · compartilhável com senha',
+  validity: 'Documento técnico-executivo',
   path: '/adaptive/adaptive-layer',
 }
 

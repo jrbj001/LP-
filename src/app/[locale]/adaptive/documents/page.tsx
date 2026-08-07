@@ -9,7 +9,7 @@ import { FileText, Download, ExternalLink } from 'lucide-react'
 const DOCS = [
   {
     name: 'Adaptive Layer™ — Legado, camada e agentes',
-    type: 'Página web · link exclusivo',
+    type: 'Página web · acesso direto',
     size: 'Introdução · sistemas atuais · squad de agentes',
     status: 'available' as const,
     href: '/adaptive/adaptive-layer',
