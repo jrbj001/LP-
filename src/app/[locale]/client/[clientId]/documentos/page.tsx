@@ -1,5 +1,6 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ExternalLink, FileText, FolderOpen } from 'lucide-react'
+import { ArrowRight, ExternalLink, FileText, FolderOpen } from 'lucide-react'
 import { getClient } from '@/lib/client/registry'
 import { EmptyWorkspaceState, WorkspacePageHeader } from '@/components/client/workspace-page'
 
@@ -59,15 +60,25 @@ export default async function ClientDocumentsPage({ params }: Props) {
                 </p>
               </div>
               {document.href && document.status === 'available' && (
-                <a
-                  href={document.href}
-                  target={document.external ? '_blank' : undefined}
-                  rel={document.external ? 'noopener noreferrer' : undefined}
-                  className="inline-flex items-center gap-1.5 text-[12px] font-medium text-neutral-600 hover:text-neutral-900"
-                >
-                  Abrir
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+                document.external === false ? (
+                  <Link
+                    href={`${base}${document.href.startsWith('/') ? document.href : `/${document.href}`}`}
+                    className="inline-flex items-center gap-1.5 text-[12px] font-medium text-neutral-600 hover:text-neutral-900"
+                  >
+                    Abrir
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                ) : (
+                  <a
+                    href={document.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[12px] font-medium text-neutral-600 hover:text-neutral-900"
+                  >
+                    Abrir
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )
               )}
             </div>
           ))}

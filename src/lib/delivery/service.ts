@@ -375,15 +375,26 @@ async function fetchWindowData(
 function buildReportFromCache(
   cache: DeliveryCachePayload,
   periodDays: number,
-  manualEffort: ManualEffortItem[]
+  manualEffort: ManualEffortItem[],
+  repos: RepoConfig[]
 ): DeliveryReport {
   const periodEnd = new Date()
   const periodStart = new Date(periodEnd.getTime() - periodDays * 86_400_000)
 
-  const rawPrs = cache.prs.filter(p => {
-    const t = new Date(p.mergedAt)
-    return t >= periodStart && t <= periodEnd
-  }).map(enrichPr)
+  const repoByFullName = new Map(repos.map(repo => [`${repo.owner}/${repo.repo}`.toLowerCase(), repo]))
+  const rawPrs = cache.prs
+    .filter(p => {
+      const t = new Date(p.mergedAt)
+      return t >= periodStart && t <= periodEnd
+    })
+    .map(pr => {
+      const repo = repoByFullName.get(pr.repo.toLowerCase())
+      return enrichPr({
+        ...pr,
+        // Reaplica as regras atuais mesmo quando o detalhe da PR veio do cache.
+        product: repo ? classifyProduct(repo, pr.title, pr.branch) : pr.product,
+      })
+    })
 
   const periodCommits = cache.commits.filter(c => {
     const t = new Date(c.date)
@@ -486,10 +497,16 @@ export async function getDeliveryReport(
   options?: { forceRefresh?: boolean }
 ): Promise<DeliveryReport & { cacheHit: boolean; cacheStale: boolean; cacheFetchedAt: string }> {
   const stored = await readDeliveryCache(clientId)
+  const configuredRepoNames = repos.map(repo => `${repo.owner}/${repo.repo}`.toLowerCase()).sort()
+  const cachedRepoNames = (stored?.repos ?? []).map(repo => repo.repo.toLowerCase()).sort()
+  const cacheMatchesConfig =
+    configuredRepoNames.length === cachedRepoNames.length &&
+    configuredRepoNames.every((repo, index) => repo === cachedRepoNames[index])
   const usable =
     stored &&
     stored.version === CACHE_VERSION &&
     stored.windowDays >= CACHE_WINDOW_DAYS &&
+    cacheMatchesConfig &&
     !(stored.repos.length > 0 && stored.repos.every(r => !r.ok))
       ? stored
       : null
@@ -513,7 +530,7 @@ export async function getDeliveryReport(
     cache = await refreshCache(clientId, repos, usable)
   }
 
-  const report = buildReportFromCache(cache, periodDays, manualEffort)
+  const report = buildReportFromCache(cache, periodDays, manualEffort, repos)
   return {
     ...report,
     cacheHit,

@@ -15,7 +15,16 @@ import {
   WeeklyChart,
 } from '@/components/client/delivery-report'
 import { CacheRefreshLink, PeriodSwitcher } from '@/components/client/period-switcher'
-import type { DeliveryReport } from '@/lib/delivery/types'
+import type { DeliveryReport, RepoConfig, RepoStatus } from '@/lib/delivery/types'
+import {
+  AlertTriangle,
+  Calculator,
+  CheckCircle2,
+  ExternalLink,
+  GitBranch,
+  GitPullRequest,
+  Tags,
+} from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +38,138 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
     <div className="text-[11px] font-bold uppercase tracking-[0.08em] text-neutral-400 mb-4 pb-2 border-b border-black/[0.06]">
       {children}
     </div>
+  )
+}
+
+function SourceDisclaimer() {
+  const details = [
+    {
+      icon: GitPullRequest,
+      title: 'Fonte versionada',
+      description:
+        'PRs mescladas no período e commits da branch padrão, consultados diretamente pela API do GitHub.',
+    },
+    {
+      icon: Tags,
+      title: 'Classificação',
+      description:
+        'Produto e tipo de entrega são derivados do repositório, título e branch. Exibidor e inventário entram em Banco de Ativos.',
+    },
+    {
+      icon: Calculator,
+      title: 'Estimativa de esforço',
+      description:
+        'As horas são uma estimativa técnica baseada nas mudanças de código; esforços sem commits aparecem separadamente.',
+    },
+  ]
+
+  return (
+    <section className="mb-8 sm:mb-10 rounded-2xl border border-sky-200/80 bg-sky-50/50 overflow-hidden">
+      <div className="px-5 sm:px-6 py-5 border-b border-sky-200/70">
+        <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-sky-700 mb-1.5">
+          Como ler este relatório
+        </p>
+        <h2 className="text-[17px] font-semibold tracking-tight text-neutral-900">
+          Evidências extraídas diretamente do GitHub
+        </h2>
+        <p className="text-[13px] text-neutral-600 leading-relaxed mt-1.5 max-w-4xl">
+          O painel transforma o histórico técnico dos repositórios monitorados em uma visão de entregas,
+          produtos, ritmo e esforço. Não há lançamento manual das PRs exibidas abaixo.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-sky-200/60">
+        {details.map(item => (
+          <div key={item.title} className="bg-white/75 px-5 sm:px-6 py-4">
+            <item.icon className="w-4 h-4 text-sky-700 mb-2" strokeWidth={1.8} />
+            <p className="text-[12px] font-semibold text-neutral-900">{item.title}</p>
+            <p className="text-[11px] text-neutral-500 leading-relaxed mt-1">{item.description}</p>
+          </div>
+        ))}
+      </div>
+      <div className="px-5 sm:px-6 py-3.5 bg-amber-50/80 border-t border-amber-200/80 flex items-start gap-2.5">
+        <AlertTriangle className="w-4 h-4 text-amber-700 mt-0.5 shrink-0" strokeWidth={1.8} />
+        <p className="text-[11px] text-amber-900/80 leading-relaxed">
+          <strong className="font-semibold text-amber-900">Importante:</strong> código mesclado representa
+          entrega no Git, mas não comprova sozinho que o deploy chegou à produção. A confirmação de produção
+          depende também do pipeline e do ambiente de deployment.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+function RepositoriesSection({
+  repos,
+  statuses,
+}: {
+  repos: RepoConfig[]
+  statuses: RepoStatus[]
+}) {
+  const statusByRepo = new Map(statuses.map(status => [status.repo.toLowerCase(), status]))
+
+  return (
+    <section className="mb-10">
+      <SectionTitle>Repositórios GitHub monitorados ({repos.length})</SectionTitle>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        {repos.map(repo => {
+          const fullName = `${repo.owner}/${repo.repo}`
+          const status = statusByRepo.get(fullName.toLowerCase())
+          return (
+            <article key={fullName} className="rounded-xl border border-black/[0.06] bg-white p-4 sm:p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="w-9 h-9 rounded-lg bg-neutral-100 flex items-center justify-center shrink-0">
+                  <GitBranch className="w-4 h-4 text-neutral-700" strokeWidth={1.8} />
+                </div>
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${
+                    status?.ok
+                      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                      : status
+                        ? 'border-amber-200 bg-amber-50 text-amber-700'
+                        : 'border-neutral-200 bg-neutral-50 text-neutral-500'
+                  }`}
+                >
+                  {status?.ok ? (
+                    <CheckCircle2 className="w-3 h-3" strokeWidth={2} />
+                  ) : status ? (
+                    <AlertTriangle className="w-3 h-3" strokeWidth={2} />
+                  ) : null}
+                  {status?.ok ? 'Conectado' : status ? 'Acesso pendente' : 'Aguardando consulta'}
+                </span>
+              </div>
+              <h3 className="text-[14px] font-semibold text-neutral-900 mt-3">{repo.label}</h3>
+              <p className="text-[11px] font-mono text-neutral-400 mt-1 break-all">{fullName}</p>
+              {repo.products && repo.products.length > 0 && (
+                <div className="mt-3">
+                  <p className="text-[10px] uppercase tracking-wider text-neutral-400 mb-1.5">
+                    Classificações internas
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {repo.products.map(product => (
+                      <span
+                        key={product.label}
+                        className="rounded-md border border-black/[0.07] bg-[#fafaf8] px-2 py-1 text-[10px] text-neutral-600"
+                      >
+                        {product.label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <a
+                href={`https://github.com/${fullName}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-[11px] font-medium text-neutral-500 hover:text-neutral-900 mt-4"
+              >
+                Abrir no GitHub
+                <ExternalLink className="w-3 h-3" strokeWidth={1.8} />
+              </a>
+            </article>
+          )
+        })}
+      </div>
+    </section>
   )
 }
 
@@ -86,6 +227,8 @@ export default async function EntregasPage({ params, searchParams }: Props) {
         )}
       </header>
 
+      <SourceDisclaimer />
+
       <div className="mb-8 sm:mb-10">
         <PeriodSwitcher base={base} days={days} />
         {report && (
@@ -124,6 +267,10 @@ export default async function EntregasPage({ params, searchParams }: Props) {
             </p>
           ))}
         </div>
+      )}
+
+      {repos.length > 0 && (
+        <RepositoriesSection repos={repos} statuses={report?.repos ?? []} />
       )}
 
       {report && (
