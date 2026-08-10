@@ -110,12 +110,12 @@ export const be180Ooh: ClientWorkspace = {
       name: 'Agentes',
       pillar: 'Agentes',
       description:
-        'Pilar mapeado da plataforma, deliberadamente fora do escopo desta fase. Sem investimento até priorização futura.',
-      status: 'deferred',
-      owner: 'A definir',
-      priority: 'Baixa',
-      updatedAt: '04/08/2026',
-      tags: ['Adiado', 'Arquitetura'],
+        'Seis agentes incorporados ao roadmap do Colmeia, com arquitetura e avaliações no M0 e entregas progressivas do briefing ao pós-venda.',
+      status: 'discovery',
+      owner: 'Pixel + Be180',
+      priority: 'Alta',
+      updatedAt: '10/08/2026',
+      tags: ['Roadmap', 'Arquitetura', 'IA'],
     },
   ],
   delivery: {
@@ -160,7 +160,13 @@ export const be180Ooh: ClientWorkspace = {
         id: 'projeto',
         title: 'Projetos',
         description: 'Escopo, entregáveis, timeline e critérios das iniciativas ativas.',
-        articles: ['Portfólio atual', 'Entregáveis', 'Timeline', 'Critérios de sucesso'],
+        articles: [
+          'Portfólio atual',
+          'Arquitetura de agentes',
+          'Entregáveis',
+          'Timeline',
+          'Critérios de sucesso',
+        ],
         badge: 'Projetos',
       },
       {
@@ -180,6 +186,103 @@ export const be180Ooh: ClientWorkspace = {
     ],
   },
   meetings: [
+    {
+      id: 'colmeia-inventario-2026-08-06',
+      title: 'Integração de Inventário & Bug de Mídia',
+      date: '2026-08-06T16:34:00-03:00',
+      status: 'completed',
+      attendees: ['Time Be180', 'Fabrício', 'Henrique', 'PixelPulseLab'],
+      summary:
+        'Sincronização da task force de inventário: status de integração pouco visível no Colmeia, divergência de contagens e bug de formato “não informado” na exportação de pontos de mídia — com meta de zerar o escopo atual em 15 dias antes de abrir indoor.',
+      aiContext: `
+Sessão de sincronização da task force de inventário e bugs de mídia no Colmeia, realizada em 06/08/2026.
+
+Status da integração de inventário:
+- Vários itens aparecem como "concluídos" e teoricamente enviados ao banco, mas o status de integração não fica claro no Colmeia.
+- Não há indicador verde visível confirmando integração bem-sucedida — dúvida se o display não atualiza ou se a integração realmente não concluiu.
+- Alguns itens não aparecem no sistema; valores exibidos divergem do upload (ex.: 191 pontos vs. 200+ esperados).
+- Decisão: adicionar label de data nos registros de inventário para confirmar se a versão exibida está atualizada.
+- Fabrício acompanha de perto o progresso.
+
+Bug de formato / exportação de mídia:
+- Na exportação de pontos de mídia, alguns registros retornam "não informado" em formato (digital/estático), cidade, estado, bairro e endereço — mesmo com lat/long válidos.
+- Suspeita de bug: todo ponto deveria ter formato digital ou estático; o campo é muito usado em consultas.
+
+Task force e próximos passos:
+- Força-tarefa em andamento para resolver inventário e integração em até 15 dias.
+- Promover todos os inventários ainda não promovidos até zerar a fila.
+- Henrique acompanhar a tarefa de inventário delegada.
+- Investigar o bug de formato "não informado".
+- Relatório de fim de dia (9h–9h30) sobre status de integração para o grupo.
+- Sessão na terça para fechar itens abertos.
+- Após fechar o escopo atual, iniciar upload de exibidores indoor (template diferente, mais complexo).
+- Meta: fechar limpo o escopo atual antes de abrir trabalho novo.
+
+Ações acordadas:
+- Adicionar label de data aos registros de inventário e validar se o status de integração aparece corretamente no dashboard.
+- Revisar status de integração e enviar relatório diário ao grupo.
+- Promover inventários restantes até zerar a fila.
+- Henrique dar follow-up na tarefa de inventário delegada.
+- Investigar bug de formato "não informado" na exportação.
+- Agendar reunião de terça para fechar os itens abertos.
+      `.trim(),
+      href: 'https://app.notion.com/p/3b45615ab2748053b1bad166c8e520dc',
+    },
+    {
+      id: 'colmeia-status-2026-08-05',
+      title: 'Status do Produto: Colmeia, Banco de Ativos & Onboarding',
+      date: '2026-08-05T09:47:00-03:00',
+      status: 'completed',
+      attendees: ['Time Be180', 'Marta', 'Isra', 'Gabriel', 'José Roberto'],
+      summary:
+        'Status operacional do Colmeia e do Banco de Ativos: task force de 15 dias para itens vermelhos de Indoor, novo onboarding hands-on de exibidores com Marta/Isra (2×/semana), demo do workspace de cliente e alinhamento sobre planos além de 12 semanas.',
+      aiContext: `
+Sessão de status do produto Colmeia, Banco de Ativos e onboarding de exibidores, realizada em 05/08/2026.
+
+Workspace de cliente:
+- José Roberto apresentou o portal exclusivo do cliente: reuniões ligadas a kick-offs e entregas, integração GitHub, repositório de documentos e relatórios gerados (ex.: uso do Colmeia).
+- Feature de chamada direta: qualquer pessoa na área do cliente inicia uma chamada que roteia para WhatsApp, sem exigir o WhatsApp do cliente.
+- Piloto em andamento; e-mail oficial será enviado; enriquecimento completo na semana seguinte.
+
+Colmeia (simulação Indoor) — prioridades:
+- Itens vermelhos: impacto, cobertura e frequência de vias públicas indoor — precisam ser resolvidos antes de avançar.
+- Task force de 15 dias para resetar e fechar todos os itens abertos de Indoor, com recursos adicionais se necessário.
+- Próxima prioridade após limpar o board: feature master plan umbrella; depois automação de AI/media plan (sugestão do Serginho).
+- Meta: board limpo antes do planejamento H2 com Camila.
+- Reunião de trabalho terça/quinta a partir das 10h para destravar pendências do Colmeia.
+
+Planos além de 12 semanas:
+- Colmeia parametrizado hoje para 12 semanas; clientes (ex.: Ambev) pedem até 21 semanas.
+- Excel report v2.0 é dinâmico e pode sustentar mais semanas — ainda não testado.
+- Validar com plano real da Simone (21 semanas) antes de anunciar.
+- Nos últimos 30 planos, só 3 passaram de 12 semanas — volumetria baixa; possível deferir.
+
+Banco de Ativos — onboarding de exibidores:
+- 21 veículos contactados; erros de reset de senha (já mitigado) e 2 veículos que logam mas não sobem ativos.
+- Causa raiz de acessos: domínio de e-mail cadastrado ≠ e-mail do usuário; 188 e-mails faltantes pré-cadastrados.
+- Muitos erros são de formatação de arquivo, não técnicos — triagem antes de escalar para eng.
+- JCDCO já aprovada; interface API OH Brasil pronta e entrando no ar nesta semana.
+- Abordagem revisada: Marta e Isra conduzem onboarding hands-on (2 sessões/semana); José Roberto só entra em blockers técnicos reais.
+- Gabriel implementando mensagens de erro mais detalhadas para exibidores.
+
+Ferramentas:
+- Tarefas urgentes no Monday.com não chegam em tempo real a José Roberto — configurar push; urgências via WhatsApp/e-mail no interim.
+- Requisitos do dashboard de follow-up do Banco de Ativos a serem enviados a José Roberto.
+- Follow-up com Eletromídia após liberação do NDA.
+
+Ações acordadas:
+- Task force de 15 dias para fechar itens Indoor (impacto, cobertura, frequência).
+- Marta e Isra agendarem 2 onboardings de exibidor por semana.
+- Pedir o arquivo do exibidor com problema e pedir análise ao Luís.
+- Gabriel melhorar detalhamento de erro no upload.
+- José Roberto configurar notificações push do Monday.com.
+- Definir e enviar requisitos do dashboard de follow-up do Banco de Ativos.
+- Validar plano Simone de 21 semanas contra Excel report v2.0.
+- Follow-up Eletromídia pós-NDA.
+- Manter reuniões de trabalho terça/quinta às 10h.
+      `.trim(),
+      href: 'https://app.notion.com/p/3b35615ab27480eca6daf8874e6716a4',
+    },
     {
       id: 'colmeia-roadmap-2026-08-04',
       title: 'Planejamento do Roadmap do Colmeia',
@@ -226,6 +329,17 @@ Ações acordadas:
     },
   ],
   documents: [
+    {
+      id: 'colmeia-arquitetura-agentes',
+      title: 'Arquitetura de Agentes · Colmeia & Banco de Ativos',
+      category: 'Arquitetura · Adaptive Layer™ · Agentes',
+      description:
+        'Roadmap integrado M0–M4: infraestrutura, Adaptive Layer™ e seis agentes da jornada OOH, com arquitetura e user stories.',
+      updatedAt: '10/08/2026',
+      status: 'available',
+      href: '/arquitetura-de-agentes',
+      external: false,
+    },
     {
       id: 'colmeia-usage-2026-08-05',
       title: 'Relatório de Uso do Produto',
