@@ -124,12 +124,23 @@ export const be180Ooh: ClientWorkspace = {
         owner: 'jrbj001',
         repo: 'colmeia---meusroteirosdefault',
         label: 'Colmeia · Meus Roteiros',
-        products: [{ label: 'Banco de Ativos', pattern: 'banco[\\s-]*(de[\\s-]*)?ativos?|\\bativos\\b' }],
+        products: [
+          {
+            label: 'Banco de Ativos',
+            pattern:
+              'banco[\\s-]*(de[\\s-]*)?ativos?|\\bativos\\b|exibidor(?:es)?|invent[aá]rio(?:s)?|google[\\s-]*places',
+          },
+        ],
       },
       {
         owner: 'jrbj001',
         repo: 'image_brand_processing',
-        label: 'Image Brand Processing',
+        label: 'Teste de Visibilidade · Backend',
+      },
+      {
+        owner: 'Mavimarmara',
+        repo: 'digital-branding',
+        label: 'Teste de Visibilidade · Frontend',
       },
     ],
     manualEffort: [
@@ -343,35 +354,24 @@ Ações acordadas:
     {
       id: 'colmeia-usage-2026-08-05',
       title: 'Relatório de Uso do Produto',
-      category: 'Produto · Dados de produção',
+      category: 'Produto · Dados de produção · AI Insights',
       description:
-        'Adoção, usuários ativos, roteiros e inventário de exibidores — dados consolidados em 05/08/2026.',
+        'Dashboard de adoção, engajamento, roteiros e inventário de exibidores, com leitura assistida por IA e ações recomendadas.',
       updatedAt: '05/08/2026',
       status: 'available',
-      href: 'https://app.notion.com/p/3b35615ab27481159150e2ea3844ca21',
-      external: true,
+      href: '/relatorio-de-uso',
+      external: false,
     },
     {
       id: 'colmeia-product-manual',
-      title: 'Colmeia — Manual do Produto',
+      title: 'Manual do Produto · Colmeia',
       category: 'Documentação · Produto',
       description:
-        'Visão, glossário, personas, fluxos, módulos, Banco de Ativos, integrações e referência técnica.',
+        'Manual web ilustrado: visão, arquitetura em camadas, personas, fluxos, pipeline, Banco de Ativos, módulos e métricas OOH.',
       updatedAt: '10/06/2026',
       status: 'available',
-      href: 'https://app.notion.com/p/37b5615ab27481d48154e1b27f250e01',
-      external: true,
-    },
-    {
-      id: 'colmeia-development-report-2026',
-      title: 'Relatório de Desenvolvimento — Jan a Mai 2026',
-      category: 'Engenharia · Entregas',
-      description:
-        'Consolidado de engenharia com 11 épicos, 47 histórias e evolução das principais camadas do produto.',
-      updatedAt: '06/05/2026',
-      status: 'available',
-      href: 'https://app.notion.com/p/3585615ab27481269268dc73ed460d17',
-      external: true,
+      href: '/manual',
+      external: false,
     },
     {
       id: 'colmeia-ai-mvp',
