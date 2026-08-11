@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getClient } from '@/lib/client/registry'
 import { getDeliveryReport } from '@/lib/delivery/service'
+import { describeOpenAiError } from '@/lib/ai/openai-error'
 import type { DeliveryReport } from '@/lib/delivery/types'
 
 export const dynamic = 'force-dynamic'
@@ -118,7 +119,7 @@ export async function POST(
       const errText = await res.text().catch(() => '')
       console.error('[client/analysis] openai', res.status, errText.slice(0, 300))
       return NextResponse.json(
-        { ok: false, error: `OpenAI retornou ${res.status}. Verifique a chave e a cota.` },
+        { ok: false, error: describeOpenAiError(res.status, errText) },
         { status: 502 }
       )
     }

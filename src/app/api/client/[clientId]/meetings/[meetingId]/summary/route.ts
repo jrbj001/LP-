@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getClient } from '@/lib/client/registry'
+import { describeOpenAiError } from '@/lib/ai/openai-error'
 
 export const dynamic = 'force-dynamic'
 
@@ -123,7 +124,7 @@ Regras:
       const errorText = await response.text().catch(() => '')
       console.error('[client/meeting-summary] openai', response.status, errorText.slice(0, 300))
       return NextResponse.json(
-        { ok: false, error: `OpenAI retornou ${response.status}. Verifique a chave e a cota.` },
+        { ok: false, error: describeOpenAiError(response.status, errorText) },
         { status: 502 }
       )
     }

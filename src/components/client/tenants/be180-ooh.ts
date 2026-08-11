@@ -352,6 +352,17 @@ Ações acordadas:
       external: false,
     },
     {
+      id: 'colmeia-promocao-inventarios-2026-08-11',
+      title: 'Promoção de inventários ao Banco de Ativos',
+      category: 'Engenharia · Banco de Ativos · Operação',
+      description:
+        'Relatório da entrega feat/incluir-inventarios: 19 lotes promovidos, 4.881 pontos inseridos, soft-delete do legado e 0 divergências.',
+      updatedAt: '11/08/2026',
+      status: 'available',
+      href: '/promocao-inventarios',
+      external: false,
+    },
+    {
       id: 'colmeia-usage-2026-08-05',
       title: 'Relatório de Uso do Produto',
       category: 'Produto · Dados de produção · AI Insights',
