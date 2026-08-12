@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getClient } from '@/lib/client/registry'
 import { getCopilotThread } from '@/lib/backlog/store'
+import { isBacklogEnabled } from '@/lib/backlog/access'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,11 +14,8 @@ export async function GET(
   if (!client) {
     return NextResponse.json({ ok: false, error: 'Cliente não encontrado' }, { status: 404 })
   }
-  if (client.slug !== 'be180-ooh') {
-    return NextResponse.json(
-      { ok: false, error: 'Backlog em piloto apenas para Be180 OOH.' },
-      { status: 403 }
-    )
+  if (!isBacklogEnabled(client.slug)) {
+    return NextResponse.json({ ok: false, error: 'Backlog indisponível para este cliente.' }, { status: 403 })
   }
 
   const thread = await getCopilotThread(client.slug, threadId)

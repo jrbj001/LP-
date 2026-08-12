@@ -4,11 +4,8 @@ import {
   WORK_PLAN,
   type UserStory,
 } from '@/components/client/documents/colmeia-agent-architecture-data'
-import {
-  BACKLOG_BOARDS,
-  type BacklogBoardId,
-  type BacklogCard,
-} from './types'
+import { getBacklogBoards } from './boards'
+import { type BacklogBoardId, type BacklogCard } from './types'
 
 function nowIso(): string {
   return new Date().toISOString()
@@ -65,7 +62,9 @@ function storyTitle(story: UserStory): string {
 }
 
 /** Seed imutável derivado dos documentos — overrides ficam no store. */
-export function buildSeedCards(): BacklogCard[] {
+export function buildSeedCards(clientId: string): BacklogCard[] {
+  if (clientId !== 'be180-ooh') return []
+
   const ts = nowIso()
   const cards: BacklogCard[] = []
 
@@ -151,6 +150,6 @@ export function buildSeedCards(): BacklogCard[] {
   return cards
 }
 
-export function listBoards() {
-  return BACKLOG_BOARDS
+export function listBoards(clientId: string) {
+  return getBacklogBoards(clientId)
 }

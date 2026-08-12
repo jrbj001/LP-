@@ -17,12 +17,14 @@ import { CopilotModal } from './copilot-modal'
 
 export function BacklogWorkspace({
   clientId,
+  clientName,
   accent,
   detailBase,
   copilotBase,
   initial,
 }: {
   clientId: string
+  clientName: string
   accent: string
   detailBase: string
   copilotBase: string
@@ -139,12 +141,12 @@ export function BacklogWorkspace({
       <div className="rounded-2xl border border-sky-200/80 bg-sky-50/50 px-5 py-4 flex flex-col lg:flex-row lg:items-center gap-4 justify-between">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-sky-700 mb-1">
-            Piloto Be180 · Backlog PM + AI
+            {clientName} · Backlog PM + AI
           </p>
           <p className="text-[13px] text-neutral-600 leading-relaxed max-w-4xl">
-            Boards seeded pelas user stories e gaps dos documentos. Use a IA para transformar
-            requisitos em user stories e depois em specs agent-ready com contexto do GitHub.
-            O enrichment sugere — o PM revisa antes de mover para desenvolvimento.
+            {clientId === 'likeme'
+              ? 'O backlog Like:Me começa vazio: crie requisitos manualmente ou converse com o copiloto para gerar user stories e specs agent-ready com contexto do GitHub.'
+              : 'Use a IA para transformar requisitos em user stories e depois em specs agent-ready com contexto do GitHub. O enrichment sugere — o PM revisa antes de mover para desenvolvimento.'}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -261,6 +263,7 @@ export function BacklogWorkspace({
       {copilotOpen && (
         <CopilotModal
           clientId={clientId}
+          boards={boards}
           accent={accent}
           detailBase={detailBase}
           copilotHref={

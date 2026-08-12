@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { CheckCircle2, ListChecks, Sparkles } from 'lucide-react'
+import { MeetingBacklogExport } from './meeting-backlog-export'
 
 interface MeetingBrief {
   summary: string
@@ -22,11 +23,15 @@ const PRIORITY_STYLE = {
 export function MeetingAiBrief({
   clientId,
   meetingId,
+  locale,
   accent,
+  backlogEnabled,
 }: {
   clientId: string
   meetingId: string
+  locale: string
   accent: string
+  backlogEnabled: boolean
 }) {
   const [brief, setBrief] = useState<MeetingBrief | null>(null)
   const [loading, setLoading] = useState(false)
@@ -126,6 +131,16 @@ export function MeetingAiBrief({
               ))}
             </div>
           </section>
+
+          {backlogEnabled && (
+            <MeetingBacklogExport
+              clientId={clientId}
+              meetingId={meetingId}
+              locale={locale}
+              brief={brief}
+              accent={accent}
+            />
+          )}
         </div>
       )}
     </div>

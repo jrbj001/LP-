@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getClient } from '@/lib/client/registry'
 import { describeOpenAiError } from '@/lib/ai/openai-error'
+import { getMeetingSource } from '@/lib/meetings/source'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,7 +48,7 @@ export async function POST(
     return NextResponse.json({ ok: false, error: 'Reunião não encontrada' }, { status: 404 })
   }
 
-  const source = meeting.aiContext?.trim() || meeting.summary?.trim()
+  const source = getMeetingSource(meeting)?.content
   if (!source) {
     return NextResponse.json(
       { ok: false, error: 'Esta reunião ainda não possui conteúdo para análise.' },
@@ -62,6 +63,14 @@ export async function POST(
       { status: 503 }
     )
   }
+
+  const domainRules =
+    client.slug === 'be180-ooh'
+      ? `- Se a reunião mapear pilares, frentes ou escopos, cite todos no resumo — inclusive o que ficou fora desta fase.
+- Não omita pilares explicitamente citados, como Agentes, Banco de Ativos ou equivalentes.
+- Se um pilar estiver explicitamente fora de escopo, registre isso no resumo e no plano de ação.`
+      : `- Preserve os nomes das frentes, produtos e integrações exatamente como aparecem no conteúdo-fonte.
+- Não introduza pilares, decisões de escopo ou tarefas que não tenham sido explicitamente citados na reunião.`
 
   const prompt = `Analise o conteúdo da reunião abaixo e devolva um briefing executivo em português do Brasil.
 
@@ -89,12 +98,10 @@ Retorne somente JSON válido com este formato:
 Regras:
 - Use apenas fatos presentes no conteúdo-fonte.
 - Não invente decisões, responsáveis, datas ou métricas.
-- Se a reunião mapear pilares, frentes ou escopos (ativos ou adiados), cite todos no resumo — inclusive o que ficou fora desta fase.
-- Não omita pilares nomeados como Agentes, Banco de Ativos ou equivalentes.
+${domainRules}
 - Separe plano de ação (sequência recomendada) de to-dos (tarefas acordadas).
 - Limite a lista de to-dos aos 8 itens mais relevantes.
 - Priorize itens que desbloqueiam outras atividades.
-- Se um pilar estiver fora de escopo agora, registre isso no resumo e inclua no plano de ação um passo explícito do tipo "manter Agentes fora desta fase / não investir agora".
 - O plano de ação deve refletir tanto o que avançar quanto o que deliberadamente adiar.`
 
   try {

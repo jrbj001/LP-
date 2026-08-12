@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import type { ClientWorkspace } from '@/lib/client/types'
+import { isBacklogEnabled } from '@/lib/backlog/access'
 
 const NAV_ITEMS = [
   { path: '', label: 'Visão geral' },
@@ -30,6 +31,7 @@ export function ClientShell({
   const base = `/${locale}/client/${client.slug}`
   const wide = pathname.endsWith('/entregas') || pathname.includes('/backlog')
   const shellWidth = wide ? SHELL_WIDE : `${SHELL_MAX} mx-auto w-full`
+  const navItems = NAV_ITEMS.filter(item => item.path !== '/backlog' || isBacklogEnabled(client.slug))
 
   return (
     <div className="min-h-screen bg-[#fbfbfa] text-neutral-900 antialiased">
@@ -55,7 +57,7 @@ export function ClientShell({
           </div>
 
           <nav className="hidden sm:flex items-center gap-1">
-            {NAV_ITEMS.map(a => {
+            {navItems.map(a => {
               const href = `${base}${a.path}`
               const active = a.path ? pathname.startsWith(href) : pathname === base || pathname === `${base}/`
               return (
@@ -76,7 +78,7 @@ export function ClientShell({
         </div>
 
         <nav className="sm:hidden flex gap-1 px-4 pb-3 overflow-x-auto">
-          {NAV_ITEMS.map(a => {
+          {navItems.map(a => {
             const href = `${base}${a.path}`
             const active = a.path ? pathname.startsWith(href) : pathname === base || pathname === `${base}/`
             return (

@@ -7,6 +7,9 @@ export type BacklogBoardId =
   | 'banco-ativos'
   | 'agentes'
   | 'visibilidade'
+  | 'likeme-landing'
+  | 'likeme-app'
+  | 'likeme-backend'
 
 export interface GithubRef {
   repo: string
@@ -34,7 +37,7 @@ export interface BacklogDiagram {
 }
 
 export interface BacklogCardSource {
-  kind: 'user-story' | 'gap' | 'milestone' | 'manual'
+  kind: 'user-story' | 'gap' | 'milestone' | 'manual' | 'meeting'
   ref?: string
 }
 
@@ -139,33 +142,6 @@ export const BACKLOG_COLUMNS: { id: BacklogColumnId; label: string }[] = [
   { id: 'ready', label: 'Pronta p/ agent' },
   { id: 'dev', label: 'Em desenvolvimento' },
   { id: 'done', label: 'Done' },
-]
-
-export const BACKLOG_BOARDS: BacklogBoard[] = [
-  {
-    id: 'colmeia',
-    title: 'Colmeia · Meus Roteiros',
-    description: 'Planner, metodologia, resultados e jornada do roteiro OOH.',
-    productLabel: 'Colmeia · Meus Roteiros',
-  },
-  {
-    id: 'banco-ativos',
-    title: 'Banco de Ativos',
-    description: 'Inventário, exibidores, media kit, cadastros e funil de aprovação.',
-    productLabel: 'Banco de Ativos',
-  },
-  {
-    id: 'agentes',
-    title: 'Agentes / Adaptive Layer™',
-    description: 'Copiloto, agentes da jornada e contratos da Adaptive Layer™.',
-    productLabel: 'Agentes · Adaptive Layer™',
-  },
-  {
-    id: 'visibilidade',
-    title: 'Teste de Visibilidade',
-    description: 'Frontend e backend do teste de visibilidade / image brand processing.',
-    productLabel: 'Teste de Visibilidade',
-  },
 ]
 
 export type CardPatch = Partial<

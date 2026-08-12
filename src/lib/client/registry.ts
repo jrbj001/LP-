@@ -1,7 +1,8 @@
 import { be180Ooh } from '@/components/client/tenants/be180-ooh'
+import { likeMe } from '@/components/client/tenants/likeme'
 import type { ClientWorkspace } from '@/lib/client/types'
 
-const CLIENTS: ClientWorkspace[] = [be180Ooh]
+const CLIENTS: ClientWorkspace[] = [be180Ooh, likeMe]
 
 export function listClients(): ClientWorkspace[] {
   return CLIENTS

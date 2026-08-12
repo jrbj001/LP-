@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server'
 import { getClient } from '@/lib/client/registry'
 import { runAndPersistTurn } from '@/lib/backlog/copilot-turn'
 import { createCopilotThread, listCopilotThreads } from '@/lib/backlog/store'
-import { BACKLOG_BOARDS, type BacklogBoardId } from '@/lib/backlog/types'
+import type { BacklogBoardId } from '@/lib/backlog/types'
+import { isBacklogEnabled } from '@/lib/backlog/access'
+import { getBacklogBoards } from '@/lib/backlog/boards'
 
 export const dynamic = 'force-dynamic'
-
-const BOARD_IDS = new Set(BACKLOG_BOARDS.map(b => b.id))
 
 export async function GET(_req: Request, { params }: { params: Promise<{ clientId: string }> }) {
   const { clientId } = await params
@@ -14,11 +14,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ clientI
   if (!client) {
     return NextResponse.json({ ok: false, error: 'Cliente não encontrado' }, { status: 404 })
   }
-  if (client.slug !== 'be180-ooh') {
-    return NextResponse.json(
-      { ok: false, error: 'Backlog em piloto apenas para Be180 OOH.' },
-      { status: 403 }
-    )
+  if (!isBacklogEnabled(client.slug)) {
+    return NextResponse.json({ ok: false, error: 'Backlog indisponível para este cliente.' }, { status: 403 })
   }
 
   const threads = await listCopilotThreads(client.slug)
@@ -31,11 +28,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ clientI
   if (!client) {
     return NextResponse.json({ ok: false, error: 'Cliente não encontrado' }, { status: 404 })
   }
-  if (client.slug !== 'be180-ooh') {
-    return NextResponse.json(
-      { ok: false, error: 'Backlog em piloto apenas para Be180 OOH.' },
-      { status: 403 }
-    )
+  if (!isBacklogEnabled(client.slug)) {
+    return NextResponse.json({ ok: false, error: 'Backlog indisponível para este cliente.' }, { status: 403 })
   }
 
   let body: { boardId?: string; cardId?: string; message?: string }
@@ -47,7 +41,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ clientI
 
   const boardId = body.boardId as BacklogBoardId | undefined
   const message = body.message?.trim()
-  if (!boardId || !BOARD_IDS.has(boardId)) {
+  const boardIds = new Set(getBacklogBoards(client.slug).map(board => board.id))
+  if (!boardId || !boardIds.has(boardId)) {
     return NextResponse.json({ ok: false, error: 'Board inválido.' }, { status: 400 })
   }
   if (!message) {
@@ -66,6 +61,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ clientI
   try {
     const updated = await runAndPersistTurn({
       clientId: client.slug,
+      clientName: client.name,
+      clientSector: client.sector,
       thread,
       message,
       repos: client.delivery?.repos ?? [],

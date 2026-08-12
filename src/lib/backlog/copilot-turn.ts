@@ -13,14 +13,24 @@ function messageId(prefix: string): string {
  */
 export async function runAndPersistTurn(input: {
   clientId: string
+  clientName: string
+  clientSector: string
   thread: CopilotThread
   message: string
   repos: RepoConfig[]
 }): Promise<CopilotThread> {
-  const { clientId, thread, message, repos } = input
+  const { clientId, clientName, clientSector, thread, message, repos } = input
   const card = thread.cardId ? await getBacklogCard(clientId, thread.cardId) : null
 
-  const turn = await runCopilotTurn({ thread, message, card, repos })
+  const turn = await runCopilotTurn({
+    clientId,
+    clientName,
+    clientSector,
+    thread,
+    message,
+    card,
+    repos,
+  })
   const now = new Date().toISOString()
 
   const userMessage: CopilotMessage = {

@@ -13,7 +13,7 @@ import {
   UserRound,
 } from 'lucide-react'
 import {
-  BACKLOG_BOARDS,
+  type BacklogBoard,
   type BacklogBoardId,
   type BacklogCard,
   type CopilotMessage,
@@ -22,15 +22,23 @@ import {
 } from '@/lib/backlog/types'
 import { BacklogDiagramView } from './backlog-diagram'
 
-const STARTERS = [
+const BE180_STARTERS = [
   'Como funciona hoje a promoção de inventário ao Banco de Ativos?',
   'Escreva a user story para o exibidor completar o cadastro pendente.',
   'Quais critérios de aceite garantem que o roteiro só publica com mídia válida?',
   'Desenhe o fluxo do agente que valida inventário antes da aprovação.',
 ]
 
+const LIKEME_STARTERS = [
+  'Desenhe a jornada de saúde do usuário entre descoberta e acompanhamento.',
+  'Escreva uma user story para uma experiência de compra no marketplace.',
+  'Quais critérios de aceite precisamos para uma interação segura na comunidade?',
+  'Mapeie os requisitos de pagamento sem presumir detalhes da integração.',
+]
+
 export function CopilotChat({
   clientId,
+  boards,
   accent,
   detailBase,
   boardId,
@@ -38,6 +46,7 @@ export function CopilotChat({
   variant = 'page',
 }: {
   clientId: string
+  boards: BacklogBoard[]
   accent: string
   detailBase: string
   boardId: BacklogBoardId
@@ -45,6 +54,7 @@ export function CopilotChat({
   variant?: 'page' | 'modal'
 }) {
   const base = `/api/client/${encodeURIComponent(clientId)}/backlog/copilot`
+  const starters = clientId === 'likeme' ? LIKEME_STARTERS : BE180_STARTERS
 
   const [threads, setThreads] = useState<CopilotThreadSummary[]>([])
   const [thread, setThread] = useState<CopilotThread | null>(null)
@@ -76,8 +86,8 @@ export function CopilotChat({
   }, [thread?.messages.length, sending])
 
   const boardLabel = useMemo(
-    () => BACKLOG_BOARDS.find(b => b.id === activeBoardId)?.title ?? activeBoardId,
-    [activeBoardId]
+    () => boards.find(b => b.id === activeBoardId)?.title ?? activeBoardId,
+    [activeBoardId, boards]
   )
 
   async function send(message: string) {
@@ -193,7 +203,7 @@ export function CopilotChat({
                   {item.title}
                 </p>
                 <p className="text-[10px] text-neutral-400 mt-1">
-                  {BACKLOG_BOARDS.find(b => b.id === item.boardId)?.productLabel ?? item.boardId} ·{' '}
+                  {boards.find(b => b.id === item.boardId)?.productLabel ?? item.boardId} ·{' '}
                   {new Date(item.updatedAt).toLocaleDateString('pt-BR')}
                 </p>
               </button>
@@ -224,7 +234,7 @@ export function CopilotChat({
               onChange={e => setActiveBoardId(e.target.value as BacklogBoardId)}
               className="rounded-full border border-black/[0.08] bg-white px-3 py-1.5 text-[12px] text-neutral-700 disabled:opacity-60"
             >
-              {BACKLOG_BOARDS.map(b => (
+              {boards.map(b => (
                 <option key={b.id} value={b.id}>
                   {b.title}
                 </option>
@@ -250,7 +260,7 @@ export function CopilotChat({
                 propõe o rascunho. Você aplica ao board com um clique.
               </p>
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
-                {STARTERS.map(starter => (
+                {starters.map(starter => (
                   <button
                     key={starter}
                     type="button"

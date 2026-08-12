@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getClient } from '@/lib/client/registry'
 import { runAndPersistTurn } from '@/lib/backlog/copilot-turn'
 import { getCopilotThread } from '@/lib/backlog/store'
+import { isBacklogEnabled } from '@/lib/backlog/access'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,11 +15,8 @@ export async function POST(
   if (!client) {
     return NextResponse.json({ ok: false, error: 'Cliente não encontrado' }, { status: 404 })
   }
-  if (client.slug !== 'be180-ooh') {
-    return NextResponse.json(
-      { ok: false, error: 'Backlog em piloto apenas para Be180 OOH.' },
-      { status: 403 }
-    )
+  if (!isBacklogEnabled(client.slug)) {
+    return NextResponse.json({ ok: false, error: 'Backlog indisponível para este cliente.' }, { status: 403 })
   }
 
   let body: { message?: string }
@@ -44,6 +42,8 @@ export async function POST(
   try {
     const updated = await runAndPersistTurn({
       clientId: client.slug,
+      clientName: client.name,
+      clientSector: client.sector,
       thread,
       message,
       repos: client.delivery?.repos ?? [],

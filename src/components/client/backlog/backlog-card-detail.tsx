@@ -11,8 +11,8 @@ import {
   UserRound,
 } from 'lucide-react'
 import {
-  BACKLOG_BOARDS,
   BACKLOG_COLUMNS,
+  type BacklogBoard,
   type BacklogCard,
   type BacklogDiagram,
 } from '@/lib/backlog/types'
@@ -57,12 +57,14 @@ function fallbackDiagram(card: BacklogCard): BacklogDiagram {
 
 export function BacklogCardDetail({
   card,
+  boards,
   backHref,
 }: {
   card: BacklogCard
+  boards: BacklogBoard[]
   backHref: string
 }) {
-  const board = BACKLOG_BOARDS.find(item => item.id === card.boardId)
+  const board = boards.find(item => item.id === card.boardId)
   const column = BACKLOG_COLUMNS.find(item => item.id === card.column)
   const diagram = card.diagram ?? fallbackDiagram(card)
 

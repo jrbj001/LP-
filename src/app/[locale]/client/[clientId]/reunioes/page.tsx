@@ -3,6 +3,7 @@ import { CalendarDays, ExternalLink, Users } from 'lucide-react'
 import { getClient } from '@/lib/client/registry'
 import { EmptyWorkspaceState, WorkspacePageHeader } from '@/components/client/workspace-page'
 import { MeetingAiBrief } from '@/components/client/meeting-ai-brief'
+import { isBacklogEnabled } from '@/lib/backlog/access'
 
 type Props = {
   params: Promise<{ locale: string; clientId: string }>
@@ -71,7 +72,9 @@ export default async function ClientMeetingsPage({ params }: Props) {
                     <MeetingAiBrief
                       clientId={client.slug}
                       meetingId={meeting.id}
+                      locale={locale}
                       accent={client.accent}
+                      backlogEnabled={isBacklogEnabled(client.slug)}
                     />
                   )}
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">

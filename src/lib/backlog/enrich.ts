@@ -2,7 +2,7 @@ import type { RepoConfig } from '@/lib/delivery/types'
 import { formatGithubContextForPrompt, gatherGithubContext } from './github-context'
 import { asDiagram, asStringArray, callOpenAiJson, codingModel } from './llm'
 import type { BacklogBoardId, BacklogCard, BacklogDiagram, GithubRef } from './types'
-import { BACKLOG_BOARDS } from './types'
+import { getBacklogBoards } from './boards'
 
 export type EnrichMode = 'story' | 'spec'
 
@@ -31,15 +31,30 @@ export interface SpecEnrichment {
   diagram: BacklogDiagram
 }
 
-function boardLabel(boardId: BacklogBoardId): string {
-  return BACKLOG_BOARDS.find(b => b.id === boardId)?.productLabel ?? boardId
+export interface BacklogClientContext {
+  clientId: string
+  clientName: string
+  sector: string
 }
 
-function cardSummary(card: BacklogCard): string {
+function boardLabel(clientId: string, boardId: BacklogBoardId): string {
+  return getBacklogBoards(clientId).find(b => b.id === boardId)?.productLabel ?? boardId
+}
+
+function domainPrompt(client: BacklogClientContext): string {
+  if (client.clientId === 'likeme') {
+    return `Produto: ${client.clientName}, no contexto de saúde, marketplace e comunidade.
+Considere integrações relevantes como Tabia, pagamentos e Social Plus somente quando relacionadas ao requisito. Não invente detalhes de código, endpoints ou contratos.`
+  }
+  return `Produto: Colmeia / Banco de Ativos / Adaptive Layer (Be180 OOH).
+Especialização: mídia exterior (OOH), mantendo a terminologia e o contexto atuais da Be180.`
+}
+
+function cardSummary(clientId: string, card: BacklogCard): string {
   return JSON.stringify(
     {
       id: card.id,
-      board: boardLabel(card.boardId),
+      board: boardLabel(clientId, card.boardId),
       title: card.title,
       level: card.level,
       column: card.column,
@@ -87,18 +102,20 @@ function isSpecEnrichment(value: unknown): value is SpecEnrichment {
 }
 
 export async function enrichCardToStory(
+  client: BacklogClientContext,
   card: BacklogCard,
   repos: RepoConfig[]
 ): Promise<StoryEnrichment> {
-  const gh = await gatherGithubContext(card, repos)
-  const system = `Você é um PM técnico sênior da PixelPulseLab, especialista em OOH e no produto Colmeia.
+  const gh = await gatherGithubContext(client.clientId, card, repos)
+  const system = `Você é um PM técnico sênior da PixelPulseLab.
+${domainPrompt(client)}
 Transforme requisitos brutos em user stories claras em português do Brasil.
 Responda APENAS JSON com: title, persona, want, soThat, acceptance (array 3-6 itens testáveis), priority (Alta|Média|Baixa) e diagram.
 diagram deve ser um desenho simples da jornada com { title, nodes, edges }; nodes têm { id, label, detail, kind } e edges têm { from, to, label }. Use 3-6 nós e IDs curtos sem espaços.
 Não invente integrações inexistentes. Use o contexto de código só como referência.`
 
   const user = `Card atual:
-${cardSummary(card)}
+${cardSummary(client.clientId, card)}
 
 Contexto GitHub:
 ${formatGithubContextForPrompt(gh)}
@@ -117,12 +134,13 @@ Gere a user story.`
 }
 
 export async function enrichCardToSpec(
+  client: BacklogClientContext,
   card: BacklogCard,
   repos: RepoConfig[]
 ): Promise<SpecEnrichment> {
-  const gh = await gatherGithubContext(card, repos)
+  const gh = await gatherGithubContext(client.clientId, card, repos)
   const system = `Você é um tech lead / staff engineer preparando uma especificação agent-ready para um agente de desenvolvimento.
-Produto: Colmeia / Banco de Ativos / Adaptive Layer (Be180 OOH).
+${domainPrompt(client)}
 Responda APENAS JSON com:
 - title
 - persona, want, soThat (opcionais se já existirem)
@@ -137,7 +155,7 @@ Responda APENAS JSON com:
 Escreva em português do Brasil. Seja específico o suficiente para um agente de código executar sem ambiguidade.`
 
   const user = `Card atual:
-${cardSummary(card)}
+${cardSummary(client.clientId, card)}
 
 Contexto GitHub:
 ${formatGithubContextForPrompt(gh)}

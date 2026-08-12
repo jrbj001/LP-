@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server'
 import { getClient } from '@/lib/client/registry'
 import { patchBacklogCard } from '@/lib/backlog/store'
 import type { BacklogColumnId, CardPatch } from '@/lib/backlog/types'
-import { BACKLOG_BOARDS, BACKLOG_COLUMNS } from '@/lib/backlog/types'
+import { BACKLOG_COLUMNS } from '@/lib/backlog/types'
+import { isBacklogEnabled } from '@/lib/backlog/access'
+import { getBacklogBoards } from '@/lib/backlog/boards'
 
 export const dynamic = 'force-dynamic'
 
-const BOARD_IDS = new Set(BACKLOG_BOARDS.map(b => b.id))
 const COLUMN_IDS = new Set(BACKLOG_COLUMNS.map(c => c.id))
 
 export async function PATCH(
@@ -18,11 +19,8 @@ export async function PATCH(
   if (!client) {
     return NextResponse.json({ ok: false, error: 'Cliente não encontrado' }, { status: 404 })
   }
-  if (client.slug !== 'be180-ooh') {
-    return NextResponse.json(
-      { ok: false, error: 'Backlog em piloto apenas para Be180 OOH.' },
-      { status: 403 }
-    )
+  if (!isBacklogEnabled(client.slug)) {
+    return NextResponse.json({ ok: false, error: 'Backlog indisponível para este cliente.' }, { status: 403 })
   }
 
   let body: CardPatch
@@ -32,7 +30,8 @@ export async function PATCH(
     return NextResponse.json({ ok: false, error: 'JSON inválido' }, { status: 400 })
   }
 
-  if (body.boardId && !BOARD_IDS.has(body.boardId)) {
+  const boardIds = new Set(getBacklogBoards(client.slug).map(board => board.id))
+  if (body.boardId && !boardIds.has(body.boardId)) {
     return NextResponse.json({ ok: false, error: 'Board inválido.' }, { status: 400 })
   }
   if (body.column && !COLUMN_IDS.has(body.column as BacklogColumnId)) {

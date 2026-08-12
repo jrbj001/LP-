@@ -30,6 +30,7 @@ export interface ClientMeeting {
   duration?: string
   status: 'scheduled' | 'completed'
   attendees: string[]
+  owner?: string
   summary?: string
   /** Conteúdo-fonte usado no servidor para gerar o briefing com IA. */
   aiContext?: string
