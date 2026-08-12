@@ -1,6 +1,8 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import Link from 'next/link'
+import { ArrowUpRight, Sparkles } from 'lucide-react'
 import type {
   BacklogBoard,
   BacklogBoardId,
@@ -11,16 +13,19 @@ import type {
 } from '@/lib/backlog/types'
 import { BacklogBoardView } from './backlog-board'
 import { BacklogCardDrawer } from './backlog-card-drawer'
+import { CopilotModal } from './copilot-modal'
 
 export function BacklogWorkspace({
   clientId,
   accent,
   detailBase,
+  copilotBase,
   initial,
 }: {
   clientId: string
   accent: string
   detailBase: string
+  copilotBase: string
   initial: BacklogSnapshot
 }) {
   const [boards] = useState(initial.boards)
@@ -34,6 +39,8 @@ export function BacklogWorkspace({
   const [error, setError] = useState<string | null>(null)
   const [newTitle, setNewTitle] = useState('')
   const [creating, setCreating] = useState(false)
+  const [copilotCard, setCopilotCard] = useState<BacklogCard | null>(null)
+  const [copilotOpen, setCopilotOpen] = useState(false)
 
   const activeBoard = boards.find(b => b.id === activeBoardId) ?? boards[0]
   const boardCards = useMemo(
@@ -129,15 +136,38 @@ export function BacklogWorkspace({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-sky-200/80 bg-sky-50/50 px-5 py-4">
-        <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-sky-700 mb-1">
-          Piloto Be180 · Backlog PM + AI
-        </p>
-        <p className="text-[13px] text-neutral-600 leading-relaxed max-w-4xl">
-          Boards seeded pelas user stories e gaps dos documentos. Use a IA para transformar
-          requisitos em user stories e depois em specs agent-ready com contexto do GitHub.
-          O enrichment sugere — o PM revisa antes de mover para desenvolvimento.
-        </p>
+      <div className="rounded-2xl border border-sky-200/80 bg-sky-50/50 px-5 py-4 flex flex-col lg:flex-row lg:items-center gap-4 justify-between">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-sky-700 mb-1">
+            Piloto Be180 · Backlog PM + AI
+          </p>
+          <p className="text-[13px] text-neutral-600 leading-relaxed max-w-4xl">
+            Boards seeded pelas user stories e gaps dos documentos. Use a IA para transformar
+            requisitos em user stories e depois em specs agent-ready com contexto do GitHub.
+            O enrichment sugere — o PM revisa antes de mover para desenvolvimento.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              setCopilotCard(null)
+              setCopilotOpen(true)
+            }}
+            className="inline-flex items-center gap-1.5 rounded-full text-white text-[12px] font-medium px-4 py-2"
+            style={{ backgroundColor: accent }}
+          >
+            <Sparkles className="w-3.5 h-3.5" strokeWidth={1.8} />
+            Copiloto
+          </button>
+          <Link
+            href={`${copilotBase}?board=${activeBoardId}`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.08] bg-white px-3.5 py-2 text-[12px] text-neutral-600 hover:border-neutral-300"
+          >
+            Abrir em tela cheia
+            <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={1.8} />
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -221,6 +251,26 @@ export function BacklogWorkspace({
           onClose={() => setSelectedId(null)}
           onPatch={patch => patchCard(selected.id, patch)}
           onEnrich={mode => enrichCard(selected.id, mode)}
+          onOpenCopilot={() => {
+            setCopilotCard(selected)
+            setCopilotOpen(true)
+          }}
+        />
+      )}
+
+      {copilotOpen && (
+        <CopilotModal
+          clientId={clientId}
+          accent={accent}
+          detailBase={detailBase}
+          copilotHref={
+            copilotCard
+              ? `${copilotBase}?board=${copilotCard.boardId}&card=${encodeURIComponent(copilotCard.id)}`
+              : `${copilotBase}?board=${activeBoardId}`
+          }
+          boardId={copilotCard?.boardId ?? activeBoardId}
+          card={copilotCard ? { id: copilotCard.id, title: copilotCard.title } : null}
+          onClose={() => setCopilotOpen(false)}
         />
       )}
     </div>

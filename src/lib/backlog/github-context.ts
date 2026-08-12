@@ -33,17 +33,8 @@ async function gh<T>(path: string): Promise<T> {
   return res.json() as Promise<T>
 }
 
-function keywordsFromCard(card: BacklogCard): string[] {
-  const raw = [
-    card.title,
-    card.want,
-    card.persona,
-    card.context,
-    ...(card.acceptance ?? []),
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase()
+export function keywordsFromText(text: string): string[] {
+  const raw = text.toLowerCase()
 
   const stop = new Set([
     'como', 'quero', 'para', 'que', 'com', 'sem', 'uma', 'um', 'de', 'da', 'do', 'das', 'dos',
@@ -58,6 +49,14 @@ function keywordsFromCard(card: BacklogCard): string[] {
     .filter(t => t.length >= 4 && !stop.has(t))
 
   return [...new Set(tokens)].slice(0, 8)
+}
+
+function keywordsFromCard(card: BacklogCard): string[] {
+  return keywordsFromText(
+    [card.title, card.want, card.persona, card.context, ...(card.acceptance ?? [])]
+      .filter(Boolean)
+      .join(' ')
+  )
 }
 
 function reposForBoard(boardId: BacklogBoardId, all: RepoConfig[]): RepoConfig[] {
@@ -122,27 +121,27 @@ async function readReadme(owner: string, repo: string): Promise<CodeSnippet | nu
 }
 
 /**
- * Monta contexto limitado do GitHub para o enrichment.
- * Falhas de token/rate não quebram o fluxo — retornam notes.
+ * Monta contexto limitado do GitHub a partir de um texto livre (pergunta do PM,
+ * título de card, etc). Falhas de token/rate não quebram o fluxo — retornam notes.
  */
-export async function gatherGithubContext(
-  card: BacklogCard,
+export async function gatherGithubContextForQuery(
+  input: { boardId: BacklogBoardId; query: string },
   repos: RepoConfig[]
 ): Promise<GithubContextBundle> {
   const notes: string[] = []
-  const selected = reposForBoard(card.boardId, repos)
+  const selected = reposForBoard(input.boardId, repos)
 
   if (selected.length === 0) {
     return { repos: [], snippets: [], notes: ['Nenhum repositório configurado para este board.'] }
   }
 
   if (!hasGitHubToken()) {
-    notes.push('GITHUB_TOKEN ausente — enrichment seguirá sem trechos de código.')
+    notes.push('GITHUB_TOKEN ausente — a IA seguirá sem trechos de código.')
   }
 
   const snippets: CodeSnippet[] = []
-  const keywords = keywordsFromCard(card)
-  const query = keywords.slice(0, 4).join(' ') || card.title.split(/\s+/).slice(0, 3).join(' ')
+  const keywords = keywordsFromText(input.query)
+  const query = keywords.slice(0, 4).join(' ') || input.query.split(/\s+/).slice(0, 3).join(' ')
 
   for (const repo of selected.slice(0, 2)) {
     const full = `${repo.owner}/${repo.repo}`
@@ -175,6 +174,21 @@ export async function gatherGithubContext(
     snippets: snippets.slice(0, 8),
     notes,
   }
+}
+
+/** Contexto do GitHub para o enrichment de um card. */
+export async function gatherGithubContext(
+  card: BacklogCard,
+  repos: RepoConfig[]
+): Promise<GithubContextBundle> {
+  const keywords = keywordsFromCard(card)
+  return gatherGithubContextForQuery(
+    {
+      boardId: card.boardId,
+      query: keywords.length > 0 ? keywords.join(' ') : card.title,
+    },
+    repos
+  )
 }
 
 export function formatGithubContextForPrompt(bundle: GithubContextBundle): string {

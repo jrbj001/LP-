@@ -4,10 +4,14 @@ import { buildSeedCards, listBoards } from './seed'
 import {
   BACKLOG_COLUMNS,
   BACKLOG_STORE_VERSION,
+  type BacklogBoardId,
   type BacklogCard,
   type BacklogSnapshot,
   type BacklogStorePayload,
   type CardPatch,
+  type CopilotMessage,
+  type CopilotThread,
+  type CopilotThreadSummary,
 } from './types'
 
 const CACHE_DIR = process.env.VERCEL
@@ -27,6 +31,7 @@ function emptyStore(clientId: string): BacklogStorePayload {
     updatedAt: new Date().toISOString(),
     cards: {},
     removedIds: [],
+    threads: {},
   }
 }
 
@@ -42,6 +47,8 @@ export async function readBacklogStore(clientId: string): Promise<BacklogStorePa
       memory.set(clientId, fresh)
       return fresh
     }
+    // Stores gravados antes do copiloto não têm threads.
+    payload.threads ??= {}
     memory.set(clientId, payload)
     return payload
   } catch {
@@ -126,6 +133,95 @@ export async function patchBacklogCard(
     updatedAt: new Date().toISOString(),
   }
   return upsertBacklogCard(clientId, next)
+}
+
+// ─── Copiloto ────────────────────────────────────────────────────────────────
+
+function threadTitleFrom(message: string): string {
+  const clean = message.trim().replace(/\s+/g, ' ')
+  if (clean.length <= 60) return clean || 'Nova conversa'
+  return `${clean.slice(0, 57)}…`
+}
+
+export async function listCopilotThreads(clientId: string): Promise<CopilotThreadSummary[]> {
+  const store = await readBacklogStore(clientId)
+  return Object.values(store.threads ?? {})
+    .map(thread => ({
+      id: thread.id,
+      title: thread.title,
+      boardId: thread.boardId,
+      cardId: thread.cardId,
+      messageCount: thread.messages.length,
+      updatedAt: thread.updatedAt,
+    }))
+    .sort((a, b) => (a.updatedAt > b.updatedAt ? -1 : 1))
+}
+
+export async function getCopilotThread(
+  clientId: string,
+  threadId: string
+): Promise<CopilotThread | null> {
+  const store = await readBacklogStore(clientId)
+  return store.threads?.[threadId] ?? null
+}
+
+export async function createCopilotThread(
+  clientId: string,
+  input: { boardId: BacklogBoardId; cardId?: string; title?: string }
+): Promise<CopilotThread> {
+  const store = await readBacklogStore(clientId)
+  const ts = new Date().toISOString()
+  const thread: CopilotThread = {
+    id: `thread-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
+    title: input.title ? threadTitleFrom(input.title) : 'Nova conversa',
+    boardId: input.boardId,
+    cardId: input.cardId,
+    messages: [],
+    createdAt: ts,
+    updatedAt: ts,
+  }
+  store.threads ??= {}
+  store.threads[thread.id] = thread
+  await writeBacklogStore(clientId, store)
+  return thread
+}
+
+export async function appendCopilotMessages(
+  clientId: string,
+  threadId: string,
+  messages: CopilotMessage[]
+): Promise<CopilotThread | null> {
+  const store = await readBacklogStore(clientId)
+  const thread = store.threads?.[threadId]
+  if (!thread) return null
+
+  thread.messages.push(...messages)
+  thread.updatedAt = new Date().toISOString()
+
+  const firstUser = thread.messages.find(m => m.role === 'user')
+  if (thread.title === 'Nova conversa' && firstUser) {
+    thread.title = threadTitleFrom(firstUser.content)
+  }
+
+  await writeBacklogStore(clientId, store)
+  return thread
+}
+
+export async function markMessageApplied(
+  clientId: string,
+  threadId: string,
+  messageId: string,
+  cardId: string
+): Promise<CopilotThread | null> {
+  const store = await readBacklogStore(clientId)
+  const thread = store.threads?.[threadId]
+  if (!thread) return null
+  const message = thread.messages.find(m => m.id === messageId)
+  if (!message) return null
+  message.appliedCardId = cardId
+  thread.updatedAt = new Date().toISOString()
+  await writeBacklogStore(clientId, store)
+  return thread
 }
 
 export async function createManualCard(

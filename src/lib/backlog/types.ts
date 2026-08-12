@@ -69,6 +69,49 @@ export interface BacklogBoard {
   productLabel: string
 }
 
+export interface StoryDraft {
+  boardId: BacklogBoardId
+  title: string
+  persona: string
+  want: string
+  soThat: string
+  acceptance: string[]
+  priority?: 'Alta' | 'Média' | 'Baixa'
+  diagram?: BacklogDiagram
+}
+
+export interface CopilotMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  diagram?: BacklogDiagram
+  storyDraft?: StoryDraft
+  sources?: GithubRef[]
+  followUps?: string[]
+  /** Card criado/atualizado quando o PM aplica o rascunho. */
+  appliedCardId?: string
+  createdAt: string
+}
+
+export interface CopilotThread {
+  id: string
+  title: string
+  boardId: BacklogBoardId
+  cardId?: string
+  messages: CopilotMessage[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CopilotThreadSummary {
+  id: string
+  title: string
+  boardId: BacklogBoardId
+  cardId?: string
+  messageCount: number
+  updatedAt: string
+}
+
 export interface BacklogStorePayload {
   version: number
   clientId: string
@@ -77,6 +120,8 @@ export interface BacklogStorePayload {
   cards: Record<string, BacklogCard>
   /** Cards removidos do seed (ids). */
   removedIds: string[]
+  /** Conversas do copiloto — keyed by thread id. */
+  threads?: Record<string, CopilotThread>
 }
 
 export interface BacklogSnapshot {
