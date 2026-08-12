@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import type { BacklogCard, BacklogColumnId, CardPatch } from '@/lib/backlog/types'
-import { ArrowUpRight, Sparkles, X, Loader2 } from 'lucide-react'
+import { ArrowUpRight, MessagesSquare, Sparkles, X, Loader2 } from 'lucide-react'
 
 export function BacklogCardDrawer({
   card,
@@ -14,6 +14,7 @@ export function BacklogCardDrawer({
   onClose,
   onPatch,
   onEnrich,
+  onOpenCopilot,
 }: {
   card: BacklogCard
   columns: { id: BacklogColumnId; label: string }[]
@@ -23,6 +24,7 @@ export function BacklogCardDrawer({
   onClose: () => void
   onPatch: (patch: CardPatch) => Promise<BacklogCard | null>
   onEnrich: (mode: 'story' | 'spec') => Promise<BacklogCard | null>
+  onOpenCopilot: () => void
 }) {
   const [title, setTitle] = useState(card.title)
   const [persona, setPersona] = useState(card.persona ?? '')
@@ -96,6 +98,15 @@ export function BacklogCardDrawer({
             Abrir visualização completa
             <ArrowUpRight className="w-4 h-4" strokeWidth={1.8} />
           </Link>
+
+          <button
+            type="button"
+            onClick={onOpenCopilot}
+            className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-black/[0.08] bg-white px-4 py-2.5 text-[13px] font-medium text-neutral-800 hover:border-neutral-300"
+          >
+            <MessagesSquare className="w-4 h-4" strokeWidth={1.8} />
+            Conversar com o copiloto
+          </button>
 
           <div className="flex flex-wrap gap-2">
             <button

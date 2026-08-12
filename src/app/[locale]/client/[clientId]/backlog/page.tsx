@@ -31,6 +31,7 @@ export default async function ClientBacklogPage({ params }: Props) {
         clientId={client.slug}
         accent={client.accent}
         detailBase={`${base}/backlog`}
+        copilotBase={`${base}/backlog/copilot`}
         initial={snapshot}
       />
     </div>
