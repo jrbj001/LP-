@@ -4,53 +4,85 @@ import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import { NAV_ITEMS, CLIENT } from './data'
-import { Lock, Menu, X } from 'lucide-react'
+import { getAssessment, navForAssessment } from '@/lib/assessment/registry'
+import { Lock, Menu, X, type LucideIcon } from 'lucide-react'
+
+interface ResolvedNavItem {
+  label: string
+  href: string
+  icon: LucideIcon
+  section: 'main' | 'workspace'
+  locked?: boolean
+}
 
 export function Sidebar() {
   const pathname = usePathname()
   const locale = useLocale()
   const [open, setOpen] = useState(false)
 
-  const base = `/${locale}/adaptive`
+  // Resolve tenant do assessment multi-cliente pelo pathname:
+  // /{locale}/adaptive/{slug}/...
+  const segments = pathname.split('/').filter(Boolean)
+  const slugCandidate = segments[0] === locale && segments[1] === 'adaptive' ? segments[2] : undefined
+  const workspace = slugCandidate ? getAssessment(slugCandidate) : undefined
 
-  const isActive = (href: string) => {
-    const full = base + href
-    if (href === '') return pathname === base || pathname === base + '/'
-    return pathname.startsWith(full)
+  const isTenant = Boolean(workspace)
+  const base = isTenant ? `/${locale}/adaptive/${workspace!.client.slug}` : `/${locale}/adaptive`
+
+  const items: ResolvedNavItem[] = isTenant
+    ? navForAssessment(workspace!).map(i => ({
+        label: i.label,
+        href: i.href,
+        icon: i.icon,
+        section: 'workspace' as const,
+      }))
+    : NAV_ITEMS.map(i => ({ ...i }))
+
+  const brand = isTenant
+    ? { name: workspace!.client.name, meta: workspace!.client.sector }
+    : { name: CLIENT.name, meta: `${CLIENT.facilitator.name} · ${CLIENT.facilitator.role}` }
+
+  const isActive = (item: ResolvedNavItem) => {
+    const full = base + item.href
+    if (item.href === '') return pathname === base || pathname === base + '/'
+    return pathname === full || pathname.startsWith(full + '/')
   }
 
-  const main = NAV_ITEMS.filter(i => i.section === 'main')
-  const workspace = NAV_ITEMS.filter(i => i.section === 'workspace')
+  const hrefFor = (item: ResolvedNavItem) => base + item.href
+
+  const main = items.filter(i => i.section === 'main')
+  const workspaceItems = items.filter(i => i.section === 'workspace')
 
   const NavList = () => (
     <>
       <BrandBlock />
 
       <nav className="flex flex-col gap-8 px-3 mt-2">
-        <div className="flex flex-col gap-0.5">
-          <SectionLabel>Metodologia</SectionLabel>
-          {main.map(item => (
-            <NavLink key={item.href} item={item} active={isActive(item.href)} base={base} onNav={() => setOpen(false)} />
-          ))}
-        </div>
+        {main.length > 0 && (
+          <div className="flex flex-col gap-0.5">
+            <SectionLabel>Metodologia</SectionLabel>
+            {main.map(item => (
+              <NavLink key={item.label} item={item} active={isActive(item)} href={hrefFor(item)} onNav={() => setOpen(false)} />
+            ))}
+          </div>
+        )}
 
         <div className="flex flex-col gap-0.5">
-          <SectionLabel>Workspace</SectionLabel>
-          {workspace.map(item => (
-            <NavLink key={item.href} item={item} active={isActive(item.href)} base={base} onNav={() => setOpen(false)} />
+          <SectionLabel>{isTenant ? 'Assessment' : 'Workspace'}</SectionLabel>
+          {workspaceItems.map(item => (
+            <NavLink key={item.label} item={item} active={isActive(item)} href={hrefFor(item)} onNav={() => setOpen(false)} />
           ))}
         </div>
       </nav>
 
       <div className="mt-auto p-4">
-        {/* Client context */}
         <div className="mb-3 flex items-center gap-2.5 px-1">
           <div className="w-7 h-7 rounded-lg bg-black/[0.06] flex items-center justify-center text-[10px] font-semibold text-neutral-600">
-            {CLIENT.facilitator.initials}
+            {brand.name.slice(0, 2).toUpperCase()}
           </div>
           <div className="leading-tight min-w-0">
-            <p className="text-[12px] font-medium text-neutral-900 truncate">{CLIENT.name}</p>
-            <p className="text-[10px] text-neutral-400 truncate">{CLIENT.facilitator.name} · {CLIENT.facilitator.role}</p>
+            <p className="text-[12px] font-medium text-neutral-900 truncate">{brand.name}</p>
+            <p className="text-[10px] text-neutral-400 truncate">{brand.meta}</p>
           </div>
         </div>
         <div className="rounded-xl border border-black/[0.06] bg-black/[0.015] p-4">
@@ -125,17 +157,17 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 function NavLink({
-  item, active, base, onNav,
+  item, active, href, onNav,
 }: {
-  item: (typeof NAV_ITEMS)[number]
+  item: ResolvedNavItem
   active: boolean
-  base: string
+  href: string
   onNav: () => void
 }) {
   const Icon = item.icon
   return (
     <a
-      href={base + item.href}
+      href={href}
       onClick={onNav}
       className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-all duration-150 ${
         active
