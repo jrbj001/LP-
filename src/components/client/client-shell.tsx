@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { path: '/reunioes', label: 'Reuniões' },
   { path: '/documentos', label: 'Documentos' },
   { path: '/projetos', label: 'Projetos' },
+  { path: '/backlog', label: 'Backlog' },
   { path: '/entregas', label: 'Entregas' },
 ] as const
 
@@ -27,7 +28,7 @@ export function ClientShell({
   const locale = useLocale()
   const pathname = usePathname()
   const base = `/${locale}/client/${client.slug}`
-  const wide = pathname.endsWith('/entregas')
+  const wide = pathname.endsWith('/entregas') || pathname.includes('/backlog')
   const shellWidth = wide ? SHELL_WIDE : `${SHELL_MAX} mx-auto w-full`
 
   return (
