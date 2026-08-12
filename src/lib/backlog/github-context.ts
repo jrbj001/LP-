@@ -59,7 +59,21 @@ function keywordsFromCard(card: BacklogCard): string[] {
   )
 }
 
-function reposForBoard(boardId: BacklogBoardId, all: RepoConfig[]): RepoConfig[] {
+function reposForBoard(clientId: string, boardId: BacklogBoardId, all: RepoConfig[]): RepoConfig[] {
+  if (clientId === 'likeme') {
+    const repoByBoard: Partial<Record<BacklogBoardId, string>> = {
+      'likeme-landing': 'LP-LikeMe',
+      'likeme-app': 'likeme-front-end',
+      'likeme-backend': 'likeme-back-end',
+    }
+    const expectedRepo = repoByBoard[boardId]
+    if (expectedRepo) {
+      const selected = all.filter(repo => repo.repo === expectedRepo)
+      if (selected.length > 0) return selected
+    }
+    return all
+  }
+
   if (boardId === 'visibilidade') {
     return all.filter(
       r =>
@@ -72,7 +86,7 @@ function reposForBoard(boardId: BacklogBoardId, all: RepoConfig[]): RepoConfig[]
   const primary = all.filter(
     r => r.repo.includes('colmeia') || /meus\s*roteiros|banco/i.test(r.label)
   )
-  return primary.length > 0 ? primary : all.slice(0, 1)
+  return primary.length > 0 ? primary : all
 }
 
 interface SearchItem {
@@ -125,11 +139,11 @@ async function readReadme(owner: string, repo: string): Promise<CodeSnippet | nu
  * título de card, etc). Falhas de token/rate não quebram o fluxo — retornam notes.
  */
 export async function gatherGithubContextForQuery(
-  input: { boardId: BacklogBoardId; query: string },
+  input: { clientId: string; boardId: BacklogBoardId; query: string },
   repos: RepoConfig[]
 ): Promise<GithubContextBundle> {
   const notes: string[] = []
-  const selected = reposForBoard(input.boardId, repos)
+  const selected = reposForBoard(input.clientId, input.boardId, repos)
 
   if (selected.length === 0) {
     return { repos: [], snippets: [], notes: ['Nenhum repositório configurado para este board.'] }
@@ -143,7 +157,7 @@ export async function gatherGithubContextForQuery(
   const keywords = keywordsFromText(input.query)
   const query = keywords.slice(0, 4).join(' ') || input.query.split(/\s+/).slice(0, 3).join(' ')
 
-  for (const repo of selected.slice(0, 2)) {
+  for (const repo of selected.slice(0, 3)) {
     const full = `${repo.owner}/${repo.repo}`
     const readme = await readReadme(repo.owner, repo.repo)
     if (readme) snippets.push(readme)
@@ -166,7 +180,7 @@ export async function gatherGithubContextForQuery(
   }
 
   if (snippets.length === 0) {
-    notes.push('Nenhum arquivo relevante encontrado; a IA usará só o texto do card e o domínio OOH.')
+    notes.push('Nenhum arquivo relevante encontrado; a IA usará o texto do card e o contexto do cliente.')
   }
 
   return {
@@ -178,12 +192,14 @@ export async function gatherGithubContextForQuery(
 
 /** Contexto do GitHub para o enrichment de um card. */
 export async function gatherGithubContext(
+  clientId: string,
   card: BacklogCard,
   repos: RepoConfig[]
 ): Promise<GithubContextBundle> {
   const keywords = keywordsFromCard(card)
   return gatherGithubContextForQuery(
     {
+      clientId,
       boardId: card.boardId,
       query: keywords.length > 0 ? keywords.join(' ') : card.title,
     },

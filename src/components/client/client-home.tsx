@@ -72,7 +72,7 @@ export function ClientHome({ client, locale, deliveryTeaser }: Props) {
           <div>
             <p className="text-[13px] font-medium text-neutral-400 mb-2">Área do cliente</p>
             <h1 className="text-4xl sm:text-5xl font-semibold tracking-[-0.04em] text-neutral-900">
-              Olá, Be180.
+              Olá, {client.name.split(' ')[0]}.
             </h1>
             <p className="mt-4 text-[16px] text-neutral-500 max-w-2xl leading-relaxed">
               Acompanhe o engajamento em um só lugar: projetos, reuniões, documentos e entregas técnicas.

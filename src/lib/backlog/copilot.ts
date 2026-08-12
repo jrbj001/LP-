@@ -6,7 +6,6 @@ import {
 } from './github-context'
 import { asDiagram, asStringArray, callOpenAiJson } from './llm'
 import {
-  BACKLOG_BOARDS,
   type BacklogBoardId,
   type BacklogCard,
   type BacklogDiagram,
@@ -15,6 +14,7 @@ import {
   type GithubRef,
   type StoryDraft,
 } from './types'
+import { getBacklogBoards } from './boards'
 
 export interface CopilotTurn {
   reply: string
@@ -24,7 +24,13 @@ export interface CopilotTurn {
   sources: GithubRef[]
 }
 
-const SYSTEM_PROMPT = `Você é o copiloto de produto da Be180 OOH, especialista no domínio de mídia exterior (OOH) e nos produtos Colmeia, Banco de Ativos, agentes e teste de visibilidade.
+function systemPrompt(clientId: string, clientName: string, sector: string): string {
+  const specialization =
+    clientId === 'likeme'
+      ? 'Especialize-se em saúde, marketplace, comunidade e nas integrações relevantes Tabia, pagamentos e Social Plus. Não presuma detalhes de implementação que não apareçam no contexto fornecido.'
+      : 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia, Banco de Ativos, agentes e teste de visibilidade.'
+
+  return `Você é o copiloto de produto de ${clientName} (${sector}). ${specialization}
 
 Você conversa com um Product Manager em português do Brasil para construir user stories prontas para desenvolvimento.
 
@@ -55,9 +61,10 @@ Responda SOMENTE com um objeto JSON:
   "followUps": ["pergunta curta sugerida ao PM"]
 }
 O diagrama precisa ter entre 3 e 8 nós e arestas coerentes com os ids dos nós.`
+}
 
-function boardLabel(boardId: BacklogBoardId): string {
-  return BACKLOG_BOARDS.find(b => b.id === boardId)?.productLabel ?? boardId
+function boardLabel(clientId: string, boardId: BacklogBoardId): string {
+  return getBacklogBoards(clientId).find(b => b.id === boardId)?.productLabel ?? boardId
 }
 
 function cardBrief(card?: BacklogCard | null): string {
@@ -93,13 +100,27 @@ function historyBrief(messages: CopilotMessage[]): string {
     .join('\n')
 }
 
-function fallbackDiagram(boardId: BacklogBoardId, question: string): BacklogDiagram {
+function fallbackDiagram(clientId: string, boardId: BacklogBoardId, question: string): BacklogDiagram {
   const focus = question.replace(/\s+/g, ' ').trim().slice(0, 42) || 'Necessidade do PM'
+  if (clientId === 'likeme') {
+    return {
+      title: `Fluxo proposto · ${boardLabel(clientId, boardId)}`,
+      nodes: [
+        { id: 'pm', label: 'PM / usuário', detail: focus, kind: 'actor' },
+        { id: 'produto', label: boardLabel(clientId, boardId), kind: 'process' },
+        { id: 'valor', label: 'Resultado esperado', kind: 'output' },
+      ],
+      edges: [
+        { from: 'pm', to: 'produto', label: 'requisito' },
+        { from: 'produto', to: 'valor', label: 'entrega' },
+      ],
+    }
+  }
   return {
-    title: `Fluxo proposto · ${boardLabel(boardId)}`,
+    title: `Fluxo proposto · ${boardLabel(clientId, boardId)}`,
     nodes: [
       { id: 'pm', label: 'PM / operação', detail: focus, kind: 'actor' },
-      { id: 'produto', label: boardLabel(boardId), kind: 'process' },
+      { id: 'produto', label: boardLabel(clientId, boardId), kind: 'process' },
       { id: 'layer', label: 'Adaptive Layer', detail: 'Orquestra dados e eventos', kind: 'system' },
       { id: 'valor', label: 'Resultado esperado', kind: 'output' },
     ],
@@ -132,28 +153,33 @@ function sourcesFromContext(bundle: GithubContextBundle, reply: string): GithubR
 }
 
 export async function runCopilotTurn(input: {
+  clientId: string
+  clientName: string
+  clientSector: string
   thread: CopilotThread
   message: string
   card?: BacklogCard | null
   repos: RepoConfig[]
 }): Promise<CopilotTurn> {
-  const { thread, message, card, repos } = input
+  const { clientId, clientName, clientSector, thread, message, card, repos } = input
+  const prompt = systemPrompt(clientId, clientName, clientSector)
 
   const queryParts = [message, card?.title ?? '', thread.title].filter(Boolean)
   const bundle = await gatherGithubContextForQuery(
-    { boardId: thread.boardId, query: queryParts.join(' ') },
+    { clientId, boardId: thread.boardId, query: queryParts.join(' ') },
     repos
   )
 
   const user = [
-    `Board / produto: ${boardLabel(thread.boardId)}`,
+    `Cliente: ${clientName} (${clientSector})`,
+    `Board / produto: ${boardLabel(clientId, thread.boardId)}`,
     `Card vinculado:\n${cardBrief(card)}`,
     `Histórico recente:\n${historyBrief(thread.messages)}`,
     `Contexto do código (GitHub):\n${formatGithubContextForPrompt(bundle)}`,
     `Pergunta atual do PM:\n${message}`,
   ].join('\n\n')
 
-  let parsed = (await callOpenAiJson(SYSTEM_PROMPT, user, {
+  let parsed = (await callOpenAiJson(prompt, user, {
     temperature: 0.3,
     maxTokens: 2600,
   })) as Record<string, unknown>
@@ -164,7 +190,7 @@ export async function runCopilotTurn(input: {
   if (!reply || !diagram) {
     // Retentativa estrita: o desenho é obrigatório na UI.
     parsed = (await callOpenAiJson(
-      SYSTEM_PROMPT,
+      prompt,
       `${user}\n\nA resposta anterior veio incompleta. Devolva o JSON completo, com "reply" preenchido e "diagram" contendo no mínimo 3 nós e as arestas ligando ids existentes.`,
       { temperature: 0.2, maxTokens: 2600 }
     )) as Record<string, unknown>
@@ -178,7 +204,7 @@ export async function runCopilotTurn(input: {
 
   return {
     reply,
-    diagram: diagram ?? fallbackDiagram(thread.boardId, message),
+    diagram: diagram ?? fallbackDiagram(clientId, thread.boardId, message),
     storyDraft: asStoryDraft(parsed.storyDraft, thread.boardId),
     followUps: asStringArray(parsed.followUps).slice(0, 4),
     sources: sourcesFromContext(bundle, reply),

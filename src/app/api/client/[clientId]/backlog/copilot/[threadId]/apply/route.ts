@@ -7,6 +7,8 @@ import {
   upsertBacklogCard,
 } from '@/lib/backlog/store'
 import type { BacklogCard } from '@/lib/backlog/types'
+import { isBacklogEnabled } from '@/lib/backlog/access'
+import { getBacklogBoards } from '@/lib/backlog/boards'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,11 +21,8 @@ export async function POST(
   if (!client) {
     return NextResponse.json({ ok: false, error: 'Cliente não encontrado' }, { status: 404 })
   }
-  if (client.slug !== 'be180-ooh') {
-    return NextResponse.json(
-      { ok: false, error: 'Backlog em piloto apenas para Be180 OOH.' },
-      { status: 403 }
-    )
+  if (!isBacklogEnabled(client.slug)) {
+    return NextResponse.json({ ok: false, error: 'Backlog indisponível para este cliente.' }, { status: 403 })
   }
 
   let body: { messageId?: string }
@@ -50,6 +49,10 @@ export async function POST(
       { ok: false, error: 'Esta mensagem não tem rascunho de user story.' },
       { status: 400 }
     )
+  }
+  const boardIds = new Set(getBacklogBoards(client.slug).map(board => board.id))
+  if (!boardIds.has(draft.boardId)) {
+    return NextResponse.json({ ok: false, error: 'Board inválido.' }, { status: 400 })
   }
 
   const diagram = draft.diagram ?? message.diagram

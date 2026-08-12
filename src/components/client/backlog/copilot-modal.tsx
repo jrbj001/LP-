@@ -3,11 +3,12 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowUpRight, X } from 'lucide-react'
-import type { BacklogBoardId, BacklogCard } from '@/lib/backlog/types'
+import type { BacklogBoard, BacklogBoardId, BacklogCard } from '@/lib/backlog/types'
 import { CopilotChat } from './copilot-chat'
 
 export function CopilotModal({
   clientId,
+  boards,
   accent,
   detailBase,
   copilotHref,
@@ -16,6 +17,7 @@ export function CopilotModal({
   onClose,
 }: {
   clientId: string
+  boards: BacklogBoard[]
   accent: string
   detailBase: string
   copilotHref: string
@@ -63,6 +65,7 @@ export function CopilotModal({
         <div className="flex-1 min-h-0 p-3">
           <CopilotChat
             clientId={clientId}
+            boards={boards}
             accent={accent}
             detailBase={detailBase}
             boardId={boardId}

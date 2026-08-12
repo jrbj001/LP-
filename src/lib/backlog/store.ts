@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import path from 'path'
 import { buildSeedCards, listBoards } from './seed'
+import { getBacklogBoards } from './boards'
 import {
   BACKLOG_COLUMNS,
   BACKLOG_STORE_VERSION,
@@ -72,15 +73,16 @@ export async function writeBacklogStore(clientId: string, payload: BacklogStoreP
 /** Merge seed + overrides do PM (overrides ganham). */
 export function mergeCards(store: BacklogStorePayload): BacklogCard[] {
   const removed = new Set(store.removedIds)
+  const boardIds = new Set(getBacklogBoards(store.clientId).map(board => board.id))
   const byId = new Map<string, BacklogCard>()
 
-  for (const card of buildSeedCards()) {
-    if (removed.has(card.id)) continue
+  for (const card of buildSeedCards(store.clientId)) {
+    if (removed.has(card.id) || !boardIds.has(card.boardId)) continue
     byId.set(card.id, card)
   }
 
   for (const card of Object.values(store.cards)) {
-    if (removed.has(card.id)) continue
+    if (removed.has(card.id) || !boardIds.has(card.boardId)) continue
     byId.set(card.id, card)
   }
 
@@ -94,7 +96,7 @@ export function mergeCards(store: BacklogStorePayload): BacklogCard[] {
 export async function getBacklogSnapshot(clientId: string): Promise<BacklogSnapshot> {
   const store = await readBacklogStore(clientId)
   return {
-    boards: listBoards(),
+    boards: listBoards(clientId),
     columns: BACKLOG_COLUMNS,
     cards: mergeCards(store),
     updatedAt: store.updatedAt,
@@ -110,11 +112,47 @@ export async function getBacklogCard(
 }
 
 export async function upsertBacklogCard(clientId: string, card: BacklogCard): Promise<BacklogCard> {
+  if (!getBacklogBoards(clientId).some(board => board.id === card.boardId)) {
+    throw new Error('Board inválido para este cliente.')
+  }
   const store = await readBacklogStore(clientId)
   store.cards[card.id] = { ...card, updatedAt: new Date().toISOString() }
   store.removedIds = store.removedIds.filter(id => id !== card.id)
   await writeBacklogStore(clientId, store)
   return store.cards[card.id]
+}
+
+export async function createBacklogCardsBatch(
+  clientId: string,
+  cards: BacklogCard[]
+): Promise<{ created: BacklogCard[]; skipped: BacklogCard[] }> {
+  const boardIds = new Set(getBacklogBoards(clientId).map(board => board.id))
+  if (cards.some(card => !boardIds.has(card.boardId))) {
+    throw new Error('Board inválido para este cliente.')
+  }
+
+  const store = await readBacklogStore(clientId)
+  const existing = mergeCards(store)
+  const existingIds = new Set(existing.map(card => card.id))
+  const existingRefs = new Set(
+    existing.map(card => card.source.ref).filter((ref): ref is string => Boolean(ref))
+  )
+  const created: BacklogCard[] = []
+  const skipped: BacklogCard[] = []
+
+  for (const card of cards) {
+    if (existingIds.has(card.id) || (card.source.ref && existingRefs.has(card.source.ref))) {
+      skipped.push(card)
+      continue
+    }
+    store.cards[card.id] = card
+    existingIds.add(card.id)
+    if (card.source.ref) existingRefs.add(card.source.ref)
+    created.push(card)
+  }
+
+  if (created.length > 0) await writeBacklogStore(clientId, store)
+  return { created, skipped }
 }
 
 export async function patchBacklogCard(
@@ -145,7 +183,9 @@ function threadTitleFrom(message: string): string {
 
 export async function listCopilotThreads(clientId: string): Promise<CopilotThreadSummary[]> {
   const store = await readBacklogStore(clientId)
+  const boardIds = new Set(getBacklogBoards(clientId).map(board => board.id))
   return Object.values(store.threads ?? {})
+    .filter(thread => boardIds.has(thread.boardId))
     .map(thread => ({
       id: thread.id,
       title: thread.title,
@@ -162,13 +202,18 @@ export async function getCopilotThread(
   threadId: string
 ): Promise<CopilotThread | null> {
   const store = await readBacklogStore(clientId)
-  return store.threads?.[threadId] ?? null
+  const thread = store.threads?.[threadId]
+  if (!thread || !getBacklogBoards(clientId).some(board => board.id === thread.boardId)) return null
+  return thread
 }
 
 export async function createCopilotThread(
   clientId: string,
   input: { boardId: BacklogBoardId; cardId?: string; title?: string }
 ): Promise<CopilotThread> {
+  if (!getBacklogBoards(clientId).some(board => board.id === input.boardId)) {
+    throw new Error('Board inválido para este cliente.')
+  }
   const store = await readBacklogStore(clientId)
   const ts = new Date().toISOString()
   const thread: CopilotThread = {
