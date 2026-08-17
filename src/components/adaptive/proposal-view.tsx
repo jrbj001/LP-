@@ -12,6 +12,7 @@ import {
   COMMERCIAL_MILESTONES,
   COMMERCIAL_MODELS,
   COMMERCIAL_DECISION,
+  COMMERCIAL_PRICING,
   PROPOSAL_TOTALS,
   PROPOSAL_OUTCOME,
   COMMERCIAL_TERMS,
@@ -22,9 +23,17 @@ import {
   formatBRL,
 } from '@/components/adaptive/proposal-data'
 import {
+  O2C_MVP_QUICK_WINS,
+  O2C_MVP_AGENTS,
+  O2C_OPERATIONAL_KPIS,
+  O2C_COMMERCIAL_KPIS,
+} from '@/components/adaptive/proposal-o2c'
+import { RoiSimulator } from '@/components/adaptive/roi-simulator'
+import {
   Lock, Unlock, Users, Calculator, BookOpen, ExternalLink,
   CheckCircle2, Info, Clock, Wallet, ShieldCheck, Target,
   Milestone, ListChecks, GitPullRequest, AlertTriangle, Layers3, Scale,
+  TrendingUp, Bot, Zap, HandCoins,
 } from 'lucide-react'
 
 const STORAGE_KEY = 'orfeu-proposal-unlocked'
@@ -160,18 +169,32 @@ function ProposalContent() {
       {/* Resumo financeiro hero */}
       <Reveal>
         <div className="rounded-2xl border border-black/[0.06] bg-neutral-900 text-white p-8 mb-5">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Wallet className="w-4 h-4 text-emerald-400" strokeWidth={1.75} />
                 <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40">
-                  Engagement mensal
+                  Base fixa/mês
                 </p>
               </div>
-              <p className="text-[26px] font-semibold tracking-tight leading-none">
-                {formatBRL(SQUAD_SUMMARY.monthlyInvestment.min)}–{formatBRL(SQUAD_SUMMARY.monthlyInvestment.max)}
+              <p className="text-[24px] font-semibold tracking-tight leading-none">
+                {formatBRL(COMMERCIAL_PRICING.monthlyBase.min)}–{formatBRL(COMMERCIAL_PRICING.monthlyBase.max)}
               </p>
-              <p className="text-[12px] text-white/50 mt-2">Squad dedicado · reuniões e engenharia inclusos</p>
+              <p className="text-[12px] text-white/50 mt-2">Garantida · squad e engenharia inclusos</p>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" strokeWidth={1.75} />
+                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40">
+                  Parcela em risco/mês
+                </p>
+              </div>
+              <p className="text-[24px] font-semibold tracking-tight leading-none">
+                {formatBRL(COMMERCIAL_PRICING.monthlyAtRisk.min)}–{formatBRL(COMMERCIAL_PRICING.monthlyAtRisk.max)}
+              </p>
+              <p className="text-[12px] text-white/50 mt-2">
+                ~{Math.round(COMMERCIAL_PRICING.atRiskShare * 100)}% do fee · liberada por KPI no gate
+              </p>
             </div>
             <div>
               <div className="flex items-center gap-2 mb-2">
@@ -180,37 +203,128 @@ function ProposalContent() {
                   Horizonte
                 </p>
               </div>
-              <p className="text-[26px] font-semibold tracking-tight leading-none">{PROPOSAL_TOTALS.horizon}</p>
+              <p className="text-[24px] font-semibold tracking-tight leading-none">{PROPOSAL_TOTALS.horizon}</p>
               <p className="text-[12px] text-white/50 mt-2">
-                ~{SQUAD_SUMMARY.totalHoursMonth}h/mês de capacidade planejada
+                ~{SQUAD_SUMMARY.totalHoursMonth}h/mês de capacidade
               </p>
             </div>
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Calculator className="w-4 h-4 text-emerald-400" strokeWidth={1.75} />
                 <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40">
-                  Total estimado
+                  Fee cheio no horizonte
                 </p>
               </div>
-              <p className="text-[26px] font-semibold tracking-tight leading-none">
+              <p className="text-[24px] font-semibold tracking-tight leading-none">
                 {formatBRL(PROPOSAL_TOTALS.investment.min)}–{formatBRL(PROPOSAL_TOTALS.investment.max)}
               </p>
               <p className="text-[12px] text-white/50 mt-2">
-                Referência blended R$ {RATE_BASIS.blended.min}–{RATE_BASIS.blended.max}/h
+                Base + risco · blended R$ {RATE_BASIS.blended.min}–{RATE_BASIS.blended.max}/h
               </p>
             </div>
           </div>
           <p className="text-[12px] text-white/40 leading-relaxed mt-6 pt-5 border-t border-white/[0.08]">
-            {PROPOSAL_TOTALS.note} {PROPOSAL_META.validity}.
+            {PROPOSAL_TOTALS.note} {COMMERCIAL_PRICING.successFee.label} {PROPOSAL_META.validity}.
           </p>
         </div>
+      </Reveal>
+
+      {/* MVP Order-to-Cash: o que entra */}
+      <Reveal>
+        <Section
+          title="MVP Order-to-Cash — o que entregamos"
+          subtitle="Escopo enxuto e real: a Adaptive Layer™ do ciclo financeiro, os quick wins de maior impacto e os agentes core"
+          icon={Zap}
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="rounded-2xl border border-black/[0.06] bg-white p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="w-4 h-4 text-emerald-500" strokeWidth={1.75} />
+                <p className="text-[13px] font-semibold text-neutral-900">
+                  {O2C_MVP_QUICK_WINS.length} quick wins do ciclo financeiro
+                </p>
+              </div>
+              <ul className="space-y-2.5">
+                {O2C_MVP_QUICK_WINS.map(qw => (
+                  <li key={qw.id} className="flex gap-2 text-[12px] text-neutral-600 leading-relaxed">
+                    <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-emerald-500" strokeWidth={1.75} />
+                    <span>
+                      <span className="font-mono text-neutral-400">{qw.id}</span> · {qw.title}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-2xl border border-black/[0.06] bg-white p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Bot className="w-4 h-4 text-violet-500" strokeWidth={1.75} />
+                <p className="text-[13px] font-semibold text-neutral-900">
+                  {O2C_MVP_AGENTS.length} agentes core sobre a Layer
+                </p>
+              </div>
+              <ul className="space-y-2.5">
+                {O2C_MVP_AGENTS.map(agent => (
+                  <li key={agent.id} className="flex gap-2 text-[12px] text-neutral-600 leading-relaxed">
+                    <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-violet-500" strokeWidth={1.75} />
+                    <span>
+                      <span className="font-medium text-neutral-900">{agent.name}</span> — {agent.role}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="mt-3">
+            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400 mb-2">
+              KPIs de negócio acompanhados
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {O2C_OPERATIONAL_KPIS.map(kpi => (
+                <div key={kpi.id} className="rounded-xl border border-black/[0.05] bg-[#fafaf8] px-4 py-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[12px] font-semibold text-neutral-900">{kpi.label}</span>
+                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-500">
+                      {kpi.direction}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500 mt-1 leading-relaxed">{kpi.purpose}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Section>
+      </Reveal>
+
+      {/* ROI preditivo + simulador */}
+      <Reveal>
+        <Section
+          title="ROI preditivo"
+          subtitle="Estimativa (não garantia) do retorno do ciclo Order-to-Cash — ajuste as premissas e veja ROI e payback ao vivo"
+          icon={TrendingUp}
+        >
+          <RoiSimulator />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+            {O2C_COMMERCIAL_KPIS.map(kpi => (
+              <div key={kpi.id} className="rounded-xl border border-emerald-900/10 bg-emerald-50/50 px-4 py-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[12px] font-semibold text-neutral-900">{kpi.label}</span>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                    KPI de risco
+                  </span>
+                </div>
+                <p className="text-[11px] text-neutral-600 mt-1 leading-relaxed">{kpi.purpose}</p>
+                <p className="text-[11px] text-emerald-800/80 mt-1.5 font-medium">{kpi.target}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
       </Reveal>
 
       {/* Decisão comercial + Modelo único */}
       <Reveal>
         <Section
           title={COMMERCIAL_DECISION.title}
-          subtitle="Por que um engagement mensal orientado a resultado — e não venda de horas"
+          subtitle="Base fixa garantida + parcela em risco + bônus de sucesso — não venda de horas"
           icon={Scale}
         >
           <p className="text-[13px] text-neutral-600 leading-relaxed mb-5 max-w-3xl">
@@ -255,6 +369,74 @@ function ProposalContent() {
               <p className="text-[11px] text-neutral-400 mt-2 leading-relaxed">{model.footing}</p>
             </div>
           ))}
+        </Section>
+      </Reveal>
+
+      {/* Modelo de risco e bônus */}
+      <Reveal>
+        <Section
+          title="Modelo de risco e bônus"
+          subtitle="Como a mensalidade se divide entre base garantida, parcela em risco e bônus de sucesso"
+          icon={HandCoins}
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="rounded-2xl border border-black/[0.06] bg-white p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <Wallet className="w-4 h-4 text-neutral-500" strokeWidth={1.75} />
+                <p className="text-[13px] font-semibold text-neutral-900">Base fixa garantida</p>
+              </div>
+              <p className="text-[20px] font-semibold text-neutral-900 tracking-tight">
+                {formatBRL(COMMERCIAL_PRICING.monthlyBase.min)}–{formatBRL(COMMERCIAL_PRICING.monthlyBase.max)}
+                <span className="text-[12px] font-normal text-neutral-400">/mês</span>
+              </p>
+              <p className="text-[12px] text-neutral-500 leading-relaxed mt-2">
+                Cobre o squad enxuto por {COMMERCIAL_PRICING.months} meses. É o piso: paga independentemente
+                do bônus, começa mais baixo que a proposta anterior.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-amber-900/10 bg-amber-50/50 p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck className="w-4 h-4 text-amber-600" strokeWidth={1.75} />
+                <p className="text-[13px] font-semibold text-neutral-900">
+                  Parcela em risco (~{Math.round(COMMERCIAL_PRICING.atRiskShare * 100)}%)
+                </p>
+              </div>
+              <p className="text-[20px] font-semibold text-neutral-900 tracking-tight">
+                {formatBRL(COMMERCIAL_PRICING.monthlyAtRisk.min)}–{formatBRL(COMMERCIAL_PRICING.monthlyAtRisk.max)}
+                <span className="text-[12px] font-normal text-neutral-400">/mês</span>
+              </p>
+              <p className="text-[12px] text-neutral-600 leading-relaxed mt-2">
+                Só é faturada quando os KPIs de baseline do gate são atingidos. KPIs abaixo da meta acionam
+                plano corretivo antes da liberação — nosso fee acompanha o resultado.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-emerald-900/10 bg-emerald-50/50 p-5">
+              <div className="flex items-center gap-2 mb-2">
+                <HandCoins className="w-4 h-4 text-emerald-600" strokeWidth={1.75} />
+                <p className="text-[13px] font-semibold text-neutral-900">Bônus de sucesso</p>
+              </div>
+              <p className="text-[20px] font-semibold text-neutral-900 tracking-tight">
+                {Math.round(COMMERCIAL_PRICING.successFee.pctOfBenefit * 100)}%
+                <span className="text-[12px] font-normal text-neutral-400"> do benefício acima da meta</span>
+              </p>
+              <p className="text-[12px] text-neutral-600 leading-relaxed mt-2">
+                Sobre o benefício líquido verificado (receita incremental + economia de QLPs) acima da meta,
+                com teto de {formatBRL(COMMERCIAL_PRICING.successFee.capBRL)}. Apurado no M4.
+              </p>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-black/[0.06] bg-[#fafaf8] px-6 py-4 mt-3 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-[12px] text-neutral-500 leading-relaxed max-w-2xl">
+              A soma de base + risco forma o fee cheio de{' '}
+              <span className="font-semibold text-neutral-900">
+                {formatBRL(COMMERCIAL_PRICING.monthlyFull.min)}–{formatBRL(COMMERCIAL_PRICING.monthlyFull.max)}/mês
+              </span>{' '}
+              — ainda abaixo dos ~R$ 120–130k/mês da proposta anterior, e diluído em {COMMERCIAL_PRICING.months} meses.
+            </p>
+            <p className="text-[13px] font-mono font-semibold text-neutral-900 whitespace-nowrap">
+              {formatBRL(COMMERCIAL_PRICING.totalFull.min)}–{formatBRL(COMMERCIAL_PRICING.totalFull.max)}
+            </p>
+          </div>
         </Section>
       </Reveal>
 
