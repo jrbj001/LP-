@@ -29,7 +29,8 @@ export const PROPOSAL_META = {
 
 export const RATE_BASIS = {
   blended: { min: 260, max: 285 },
-  note: 'Blended efetivo do squad (R$ 260–285/h), dentro da faixa de referência do Guia de Valores PixelPulseLab 2026 (R$ 250–300/h). É a média ponderada dos perfis alocados — usada para dimensionar a mensalidade, não como unidade de cobrança linha a linha.',
+  netBlended: { min: 247, max: 271 },
+  note: 'O squad foi dimensionado pelo blended de referência de R$ 260–285/h, dentro da faixa do Guia de Valores PixelPulseLab 2026 (R$ 250–300/h). Com o desconto comercial de 5%, o blended líquido equivalente cai para R$ 247–271/h. É uma base de dimensionamento, não unidade de cobrança linha a linha.',
   references: [
     { category: 'Desenvolvimento convencional', range: 'R$ 220–280/h' },
     { category: 'Engenharia sênior e arquitetura', range: 'R$ 300–450/h' },
@@ -87,11 +88,12 @@ export const SQUAD: SquadRole[] = [
 ]
 
 const MONTHS = 10
+const COMMERCIAL_DISCOUNT = 0.05
 
 export const SQUAD_SUMMARY = {
   totalHoursMonth: 370,
-  monthlyInvestment: { min: 92000, max: 100000 },
-  guidePackage: 'Compatível com o formato "Squad dedicado multi-perfil" do Guia de Valores 2026, dimensionado pelo blended efetivo (R$ 260–285/h)',
+  monthlyInvestment: { min: 87400, max: 95000 },
+  guidePackage: 'Compatível com o formato "Squad dedicado multi-perfil" do Guia de Valores 2026; blended de referência R$ 260–285/h e líquido equivalente R$ 247–271/h após o desconto',
   management: 'Gestão, discovery contínuo, reuniões e governança conduzidos por José Roberto (partner) — inclusos no engagement, não cobrados à parte.',
   capacityLabel: 'Capacidade planejada',
 }
@@ -100,13 +102,17 @@ export const SQUAD_SUMMARY = {
 
 export const COMMERCIAL_PRICING = {
   months: MONTHS,
+  discountPct: COMMERCIAL_DISCOUNT,
   atRiskShare: 0.15,
-  monthlyFull: { min: 92000, max: 100000 },
-  monthlyBase: { min: 78200, max: 85000 },
-  monthlyAtRisk: { min: 13800, max: 15000 },
-  totalFull: { min: 92000 * MONTHS, max: 100000 * MONTHS },
-  totalBase: { min: 78200 * MONTHS, max: 85000 * MONTHS },
-  totalAtRisk: { min: 13800 * MONTHS, max: 15000 * MONTHS },
+  monthlyList: { min: 92000, max: 100000 },
+  monthlyFull: { min: 87400, max: 95000 },
+  monthlyBase: { min: 74290, max: 80750 },
+  monthlyAtRisk: { min: 13110, max: 14250 },
+  totalList: { min: 92000 * MONTHS, max: 100000 * MONTHS },
+  totalDiscount: { min: 46000, max: 50000 },
+  totalFull: { min: 87400 * MONTHS, max: 95000 * MONTHS },
+  totalBase: { min: 74290 * MONTHS, max: 80750 * MONTHS },
+  totalAtRisk: { min: 13110 * MONTHS, max: 14250 * MONTHS },
   successFee: {
     pctOfBenefit: 0.12,
     capBRL: 300000,
@@ -171,7 +177,7 @@ export const COMMERCIAL_MILESTONES: CommercialMilestone[] = [
     gate: 'Gate M0 — baseline e metas aprovados; pilotos O2C liberados. Ativa a régua da parcela em risco.',
     capacityHours: 296,
     capacityShare: 8,
-    investment: { min: 73600, max: 80000 },
+    investment: { min: 69920, max: 76000 },
     squadRoles: ['Tech Lead', 'Dev back-end', 'Gestão'],
   },
   {
@@ -200,7 +206,7 @@ export const COMMERCIAL_MILESTONES: CommercialMilestone[] = [
     gate: 'Gate M1 — pilotos homologados e aprovados para expansão sobre a Layer.',
     capacityHours: 814,
     capacityShare: 22,
-    investment: { min: 202400, max: 220000 },
+    investment: { min: 192280, max: 209000 },
     squadRoles: ['Tech Lead', 'Dev back-end', 'Dev full-stack', 'QA'],
   },
   {
@@ -234,7 +240,7 @@ export const COMMERCIAL_MILESTONES: CommercialMilestone[] = [
     gate: 'Gate M2 — fundação operável e aprovada para sustentar o O2C ponta a ponta.',
     capacityHours: 925,
     capacityShare: 25,
-    investment: { min: 230000, max: 250000 },
+    investment: { min: 218500, max: 237500 },
     squadRoles: ['Tech Lead', 'Dev back-end', 'QA'],
   },
   {
@@ -268,7 +274,7 @@ export const COMMERCIAL_MILESTONES: CommercialMilestone[] = [
     gate: 'Gate M3 — O2C estabilizado em produção; camada de agentes liberada e 1ª medição do ROI.',
     capacityHours: 925,
     capacityShare: 25,
-    investment: { min: 230000, max: 250000 },
+    investment: { min: 218500, max: 237500 },
     squadRoles: ['Tech Lead', 'Dev back-end', 'Dev full-stack', 'QA'],
   },
   {
@@ -302,7 +308,7 @@ export const COMMERCIAL_MILESTONES: CommercialMilestone[] = [
     gate: 'Gate M4 — agentes core aprovados, KPIs de risco apurados e bônus de sucesso conciliado.',
     capacityHours: 740,
     capacityShare: 20,
-    investment: { min: 184000, max: 200000 },
+    investment: { min: 174800, max: 190000 },
     squadRoles: ['Especialista IA', 'Tech Lead', 'Dev back-end', 'QA'],
   },
 ]
@@ -320,7 +326,7 @@ export const PROPOSAL_TOTALS = {
   },
   horizon: `${MONTHS} meses`,
   note:
-    'Engagement mensal do squad orientado aos resultados dos gates. O fee cheio combina uma base fixa garantida e uma parcela em risco liberada por gate; a distribuição por milestone mostra onde a capacidade é aplicada, não é cobrança adicional.',
+    'Engagement mensal do squad orientado aos resultados dos gates, já com desconto comercial de 5%. O fee líquido combina uma base fixa garantida e uma parcela em risco liberada por gate; a distribuição por milestone mostra onde a capacidade é aplicada, não é cobrança adicional.',
 }
 
 export const PROPOSAL_OUTCOME = {
@@ -347,7 +353,7 @@ export const COMMERCIAL_DECISION = {
     },
     {
       title: 'Menos agressivo no fluxo de caixa',
-      detail: 'Base fixa menor diluída em 10 meses, começando mais baixa que a proposta anterior.',
+      detail: 'Base fixa menor, desconto comercial de 5% e pagamento diluído em 10 meses.',
     },
     {
       title: 'Foco no resultado',
@@ -381,24 +387,29 @@ export const COMMERCIAL_MODELS: CommercialModel[] = [
     title: 'Engagement O2C com risco compartilhado',
     badge: 'Recomendado',
     recommended: true,
-    headline: 'Base fixa garantida + parcela em risco + bônus de sucesso',
+    headline: '5% de desconto + base fixa garantida + parcela em risco + bônus de sucesso',
     summary:
       'A Orfeu contrata um engagement mensal de 10 meses focado no ciclo financeiro. A base fixa garante o squad; a parcela em risco só é paga quando os KPIs de baseline são batidos no gate; e um bônus de sucesso remunera o resultado acima da meta.',
     points: [
+      'Desconto comercial de 5% aplicado sobre todo o fee do engagement',
       'Base fixa garantida menor, diluída em 10 meses',
       `Parcela em risco (~${Math.round(COMMERCIAL_PRICING.atRiskShare * 100)}%) liberada por gate mediante KPIs`,
       'Bônus de sucesso sobre o benefício verificado acima da meta, com teto',
       'Inclui governança, alinhamentos e execução técnica',
     ],
     monthly: `${formatBRL(COMMERCIAL_PRICING.monthlyBase.min)}–${formatBRL(COMMERCIAL_PRICING.monthlyBase.max)}/mês fixos + ${formatBRL(COMMERCIAL_PRICING.monthlyAtRisk.min)}–${formatBRL(COMMERCIAL_PRICING.monthlyAtRisk.max)}/mês em risco`,
-    total: `${formatBRL(COMMERCIAL_PRICING.totalFull.min)}–${formatBRL(COMMERCIAL_PRICING.totalFull.max)} · ${MONTHS} meses (fee cheio)`,
-    footing: `Base de dimensionamento: ~${SQUAD_SUMMARY.totalHoursMonth}h/mês × blended efetivo R$ ${RATE_BASIS.blended.min}–${RATE_BASIS.blended.max}/h (${contractedHours.toLocaleString('pt-BR')}h planejadas no horizonte). ${COMMERCIAL_PRICING.successFee.label}`,
+    total: `${formatBRL(COMMERCIAL_PRICING.totalFull.min)}–${formatBRL(COMMERCIAL_PRICING.totalFull.max)} · ${MONTHS} meses (líquido com 5% de desconto)`,
+    footing: `Base de dimensionamento: ~${SQUAD_SUMMARY.totalHoursMonth}h/mês × blended de referência R$ ${RATE_BASIS.blended.min}–${RATE_BASIS.blended.max}/h; líquido equivalente R$ ${RATE_BASIS.netBlended.min}–${RATE_BASIS.netBlended.max}/h após 5% de desconto (${contractedHours.toLocaleString('pt-BR')}h planejadas). ${COMMERCIAL_PRICING.successFee.label}`,
   },
 ]
 
 // ─── Modelo comercial ───────────────────────────────────────────────────────────
 
 export const COMMERCIAL_TERMS = [
+  {
+    label: 'Desconto comercial',
+    value: `5% sobre o fee do engagement: economia de ${formatBRL(COMMERCIAL_PRICING.totalDiscount.min)}–${formatBRL(COMMERCIAL_PRICING.totalDiscount.max)} no horizonte`,
+  },
   {
     label: 'Contrato',
     value: 'Engagement mensal do squad em 10 meses, orientado a resultado — base fixa garantida + parcela em risco por gate',
@@ -512,15 +523,15 @@ export const DELIVERY_RISKS = [
 export const ASSUMPTIONS = [
   'Escopo-base: Order-to-Cash (pedido → crédito → faturamento → contas a receber → caixa) → Adaptive Layer™ → agentes core; logística, contrato e recompra são Fase 2.',
   'O produto comercial é o engagement do squad + outcomes nos gates; horas/blended são apenas base de planejamento e transparência.',
-  'A base fixa é garantida; ~15% do fee é parcela em risco liberada por gate mediante KPIs, e o bônus de sucesso tem teto.',
+  'Os valores apresentados já incluem desconto comercial de 5%; a base fixa é garantida, ~15% do fee líquido fica em risco e o bônus de sucesso tem teto.',
   'As premissas de ROI (faturamento, margem, uplift de vendas e QLPs) são preditivas e serão substituídas por dados reais no baseline M0.',
   'A Orfeu disponibiliza acessos, ambientes, massas de teste e decisões de negócio nos prazos do ciclo.',
   'Custos de cloud, licenças e APIs de terceiros, incluindo consumo de LLM, não estão inclusos.',
-  'Valores alinhados às faixas públicas do Guia de Valores PixelPulseLab 2026 (blended efetivo R$ 260–285/h dentro da faixa R$ 250–300/h).',
+  'Valores alinhados ao Guia PixelPulseLab 2026: blended de referência R$ 260–285/h e líquido equivalente R$ 247–271/h após o desconto comercial.',
   `Capacidade planejada de ~${SQUAD_SUMMARY.totalHoursMonth}h/mês por ${MONTHS} meses; mudanças materiais usam change request aprovado.`,
 ]
 
-// Investimento default do simulador espelha o fee cheio médio do horizonte.
+// Investimento default do simulador espelha o fee líquido médio do horizonte.
 export const ROI_INVESTMENT_DEFAULT = Math.round(
   (COMMERCIAL_PRICING.totalFull.min + COMMERCIAL_PRICING.totalFull.max) / 2,
 )
