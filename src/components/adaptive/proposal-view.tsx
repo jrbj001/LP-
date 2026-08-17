@@ -212,14 +212,17 @@ function ProposalContent() {
               <div className="flex items-center gap-2 mb-2">
                 <Calculator className="w-4 h-4 text-emerald-400" strokeWidth={1.75} />
                 <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40">
-                  Fee cheio no horizonte
+                  Total líquido · 5% off
                 </p>
               </div>
               <p className="text-[24px] font-semibold tracking-tight leading-none">
                 {formatBRL(PROPOSAL_TOTALS.investment.min)}–{formatBRL(PROPOSAL_TOTALS.investment.max)}
               </p>
               <p className="text-[12px] text-white/50 mt-2">
-                Base + risco · blended R$ {RATE_BASIS.blended.min}–{RATE_BASIS.blended.max}/h
+                <span className="line-through">
+                  {formatBRL(COMMERCIAL_PRICING.totalList.min)}–{formatBRL(COMMERCIAL_PRICING.totalList.max)}
+                </span>
+                {' '}· economia de {formatBRL(COMMERCIAL_PRICING.totalDiscount.min)}–{formatBRL(COMMERCIAL_PRICING.totalDiscount.max)}
               </p>
             </div>
           </div>
@@ -427,7 +430,7 @@ function ProposalContent() {
           </div>
           <div className="rounded-2xl border border-black/[0.06] bg-[#fafaf8] px-6 py-4 mt-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-[12px] text-neutral-500 leading-relaxed max-w-2xl">
-              A soma de base + risco forma o fee cheio de{' '}
+              Com 5% de desconto, a soma de base + risco forma o fee líquido de{' '}
               <span className="font-semibold text-neutral-900">
                 {formatBRL(COMMERCIAL_PRICING.monthlyFull.min)}–{formatBRL(COMMERCIAL_PRICING.monthlyFull.max)}/mês
               </span>{' '}
@@ -437,6 +440,10 @@ function ProposalContent() {
               {formatBRL(COMMERCIAL_PRICING.totalFull.min)}–{formatBRL(COMMERCIAL_PRICING.totalFull.max)}
             </p>
           </div>
+          <p className="text-[11px] text-neutral-400 mt-2 text-right">
+            Valor de tabela: <span className="line-through">{formatBRL(COMMERCIAL_PRICING.totalList.min)}–{formatBRL(COMMERCIAL_PRICING.totalList.max)}</span>
+            {' '}· desconto de {formatBRL(COMMERCIAL_PRICING.totalDiscount.min)}–{formatBRL(COMMERCIAL_PRICING.totalDiscount.max)}
+          </p>
         </Section>
       </Reveal>
 
