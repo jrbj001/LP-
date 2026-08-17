@@ -124,3 +124,28 @@ body:has(.pixel-scope) {
   background-color: #0a0a0a;
   color: #ededed;
 }
+
+/* ─── Cadence product LP ─── */
+.cadence-scope {
+  --color-bg: #f2f2f0;
+  --color-surface: #ebebe8;
+  --color-card: #ffffff;
+  --color-text-primary: #171717;
+  --color-text-secondary: #737373;
+  --color-accent: #0d9488;
+  font-family: var(--font-cadence-body), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+.cadence-scope ::selection {
+  background: rgba(13, 148, 136, 0.22);
+  color: #0a0a0a;
+}
+.cadence-scope ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.14);
+}
+body:has(.cadence-scope) {
+  background-color: #0a0a0a;
+  color: #ededed;
+}

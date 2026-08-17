@@ -1,13 +1,16 @@
-// Proposta de trabalho — Grupo Orfeu
-// Esforço, squad e investimento derivados do plano de trabalho (executive-review-data.ts)
-// e das faixas públicas do Guia de Valores 2026 (valor-hora-data.ts).
+// Proposta de trabalho — Grupo Orfeu · recorte Order-to-Cash (O2C)
+// Escopo enxuto do eixo financeiro (pedido → crédito → faturamento → contas a
+// receber → caixa), com MVP real da Adaptive Layer™ + agentes core, ROI
+// preditivo e modelo comercial com parcela em risco + bônus de sucesso.
+// O escopo OTD completo permanece no Executive Review e no Processo B2B.
 
+import type { MilestoneType } from '@/lib/adaptive/b2b-process/milestones'
 import {
-  OTD_FUTURE_OPTIONS,
-  OTD_MILESTONES,
-  OTD_MILESTONE_SUMMARY,
-  type OtdMilestone,
-} from '@/lib/adaptive/b2b-process/milestones'
+  O2C_MVP_AGENTS,
+  O2C_MVP_QUICK_WINS,
+  O2C_PHASE2_QUICK_WINS,
+  O2C_ROI_DEFAULTS,
+} from './proposal-o2c'
 
 export function formatBRL(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
@@ -15,9 +18,9 @@ export function formatBRL(value: number) {
 
 export const PROPOSAL_META = {
   password: 'orfeu2026',
-  title: 'Proposta de Trabalho',
+  title: 'Proposta de Trabalho · Order-to-Cash',
   client: 'Grupo Orfeu',
-  date: '06/08/2026',
+  date: '17/08/2026',
   validity: 'Válida por 30 dias · valores indicativos até o aceite do escopo',
   guideHref: '/guides/valor-hora',
 }
@@ -35,7 +38,7 @@ export const RATE_BASIS = {
   ],
 }
 
-// ─── Squad sugerido ─────────────────────────────────────────────────────────────
+// ─── Squad sugerido (enxuto para o O2C) ─────────────────────────────────────────
 
 export interface SquadRole {
   role: string
@@ -49,148 +52,310 @@ export const SQUAD: SquadRole[] = [
   {
     role: 'Tech Lead / Arquiteto de integrações',
     dedication: 'Parcial',
-    hoursMonth: 60,
+    hoursMonth: 50,
     rate: 'R$ 300–450/h',
-    focus: 'Desenho do Adaptive Layer™, decisões sobre Protheus (400+ regras) e padrões de integração.',
+    focus: 'Desenho da Adaptive Layer™ do ciclo financeiro e decisões sobre Protheus, crédito e faturamento.',
   },
   {
     role: 'Dev sênior back-end / integrações',
     dedication: 'Dedicado (full-time)',
-    hoursMonth: 168,
+    hoursMonth: 160,
     rate: 'R$ 220–380/h',
-    focus: 'Conectores Portal/WMS/EDI/JV · faturamento B2B · order-to-delivery.',
+    focus: 'Conectores Protheus/Portal/EDI/Itaú · crédito, NF-e, boletos e retorno bancário do order-to-cash.',
   },
   {
     role: 'Dev pleno full-stack',
     dedication: 'Dedicado',
-    hoursMonth: 132,
+    hoursMonth: 90,
     rate: 'R$ 150–240/h',
-    focus: 'Quick wins OTD de interface, proposta/pricing no fluxo, tracking e recompra.',
+    focus: 'Proposta/pricing no fluxo, cadastro + crédito e telas de exceção do ciclo financeiro.',
   },
   {
     role: 'Especialista IA / agentes',
     dedication: 'Parcial',
-    hoursMonth: 50,
+    hoursMonth: 30,
     rate: 'R$ 350–600/h',
-    focus: 'LLM sobre OTD limpo: status, risco de cliente e NLP no Protheus.',
+    focus: 'Agentes core O2C (orquestrador, crédito & faturamento, comercial) sobre o fluxo já limpo.',
   },
   {
     role: 'QA / automação de testes',
     dedication: 'Parcial',
-    hoursMonth: 50,
+    hoursMonth: 40,
     rate: 'R$ 160–300/h',
-    focus: 'Validação de integrações críticas (fiscal/faturamento), regressão e critérios de aceite.',
+    focus: 'Validação das integrações fiscais e de faturamento, regressão e critérios de aceite.',
   },
 ]
 
+const MONTHS = 10
+
 export const SQUAD_SUMMARY = {
-  totalHoursMonth: 460,
-  monthlyInvestment: { min: 120000, max: 130000 },
+  totalHoursMonth: 370,
+  monthlyInvestment: { min: 92000, max: 100000 },
   guidePackage: 'Compatível com o formato "Squad dedicado multi-perfil" do Guia de Valores 2026, dimensionado pelo blended efetivo (R$ 260–285/h)',
   management: 'Gestão, discovery contínuo, reuniões e governança conduzidos por José Roberto (partner) — inclusos no engagement, não cobrados à parte.',
   capacityLabel: 'Capacidade planejada',
 }
 
-// ─── Milestones contratados ────────────────────────────────────────────────────
+// ─── Modelo comercial: base fixa + risco + bônus ────────────────────────────────
 
-export interface CommercialMilestone extends OtdMilestone {
+export const COMMERCIAL_PRICING = {
+  months: MONTHS,
+  atRiskShare: 0.15,
+  monthlyFull: { min: 92000, max: 100000 },
+  monthlyBase: { min: 78200, max: 85000 },
+  monthlyAtRisk: { min: 13800, max: 15000 },
+  totalFull: { min: 92000 * MONTHS, max: 100000 * MONTHS },
+  totalBase: { min: 78200 * MONTHS, max: 85000 * MONTHS },
+  totalAtRisk: { min: 13800 * MONTHS, max: 15000 * MONTHS },
+  successFee: {
+    pctOfBenefit: 0.12,
+    capBRL: 300000,
+    label: 'Bônus de sucesso: 12% do benefício líquido verificado acima da meta, com teto de R$ 300 mil.',
+  },
+}
+
+// ─── Milestones contratados (locais ao O2C) ─────────────────────────────────────
+
+export interface CommercialMilestone {
+  id: string
+  number: string
+  window: string
+  title: string
+  type: MilestoneType
+  objective: string
+  deliverables: string[]
+  acceptanceCriteria: string[]
+  dependencies: string[]
+  orfeuOwners: string[]
+  pixelOwners: string[]
+  evidence: string[]
+  gate: string
   capacityHours: number
   capacityShare: number
   investment: { min: number; max: number }
   squadRoles: string[]
 }
 
-const MILESTONE_COMMERCIALS: Record<
-  string,
-  Pick<CommercialMilestone, 'capacityHours' | 'capacityShare' | 'investment' | 'squadRoles'>
-> = {
-  'ms-0': {
-    capacityHours: 221,
-    capacityShare: 6,
-    investment: { min: 57600, max: 62400 },
+const pilotDeliverables = ['QW-OTD-02', 'QW-OTD-03', 'QW-OTD-06', 'QW-OTD-07']
+  .map(id => O2C_MVP_QUICK_WINS.find(q => q.id === id))
+  .filter(Boolean)
+  .map(q => `${q!.id} · ${q!.title}`)
+
+export const COMMERCIAL_MILESTONES: CommercialMilestone[] = [
+  {
+    id: 'ms-0',
+    number: 'M0',
+    window: 'Semanas 1–2',
+    title: 'Mobilização e baseline Order-to-Cash',
+    type: 'mobilization',
+    objective:
+      'Transformar o mapa do ciclo financeiro em backlog executável, fechar as regras críticas de crédito e faturamento no Protheus e estabelecer o baseline dos KPIs que sustentam o ROI e a parcela em risco.',
+    deliverables: [
+      'Kick-off, governança, acessos e ambientes definidos',
+      'Backlog dos 5 quick wins O2C priorizado com Cristiane, Selton e André',
+      'Ramp das regras Protheus no caminho pedido → crédito → faturamento',
+      'Baseline de lead time, retrabalho, bloqueios de crédito, custo por pedido e QLPs',
+    ],
+    acceptanceCriteria: [
+      'Owners nomeados para as etapas de crédito, faturamento e contas a receber',
+      'Acessos a Protheus, Portal, EDI e Itaú/NF-e disponibilizados',
+      'Baseline dos KPIs e metas de risco/ROI aprovados no comitê',
+    ],
+    dependencies: [
+      'Disponibilidade de Cristiane, Selton, André e donos de Financeiro',
+      'Acesso ao Protheus, Portal, EDI e integração bancária/fiscal',
+    ],
+    orfeuOwners: ['Cristiane', 'Selton', 'André Martins'],
+    pixelOwners: ['José Roberto', 'Tech Lead'],
+    evidence: ['Backlog versionado', 'Baseline de KPIs assinado', 'Ata do gate M0'],
+    gate: 'Gate M0 — baseline e metas aprovados; pilotos O2C liberados. Ativa a régua da parcela em risco.',
+    capacityHours: 296,
+    capacityShare: 8,
+    investment: { min: 73600, max: 80000 },
     squadRoles: ['Tech Lead', 'Dev back-end', 'Gestão'],
   },
-  'ms-1': {
-    capacityHours: 552,
-    capacityShare: 15,
-    investment: { min: 144000, max: 156000 },
+  {
+    id: 'ms-1',
+    number: 'M1',
+    window: 'Semanas 2–6',
+    title: 'Pilotos O2C: proposta, crédito e faturamento',
+    type: 'quick-win',
+    objective:
+      'Validar o modelo de entrega nas intervenções de maior impacto financeiro: proposta/pricing no fluxo, cadastro + crédito e faturamento B2B automático.',
+    deliverables: pilotDeliverables,
+    acceptanceCriteria: [
+      'Proposta e pricing gerados no fluxo, sem Word/e-mail como etapa obrigatória',
+      'Cadastro e análise de crédito unificados, com pendências visíveis',
+      'NF-e e boletos processados no fluxo homologado, com retorno ao Protheus',
+      'Testes, logs e procedimento de rollback registrados',
+    ],
+    dependencies: [
+      'Gate M0 aprovado',
+      'Ambiente de homologação e massa de testes fiscal/comercial',
+      'Regras de preço, crédito e faturamento validadas pelos donos de negócio',
+    ],
+    orfeuOwners: ['Cristiane', 'Selton', 'André Martins', 'Financeiro'],
+    pixelOwners: ['Tech Lead', 'Dev back-end', 'Dev full-stack', 'QA'],
+    evidence: ['Demonstração em homologação', 'Casos de teste aprovados', 'Ata do gate M1'],
+    gate: 'Gate M1 — pilotos homologados e aprovados para expansão sobre a Layer.',
+    capacityHours: 814,
+    capacityShare: 22,
+    investment: { min: 202400, max: 220000 },
     squadRoles: ['Tech Lead', 'Dev back-end', 'Dev full-stack', 'QA'],
   },
-  'ms-2': {
-    capacityHours: 736,
-    capacityShare: 20,
-    investment: { min: 192000, max: 208000 },
+  {
+    id: 'ms-2',
+    number: 'M2',
+    window: 'Semanas 4–12',
+    title: 'Adaptive Layer™ do ciclo financeiro',
+    type: 'layer',
+    objective:
+      'Criar a verdade operacional única do order-to-cash: modelo canônico do pedido e dos eventos financeiros, conectores prioritários e observabilidade — sem novo silo.',
+    deliverables: [
+      'Modelo canônico do pedido e dos eventos de crédito/faturamento',
+      'Conectores Protheus, Portal, EDI e Itaú/NF-e',
+      'Identidade, trilha de auditoria, logs, alertas e reprocessamento de falhas',
+      'Padrões de segurança, LGPD, versionamento e operação',
+    ],
+    acceptanceCriteria: [
+      'Pedido rastreável por identificador único entre os sistemas do ciclo financeiro',
+      'Eventos críticos observáveis com logs e alertas acionáveis',
+      'Falha de faturamento reprocessável sem redigitação manual',
+      'Arquitetura e runbook aprovados por TI',
+    ],
+    dependencies: [
+      'Gate M0 aprovado',
+      'APIs, credenciais e conectividade dos sistemas do ciclo disponibilizadas',
+      'Decisões de arquitetura e segurança respondidas no SLA do comitê',
+    ],
+    orfeuOwners: ['André Martins', 'Segurança/TI', 'Donos dos sistemas'],
+    pixelOwners: ['Tech Lead', 'Dev back-end', 'QA'],
+    evidence: ['Diagrama de arquitetura', 'Contratos de integração', 'Runbook', 'Ata do gate M2'],
+    gate: 'Gate M2 — fundação operável e aprovada para sustentar o O2C ponta a ponta.',
+    capacityHours: 925,
+    capacityShare: 25,
+    investment: { min: 230000, max: 250000 },
     squadRoles: ['Tech Lead', 'Dev back-end', 'QA'],
   },
-  'ms-3': {
-    capacityHours: 920,
+  {
+    id: 'ms-3',
+    number: 'M3',
+    window: 'Meses 3–7',
+    title: 'Order-to-Cash em produção',
+    type: 'layer',
+    objective:
+      'Operar pedido → crédito → faturamento → contas a receber sobre a Adaptive Layer™, com ruptura visível, observabilidade e estabilização assistida.',
+    deliverables: [
+      'Fluxo O2C produtivo, incluindo QW-OTD-05 (ruptura e receita recuperada)',
+      'Painel operacional de pedidos, bloqueios, exceções e SLAs',
+      'Monitoramento, suporte, contingência e transferência de conhecimento',
+      'Estabilização assistida e verificação parcial dos KPIs de risco',
+    ],
+    acceptanceCriteria: [
+      'Fluxos críticos executados em produção sem falha severa aberta',
+      'Status e causa de exceção rastreáveis ponta a ponta',
+      'KPIs de straight-through e custo por pedido medidos contra o baseline',
+      'Documentação e treinamento entregues aos responsáveis',
+    ],
+    dependencies: [
+      'Gates M1 e M2 aprovados',
+      'Janela de implantação e plano de rollback autorizados',
+      'Operação Orfeu disponível para estabilização e aceite',
+    ],
+    orfeuOwners: ['Cristiane', 'Selton', 'André Martins', 'Financeiro'],
+    pixelOwners: ['Tech Lead', 'Squad de engenharia', 'QA'],
+    evidence: ['Dashboard O2C', 'Relatório de estabilização', 'Métricas antes/depois', 'Ata do gate M3'],
+    gate: 'Gate M3 — O2C estabilizado em produção; camada de agentes liberada e 1ª medição do ROI.',
+    capacityHours: 925,
     capacityShare: 25,
-    investment: { min: 240000, max: 260000 },
+    investment: { min: 230000, max: 250000 },
     squadRoles: ['Tech Lead', 'Dev back-end', 'Dev full-stack', 'QA'],
   },
-  'ms-4': {
-    capacityHours: 736,
+  {
+    id: 'ms-4',
+    number: 'M4',
+    window: 'Meses 6–10',
+    title: 'Agentes core Order-to-Cash',
+    type: 'delivery',
+    objective:
+      'Usar os dados confiáveis do O2C para antecipar bloqueios, explicar causa e coordenar ação — com os agentes core operando sobre a Layer.',
+    deliverables: [
+      `Squad de ${O2C_MVP_AGENTS.length} agentes core: ${O2C_MVP_AGENTS.map(a => a.name).join(', ')}`,
+      'Consultas em linguagem natural para status, risco de crédito e margem',
+      'Guardrails, aprovação humana, auditoria e avaliação de custo/qualidade',
+      'Verificação final dos KPIs de risco e apuração do bônus de sucesso',
+    ],
+    acceptanceCriteria: [
+      'Casos prioritários respondem com fonte, contexto e nível de confiança',
+      'Ações sensíveis exigem aprovação humana e ficam auditadas',
+      'Agentes operam sobre a Adaptive Layer™, sem bases paralelas',
+      'KPIs de risco apurados e conciliados com o baseline M0',
+    ],
+    dependencies: [
+      'Gate M3 aprovado e dados O2C com qualidade suficiente',
+      'Provedor/modelo de IA e orçamento de consumo aprovados pela Orfeu',
+      'Políticas de segurança, retenção e acesso definidas',
+    ],
+    orfeuOwners: ['Ricardo Madureira', 'Cristiane', 'André Martins'],
+    pixelOwners: ['Especialista IA', 'Tech Lead', 'Dev back-end', 'QA'],
+    evidence: ['Avaliação dos casos de uso', 'Logs auditáveis', 'Apuração de KPIs/ROI', 'Ata do gate M4'],
+    gate: 'Gate M4 — agentes core aprovados, KPIs de risco apurados e bônus de sucesso conciliado.',
+    capacityHours: 740,
     capacityShare: 20,
-    investment: { min: 192000, max: 208000 },
-    squadRoles: ['Tech Lead', 'Dev back-end', 'Dev full-stack', 'QA'],
-  },
-  'ms-5': {
-    capacityHours: 515,
-    capacityShare: 14,
-    investment: { min: 134400, max: 145600 },
+    investment: { min: 184000, max: 200000 },
     squadRoles: ['Especialista IA', 'Tech Lead', 'Dev back-end', 'QA'],
   },
-}
-
-export const COMMERCIAL_MILESTONES: CommercialMilestone[] = OTD_MILESTONES.map(
-  milestone => ({
-    ...milestone,
-    ...MILESTONE_COMMERCIALS[milestone.id],
-  }),
-)
+]
 
 /** Alias mantido para consumidores existentes da proposta. */
 export const PROPOSAL_PHASES = COMMERCIAL_MILESTONES
 
-const months = 8
-const contractedHours = SQUAD_SUMMARY.totalHoursMonth * months
+const contractedHours = SQUAD_SUMMARY.totalHoursMonth * MONTHS
 
 export const PROPOSAL_TOTALS = {
   hours: { min: contractedHours, max: contractedHours },
   investment: {
-    min: SQUAD_SUMMARY.monthlyInvestment.min * months,
-    max: SQUAD_SUMMARY.monthlyInvestment.max * months,
+    min: COMMERCIAL_PRICING.totalFull.min,
+    max: COMMERCIAL_PRICING.totalFull.max,
   },
-  horizon: `${months} meses`,
+  horizon: `${MONTHS} meses`,
   note:
-    'Engagement mensal do squad orientado aos resultados dos milestones. A capacidade planejada e o blended servem de base de dimensionamento e transparência — a distribuição por milestone apenas mostra onde a capacidade é aplicada, não é cobrança adicional.',
+    'Engagement mensal do squad orientado aos resultados dos gates. O fee cheio combina uma base fixa garantida e uma parcela em risco liberada por gate; a distribuição por milestone mostra onde a capacidade é aplicada, não é cobrança adicional.',
 }
 
-export const PROPOSAL_OUTCOME = OTD_MILESTONE_SUMMARY
+export const PROPOSAL_OUTCOME = {
+  scope: 'Order-to-Cash: pedido → crédito → faturamento → contas a receber → caixa, sobre a Adaptive Layer™ com agentes core',
+  outcome:
+    'As intervenções manuais do ciclo financeiro eliminadas, faturamento B2B automático e agentes operando sobre uma verdade única — com ROI verificável e parcela do nosso fee em risco.',
+  milestoneCount: COMMERCIAL_MILESTONES.length,
+  quickWinCount: O2C_MVP_QUICK_WINS.length,
+  agentCount: O2C_MVP_AGENTS.length,
+  aiOpportunityCount: 4,
+}
 
 // ─── Decisão comercial (introdução + porquê) ─────────────────────────────────────
 
 export const COMMERCIAL_DECISION = {
   eyebrow: 'Como estruturamos o investimento',
-  title: 'Um engagement mensal orientado a resultado — não venda de horas',
+  title: 'Um engagement mensal com pele em jogo — base fixa menor, parcela em risco e bônus por resultado',
   narrative:
-    'Adotamos um único modelo comercial: um squad dedicado com mensalidade fixa, comprometido com o resultado de cada milestone. A Orfeu contrata capacidade + entrega nos gates — não pacotes de horas. Reuniões, discovery, planejamento e engenharia estão todos dentro da mensalidade. A capacidade planejada e o blended aparecem apenas como base de dimensionamento e transparência para o comitê.',
+    'Enxugamos o escopo para o eixo Order-to-Cash e reorganizamos o investimento em 10 meses. A mensalidade cai para uma base fixa garantida — menor que a proposta anterior — somada a uma parcela nossa em risco, que só é paga quando os KPIs de baseline são batidos no gate. Acima da meta, um bônus de sucesso remunera o resultado. A Orfeu contrata capacidade + entrega + resultado, com parte do nosso fee dependente do ROI.',
   why: [
     {
-      title: 'Previsibilidade',
-      detail: 'O comitê aprova um número mensal e um horizonte claro — não um relógio de horas lançadas.',
+      title: 'Pele em jogo',
+      detail: '~15% do fee fica em risco, liberado por gate apenas com os KPIs de baseline atingidos.',
+    },
+    {
+      title: 'Menos agressivo no fluxo de caixa',
+      detail: 'Base fixa menor diluída em 10 meses, começando mais baixa que a proposta anterior.',
     },
     {
       title: 'Foco no resultado',
-      detail: 'O que vale é o aceite das entregas nos gates M0–M5, não a contagem de horas.',
-    },
-    {
-      title: 'Flexibilidade protegida',
-      detail: 'Repriorização dentro do milestone sem renegociar preço; prazo/custo só mudam via change request.',
+      detail: 'O bônus de sucesso remunera o benefício verificado acima da meta, com teto.',
     },
     {
       title: 'Transparência',
-      detail: 'A base de preço (capacidade planejada × blended efetivo) e as evidências ficam visíveis no portal.',
+      detail: 'Baseline, metas, capacidade e evidências ficam visíveis no portal, gate a gate.',
     },
   ],
 }
@@ -213,21 +378,21 @@ export interface CommercialModel {
 export const COMMERCIAL_MODELS: CommercialModel[] = [
   {
     id: 'A',
-    title: 'Engagement por outcome',
+    title: 'Engagement O2C com risco compartilhado',
     badge: 'Recomendado',
     recommended: true,
-    headline: 'Squad dedicado + gates de aceite',
+    headline: 'Base fixa garantida + parcela em risco + bônus de sucesso',
     summary:
-      'A Orfeu contrata um engagement mensal: capacidade dedicada, rituais e resultados nos milestones. Reuniões, planejamento, discovery e engenharia estão dentro do engagement — não são “horas à parte”.',
+      'A Orfeu contrata um engagement mensal de 10 meses focado no ciclo financeiro. A base fixa garante o squad; a parcela em risco só é paga quando os KPIs de baseline são batidos no gate; e um bônus de sucesso remunera o resultado acima da meta.',
     points: [
-      'Produto vendido: capacidade + resultado nos gates M0–M5',
-      'Mensalidade fixa na faixa do squad; fatura liberada no aceite do ciclo',
+      'Base fixa garantida menor, diluída em 10 meses',
+      `Parcela em risco (~${Math.round(COMMERCIAL_PRICING.atRiskShare * 100)}%) liberada por gate mediante KPIs`,
+      'Bônus de sucesso sobre o benefício verificado acima da meta, com teto',
       'Inclui governança, alinhamentos e execução técnica',
-      'Esforço em horas fica no planejamento interno e no portal',
     ],
-    monthly: `${formatBRL(SQUAD_SUMMARY.monthlyInvestment.min)}–${formatBRL(SQUAD_SUMMARY.monthlyInvestment.max)}/mês`,
-    total: `${formatBRL(SQUAD_SUMMARY.monthlyInvestment.min * months)}–${formatBRL(SQUAD_SUMMARY.monthlyInvestment.max * months)} · ${months} meses`,
-    footing: `Base de dimensionamento: ~${SQUAD_SUMMARY.totalHoursMonth}h/mês × blended efetivo R$ ${RATE_BASIS.blended.min}–${RATE_BASIS.blended.max}/h (${contractedHours.toLocaleString('pt-BR')}h planejadas no horizonte) — detalhado a seguir para transparência do comitê.`,
+    monthly: `${formatBRL(COMMERCIAL_PRICING.monthlyBase.min)}–${formatBRL(COMMERCIAL_PRICING.monthlyBase.max)}/mês fixos + ${formatBRL(COMMERCIAL_PRICING.monthlyAtRisk.min)}–${formatBRL(COMMERCIAL_PRICING.monthlyAtRisk.max)}/mês em risco`,
+    total: `${formatBRL(COMMERCIAL_PRICING.totalFull.min)}–${formatBRL(COMMERCIAL_PRICING.totalFull.max)} · ${MONTHS} meses (fee cheio)`,
+    footing: `Base de dimensionamento: ~${SQUAD_SUMMARY.totalHoursMonth}h/mês × blended efetivo R$ ${RATE_BASIS.blended.min}–${RATE_BASIS.blended.max}/h (${contractedHours.toLocaleString('pt-BR')}h planejadas no horizonte). ${COMMERCIAL_PRICING.successFee.label}`,
   },
 ]
 
@@ -236,27 +401,31 @@ export const COMMERCIAL_MODELS: CommercialModel[] = [
 export const COMMERCIAL_TERMS = [
   {
     label: 'Contrato',
-    value: 'Engagement mensal do squad, orientado a resultado (outcome-first) — capacidade e blended entram apenas como base de transparência',
+    value: 'Engagement mensal do squad em 10 meses, orientado a resultado — base fixa garantida + parcela em risco por gate',
   },
   {
     label: 'Produto',
-    value: 'Squad mensal dedicado orientado a 6 milestones e gates de aceite — não venda de horas isoladas',
+    value: 'Squad dedicado ao Order-to-Cash, orientado a 5 gates de aceite e aos KPIs de baseline — não venda de horas isoladas',
+  },
+  {
+    label: 'Parcela em risco',
+    value: `~${Math.round(COMMERCIAL_PRICING.atRiskShare * 100)}% do fee mensal só é faturado quando os KPIs do gate são atingidos; caso contrário, plano corretivo antes da liberação`,
+  },
+  {
+    label: 'Bônus de sucesso',
+    value: COMMERCIAL_PRICING.successFee.label,
   },
   {
     label: 'Faturamento',
-    value: 'Fatura mensal liberada após aceite das entregas previstas no ciclo',
+    value: 'Base fixa mensal + parcela em risco liberada após aceite das evidências e KPIs do ciclo',
   },
   {
     label: 'Cadência',
-    value: 'Planejamento quinzenal · demos semanais · comitê executivo quinzenal · gate mensal',
+    value: 'Planejamento quinzenal · demos semanais · comitê executivo quinzenal · gate mensal com leitura de KPIs',
   },
   {
     label: 'Aceite',
-    value: 'Até 5 dias úteis para validar evidências; pendência recebe plano corretivo e nova data acordada',
-  },
-  {
-    label: 'Transparência',
-    value: 'Capacidade planejada, entregas, critérios, riscos e evidências visíveis no portal',
+    value: 'Até 5 dias úteis para validar evidências e KPIs; pendência recebe plano corretivo e nova data acordada',
   },
   {
     label: 'Propriedade',
@@ -264,7 +433,7 @@ export const COMMERCIAL_TERMS = [
   },
   {
     label: 'Mudança de escopo',
-    value: 'Repriorização dentro do milestone sem alterar o gate; mudança de prazo/custo exige change request',
+    value: 'Repriorização dentro do milestone sem alterar o gate; Fase 2 (logística, contrato, recompra) entra via change request',
   },
 ]
 
@@ -281,8 +450,8 @@ export const OPERATING_MODEL = [
   },
   {
     cadence: 'Mensal',
-    ritual: 'Gate de aceite',
-    output: 'Checklist do milestone/ciclo, ata de aceite e liberação da fatura',
+    ritual: 'Gate de aceite + leitura de KPIs',
+    output: 'Checklist do milestone, KPIs vs baseline, ata de aceite e liberação da parcela em risco',
   },
   {
     cadence: 'Por release',
@@ -293,19 +462,23 @@ export const OPERATING_MODEL = [
 
 export const SCOPE = {
   included: [
-    'Mobilização, baseline e ramp das regras Protheus ligadas ao OTD',
-    'Os 10 quick wins OTD e integrações necessárias ao fluxo contratado',
-    'Adaptive Layer™ para Protheus, WMS, Portal, EDI e Jornada do Vendedor',
-    'OTD em produção, observabilidade, documentação e estabilização',
-    'LLM, Command Center e 6 agentes OTD com guardrails e avaliação',
+    'Mobilização, baseline e ramp das regras Protheus do ciclo financeiro (crédito e faturamento)',
+    'Os 5 quick wins Order-to-Cash: proposta/pricing, cadastro+crédito, ruptura, liberação de crédito e faturamento B2B',
+    'Adaptive Layer™ para Protheus, Portal, EDI e Itaú/NF-e como verdade única do O2C',
+    'O2C em produção, observabilidade, documentação e estabilização',
+    `Agentes core O2C (${O2C_MVP_AGENTS.length}) com guardrails, aprovação humana e avaliação`,
   ],
   excluded: [
     'Licenças, cloud, consumo de APIs/LLMs e serviços de terceiros',
-    'Substituição integral do Protheus, WMS, Portal, EDI ou Jornada do Vendedor',
+    'Substituição integral do Protheus, WMS, Portal ou EDI',
     'Conciliação PagBrasil — executada por outro fornecedor; apenas ponto futuro de integração',
     'Operação 24×7 e sustentação após a janela de estabilização',
   ],
-  future: OTD_FUTURE_OPTIONS,
+  future: [
+    `Fase 2 · logística e pós-venda: ${O2C_PHASE2_QUICK_WINS.map(q => q.title).join('; ')}`,
+    'Agentes de expedição/tracking e recompra sobre a mesma Layer',
+    'Quick wins satélites, Indústria 4.0 & Agro e visão 360º / forecast',
+  ],
 }
 
 export const DELIVERY_RISKS = [
@@ -320,32 +493,37 @@ export const DELIVERY_RISKS = [
     owner: 'Orfeu + Tech Lead',
   },
   {
+    risk: 'Baseline de KPIs indisponível ou pouco confiável para a régua de risco',
+    mitigation: 'M0 dedica esforço ao baseline; metas de risco só valem após dados aprovados no comitê',
+    owner: 'Financeiro + Tech Lead',
+  },
+  {
     risk: 'Baixa disponibilidade dos owners para homologação',
     mitigation: 'Agenda fixa semanal, delegados nomeados e prazo de aceite de 5 dias úteis',
     owner: 'Cristiane · Selton · André',
   },
   {
-    risk: 'Mudanças de prioridade competirem com os 10 QWs',
-    mitigation: 'Backlog OTD protegido; satélites entram somente via change request',
-    owner: 'Comitê executivo',
-  },
-  {
-    risk: 'Dados insuficientes para LLM e agentes',
-    mitigation: 'Gate M4 condiciona IA à qualidade, cobertura e rastreabilidade mínimas',
+    risk: 'Dados insuficientes para os agentes core',
+    mitigation: 'Gate M3 condiciona os agentes à qualidade, cobertura e rastreabilidade mínimas',
     owner: 'TI + Especialista IA',
   },
 ]
 
 export const ASSUMPTIONS = [
-  'Escopo-base: OTD completo → Adaptive Layer™ → LLM e agentes; satélites e Indústria 4.0 são opções futuras.',
+  'Escopo-base: Order-to-Cash (pedido → crédito → faturamento → contas a receber → caixa) → Adaptive Layer™ → agentes core; logística, contrato e recompra são Fase 2.',
   'O produto comercial é o engagement do squad + outcomes nos gates; horas/blended são apenas base de planejamento e transparência.',
-  'As janelas pressupõem início conjunto do M0 e disponibilidade dos owners definidos em cada gate.',
+  'A base fixa é garantida; ~15% do fee é parcela em risco liberada por gate mediante KPIs, e o bônus de sucesso tem teto.',
+  'As premissas de ROI (faturamento, margem, uplift de vendas e QLPs) são preditivas e serão substituídas por dados reais no baseline M0.',
   'A Orfeu disponibiliza acessos, ambientes, massas de teste e decisões de negócio nos prazos do ciclo.',
   'Custos de cloud, licenças e APIs de terceiros, incluindo consumo de LLM, não estão inclusos.',
-  'Conciliação PagBrasil permanece fora do escopo; a Layer preserva um ponto futuro de integração.',
   'Valores alinhados às faixas públicas do Guia de Valores PixelPulseLab 2026 (blended efetivo R$ 260–285/h dentro da faixa R$ 250–300/h).',
-  'Capacidade planejada de ~460h/mês por 8 meses; mudanças materiais usam change request aprovado.',
+  `Capacidade planejada de ~${SQUAD_SUMMARY.totalHoursMonth}h/mês por ${MONTHS} meses; mudanças materiais usam change request aprovado.`,
 ]
+
+// Investimento default do simulador espelha o fee cheio médio do horizonte.
+export const ROI_INVESTMENT_DEFAULT = Math.round(
+  (COMMERCIAL_PRICING.totalFull.min + COMMERCIAL_PRICING.totalFull.max) / 2,
+)
 
 export function validateProposalData() {
   const milestoneIds = COMMERCIAL_MILESTONES.map(milestone => milestone.id)
