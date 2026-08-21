@@ -37,7 +37,7 @@ export interface BacklogDiagram {
 }
 
 export interface BacklogCardSource {
-  kind: 'user-story' | 'gap' | 'milestone' | 'manual' | 'meeting'
+  kind: 'user-story' | 'gap' | 'milestone' | 'manual' | 'meeting' | 'document'
   ref?: string
 }
 

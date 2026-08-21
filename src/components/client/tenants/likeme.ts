@@ -31,7 +31,7 @@ export const likeMe: ClientWorkspace = {
   stats: [
     { label: 'Repos', value: '3' },
     { label: 'Reuniões', value: String(LIKEME_MEETINGS.length) },
-    { label: 'Documentos', value: '8' },
+    { label: 'Documentos', value: '9' },
   ],
   projects: [
     {
@@ -156,6 +156,17 @@ export const likeMe: ClientWorkspace = {
   },
   meetings: LIKEME_MEETINGS,
   documents: [
+    {
+      id: 'likeme-arquitetura-adaptive-layer',
+      title: 'Arquitetura do Produto — Adaptive Layer™ & Agentes',
+      category: 'Arquitetura · IA · Plataforma',
+      description:
+        'Estudo técnico-executivo do estado atual e da arquitetura-alvo: Adaptive Layer, squad de agentes, guardrails e roadmap de adoção.',
+      updatedAt: '21/08/2026',
+      status: 'available',
+      href: '/arquitetura-de-agentes',
+      external: false,
+    },
     {
       id: 'likeme-tabia-piloto',
       title: 'Piloto — Integração Tabia Health no Backend',
