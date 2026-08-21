@@ -1,12 +1,22 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowRight, ExternalLink, FileText, FolderOpen } from 'lucide-react'
+import { getBacklogBoards } from '@/lib/backlog/boards'
 import { getClient } from '@/lib/client/registry'
+import { isDocumentIntelligenceEnabled } from '@/lib/documents/access'
+import { hasBlobToken } from '@/lib/documents/blob'
+import { listDocuments } from '@/lib/documents/store'
+import { ACCEPTED_UPLOAD_EXTENSIONS, MAX_UPLOAD_BYTES } from '@/lib/documents/types'
+import type { ClientDocumentRecord } from '@/lib/documents/types'
 import { EmptyWorkspaceState, WorkspacePageHeader } from '@/components/client/workspace-page'
+import { DocumentWorkspace } from '@/components/client/documents/document-workspace'
 
 type Props = {
   params: Promise<{ locale: string; clientId: string }>
 }
+
+// A lista de documentos enviados vem do Blob em tempo de request.
+export const dynamic = 'force-dynamic'
 
 const STATUS_LABEL = {
   available: 'Disponível',
@@ -22,6 +32,18 @@ export default async function ClientDocumentsPage({ params }: Props) {
   const base = `/${locale}/client/${client.slug}`
   const documents = client.documents ?? []
 
+  const intelligenceEnabled = isDocumentIntelligenceEnabled(client.slug)
+  const storageReady = intelligenceEnabled && hasBlobToken()
+  // A listagem depende do Blob; sem token o workspace já renderiza o aviso.
+  let uploadedDocuments: ClientDocumentRecord[] = []
+  if (storageReady) {
+    try {
+      uploadedDocuments = await listDocuments(client.slug)
+    } catch (error) {
+      console.error('[client/documentos] falha ao listar documentos enviados:', error)
+    }
+  }
+
   return (
     <div className="px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-14 py-10 sm:py-14">
       <WorkspacePageHeader
@@ -30,6 +52,25 @@ export default async function ClientDocumentsPage({ params }: Props) {
         description="Fonte única para escopo, decisões, materiais de apoio e entregáveis do engajamento."
         backHref={base}
       />
+
+      {intelligenceEnabled && (
+        <div className="mb-12">
+          <DocumentWorkspace
+            clientId={client.slug}
+            locale={locale}
+            accent={client.accent}
+            boards={getBacklogBoards(client.slug).map(board => ({ id: board.id, title: board.title }))}
+            storageReady={storageReady}
+            initialDocuments={uploadedDocuments}
+            maxBytes={MAX_UPLOAD_BYTES}
+            extensions={ACCEPTED_UPLOAD_EXTENSIONS}
+          />
+        </div>
+      )}
+
+      {intelligenceEnabled && documents.length > 0 && (
+        <h2 className="mb-5 text-[15px] font-semibold text-neutral-900">Documentos publicados</h2>
+      )}
 
       {documents.length === 0 ? (
         <EmptyWorkspaceState
