@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import { getClient, listClients } from '@/lib/client/registry'
 import { getDeliveryTeaser } from '@/lib/delivery/teaser'
+import { isBacklogEnabled } from '@/lib/backlog/access'
+import { getBacklogSnapshot } from '@/lib/backlog/store'
 import { ClientHome } from '@/components/client/client-home'
 
 type Props = {
@@ -19,6 +21,16 @@ export default async function ClientWorkspacePage({ params }: Props) {
   const deliveryTeaser = client.delivery?.repos.length
     ? await getDeliveryTeaser(client.slug)
     : null
+  const backlogSnapshot = isBacklogEnabled(client.slug)
+    ? await getBacklogSnapshot(client.slug)
+    : null
 
-  return <ClientHome client={client} locale={locale} deliveryTeaser={deliveryTeaser} />
+  return (
+    <ClientHome
+      client={client}
+      locale={locale}
+      deliveryTeaser={deliveryTeaser}
+      backlogSnapshot={backlogSnapshot}
+    />
+  )
 }

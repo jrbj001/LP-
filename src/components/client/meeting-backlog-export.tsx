@@ -128,7 +128,7 @@ export function MeetingBacklogExport({
         <div>
           <h3 className="inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-neutral-500">
             <ClipboardList className="h-3.5 w-3.5" />
-            Gerar para o backlog
+            Gerar para os boards
           </h3>
           <p className="mt-1 text-[12px] text-neutral-400">Revise os itens antes de enviá-los.</p>
         </div>
@@ -267,7 +267,7 @@ export function MeetingBacklogExport({
               className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-40"
             >
               {applying && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              {applying ? 'Enviando…' : 'Enviar selecionados ao backlog'}
+              {applying ? 'Enviando…' : 'Enviar selecionados aos boards'}
             </button>
           </div>
         </div>
@@ -280,7 +280,7 @@ export function MeetingBacklogExport({
             {result.created} criado(s){result.skipped ? ` · ${result.skipped} já existente(s)` : ''}.
           </span>
           <a href={backlogHref} className="inline-flex items-center gap-1 font-semibold hover:underline">
-            Abrir backlog <ArrowRight className="h-3.5 w-3.5" />
+            Abrir boards <ArrowRight className="h-3.5 w-3.5" />
           </a>
         </div>
       )}

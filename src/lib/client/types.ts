@@ -66,6 +66,8 @@ export interface ClientProject {
   updatedAt?: string
   href?: string
   tags?: string[]
+  /** Boards Cadence que executam esta iniciativa. */
+  boardIds?: string[]
 }
 
 export interface ClientWorkspace {

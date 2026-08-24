@@ -22,6 +22,7 @@ export function BacklogWorkspace({
   detailBase,
   copilotBase,
   initial,
+  initialBoardId,
 }: {
   clientId: string
   clientName: string
@@ -29,12 +30,13 @@ export function BacklogWorkspace({
   detailBase: string
   copilotBase: string
   initial: BacklogSnapshot
+  initialBoardId?: string
 }) {
   const [boards] = useState(initial.boards)
   const [columns] = useState(initial.columns)
   const [cards, setCards] = useState(initial.cards)
   const [activeBoardId, setActiveBoardId] = useState<BacklogBoardId>(
-    initial.boards[0]?.id ?? 'banco-ativos'
+    (initialBoardId as BacklogBoardId | undefined) ?? initial.boards[0]?.id ?? 'banco-ativos'
   )
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -138,14 +140,14 @@ export function BacklogWorkspace({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-sky-200/80 bg-sky-50/50 px-5 py-4 flex flex-col lg:flex-row lg:items-center gap-4 justify-between">
+      <div className="flex flex-col justify-between gap-4 rounded-xl border border-teal-950/10 bg-teal-50/60 px-5 py-4 lg:flex-row lg:items-center">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-sky-700 mb-1">
-            {clientName} · Backlog PM + AI
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.1em] text-teal-700">
+            {clientName} · Cadence Boards
           </p>
           <p className="text-[13px] text-neutral-600 leading-relaxed max-w-4xl">
             {clientId === 'likeme'
-              ? 'O backlog Like:Me começa vazio: crie requisitos manualmente ou converse com o copiloto para gerar user stories e specs agent-ready com contexto do GitHub.'
+              ? 'Os boards Like:Me começam com o contexto do produto: crie requisitos manualmente ou use o copiloto para gerar user stories e specs agent-ready com grounding no GitHub.'
               : 'Use a IA para transformar requisitos em user stories e depois em specs agent-ready com contexto do GitHub. O enrichment sugere — o PM revisa antes de mover para desenvolvimento.'}
           </p>
         </div>
@@ -156,15 +158,14 @@ export function BacklogWorkspace({
               setCopilotCard(null)
               setCopilotOpen(true)
             }}
-            className="inline-flex items-center gap-1.5 rounded-full text-white text-[12px] font-medium px-4 py-2"
-            style={{ backgroundColor: accent }}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-teal-700 px-4 py-2 text-[11px] font-semibold text-white hover:bg-teal-800"
           >
             <Sparkles className="w-3.5 h-3.5" strokeWidth={1.8} />
             Copiloto
           </button>
           <Link
             href={`${copilotBase}?board=${activeBoardId}`}
-            className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.08] bg-white px-3.5 py-2 text-[12px] text-neutral-600 hover:border-neutral-300"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-black/[0.08] bg-white px-3.5 py-2 text-[11px] font-medium text-neutral-600 hover:border-neutral-300"
           >
             Abrir em tela cheia
             <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={1.8} />
@@ -181,9 +182,9 @@ export function BacklogWorkspace({
               key={board.id}
               type="button"
               onClick={() => setActiveBoardId(board.id)}
-              className={`rounded-full border px-3.5 py-1.5 text-[12px] font-medium transition-colors ${
+              className={`rounded-lg border px-3.5 py-1.5 text-[11px] font-medium transition-colors ${
                 active
-                  ? 'border-neutral-900 bg-neutral-900 text-white'
+                  ? 'border-neutral-900 bg-neutral-900 text-white shadow-sm'
                   : 'border-black/[0.08] bg-white text-neutral-600 hover:border-neutral-300'
               }`}
             >

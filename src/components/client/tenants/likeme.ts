@@ -45,6 +45,7 @@ export const likeMe: ClientWorkspace = {
       priority: 'Alta',
       updatedAt: '12/08/2026',
       tags: ['Landing', 'Vite', 'SendGrid', 'Vercel'],
+      boardIds: ['likeme-landing'],
       href: 'https://github.com/jrbj001/LP-LikeMe',
     },
     {
@@ -58,6 +59,7 @@ export const likeMe: ClientWorkspace = {
       priority: 'Alta',
       updatedAt: '12/08/2026',
       tags: ['App', 'Frontend', 'Produto'],
+      boardIds: ['likeme-app'],
       href: 'https://github.com/PixelPulseLab/likeme-front-end',
     },
     {
@@ -71,6 +73,7 @@ export const likeMe: ClientWorkspace = {
       priority: 'Alta',
       updatedAt: '12/08/2026',
       tags: ['API', 'Backend', 'Produto'],
+      boardIds: ['likeme-backend'],
       href: 'https://github.com/PixelPulseLab/likeme-back-end',
     },
     {
@@ -84,6 +87,7 @@ export const likeMe: ClientWorkspace = {
       priority: 'Média',
       updatedAt: '12/08/2026',
       tags: ['SendGrid', 'Growth', 'Onboarding'],
+      boardIds: ['likeme-landing'],
     },
   ],
   delivery: {

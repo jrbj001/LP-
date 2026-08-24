@@ -1,7 +1,10 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { ExternalLink, FolderKanban, Lightbulb, PauseCircle, Sparkles } from 'lucide-react'
 import { getClient } from '@/lib/client/registry'
 import type { ClientProject, ClientProjectStatus } from '@/lib/client/types'
+import type { BacklogBoard } from '@/lib/backlog/types'
+import { getBacklogBoards } from '@/lib/backlog/boards'
 import { EmptyWorkspaceState, WorkspacePageHeader } from '@/components/client/workspace-page'
 
 type Props = {
@@ -28,9 +31,13 @@ const PRIORITY_DOT: Record<NonNullable<ClientProject['priority']>, string> = {
 function ProjectCard({
   project,
   accent,
+  base,
+  boards,
 }: {
   project: ClientProject
   accent: string
+  base: string
+  boards: BacklogBoard[]
 }) {
   const status = STATUS_META[project.status]
 
@@ -78,6 +85,27 @@ function ProjectCard({
         </div>
       )}
 
+      {project.boardIds?.length ? (
+        <div className="mt-4">
+          <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.13em] text-neutral-400">Boards Cadence</p>
+          <div className="flex flex-wrap gap-1.5">
+            {project.boardIds.map(boardId => {
+              const board = boards.find(item => item.id === boardId)
+              return (
+                <Link
+                  key={boardId}
+                  href={`${base}/backlog?board=${boardId}`}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-teal-200/70 bg-teal-50 px-2 py-1 text-[10px] font-medium text-teal-800 hover:border-teal-300"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+                  {board?.title ?? boardId}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      ) : null}
+
       <div className="mt-5 pt-4 border-t border-black/[0.05] flex flex-wrap items-center justify-between gap-3">
         <div className="text-[11px] text-neutral-400">
           {project.owner && <span>{project.owner}</span>}
@@ -105,11 +133,15 @@ function ProjectSection({
   hint,
   projects,
   accent,
+  base,
+  boards,
 }: {
   title: string
   hint: string
   projects: ClientProject[]
   accent: string
+  base: string
+  boards: BacklogBoard[]
 }) {
   if (projects.length === 0) return null
 
@@ -121,7 +153,7 @@ function ProjectSection({
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {projects.map(project => (
-          <ProjectCard key={project.id} project={project} accent={accent} />
+          <ProjectCard key={project.id} project={project} accent={accent} base={base} boards={boards} />
         ))}
       </div>
     </section>
@@ -135,6 +167,7 @@ export default async function ClientProjectsPage({ params }: Props) {
 
   const base = `/${locale}/client/${client.slug}`
   const projects = client.projects ?? []
+  const boards = getBacklogBoards(client.slug)
   const active = projects.filter(p => p.status === 'active' || p.status === 'discovery')
   const proposed = projects.filter(p => p.status === 'proposed')
   const deferred = projects.filter(p => p.status === 'deferred')
@@ -176,24 +209,32 @@ export default async function ClientProjectsPage({ params }: Props) {
             hint={`${active.length} iniciativa${active.length === 1 ? '' : 's'}`}
             projects={active}
             accent={client.accent}
+            base={base}
+            boards={boards}
           />
           <ProjectSection
             title="Novas iniciativas"
             hint="Intake a partir do roadmap e demandas recentes"
             projects={proposed}
             accent={client.accent}
+            base={base}
+            boards={boards}
           />
           <ProjectSection
             title="Adiados"
             hint="Mapeados, fora do escopo desta fase"
             projects={deferred}
             accent={client.accent}
+            base={base}
+            boards={boards}
           />
           <ProjectSection
             title="Concluídos"
             hint={`${done.length} finalizado${done.length === 1 ? '' : 's'}`}
             projects={done}
             accent={client.accent}
+            base={base}
+            boards={boards}
           />
         </>
       )}

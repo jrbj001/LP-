@@ -592,7 +592,7 @@ export function DocumentWorkspace({
                     Requisitos e user stories
                   </h3>
                   <p className="mt-1 text-[12px] text-neutral-400">
-                    Revise e ajuste antes de enviar ao backlog.
+                    Revise e ajuste antes de enviar aos boards.
                   </p>
                 </div>
                 <button
@@ -686,7 +686,7 @@ export function DocumentWorkspace({
                       className="inline-flex items-center justify-center gap-2 rounded-full bg-neutral-900 px-4 py-2 text-[12px] font-semibold text-white disabled:opacity-40"
                     >
                       {busy === 'apply' && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                      {busy === 'apply' ? 'Enviando…' : 'Enviar selecionados ao backlog'}
+                      {busy === 'apply' ? 'Enviando…' : 'Enviar selecionados aos boards'}
                     </button>
                   </div>
                 </div>
@@ -703,7 +703,7 @@ export function DocumentWorkspace({
                     href={`/${locale}/client/${clientId}/backlog${boardId ? `?board=${encodeURIComponent(boardId)}` : ''}`}
                     className="inline-flex items-center gap-1 font-semibold hover:underline"
                   >
-                    Abrir backlog <ArrowRight className="h-3.5 w-3.5" />
+                    Abrir boards <ArrowRight className="h-3.5 w-3.5" />
                   </a>
                 </div>
               )}
