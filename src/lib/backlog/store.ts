@@ -73,17 +73,23 @@ export async function writeBacklogStore(clientId: string, payload: BacklogStoreP
 /** Merge seed + overrides do PM (overrides ganham). */
 export function mergeCards(store: BacklogStorePayload): BacklogCard[] {
   const removed = new Set(store.removedIds)
-  const boardIds = new Set(getBacklogBoards(store.clientId).map(board => board.id))
+  const boards = getBacklogBoards(store.clientId)
+  const boardIds = new Set(boards.map(board => board.id))
+  const withProject = (card: BacklogCard): BacklogCard => {
+    if (card.projectId) return card
+    const board = boards.find(item => item.id === card.boardId)
+    return { ...card, projectId: board?.projectIds?.[0] }
+  }
   const byId = new Map<string, BacklogCard>()
 
   for (const card of buildSeedCards(store.clientId)) {
     if (removed.has(card.id) || !boardIds.has(card.boardId)) continue
-    byId.set(card.id, card)
+    byId.set(card.id, withProject(card))
   }
 
   for (const card of Object.values(store.cards)) {
     if (removed.has(card.id) || !boardIds.has(card.boardId)) continue
-    byId.set(card.id, card)
+    byId.set(card.id, withProject(card))
   }
 
   return [...byId.values()].sort((a, b) => {

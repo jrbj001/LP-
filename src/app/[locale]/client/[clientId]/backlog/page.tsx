@@ -9,10 +9,12 @@ export const dynamic = 'force-dynamic'
 
 type Props = {
   params: Promise<{ locale: string; clientId: string }>
+  searchParams: Promise<{ board?: string }>
 }
 
-export default async function ClientBacklogPage({ params }: Props) {
+export default async function ClientBacklogPage({ params, searchParams }: Props) {
   const { locale, clientId } = await params
+  const { board } = await searchParams
   const client = getClient(clientId)
   if (!client) notFound()
   if (!isBacklogEnabled(client.slug)) notFound()
@@ -23,8 +25,8 @@ export default async function ClientBacklogPage({ params }: Props) {
   return (
     <div className="px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-14 py-10 sm:py-14">
       <WorkspacePageHeader
-        eyebrow={`${client.name} · Produto`}
-        title="Backlog"
+        eyebrow={`${client.name} · Cadence`}
+        title="Boards"
         description={
           client.slug === 'likeme'
             ? 'Boards por repositório para criar requisitos e user stories do zero. O PM usa IA + GitHub para enriquecer os cards e deixá-los prontos para desenvolvimento.'
@@ -39,6 +41,7 @@ export default async function ClientBacklogPage({ params }: Props) {
         detailBase={`${base}/backlog`}
         copilotBase={`${base}/backlog/copilot`}
         initial={snapshot}
+        initialBoardId={snapshot.boards.some(item => item.id === board) ? board : undefined}
       />
     </div>
   )

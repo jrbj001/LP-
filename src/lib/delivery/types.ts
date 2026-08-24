@@ -145,7 +145,7 @@ export interface RoadmapMilestone {
 export interface RepoStatus {
   repo: string
   ok: boolean
-  /** 'token' | 'rate' | mensagem. */
+  /** 'token' | 'invalid-token' | 'no-access' | 'rate' | 'rate-authenticated' | mensagem. */
   error?: string
 }
 

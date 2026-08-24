@@ -395,7 +395,7 @@ export function LikeMeAdaptiveArchitectureView({
           className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-semibold text-white"
           style={{ backgroundColor: accent }}
         >
-          Abrir backlog
+          Abrir boards
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>

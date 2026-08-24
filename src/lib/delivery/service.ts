@@ -326,8 +326,11 @@ function buildByProduct(
 
 function repoErrorMessage(e: unknown): string {
   const status = e instanceof GitHubError ? e.status : 0
-  if (status === 403 && !hasGitHubToken()) return 'rate'
-  if ((status === 404 || status === 401) && !hasGitHubToken()) return 'token'
+  const hasToken = hasGitHubToken()
+  // Requisição anônima a repo privado responde 404; 401 só ocorre com credencial enviada e recusada.
+  if (status === 401) return 'invalid-token'
+  if (status === 403) return hasToken ? 'rate-authenticated' : 'rate'
+  if (status === 404) return hasToken ? 'no-access' : 'token'
   return e instanceof Error ? e.message : 'Erro desconhecido'
 }
 

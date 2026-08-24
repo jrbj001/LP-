@@ -75,7 +75,7 @@ export function BacklogCardDetail({
         className="inline-flex items-center gap-1.5 text-[12px] text-neutral-400 hover:text-neutral-800 transition-colors mb-7"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
-        Voltar ao backlog
+        Voltar aos boards
       </Link>
 
       <header className="border-b border-black/[0.07] pb-7 mb-8">

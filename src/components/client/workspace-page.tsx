@@ -13,21 +13,21 @@ export function WorkspacePageHeader({
   backHref: string
 }) {
   return (
-    <header className="mb-9">
+    <header className="mb-8 border-b border-black/[0.06] pb-7">
       <Link
         href={backHref}
-        className="inline-flex items-center gap-1.5 text-[12px] text-neutral-400 hover:text-neutral-800 transition-colors mb-7"
+        className="mb-5 inline-flex items-center gap-1.5 text-[10px] font-medium text-neutral-400 transition-colors hover:text-neutral-800"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
         Visão geral
       </Link>
-      <p className="text-[11px] font-mono uppercase tracking-[0.16em] text-neutral-400 mb-2">
+      <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.16em] text-teal-700">
         {eyebrow}
       </p>
-      <h1 className="text-3xl sm:text-4xl font-semibold tracking-[-0.035em] text-neutral-900">
+      <h1 className="font-[family-name:var(--font-cadence-display)] text-3xl font-semibold tracking-[-0.04em] text-neutral-950 sm:text-4xl">
         {title}
       </h1>
-      <p className="mt-3 text-[14px] sm:text-[15px] text-neutral-500 leading-relaxed max-w-2xl">
+      <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-neutral-500 sm:text-[14px]">
         {description}
       </p>
     </header>

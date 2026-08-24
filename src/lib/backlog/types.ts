@@ -39,11 +39,15 @@ export interface BacklogDiagram {
 export interface BacklogCardSource {
   kind: 'user-story' | 'gap' | 'milestone' | 'manual' | 'meeting' | 'document'
   ref?: string
+  /** ID canônico da reunião ou documento quando disponível. */
+  entityId?: string
 }
 
 export interface BacklogCard {
   id: string
   boardId: BacklogBoardId
+  /** Projeto do portfólio associado ao trabalho. */
+  projectId?: string
   column: BacklogColumnId
   title: string
   level: EnrichmentLevel
@@ -70,6 +74,10 @@ export interface BacklogBoard {
   title: string
   description: string
   productLabel: string
+  /** Projetos do portfólio executados por este board. */
+  projectIds?: string[]
+  /** Repositório principal que fornece grounding e entregas. */
+  repository?: string
 }
 
 export interface StoryDraft {
@@ -148,6 +156,7 @@ export type CardPatch = Partial<
   Pick<
     BacklogCard,
     | 'boardId'
+    | 'projectId'
     | 'column'
     | 'title'
     | 'level'

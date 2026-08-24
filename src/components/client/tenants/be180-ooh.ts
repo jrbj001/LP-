@@ -30,6 +30,7 @@ export const be180Ooh: ClientWorkspace = {
       priority: 'Alta',
       updatedAt: '05/08/2026',
       tags: ['Produção', 'SaaS', 'Planejamento'],
+      boardIds: ['colmeia'],
       href: 'https://app.notion.com/p/37b5615ab27481d48154e1b27f250e01',
     },
     {
@@ -43,6 +44,7 @@ export const be180Ooh: ClientWorkspace = {
       priority: 'Alta',
       updatedAt: '04/08/2026',
       tags: ['Fundacional', 'Exibidores', 'Inventário'],
+      boardIds: ['banco-ativos'],
     },
     {
       id: 'image-brand-processing',
@@ -55,6 +57,7 @@ export const be180Ooh: ClientWorkspace = {
       priority: 'Média',
       updatedAt: '05/08/2026',
       tags: ['Repositório', 'Backend'],
+      boardIds: ['visibilidade'],
     },
     {
       id: 'colmeia-ai-mvp',
@@ -67,6 +70,7 @@ export const be180Ooh: ClientWorkspace = {
       priority: 'Alta',
       updatedAt: '15/07/2026',
       tags: ['IA', 'MVP', 'Adaptive Layer'],
+      boardIds: ['agentes'],
       href: 'https://app.notion.com/p/39e5615ab27481709661c328ae6e9215',
     },
     {
@@ -80,6 +84,7 @@ export const be180Ooh: ClientWorkspace = {
       priority: 'Alta',
       updatedAt: '04/08/2026',
       tags: ['Novo', 'Metodologia', 'Mídia'],
+      boardIds: ['colmeia'],
     },
     {
       id: 'tendencias-transporte-publico',
@@ -92,6 +97,7 @@ export const be180Ooh: ClientWorkspace = {
       priority: 'Média',
       updatedAt: '04/08/2026',
       tags: ['Novo', 'Produto', 'Via Pública'],
+      boardIds: ['colmeia'],
     },
     {
       id: 'ux-redesign-onboarding',
@@ -104,6 +110,7 @@ export const be180Ooh: ClientWorkspace = {
       priority: 'Média',
       updatedAt: '04/08/2026',
       tags: ['Novo', 'UX', 'Adoção'],
+      boardIds: ['colmeia'],
     },
     {
       id: 'agentes',
@@ -116,6 +123,7 @@ export const be180Ooh: ClientWorkspace = {
       priority: 'Alta',
       updatedAt: '10/08/2026',
       tags: ['Roadmap', 'Arquitetura', 'IA'],
+      boardIds: ['agentes'],
     },
   ],
   delivery: {
