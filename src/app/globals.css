@@ -149,3 +149,47 @@ body:has(.cadence-scope) {
   background-color: #0a0a0a;
   color: #ededed;
 }
+
+/* ─── Alquemia · transmutação organizacional ─── */
+.alquimia-scope {
+  --alquimia-paper: #f7f5ed;
+  --alquimia-gold: #e0ce7a;
+  --alquimia-lilac: #aeadcc;
+  --alquimia-blue: #3a5976;
+  --alquimia-deep: #00435d;
+  --color-bg: var(--alquimia-paper);
+  --color-surface: #efede5;
+  --color-card: #ffffff;
+  --color-text-primary: #071217;
+  --color-text-secondary: #526067;
+  font-family: var(--font-alquimia-body), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--alquimia-paper);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+.alquimia-scope ::selection {
+  background: rgba(224, 206, 122, 0.55);
+  color: #002f42;
+}
+.alquimia-scope ::-webkit-scrollbar-thumb {
+  background: rgba(0, 67, 93, 0.24);
+}
+.alquimia-display {
+  font-family: var(--font-alquimia-display), var(--font-alquimia-body), sans-serif;
+}
+.alquimia-grain {
+  position: relative;
+}
+.alquimia-grain::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: '';
+  opacity: 0.11;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
+}
+body:has(.alquimia-scope) {
+  background-color: #f7f5ed;
+  color: #071217;
+}
