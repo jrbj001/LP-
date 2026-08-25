@@ -104,7 +104,7 @@ const REPO_ERROR_MESSAGES: Record<string, string> = {
   'invalid-token':
     'o token configurado foi recusado pelo GitHub (expirado ou revogado); gere um novo GITHUB_TOKEN / GITHUB_PAT para voltar a coletar este repo.',
   'no-access':
-    'o token configurado não tem acesso a este repositório; conceda permissão de leitura ou ajuste o escopo do token.',
+    'o token está autenticado, mas este repositório não está no PAT fine-grained. Inclua o repo com Contents, Pull requests e Metadata (read), atualize GITHUB_PAT na Vercel/.env.local e reinicie o dev server.',
   rate: 'limite da API pública do GitHub atingido; configure GITHUB_TOKEN ou GITHUB_PAT.',
   'rate-authenticated':
     'limite de requisições do token atingido; aguarde a renovação da cota do GitHub e atualize o relatório.',

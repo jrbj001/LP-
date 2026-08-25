@@ -1,3 +1,4 @@
+import type { JiraTenantConfig } from '@/lib/jira/types'
 import type { ManualEffortItem, RepoConfig } from '@/lib/delivery/types'
 
 export type ClientStatus = 'pilot' | 'active'
@@ -103,4 +104,6 @@ export interface ClientWorkspace {
     /** Esforço sem commits visíveis (infra, migrações) somado ao billing. */
     manualEffort?: ManualEffortItem[]
   }
+  /** Jira Cloud do cliente — original estimate no backlog (Like:Me). */
+  jira?: JiraTenantConfig
 }

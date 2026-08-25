@@ -90,6 +90,13 @@ export const likeMe: ClientWorkspace = {
       boardIds: ['likeme-landing'],
     },
   ],
+  jira: {
+    site: 'https://likeme-app.atlassian.net',
+    projectKey: 'APP',
+    boardId: 1,
+    hoursPerDay: 8,
+    issueTypes: ['Story', 'História', 'User Story'],
+  },
   delivery: {
     repos: [
       {

@@ -8,6 +8,7 @@ import {
   BarChart3,
   CalendarDays,
   ChevronDown,
+  Clock,
   FileText,
   FolderKanban,
   LayoutDashboard,
@@ -19,10 +20,12 @@ import {
 } from 'lucide-react'
 import type { ClientWorkspace } from '@/lib/client/types'
 import { isBacklogEnabled } from '@/lib/backlog/access'
+import { isJiraEnabled } from '@/lib/jira/access'
 
 const NAV_ITEMS = [
   { path: '', label: 'Visão geral', section: 'work', icon: LayoutDashboard },
   { path: '/backlog', label: 'Boards', section: 'work', icon: PanelTop },
+  { path: '/jira', label: 'Jira', section: 'work', icon: Clock },
   { path: '/projetos', label: 'Projetos', section: 'work', icon: FolderKanban },
   { path: '/reunioes', label: 'Reuniões', section: 'context', icon: CalendarDays },
   { path: '/documentos', label: 'Documentos', section: 'context', icon: FileText },
@@ -42,8 +45,12 @@ export function ClientShell({
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const base = `/${locale}/client/${client.slug}`
-  const wide = pathname.endsWith('/entregas') || pathname.includes('/backlog')
-  const navItems = NAV_ITEMS.filter(item => item.path !== '/backlog' || isBacklogEnabled(client.slug))
+  const wide = pathname.endsWith('/entregas') || pathname.includes('/backlog') || pathname.includes('/jira')
+  const navItems = NAV_ITEMS.filter(item => {
+    if (item.path === '/backlog') return isBacklogEnabled(client.slug)
+    if (item.path === '/jira') return isJiraEnabled(client.slug)
+    return true
+  })
 
   const isActive = (item: NavItem) => {
     const href = `${base}${item.path}`
@@ -208,7 +215,9 @@ function NavSection({
             >
               <Icon className={`h-4 w-4 ${selected ? 'text-teal-300' : 'text-neutral-400 group-hover:text-neutral-700'}`} strokeWidth={1.75} />
               {item.label}
-              {item.path === '/backlog' && <span className={`ml-auto h-1.5 w-1.5 rounded-full ${selected ? 'bg-teal-300' : 'bg-teal-500'}`} />}
+              {(item.path === '/backlog' || item.path === '/jira') && (
+                <span className={`ml-auto h-1.5 w-1.5 rounded-full ${selected ? 'bg-teal-300' : 'bg-teal-500'}`} />
+              )}
             </Link>
           )
         })}
