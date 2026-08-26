@@ -11,6 +11,7 @@ import {
   CircleGauge,
   ClipboardCheck,
   FileArchive,
+  FileText,
   FlaskConical,
   LayoutDashboard,
   LayoutTemplate,
@@ -24,6 +25,7 @@ import {
   X,
 } from 'lucide-react'
 import type { AlquimiaSession } from '@/lib/alquimia/auth'
+import { PARTNER_SPACE_SEGMENTS, getSpaceEngagement } from '@/lib/alquimia/engagements'
 
 type Icon = typeof Activity
 
@@ -33,6 +35,7 @@ const partnerItems: Array<{ label: string; href: string; icon: Icon }> = [
   { label: 'Metodologia', href: 'metodologia', icon: Network },
   { label: 'Práticas', href: 'praticas', icon: BookOpen },
   { label: 'Templates', href: 'templates', icon: LayoutTemplate },
+  { label: 'Documentos', href: 'documentos', icon: FileText },
   { label: 'Agenda', href: 'agenda', icon: CalendarDays },
 ]
 
@@ -44,6 +47,7 @@ const engagementItems: Array<{ label: string; href: string; icon: Icon }> = [
   { label: 'Rituais', href: 'rituais', icon: CalendarDays },
   { label: 'Scorecards', href: 'scorecards', icon: BarChart3 },
   { label: 'Evidências', href: 'evidencias', icon: FileArchive },
+  { label: 'Documentos', href: 'documentos', icon: FileText },
   { label: 'Biblioteca', href: 'biblioteca', icon: FlaskConical },
 ]
 
@@ -61,9 +65,10 @@ export function AlquimiaShell({
   const router = useRouter()
   const base = `/${locale}/alquimia/space`
   const match = pathname.match(/\/space\/([^/]+)/)
-  const engagementId = match && !['login', 'metodologia', 'praticas', 'templates', 'agenda'].includes(match[1])
+  const engagementId = match && !PARTNER_SPACE_SEGMENTS.has(match[1])
     ? match[1]
     : null
+  const engagement = engagementId ? getSpaceEngagement(engagementId) : null
   const items = engagementId ? engagementItems : partnerItems
   const navBase = engagementId ? `${base}/${engagementId}` : base
 
@@ -99,8 +104,8 @@ export function AlquimiaShell({
             </a>
             <div className="mt-1 rounded-lg bg-white/[0.06] px-3 py-3">
               <p className="text-[9px] uppercase tracking-[0.15em] text-[#E0CE7A]">Engagement</p>
-              <p className="mt-1 text-[13px] font-medium text-white">Aurora Industrial</p>
-              <p className="mt-0.5 text-[10px] text-white/35">Transformação operacional</p>
+              <p className="mt-1 text-[13px] font-medium text-white">{engagement?.name ?? engagementId}</p>
+              <p className="mt-0.5 text-[10px] text-white/35">{engagement?.sector}</p>
             </div>
           </div>
         )}

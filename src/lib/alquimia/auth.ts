@@ -92,10 +92,10 @@ function configuredClients(): Array<Credential & { password: string }> {
     if (process.env.NODE_ENV === 'production') return []
     return [
       {
-        sub: 'client-demo',
-        name: 'Cliente demonstração',
+        sub: 'orfeu-client',
+        name: 'Café Orfeu',
         role: 'client',
-        engagementIds: ['aurora-industrial'],
+        engagementIds: ['orfeu'],
         password: 'cliente2026',
       },
     ]

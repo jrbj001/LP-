@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { demoEngagements } from './demo'
+import { spaceEngagements } from './engagements'
 import {
   engines,
   getPractice,
@@ -78,23 +78,9 @@ describe('consulta e estatísticas', () => {
   })
 })
 
-describe('engagements demonstrativos', () => {
-  it('expõe dois casos marcados como demo em estados distintos', () => {
-    expect(demoEngagements).toHaveLength(2)
-    expect(demoEngagements.every(item => item.demo)).toBe(true)
-    expect(new Set(demoEngagements.map(item => item.status))).toEqual(new Set(['active', 'diagnostic']))
-  })
-
-  it('usa somente referências existentes na biblioteca', () => {
-    const practiceIds = new Set(practices.map(item => item.id))
-    for (const engagement of demoEngagements) {
-      const references = [
-        ...engagement.initiatives.flatMap(item => item.practiceIds),
-        ...engagement.rituals.flatMap(item => item.practiceIds),
-        ...engagement.metrics.flatMap(item => item.practiceIds),
-        ...engagement.evidence.flatMap(item => item.practiceIds),
-      ]
-      expect(references.every(id => practiceIds.has(id))).toBe(true)
-    }
+describe('engagements do space', () => {
+  it('mantém apenas o Café Orfeu', () => {
+    expect(spaceEngagements.map(item => item.id)).toEqual(['orfeu'])
+    expect(spaceEngagements[0]?.name).toBe('Café Orfeu')
   })
 })

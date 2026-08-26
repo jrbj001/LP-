@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Check, Plus, X } from 'lucide-react'
 
 export function QuickUpdate({
-  engagementId = 'aurora-industrial',
+  engagementId = 'orfeu',
   label = 'Registrar atualização',
   kind = 'update',
 }: {
