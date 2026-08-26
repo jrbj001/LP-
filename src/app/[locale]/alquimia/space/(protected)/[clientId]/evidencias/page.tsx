@@ -1,5 +1,10 @@
 import { EvidenceView } from '@/components/alquimia/space/engagement-views'
 
-export default function AlquimiaEvidencePage() {
-  return <EvidenceView />
+export default async function AlquimiaEvidencePage({
+  params,
+}: {
+  params: Promise<{ clientId: string }>
+}) {
+  const { clientId } = await params
+  return <EvidenceView clientId={clientId} />
 }

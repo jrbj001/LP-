@@ -1,0 +1,527 @@
+[
+  {
+    "id": "1EZW3iVuQTFoAKhxKTZO02l6rNpd0iyTp",
+    "path": "00_INDEX.md",
+    "driveUrl": "https://drive.google.com/file/d/1EZW3iVuQTFoAKhxKTZO02l6rNpd0iyTp/view"
+  },
+  {
+    "id": "1FoyinO0H1lKHUh18Tr9k4Q8pnW86xv4Z",
+    "path": "01_Proposta/2026-05-06_Orfeu-Alquemia-Proposal-v3.docx",
+    "driveUrl": "https://drive.google.com/file/d/1FoyinO0H1lKHUh18Tr9k4Q8pnW86xv4Z/view"
+  },
+  {
+    "id": "1tOwx76lu8B_D4vi-8bWDMXFc317mhd8p",
+    "path": "01_Proposta/2026-05-06_Orfeu-Alquemia-Proposal-v4.pdf",
+    "driveUrl": "https://drive.google.com/file/d/1tOwx76lu8B_D4vi-8bWDMXFc317mhd8p/view"
+  },
+  {
+    "id": "1NrWmBkVZG07KefC5Q9tLgOpvWuR8uCpu",
+    "path": "02_Cases_e_Benchmarks/2026-06-08_Orfeu_BrandCase-Illy.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1NrWmBkVZG07KefC5Q9tLgOpvWuR8uCpu/view"
+  },
+  {
+    "id": "1tgtITs_eaESfEVC_wixKhkK7mJx-RndJ",
+    "path": "02_Cases_e_Benchmarks/2026-06-10_Orfeu_BrandCase-BlueBottle.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1tgtITs_eaESfEVC_wixKhkK7mJx-RndJ/view"
+  },
+  {
+    "id": "1OUOc6HbQ6hheh15ZzeslNCPxn7-JJQkU",
+    "path": "02_Cases_e_Benchmarks/2026-06-10_Orfeu_BrandCase-CafesBrasil.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1OUOc6HbQ6hheh15ZzeslNCPxn7-JJQkU/view"
+  },
+  {
+    "id": "1yKLnv-eNJgGPhAGh1ATZh6Mrl8KRUTtf",
+    "path": "02_Cases_e_Benchmarks/2026-06-10_Orfeu_BrandCase-CounterCulture.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1yKLnv-eNJgGPhAGh1ATZh6Mrl8KRUTtf/view"
+  },
+  {
+    "id": "1cQcd237c5mAuqBBHqCDeWfhnqQOWyqEk",
+    "path": "02_Cases_e_Benchmarks/2026-06-10_Orfeu_BrandCase-Intelligentsia.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1cQcd237c5mAuqBBHqCDeWfhnqQOWyqEk/view"
+  },
+  {
+    "id": "11OlUghjnwWHJ76djd4fvWkw4Af9shqMw",
+    "path": "02_Cases_e_Benchmarks/2026-06-10_Orfeu_BrandCase-LaMarzocco.pptx",
+    "driveUrl": "https://drive.google.com/file/d/11OlUghjnwWHJ76djd4fvWkw4Af9shqMw/view"
+  },
+  {
+    "id": "1QzYIUGJlaN_lKlq_LOXLpELxSlJuv754",
+    "path": "02_Cases_e_Benchmarks/2026-06-10_Orfeu_BrandCase-Lavazza.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1QzYIUGJlaN_lKlq_LOXLpELxSlJuv754/view"
+  },
+  {
+    "id": "1_8d6XM_mt378MFTfOZ_DuM4kvBWBTCCi",
+    "path": "02_Cases_e_Benchmarks/2026-06-10_Orfeu_BrandCase-Nespresso.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1_8d6XM_mt378MFTfOZ_DuM4kvBWBTCCi/view"
+  },
+  {
+    "id": "1J8tOvwOvaTcn5I0jGx83n3LrKPjaUeH6",
+    "path": "02_Cases_e_Benchmarks/2026-06-10_Orfeu_BrandCase-StarbucksReserve.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1J8tOvwOvaTcn5I0jGx83n3LrKPjaUeH6/view"
+  },
+  {
+    "id": "15TIqndwMQhmrmOO1oQyvy89h7rc-gUFT",
+    "path": "02_Cases_e_Benchmarks/2026-06-10_Orfeu_BrandCase-Stumptown.pptx",
+    "driveUrl": "https://drive.google.com/file/d/15TIqndwMQhmrmOO1oQyvy89h7rc-gUFT/view"
+  },
+  {
+    "id": "1KTF5T0PWokwNHJeLg3771fCg96_CSTCy",
+    "path": "02_Cases_e_Benchmarks/2026-06-10_Orfeu_BrandCase-TimHortons.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1KTF5T0PWokwNHJeLg3771fCg96_CSTCy/view"
+  },
+  {
+    "id": "1YFLZ6MRscfkpOdfNGF9PlDvajD2nl8o2",
+    "path": "02_Cases_e_Benchmarks/2026-06-11_Orfeu_BrandCase-JuanValdez.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1YFLZ6MRscfkpOdfNGF9PlDvajD2nl8o2/view"
+  },
+  {
+    "id": "1JNZwkZnSgvXicxxBHPRpFsEqsXaqoevx",
+    "path": "02_Cases_e_Benchmarks/2026-06-11_Orfeu_BrandCase-Peets.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1JNZwkZnSgvXicxxBHPRpFsEqsXaqoevx/view"
+  },
+  {
+    "id": "1Tn7ydtwTa1v0ICSdPULkkQR0tw9PfQsB",
+    "path": "02_Cases_e_Benchmarks/2026-06-19_Orfeu_BrandCase-Baggio.md",
+    "driveUrl": "https://drive.google.com/file/d/1Tn7ydtwTa1v0ICSdPULkkQR0tw9PfQsB/view"
+  },
+  {
+    "id": "1w_qeq0sS510_ezanpWSoCoOV2SMs-a_l",
+    "path": "02_Cases_e_Benchmarks/2026-06-19_Orfeu_BrandCase-Italle.md",
+    "driveUrl": "https://drive.google.com/file/d/1w_qeq0sS510_ezanpWSoCoOV2SMs-a_l/view"
+  },
+  {
+    "id": "1s9qouhoGq48DscNMT0RMWoSkUdd5FbF3",
+    "path": "02_Cases_e_Benchmarks/2026-06-19_Orfeu_BrandCase-UniqueCafes.md",
+    "driveUrl": "https://drive.google.com/file/d/1s9qouhoGq48DscNMT0RMWoSkUdd5FbF3/view"
+  },
+  {
+    "id": "1iNCFO2ymBH7AsD4xiq0JINFwznLP-uL-",
+    "path": "02_Cases_e_Benchmarks/2026-06-19_Orfeu_Framework-DTC-Marketplaces.md",
+    "driveUrl": "https://drive.google.com/file/d/1iNCFO2ymBH7AsD4xiq0JINFwznLP-uL-/view"
+  },
+  {
+    "id": "1DW-o7VLO5lS_COywE-N_LKvpnTxyIOLW",
+    "path": "02_Cases_e_Benchmarks/2026-07-02_Orfeu_BrandCase-3Coracoes.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1DW-o7VLO5lS_COywE-N_LKvpnTxyIOLW/view"
+  },
+  {
+    "id": "1QNWwDFrO8ZVo1D4oZJ2b79MLd51CZpmD",
+    "path": "02_Cases_e_Benchmarks/2026-07-06_Orfeu_BrandCase-3Coracoes-Suplemento.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1QNWwDFrO8ZVo1D4oZJ2b79MLd51CZpmD/view"
+  },
+  {
+    "id": "1AF7vAIT5L17poKH4FMycg9ObE6quYvGB",
+    "path": "02_Cases_e_Benchmarks/2026-07-06_Orfeu_BrandCase-Illy-Suplemento.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1AF7vAIT5L17poKH4FMycg9ObE6quYvGB/view"
+  },
+  {
+    "id": "1CoBUuBZyTkxHHLyAXmABr15Zm9jus17G",
+    "path": "02_Cases_e_Benchmarks/2026-07-22_Orfeu_CaseStudy-StarbucksReserve.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1CoBUuBZyTkxHHLyAXmABr15Zm9jus17G/view"
+  },
+  {
+    "id": "1XwlJSIBWEKbfZYLNhxskkooGCHVi68VF",
+    "path": "02_Cases_e_Benchmarks/Métodos Orfeu.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1XwlJSIBWEKbfZYLNhxskkooGCHVi68VF/view"
+  },
+  {
+    "id": "1DM8l8GoZ3SwgVP4lxkEw5dbxWMIU5bhO",
+    "path": "03_Workshops/2026-07-31_Orfeu_Plano-Comercial-Workshop-vPos-Priscila.key",
+    "driveUrl": "https://drive.google.com/file/d/1DM8l8GoZ3SwgVP4lxkEw5dbxWMIU5bhO/view"
+  },
+  {
+    "id": "1z5VMCGM4I7kyhkNDylDvrk1JZCOXj9uq",
+    "path": "03_Workshops/2026-08-03_Orfeu_Emails-Follow-WS-Fazenda.docx",
+    "driveUrl": "https://drive.google.com/file/d/1z5VMCGM4I7kyhkNDylDvrk1JZCOXj9uq/view"
+  },
+  {
+    "id": "126M1H7jujCkvK4tKHiIf6bEy0z5snXZY",
+    "path": "03_Workshops/2026-08-05_Orfeu_Convites-Workshop-Fazenda-Sertaozinho.docx",
+    "driveUrl": "https://drive.google.com/file/d/126M1H7jujCkvK4tKHiIf6bEy0z5snXZY/view"
+  },
+  {
+    "id": "1JwNF4F-IEHTiqmWO6eFvEIkmxsrT-ws_",
+    "path": "03_Workshops/2026-08-07_Orfeu_Abertura WS-CEO.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1JwNF4F-IEHTiqmWO6eFvEIkmxsrT-ws_/view"
+  },
+  {
+    "id": "1LEGBe3MltIzHiUaePSeLKtAB8BQs3NwY",
+    "path": "03_Workshops/2026-08-12_Orfeu_O-Jeito-Orfeu-de-Planejar-e-Entregar.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1LEGBe3MltIzHiUaePSeLKtAB8BQs3NwY/view"
+  },
+  {
+    "id": "1L3socQqFZ_WeVEbgOv5UhhlVYAnsjqiw",
+    "path": "03_Workshops/2026-08-17_Orfeu_Resumo-Colin-Pos-Workshop.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1L3socQqFZ_WeVEbgOv5UhhlVYAnsjqiw/view"
+  },
+  {
+    "id": "18MQTxMcyupqEJfpHspYcD3fxoGnHbHv9",
+    "path": "03_Workshops/2026-08-24_Orfeu_Revisao-Plano-Reunioes-Workshops.docx",
+    "driveUrl": "https://drive.google.com/file/d/18MQTxMcyupqEJfpHspYcD3fxoGnHbHv9/view"
+  },
+  {
+    "id": "1CVdzeLn2kzd09VLkeMn1HkijTAPVAx4g",
+    "path": "04_Atas_de_Reuniao/Conversas-Trade/Follow Cris - B2B e Trade.md",
+    "driveUrl": "https://drive.google.com/file/d/1CVdzeLn2kzd09VLkeMn1HkijTAPVAx4g/view"
+  },
+  {
+    "id": "1LPo6DFepCdkUBt-hiyyTn5iruviN0QqD",
+    "path": "04_Atas_de_Reuniao/Conversas-Trade/Follow Priscila - Varejo e Trade.md",
+    "driveUrl": "https://drive.google.com/file/d/1LPo6DFepCdkUBt-hiyyTn5iruviN0QqD/view"
+  },
+  {
+    "id": "1jX2yxOSqm7c5uPXuCcy8xpR81jkOCBOn",
+    "path": "04_Atas_de_Reuniao/Conversas-Trade/Follow Silvia - Trade Orfeu.md",
+    "driveUrl": "https://drive.google.com/file/d/1jX2yxOSqm7c5uPXuCcy8xpR81jkOCBOn/view"
+  },
+  {
+    "id": "1zCkZ3R_RGyaeZ_1eL_7JI3mnweH6qboQ",
+    "path": "04_Atas_de_Reuniao/Notas-IA-Reunioes-ate-03Jul/Orfeu-Felipe-Notas-ate-6Jul.md",
+    "driveUrl": "https://drive.google.com/file/d/1zCkZ3R_RGyaeZ_1eL_7JI3mnweH6qboQ/view"
+  },
+  {
+    "id": "1y77K9fycasfP2aYYbp5ZcNZ544DEwO2k",
+    "path": "04_Atas_de_Reuniao/Notas-IA-Reunioes-ate-03Jul/Reuniao-Augusto-Felipe-226.md",
+    "driveUrl": "https://drive.google.com/file/d/1y77K9fycasfP2aYYbp5ZcNZ544DEwO2k/view"
+  },
+  {
+    "id": "1C1_b6Vw6-84N_t4x0-0_hi3buvx2wJEA",
+    "path": "04_Atas_de_Reuniao/Notas-IA-Reunioes-ate-03Jul/Reuniao-Fabio-Felipe-226.md",
+    "driveUrl": "https://drive.google.com/file/d/1C1_b6Vw6-84N_t4x0-0_hi3buvx2wJEA/view"
+  },
+  {
+    "id": "13pQfPVMZt6X7JN81JY7b1i9SsOCx541v",
+    "path": "04_Atas_de_Reuniao/Notas-IA-Reunioes-ate-03Jul/Reuniao-Fabio-e-Felipe-126.md",
+    "driveUrl": "https://drive.google.com/file/d/13pQfPVMZt6X7JN81JY7b1i9SsOCx541v/view"
+  },
+  {
+    "id": "1q8YsYtTqTIBmAqZVPHhLPoUqMbhvKhAT",
+    "path": "04_Atas_de_Reuniao/Notas-IA-Reunioes-ate-03Jul/Reuniao-Madureira-Felipe-Andres-19Jun.md",
+    "driveUrl": "https://drive.google.com/file/d/1q8YsYtTqTIBmAqZVPHhLPoUqMbhvKhAT/view"
+  },
+  {
+    "id": "1G9cy0O9mIAZIK67QtDL-nqkb6UrVLLBZ",
+    "path": "04_Atas_de_Reuniao/Notas-IA-Reunioes-ate-03Jul/Reuniao-Madureira-Felipe-Andres-206.md",
+    "driveUrl": "https://drive.google.com/file/d/1G9cy0O9mIAZIK67QtDL-nqkb6UrVLLBZ/view"
+  },
+  {
+    "id": "1f5cOowwG3IvVPJsxnkLh0-uz1_oFwOrM",
+    "path": "04_Atas_de_Reuniao/Notas-IA-Reunioes-ate-03Jul/Reuniao-quinzenal-Augusto-Felipe-27.md",
+    "driveUrl": "https://drive.google.com/file/d/1f5cOowwG3IvVPJsxnkLh0-uz1_oFwOrM/view"
+  },
+  {
+    "id": "19_GYlb98pqOvslM39gQawUHUQO2Q0LYK",
+    "path": "04_Atas_de_Reuniao/Notas-IA-Reunioes-ate-03Jul/Reuniao-Selton-Felipe-246.md",
+    "driveUrl": "https://drive.google.com/file/d/19_GYlb98pqOvslM39gQawUHUQO2Q0LYK/view"
+  },
+  {
+    "id": "1t5zcKU1ibeF_LoRXkCJK7g3njN3zHKC_",
+    "path": "04_Atas_de_Reuniao/Notas-Omnichannel-ate-16Jul/Acompanhamento-Felipe-Amanda-Selton-time-online.md",
+    "driveUrl": "https://drive.google.com/file/d/1t5zcKU1ibeF_LoRXkCJK7g3njN3zHKC_/view"
+  },
+  {
+    "id": "1s0l-CBxwgmRMawMp9jEJaWiNmWQNyvGP",
+    "path": "04_Atas_de_Reuniao/Notas-Omnichannel-ate-16Jul/Acompanhamento-Omnichannel-KPIs-Varejo-167.md",
+    "driveUrl": "https://drive.google.com/file/d/1s0l-CBxwgmRMawMp9jEJaWiNmWQNyvGP/view"
+  },
+  {
+    "id": "1vcSpGV88BeQ_hSnjok2pkBaYvvGbeH-m",
+    "path": "04_Atas_de_Reuniao/Notas-Omnichannel-ate-16Jul/Acompanhamento-Omnichannel-Lideranca-Orfeu-137.md",
+    "driveUrl": "https://drive.google.com/file/d/1vcSpGV88BeQ_hSnjok2pkBaYvvGbeH-m/view"
+  },
+  {
+    "id": "1AnWSnuYe-QyIkuKR0GWMYeLeluoeEaWt",
+    "path": "04_Atas_de_Reuniao/Notas-Omnichannel-ate-16Jul/Catch-up-Selton-Felipe-Omnichannel-Orfeu-13-7.md",
+    "driveUrl": "https://drive.google.com/file/d/1AnWSnuYe-QyIkuKR0GWMYeLeluoeEaWt/view"
+  },
+  {
+    "id": "1kkSNzROBga3ah6VmCWtSuGAWr9PbDwFO",
+    "path": "04_Atas_de_Reuniao/Notas-Omnichannel-ate-16Jul/Fabio-Orfeu-Acompanhamento-Omnichannel-157.md",
+    "driveUrl": "https://drive.google.com/file/d/1kkSNzROBga3ah6VmCWtSuGAWr9PbDwFO/view"
+  },
+  {
+    "id": "1oFiEuXTgyGtoxCwVUE2CIjOUhuBlzLTa",
+    "path": "04_Atas_de_Reuniao/Notas-Omnichannel-ate-16Jul/Reuniao-com-Augusto-Omnichannel-Orfeu-137.md",
+    "driveUrl": "https://drive.google.com/file/d/1oFiEuXTgyGtoxCwVUE2CIjOUhuBlzLTa/view"
+  },
+  {
+    "id": "1OHCXYv52nrHWtDJ4ke0JOJoGYvIGqo1M",
+    "path": "04_Atas_de_Reuniao/Notas-Semana-05Jul/Felipe-Amanda-Follow.md",
+    "driveUrl": "https://drive.google.com/file/d/1OHCXYv52nrHWtDJ4ke0JOJoGYvIGqo1M/view"
+  },
+  {
+    "id": "1ryCoRcMfvsKXlWvZE-mV5Od-kQ7FdSI6",
+    "path": "04_Atas_de_Reuniao/Notas-Semana-05Jul/Felipe-Andres-Orfeu-Design-follow-up.md",
+    "driveUrl": "https://drive.google.com/file/d/1ryCoRcMfvsKXlWvZE-mV5Od-kQ7FdSI6/view"
+  },
+  {
+    "id": "1hLKZiZIeCMqHxxvq8KDwT-wo5vk7beQw",
+    "path": "04_Atas_de_Reuniao/Notas-Semana-05Jul/Felipe-Augusto-follow.md",
+    "driveUrl": "https://drive.google.com/file/d/1hLKZiZIeCMqHxxvq8KDwT-wo5vk7beQw/view"
+  },
+  {
+    "id": "1VeDqgbThw8f2nsLj1665cCCDKD3O5rHa",
+    "path": "04_Atas_de_Reuniao/Notas-Semana-05Jul/Felipe-Selton-follow.md",
+    "driveUrl": "https://drive.google.com/file/d/1VeDqgbThw8f2nsLj1665cCCDKD3O5rHa/view"
+  },
+  {
+    "id": "1h6CxufUbjBKvTpF_496piK-P0fv5M4yo",
+    "path": "04_Atas_de_Reuniao/Notas-Semana-05Jul/Follow-Fabio-Felipe-Leticia-Diego-Caio-Prioridade-de-mercados.md",
+    "driveUrl": "https://drive.google.com/file/d/1h6CxufUbjBKvTpF_496piK-P0fv5M4yo/view"
+  },
+  {
+    "id": "1gZk6VUe0TrxPv1lRg5jPoreUAkuftvDm",
+    "path": "04_Atas_de_Reuniao/Notas-Semana-05Jul/Orfeu-Follow-as-of-Friday-July10th.md",
+    "driveUrl": "https://drive.google.com/file/d/1gZk6VUe0TrxPv1lRg5jPoreUAkuftvDm/view"
+  },
+  {
+    "id": "1uUJLIWaXiELqWBjFuFDiSToKEKmCGBFW",
+    "path": "04_Atas_de_Reuniao/Notas-Semana-05Jul/Rafaela-e-Felipe-follow-up-para-Financeiro.md",
+    "driveUrl": "https://drive.google.com/file/d/1uUJLIWaXiELqWBjFuFDiSToKEKmCGBFW/view"
+  },
+  {
+    "id": "1ruq112TAK8sst9S-Il7C7fOwoYLCnuTZ",
+    "path": "04_Atas_de_Reuniao/Notas-Semana-05Jul/Renato-Online-Foco-follow-B2B-para-online-e-Amazon-US.md",
+    "driveUrl": "https://drive.google.com/file/d/1ruq112TAK8sst9S-Il7C7fOwoYLCnuTZ/view"
+  },
+  {
+    "id": "1jAGSA0LdXG8MFaEdebNB3wNRVcx2ztSY",
+    "path": "04_Atas_de_Reuniao/2026-04-16_Orfeu_Origem-Oportunidade-Consultoria.md",
+    "driveUrl": "https://drive.google.com/file/d/1jAGSA0LdXG8MFaEdebNB3wNRVcx2ztSY/view"
+  },
+  {
+    "id": "1d51CNVRHN3kr1EYn6X-JOsntxEPkSgTO",
+    "path": "04_Atas_de_Reuniao/2026-05-04_Orfeu-Alquemia_Pitch-Deck-Script.md",
+    "driveUrl": "https://drive.google.com/file/d/1d51CNVRHN3kr1EYn6X-JOsntxEPkSgTO/view"
+  },
+  {
+    "id": "1QOs7wGcTRNsTV4ZthnCNsUGzFEP-MQA7",
+    "path": "04_Atas_de_Reuniao/2026-06-22_Madureira_Meeting-Recap.md",
+    "driveUrl": "https://drive.google.com/file/d/1QOs7wGcTRNsTV4ZthnCNsUGzFEP-MQA7/view"
+  },
+  {
+    "id": "12bYWf1X7XS7-iKc2Mrl6dWCyA0qyJ3fG",
+    "path": "05_Comercial_e_Organograma/2026-08-05_Orfeu_Simulador-Comercial-Estados.xlsx",
+    "driveUrl": "https://drive.google.com/file/d/12bYWf1X7XS7-iKc2Mrl6dWCyA0qyJ3fG/view"
+  },
+  {
+    "id": "1-bnztj_6jf39aGzCXKrEklp6Ui_AX_J2",
+    "path": "05_Comercial_e_Organograma/2026-08-07_Orfeu_Plano-de-Acao.xlsx",
+    "driveUrl": "https://drive.google.com/file/d/1-bnztj_6jf39aGzCXKrEklp6Ui_AX_J2/view"
+  },
+  {
+    "id": "1W0S0hfa64h4Pfpsxtgu_XJl61KIsPCRW",
+    "path": "05_Comercial_e_Organograma/2026-08-17_Orfeu_Organograma-Comercial-2026-2030.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1W0S0hfa64h4Pfpsxtgu_XJl61KIsPCRW/view"
+  },
+  {
+    "id": "1CdmDaqi-AQe9RzffIEc04SMW6aWd-L3c",
+    "path": "05_Comercial_e_Organograma/2026-08-20_Orfeu_RH-Competencias-Lideranca-Completo.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1CdmDaqi-AQe9RzffIEc04SMW6aWd-L3c/view"
+  },
+  {
+    "id": "18noyFcOtyl_7oMFIVGXrTPbAQWO9fT3r",
+    "path": "05_Comercial_e_Organograma/Organograma_Time_Comercial_SNomes.xlsx",
+    "driveUrl": "https://drive.google.com/file/d/18noyFcOtyl_7oMFIVGXrTPbAQWO9fT3r/view"
+  },
+  {
+    "id": "1Kj7tANx8Ey7UMgMvat8L3hAICFy6e-NQ",
+    "path": "06_Expansao_EUA/2026-06-08_Orfeu_US-Research-Plan.docx",
+    "driveUrl": "https://drive.google.com/file/d/1Kj7tANx8Ey7UMgMvat8L3hAICFy6e-NQ/view"
+  },
+  {
+    "id": "1U_juetAJrmMly0irlQ1CweE2Fl9Y9N7H",
+    "path": "06_Expansao_EUA/2026-07-07_Orfeu_Mintel-Analise-Cruzada.docx",
+    "driveUrl": "https://drive.google.com/file/d/1U_juetAJrmMly0irlQ1CweE2Fl9Y9N7H/view"
+  },
+  {
+    "id": "1mbPGAdvd3_Gh_RTJRyZfhVFi-B3S9V8H",
+    "path": "06_Expansao_EUA/2026-07-07_Orfeu_NCDT-Analise-Cruzada.docx",
+    "driveUrl": "https://drive.google.com/file/d/1mbPGAdvd3_Gh_RTJRyZfhVFi-B3S9V8H/view"
+  },
+  {
+    "id": "1FyNi2GfcJMJnJjRv3AH_-XEJzfpo3dgw",
+    "path": "06_Expansao_EUA/2026-07-17_Orfeu_Euromonitor-US-Analysis.xlsx",
+    "driveUrl": "https://drive.google.com/file/d/1FyNi2GfcJMJnJjRv3AH_-XEJzfpo3dgw/view"
+  },
+  {
+    "id": "1MSkqiKp8jEyVLThOZp_5PjuO_ysh4i8c",
+    "path": "06_Expansao_EUA/2026-07-17_Orfeu_Influenciadores-Digital-Cafe.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1MSkqiKp8jEyVLThOZp_5PjuO_ysh4i8c/view"
+  },
+  {
+    "id": "1-EO7MuXTgFRfrBv5P_d_iDr60TsqT5It",
+    "path": "06_Expansao_EUA/2026-07-17_Orfeu_KCup-Oportunidade.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1-EO7MuXTgFRfrBv5P_d_iDr60TsqT5It/view"
+  },
+  {
+    "id": "1OCA8CcsYuIVrfPjCAS07iExHv_8GtebU",
+    "path": "06_Expansao_EUA/2026-07-17_Orfeu_Tarifas-Importacao-EUA.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1OCA8CcsYuIVrfPjCAS07iExHv_8GtebU/view"
+  },
+  {
+    "id": "1Qf_aoAXDubzJVdc8DuBBkl4ezhg97nlz",
+    "path": "06_Expansao_EUA/2026-07-22_Orfeu_Visita-Mercado-EUA.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1Qf_aoAXDubzJVdc8DuBBkl4ezhg97nlz/view"
+  },
+  {
+    "id": "1x4gtVbf_P8QGZ1eQJOhEY6XpRUoNJVO1",
+    "path": "06_Expansao_EUA/2026-08-05_Orfeu_10-Provocacoes-Mercado-US.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1x4gtVbf_P8QGZ1eQJOhEY6XpRUoNJVO1/view"
+  },
+  {
+    "id": "1WaWJzBlHMsaYIOW9SOdfjl3YBm2EJY2U",
+    "path": "06_Expansao_EUA/2026-08-05_Orfeu_Plano-Comercial-SulFlorida.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1WaWJzBlHMsaYIOW9SOdfjl3YBm2EJY2U/view"
+  },
+  {
+    "id": "1WNsDm3pkxTQZmH0Hj1CW6yTnJ365OFhJ",
+    "path": "06_Expansao_EUA/2026-08-12_Orfeu_Plano-de-Acao-EUA.xlsx",
+    "driveUrl": "https://drive.google.com/file/d/1WNsDm3pkxTQZmH0Hj1CW6yTnJ365OFhJ/view"
+  },
+  {
+    "id": "16CZ4sF6Ricf52b69VzYK5nSYyJ8VazcZ",
+    "path": "06_Expansao_EUA/2026-08-17_Orfeu_Prep-Entrevistas-Cadeia-EUA.pptx",
+    "driveUrl": "https://drive.google.com/file/d/16CZ4sF6Ricf52b69VzYK5nSYyJ8VazcZ/view"
+  },
+  {
+    "id": "17gsxijC2tELyKAYPP7YVVfIawhvW7wlY",
+    "path": "06_Expansao_EUA/2026-08-19_Orfeu_Benchmark-Precos-Premium.pptx",
+    "driveUrl": "https://drive.google.com/file/d/17gsxijC2tELyKAYPP7YVVfIawhvW7wlY/view"
+  },
+  {
+    "id": "1dvMB9opOnGUI--S1jP7yEhYYjpeJtHMU",
+    "path": "06_Expansao_EUA/2026-08-19_Orfeu_Cadeia-Modelo-Comercial-EUA.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1dvMB9opOnGUI--S1jP7yEhYYjpeJtHMU/view"
+  },
+  {
+    "id": "1CTdncOKLoy_5TriJrChVFBYS9yVJL45j",
+    "path": "06_Expansao_EUA/2026-08-20_Orfeu_Outreach-LinkedIn-Distribuidores-EUA.docx",
+    "driveUrl": "https://drive.google.com/file/d/1CTdncOKLoy_5TriJrChVFBYS9yVJL45j/view"
+  },
+  {
+    "id": "1awF5nCOzAdeUtzPlWvRN_A4MF1VQG4Wx",
+    "path": "06_Expansao_EUA/Preliminar-2026-06-30_Orfeu_Apresentacao-GTM-EUA.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1awF5nCOzAdeUtzPlWvRN_A4MF1VQG4Wx/view"
+  },
+  {
+    "id": "1YbjZbjc1EYhnaXIRTzNFBpGqvDi1TeeR",
+    "path": "06_Expansao_EUA/Preliminar-2026-06-30_Orfeu_Relatorio-GTM-EUA-A.docx",
+    "driveUrl": "https://drive.google.com/file/d/1YbjZbjc1EYhnaXIRTzNFBpGqvDi1TeeR/view"
+  },
+  {
+    "id": "1lDnEbNmkWd-Z0vZL_uvZLT89bRQFLQs9",
+    "path": "06_Expansao_EUA/Preliminar-2026-06-30_Orfeu_Relatorio-GTM-EUA-B.docx",
+    "driveUrl": "https://drive.google.com/file/d/1lDnEbNmkWd-Z0vZL_uvZLT89bRQFLQs9/view"
+  },
+  {
+    "id": "1aSDBzDJ36Qah2CNpavq3CT_tKCEXmJPo",
+    "path": "06_Expansao_EUA/Preliminar-2026-06-30_Orfeu_Relatorio-GTM-EUA-C.docx",
+    "driveUrl": "https://drive.google.com/file/d/1aSDBzDJ36Qah2CNpavq3CT_tKCEXmJPo/view"
+  },
+  {
+    "id": "1IUu2_s3xAOmhLMMlQXAO8olUgs7wWX1O",
+    "path": "06_Expansao_EUA/Pricing-Email-Orfeu-KeHe.pdf",
+    "driveUrl": "https://drive.google.com/file/d/1IUu2_s3xAOmhLMMlQXAO8olUgs7wWX1O/view"
+  },
+  {
+    "id": "18YLFb1OIkEFPGwVJDWruxClGaziJ1hLg",
+    "path": "07_Trade_Marketing_e_Categoria/2026-06-11_Orfeu_B2B-CustomerJourney-Brief-v2-PosWorkshopB2B.pptx",
+    "driveUrl": "https://drive.google.com/file/d/18YLFb1OIkEFPGwVJDWruxClGaziJ1hLg/view"
+  },
+  {
+    "id": "11qCNX4qLm36vsni35d8loGUgRR6drIIt",
+    "path": "07_Trade_Marketing_e_Categoria/2026-07-10_Orfeu_B2B-Solucoes-TurismoOffice-v2-PosWorkshopB2B.pptx",
+    "driveUrl": "https://drive.google.com/file/d/11qCNX4qLm36vsni35d8loGUgRR6drIIt/view"
+  },
+  {
+    "id": "1O7GEIfFBkLAweFo65cZ23H3-ebotlg_z",
+    "path": "07_Trade_Marketing_e_Categoria/2026-07-10_Orfeu_Trade20-Atividades-RACI-v2.xlsx",
+    "driveUrl": "https://drive.google.com/file/d/1O7GEIfFBkLAweFo65cZ23H3-ebotlg_z/view"
+  },
+  {
+    "id": "1nA8T6DRDUhI5nMVPPlpPX84erKp6K6Ok",
+    "path": "07_Trade_Marketing_e_Categoria/2026-07-13_Orfeu_GTM-B2B-e-KPIs-vPos-Amanda.xlsx",
+    "driveUrl": "https://drive.google.com/file/d/1nA8T6DRDUhI5nMVPPlpPX84erKp6K6Ok/view"
+  },
+  {
+    "id": "10ilz7OAClEz7tYy0cBk-gZDNaRDGEL3c",
+    "path": "07_Trade_Marketing_e_Categoria/2026-07-22_Orfeu_Calendario-Omnichannel-Unico.pptx",
+    "driveUrl": "https://drive.google.com/file/d/10ilz7OAClEz7tYy0cBk-gZDNaRDGEL3c/view"
+  },
+  {
+    "id": "1JUTLl5is15qOk9NtVdiwr8Dzu95iVl1u",
+    "path": "07_Trade_Marketing_e_Categoria/2026-08-05_Orfeu_Plano-de-Acao-Liberacao-Redes-Scanntech.xlsx",
+    "driveUrl": "https://drive.google.com/file/d/1JUTLl5is15qOk9NtVdiwr8Dzu95iVl1u/view"
+  },
+  {
+    "id": "1R76swXV2Bc-6k0Pdci2XPFbKhSvA3vIW",
+    "path": "07_Trade_Marketing_e_Categoria/2026-08-17_Orfeu_Ideias-Gerenciamento-Categoria-GPA.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1R76swXV2Bc-6k0Pdci2XPFbKhSvA3vIW/view"
+  },
+  {
+    "id": "1_H9WTkmRnx9-petMgivc39NgaoAC7ZyQ",
+    "path": "08_Analytics_e_Mix/2026-07-10_Orfeu_Indicadores-vendas-omnichannel.xlsx",
+    "driveUrl": "https://drive.google.com/file/d/1_H9WTkmRnx9-petMgivc39NgaoAC7ZyQ/view"
+  },
+  {
+    "id": "1H7LgUIV_aIXNCbI3y6G9aUFbSGiY_fqN",
+    "path": "08_Analytics_e_Mix/2026-07-17_Orfeu_Tendencias-Mercado-2026_vFinal.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1H7LgUIV_aIXNCbI3y6G9aUFbSGiY_fqN/view"
+  },
+  {
+    "id": "175tiGgaS34FqdRl3uIP3ZD6iI60L--dx",
+    "path": "08_Analytics_e_Mix/2026-08-07_Orfeu_Analitico-para-Varejo-Evolucao.pptx",
+    "driveUrl": "https://drive.google.com/file/d/175tiGgaS34FqdRl3uIP3ZD6iI60L--dx/view"
+  },
+  {
+    "id": "1KNULDtTyF4InPaiu6b7HVWymqtOAlqPO",
+    "path": "08_Analytics_e_Mix/2026-08-18_Orfeu_Analise-Mix-Oportunidade-v2.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1KNULDtTyF4InPaiu6b7HVWymqtOAlqPO/view"
+  },
+  {
+    "id": "1CKKS-QLxenHkBBuWMuxVx713dM0An0ow",
+    "path": "09_Flagship_Loja_Conceito/2026-07-17_Orfeu_Flagship-Strategy-vFinal.pdf",
+    "driveUrl": "https://drive.google.com/file/d/1CKKS-QLxenHkBBuWMuxVx713dM0An0ow/view"
+  },
+  {
+    "id": "1QwoNYDCkJvPF-V_H2ixuDGhFER3lmrUR",
+    "path": "09_Flagship_Loja_Conceito/2026-08-05_Orfeu_Flagship-Resumo-3Paginas.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1QwoNYDCkJvPF-V_H2ixuDGhFER3lmrUR/view"
+  },
+  {
+    "id": "1sLphZ-fC73PcMWiP9d8-eWlWIRJl4fen",
+    "path": "10_IA_PixelPulseLab/2026-08-07_Orfeu_Sensibilidade-Investimento-Sistemas.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1sLphZ-fC73PcMWiP9d8-eWlWIRJl4fen/view"
+  },
+  {
+    "id": "1_bHdFDAq3O1eLH7FWcAHL_d1m596G6hp",
+    "path": "10_IA_PixelPulseLab/2026-08-07_Orfeu_Simulador-Sensibilidade-Investimento-Sistemas.xlsx",
+    "driveUrl": "https://drive.google.com/file/d/1_bHdFDAq3O1eLH7FWcAHL_d1m596G6hp/view"
+  },
+  {
+    "id": "14qoIqBIfBnsZOiTe411_W541v2ciuo4P",
+    "path": "10_IA_PixelPulseLab/2026-08-08_Orfeu_Workshop-Priorizacao-PixelPulseLab.pptx",
+    "driveUrl": "https://drive.google.com/file/d/14qoIqBIfBnsZOiTe411_W541v2ciuo4P/view"
+  },
+  {
+    "id": "12UMoVG5mRUIVbFGhEFisT8b79fzKg7oI",
+    "path": "10_IA_PixelPulseLab/2026-08-09_Orfeu_Comparador-Rates-PixelPulseLab-Mercado.pptx",
+    "driveUrl": "https://drive.google.com/file/d/12UMoVG5mRUIVbFGhEFisT8b79fzKg7oI/view"
+  },
+  {
+    "id": "1XmcXQOscaYeJkOuRFc3TUrHzGyRFYH9P",
+    "path": "10_IA_PixelPulseLab/2026-08-09_Orfeu_Comparador-Rates-PixelPulseLab-Mercado.xlsx",
+    "driveUrl": "https://drive.google.com/file/d/1XmcXQOscaYeJkOuRFc3TUrHzGyRFYH9P/view"
+  },
+  {
+    "id": "1OfDXFsAGSSqIGYUl4uDT-pPqHfcT3JeI",
+    "path": "10_IA_PixelPulseLab/2026-08-11_Orfeu_Proposta-PixelPulseLab-Completa.pptx",
+    "driveUrl": "https://drive.google.com/file/d/1OfDXFsAGSSqIGYUl4uDT-pPqHfcT3JeI/view"
+  },
+  {
+    "id": "1rKzRhDnHQ24e3WkOhM-C66L30CIN243s",
+    "path": "10_IA_PixelPulseLab/2026-08-17_Orfeu_Briefing-Cotacao-OrderToCash-IA.docx",
+    "driveUrl": "https://drive.google.com/file/d/1rKzRhDnHQ24e3WkOhM-C66L30CIN243s/view"
+  }
+]

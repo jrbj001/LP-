@@ -1,25 +1,20 @@
 import {
   AlertTriangle,
-  ArrowRight,
-  BookOpen,
   CalendarCheck,
   CheckCircle2,
-  CircleDot,
   Clock3,
   FileText,
   Gauge,
   Lightbulb,
-  MessageSquareText,
-  Plus,
   Sparkles,
   Target,
   Upload,
-  Users,
 } from 'lucide-react'
 import { QuickUpdate } from './quick-update'
 import { RecentUpdates } from './recent-updates'
 import { PracticeLibrary } from './practice-library'
 import { TemplateLibrary } from './template-library'
+import { engagementEyebrow } from '@/lib/alquimia/engagements'
 import { pillars, practices } from '@/lib/alquimia/methodology'
 import { templateFamilies, templates, templateStats } from '@/lib/alquimia/templates'
 import {
@@ -40,74 +35,76 @@ const maturity = [
 
 const initiatives = [
   {
-    title: 'Daily Management System',
-    pillar: 'Sistema de gestão',
-    owner: 'Carla Mendes',
+    title: 'Sistema comercial Brasil',
+    pillar: 'Comercial e organograma',
+    owner: 'Felipe · Alquemia',
     status: 'Em curso',
-    progress: 72,
-    outcome: 'Reduzir tempo de resposta a desvios críticos de 5 para 2 dias.',
-    target: '18 set',
-  },
-  {
-    title: 'A3 para perdas de linha',
-    pillar: 'Melhoria contínua',
-    owner: 'Bruno Paiva',
-    status: 'Bloqueada',
-    progress: 38,
-    outcome: 'Eliminar a principal causa de retrabalho na célula de embalagem.',
-    target: '05 set',
-  },
-  {
-    title: 'Desdobramento de metas',
-    pillar: 'Propósito e direção',
-    owner: 'Mariana Lopes',
-    status: 'Em curso',
-    progress: 56,
-    outcome: 'Conectar prioridades anuais aos indicadores de cada time.',
+    progress: 64,
+    outcome: 'Estruturar equipe, rotina e metas comerciais no Brasil.',
     target: '30 set',
   },
   {
-    title: 'Standard Work de liderança',
-    pillar: 'Pessoas e cultura',
-    owner: 'Diego Ramos',
-    status: 'Planejada',
-    progress: 12,
-    outcome: 'Tornar coaching e revisão de performance uma rotina observável.',
+    title: 'Expansão EUA',
+    pillar: 'Inovação e crescimento',
+    owner: 'Letícia · Alquemia',
+    status: 'Em curso',
+    progress: 48,
+    outcome: 'Priorizar mercados, brief de consultoria e líder comercial nos EUA.',
     target: '15 out',
+  },
+  {
+    title: 'Flagship loja conceito',
+    pillar: 'Propósito e direção',
+    owner: 'Alquemia',
+    status: 'Em curso',
+    progress: 41,
+    outcome: 'Conceito, briefing e modelo da loja bandeira.',
+    target: '20 out',
+  },
+  {
+    title: 'IA · PixelPulseLab',
+    pillar: 'Sistema de gestão',
+    owner: 'PixelPulseLab',
+    status: 'Atenção',
+    progress: 35,
+    outcome: 'Order-to-cash, comparador de rates e camada de agentes.',
+    target: '12 set',
   },
 ]
 
 const rituals = [
-  { name: 'Tier 2 · Daily management', cadence: 'Semanal', owner: 'Carla Mendes', next: '25 ago · 09:00', status: 'Confirmado' },
-  { name: 'Tollgate de execução', cadence: 'Mensal', owner: 'Marina Costa', next: '27 ago · 14:30', status: 'Pauta aberta' },
-  { name: 'Review de outcomes', cadence: 'Quinzenal', owner: 'Rafael Lima', next: '02 set · 10:00', status: 'Confirmado' },
-  { name: 'Círculo de aprendizagem', cadence: 'Mensal', owner: 'Alquemia', next: '05 set · 16:00', status: 'A preparar' },
+  { name: 'Follow comercial Brasil', cadence: 'Semanal', owner: 'Felipe', next: '27 ago · 09:00', status: 'Confirmado' },
+  { name: 'Review omnichannel', cadence: 'Quinzenal', owner: 'Amanda · Selton', next: '28 ago · 14:00', status: 'Pauta aberta' },
+  { name: 'Catch-up PixelPulseLab', cadence: 'Semanal', owner: 'Time IA', next: '29 ago · 16:00', status: 'Confirmado' },
+  { name: 'Workshop fazenda / liderança', cadence: 'Mensal', owner: 'Ricardo Madureira', next: '03 set · 10:00', status: 'A preparar' },
 ]
 
 function PageAction({
+  clientId,
   label = 'Registrar atualização',
   kind = 'update',
 }: {
+  clientId: string
   label?: string
   kind?: 'update' | 'initiative' | 'assessment' | 'ritual' | 'measurement'
 }) {
-  return <QuickUpdate label={label} kind={kind} />
+  return <QuickUpdate engagementId={clientId} label={label} kind={kind} />
 }
 
 export function ExecutiveView({ locale, clientId }: { locale: string; clientId: string }) {
   const base = `/${locale}/alquimia/space/${clientId}`
   return (
     <SpacePage
-      eyebrow="Aurora Industrial · Execução"
+      eyebrow={engagementEyebrow(clientId, 'Execução')}
       title="Capacidade em construção"
-      description="A visão executiva conecta maturidade, iniciativas, rituais e evidências para mostrar onde a transformação está ganhando tração."
-      action={<PageAction />}
+      description="A visão executiva conecta comercial, EUA, flagship e IA para mostrar onde a transformação está ganhando tração."
+      action={<PageAction clientId={clientId} />}
     >
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Maturidade média" value="3,2" detail="+0,3 desde o diagnóstico" />
-        <StatCard label="Outcomes no ritmo" value="6/8" detail="1 bloqueado · 1 em atenção" tone="gold" />
-        <StatCard label="Rituais aderentes" value="86%" detail="+12 pontos em quatro semanas" tone="lilac" />
-        <StatCard label="Próximo tollgate" value="3 dias" detail="27 ago · revisão de execução" tone="neutral" />
+        <StatCard label="Frentes em curso" value="04" detail="Comercial · EUA · flagship · IA" />
+        <StatCard label="Arquivo" value="104" detail="10 pastas do Drive" tone="gold" />
+        <StatCard label="Rituais da semana" value="03" detail="Follow, omnichannel, IA" tone="lilac" />
+        <StatCard label="Próximo follow" value="27 ago" detail="Rotina comercial Brasil" tone="neutral" />
       </section>
 
       <section className="mt-9 grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
@@ -144,14 +141,14 @@ export function ExecutiveView({ locale, clientId }: { locale: string; clientId: 
             Leitura Alquemia
           </p>
           <h2 className="mt-4 text-[23px] font-light leading-snug tracking-[-0.025em]">
-            A disciplina de gestão avançou. O próximo salto depende de transformar resolução de
-            problemas em prática distribuída.
+            O arquivo comercial avançou. O próximo salto é fechar GTM nos EUA, o conceito da
+            flagship e a camada de IA com a PixelPulseLab.
           </h2>
           <div className="mt-6 space-y-3 border-t border-white/10 pt-5">
             {[
-              'Acelerar os A3 nas duas células críticas',
-              'Dar visibilidade semanal aos outcomes',
-              'Fechar owner do Standard Work de liderança',
+              'Fechar a rotina comercial Brasil com owners e metas',
+              'Priorizar mercados EUA e o brief da consultoria local',
+              'Destravar as três entregas de IA ainda só no Drive',
             ].map((item, index) => (
               <div key={item} className="flex gap-3">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#E0CE7A]/40 text-[9px] text-[#E0CE7A]">
@@ -180,13 +177,13 @@ export function ExecutiveView({ locale, clientId }: { locale: string; clientId: 
   )
 }
 
-export function DiagnosticView() {
+export function DiagnosticView({ clientId }: { clientId: string }) {
   return (
     <SpacePage
-      eyebrow="Aurora Industrial · Diagnóstico"
+      eyebrow={engagementEyebrow(clientId, 'Diagnóstico')}
       title="Do potencial ao gap real"
       description="Uma leitura compartilhada das capacidades atuais, evidências e tensões que orientam as próximas escolhas."
-      action={<PageAction label="Nova avaliação" kind="assessment" />}
+      action={<PageAction clientId={clientId} label="Nova avaliação" kind="assessment" />}
     >
       <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-2xl bg-[#00435D] p-6 text-white sm:p-7">
@@ -195,17 +192,17 @@ export function DiagnosticView() {
           </p>
           <p className="mt-5 text-[28px] font-light leading-tight tracking-[-0.035em]">3,2 / 5</p>
           <p className="mt-3 text-[12px] leading-relaxed text-white/55">
-            A organização possui direção clara e liderança mobilizada, mas ainda depende de
-            esforços individuais para transformar estratégia em rotina.
+            A Orfeu tem marca, produto e liderança mobilizada, mas o sistema comercial, o GTM
+            internacional e a loja conceito ainda dependem de rotina explícita.
           </p>
           <div className="mt-7 grid grid-cols-2 gap-3 border-t border-white/10 pt-5">
             <div>
               <p className="text-[9px] uppercase tracking-wider text-white/35">Força principal</p>
-              <p className="mt-1 text-[12px] text-white/80">Propósito e direção</p>
+              <p className="mt-1 text-[12px] text-white/80">Marca e produto</p>
             </div>
             <div>
               <p className="text-[9px] uppercase tracking-wider text-white/35">Gap prioritário</p>
-              <p className="mt-1 text-[12px] text-white/80">Melhoria contínua</p>
+              <p className="mt-1 text-[12px] text-white/80">Sistema comercial</p>
             </div>
           </div>
         </div>
@@ -232,9 +229,9 @@ export function DiagnosticView() {
 
       <section className="mt-9 grid gap-4 lg:grid-cols-3">
         {[
-          ['Gap crítico', 'Resolução de problemas concentrada em poucas lideranças.', AlertTriangle],
-          ['Ativo maduro', 'Direção estratégica reconhecida e traduzida em prioridades.', CheckCircle2],
-          ['Hipótese', 'Daily management pode criar a ponte entre intenção e execução.', Lightbulb],
+          ['Gap crítico', 'Rotina comercial e omnichannel ainda concentradas em poucos owners.', AlertTriangle],
+          ['Ativo maduro', 'Marca, produto e arquivo de conteúdos finais já organizados.', CheckCircle2],
+          ['Hipótese', 'Sistema comercial + IA destravam execução no Brasil e nos EUA.', Lightbulb],
         ].map(([label, text, Icon]) => (
           <article key={String(label)} className="rounded-2xl border border-black/[0.07] bg-white p-5">
             <Icon className="h-4 w-4 text-[#3A5976]" />
@@ -249,13 +246,13 @@ export function DiagnosticView() {
   )
 }
 
-export function PlanView() {
+export function PlanView({ clientId }: { clientId: string }) {
   return (
     <SpacePage
-      eyebrow="Aurora Industrial · Plano"
+      eyebrow={engagementEyebrow(clientId, 'Plano')}
       title="Escolhas que movem o sistema"
-      description="Outcomes, owners e práticas conectados em um plano de transformação vivo — menos iniciativas, mais capacidade instalada."
-      action={<PageAction label="Nova iniciativa" kind="initiative" />}
+      description="Outcomes, owners e frentes do arquivo Orfeu × Alquemia — comercial, EUA, flagship e IA."
+      action={<PageAction clientId={clientId} label="Nova iniciativa" kind="initiative" />}
     >
       <section className="grid gap-3 sm:grid-cols-3">
         <StatCard label="Outcomes priorizados" value="08" detail="Horizonte de 90 dias" />
@@ -284,7 +281,7 @@ function InitiativeGrid() {
             </div>
             <span
               className={`rounded-full px-2.5 py-1 text-[9px] font-semibold ${
-                item.status === 'Bloqueada'
+                item.status === 'Atenção'
                   ? 'bg-amber-50 text-amber-700'
                   : 'bg-[#00435D]/7 text-[#00435D]'
               }`}
@@ -307,18 +304,18 @@ function InitiativeGrid() {
   )
 }
 
-export function CyclesView() {
+export function CyclesView({ clientId }: { clientId: string }) {
   const cycles = [
-    { method: 'PDCA', title: 'Estabilizar resposta a desvios', stage: 'Check', status: 'Em revisão', owner: 'Carla Mendes', end: '30 ago' },
-    { method: 'DMAIC', title: 'Reduzir perdas de embalagem', stage: 'Analyze', status: 'Em curso', owner: 'Bruno Paiva', end: '12 set' },
-    { method: 'SDCA', title: 'Sustentar o tier meeting', stage: 'Standardize', status: 'Em curso', owner: 'Diego Ramos', end: '20 set' },
+    { method: 'PDCA', title: 'Rotina comercial Brasil', stage: 'Check', status: 'Em revisão', owner: 'Felipe', end: '30 ago' },
+    { method: 'DMAIC', title: 'Mix e analytics de categoria', stage: 'Analyze', status: 'Em curso', owner: 'Trade', end: '12 set' },
+    { method: 'SDCA', title: 'Cadência omnichannel', stage: 'Standardize', status: 'Em curso', owner: 'Amanda · Selton', end: '20 set' },
   ]
   return (
     <SpacePage
-      eyebrow="Aurora Industrial · Ciclos"
+      eyebrow={engagementEyebrow(clientId, 'Ciclos')}
       title="Aprender enquanto executa"
       description="Cada ciclo torna hipótese, contramedida, evidência e aprendizado explícitos — para melhorar e sustentar sem depender de heroísmo."
-      action={<PageAction label="Abrir ciclo" />}
+      action={<PageAction clientId={clientId} label="Abrir ciclo" />}
     >
       <div className="grid gap-4 lg:grid-cols-3">
         {cycles.map(cycle => (
@@ -345,13 +342,13 @@ export function CyclesView() {
   )
 }
 
-export function RitualsView() {
+export function RitualsView({ clientId }: { clientId: string }) {
   return (
     <SpacePage
-      eyebrow="Aurora Industrial · Rituais"
+      eyebrow={engagementEyebrow(clientId, 'Rituais')}
       title="Ritmo que sustenta a mudança"
       description="Cadências explícitas transformam intenção em accountability, decisão e aprendizagem coletiva."
-      action={<PageAction label="Agendar ritual" kind="ritual" />}
+      action={<PageAction clientId={clientId} label="Agendar ritual" kind="ritual" />}
     >
       <div className="overflow-hidden rounded-2xl border border-black/[0.07] bg-white">
         <div className="hidden grid-cols-[1.4fr_0.7fr_0.8fr_0.9fr_0.7fr] border-b border-black/[0.06] px-5 py-3 text-[9px] font-semibold uppercase tracking-wider text-black/30 md:grid">
@@ -374,21 +371,21 @@ export function RitualsView() {
   )
 }
 
-export function ScorecardsView() {
+export function ScorecardsView({ clientId }: { clientId: string }) {
   const metrics = [
-    ['Lead time de resposta', '2,8 dias', '2 dias', 68],
-    ['Aderência ao tier meeting', '86%', '90%', 86],
-    ['Ações no prazo', '74%', '85%', 74],
-    ['Perda de embalagem', '3,6%', '2,5%', 58],
-    ['eNPS liderança', '48', '55', 76],
-    ['Outcomes validados', '6', '8', 75],
+    ['Sell-out Brasil', 'Em construção', 'Meta Q3', 64],
+    ['Aderência à rotina comercial', '72%', '90%', 72],
+    ['Pipeline EUA', '3 mercados', 'Prioridade fechada', 48],
+    ['Cobertura de categoria', 'Em mapeamento', 'Mix definido', 41],
+    ['Entregas IA no prazo', '2/5', '5/5', 40],
+    ['Arquivo atualizado', '101/104', '104 docs', 97],
   ]
   return (
     <SpacePage
-      eyebrow="Aurora Industrial · Scorecards"
+      eyebrow={engagementEyebrow(clientId, 'Scorecards')}
       title="O sistema visto por seus sinais"
       description="Indicadores de capacidade e resultado lado a lado — para evitar atividade sem impacto ou resultado sem sustentação."
-      action={<PageAction label="Registrar medição" kind="measurement" />}
+      action={<PageAction clientId={clientId} label="Registrar medição" kind="measurement" />}
     >
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {metrics.map(([label, current, target, progress]) => (
@@ -407,16 +404,16 @@ export function ScorecardsView() {
   )
 }
 
-export function EvidenceView() {
+export function EvidenceView({ clientId }: { clientId: string }) {
   const evidence = [
-    ['A3 · Perdas da célula 04', 'A3 / problema', 'Bruno Paiva', 'Hoje, 11:42'],
-    ['Foto do novo visual board', 'Imagem', 'Carla Mendes', 'Ontem, 16:20'],
-    ['Ata · Tollgate agosto', 'Decisão', 'Marina Costa', '20 ago, 15:05'],
-    ['Standard Work · Tier 2', 'Documento', 'Diego Ramos', '18 ago, 09:31'],
+    ['Proposta Orfeu × Alquemia', 'PDF', 'Alquemia', 'Arquivo · 01_Proposta'],
+    ['Follow comercial Brasil', 'Ata', 'Felipe', 'Arquivo · 04_Atas'],
+    ['Workshop fazenda', 'Workshop', 'Liderança Orfeu', 'Arquivo · 03_Workshops'],
+    ['Briefing flagship', 'Documento', 'Alquemia', 'Arquivo · 09_Flagship'],
   ]
   return (
     <SpacePage
-      eyebrow="Aurora Industrial · Evidências"
+      eyebrow={engagementEyebrow(clientId, 'Evidências')}
       title="Mudança que pode ser observada"
       description="Decisões, padrões, aprendizados e resultados reunidos como memória viva da transformação."
       action={
@@ -477,9 +474,9 @@ export function AgendaView() {
   return (
     <SpacePage
       eyebrow="Partner command center · Agenda"
-      title="Ritmo do portfólio"
-      description="Workshops, tollgates, reviews e círculos de aprendizagem de todos os engagements."
-      action={<PageAction label="Novo ritual" />}
+      title="Ritmo do Café Orfeu"
+      description="Follows, reviews, workshops e catch-ups do engagement em curso."
+      action={<PageAction clientId="orfeu" label="Novo ritual" />}
     >
       <div className="grid gap-3">
         {rituals.concat(rituals.slice(0, 2)).map((ritual, index) => (
@@ -490,7 +487,7 @@ export function AgendaView() {
             </div>
             <div>
               <p className="text-[13px] font-semibold text-[#003b52]">{ritual.name}</p>
-              <p className="mt-1 text-[10px] text-black/35">Aurora Industrial · {ritual.owner}</p>
+              <p className="mt-1 text-[10px] text-black/35">Café Orfeu · {ritual.owner}</p>
             </div>
             <span className="flex items-center gap-1.5 text-[10px] text-black/40">
               <Clock3 className="h-3.5 w-3.5" /> {ritual.next.split('·')[1]}

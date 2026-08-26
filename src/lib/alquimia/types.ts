@@ -53,7 +53,6 @@ export interface EngagementSummary {
   currentStage: JourneyStageId
   startedAt: string
   updatedAt: string
-  demo?: boolean
   summary: string
   progressPercent: number
   focusPillarIds: PillarId[]
