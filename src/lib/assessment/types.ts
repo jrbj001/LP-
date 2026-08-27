@@ -9,6 +9,7 @@ import type { LucideIcon } from 'lucide-react'
 /** Features que um tenant pode expor. A navegação é derivada das ativas. */
 export type AssessmentFeature =
   | 'home'
+  | 'lgpdNda'
   | 'framework'
   | 'diagnostico'
   | 'adaptiveLayer'

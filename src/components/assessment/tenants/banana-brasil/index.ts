@@ -5,12 +5,19 @@ import { layer } from './layer'
 
 const documents: AssessmentDocument[] = [
   {
+    name: 'NDA e autorização LGPD',
+    type: 'Página web · aceite',
+    size: 'Confidencialidade + tratamento de dados · dar ok',
+    status: 'available',
+    href: '/adaptive/banana-brasil/lgpd-nda',
+    highlight: true,
+  },
+  {
     name: 'Como funciona a Adaptive Layer™',
     type: 'Página web · metodologia',
     size: 'Guia visual · camada + agentes',
     status: 'available',
     href: '/adaptive/banana-brasil/como-funciona',
-    highlight: true,
   },
   {
     name: 'Diagnóstico Digital — mercado + operação',
@@ -45,7 +52,7 @@ export const bananaBrasil: AssessmentWorkspace = {
     accent: '#F5B301',
     tagline: 'Ativos maduros, motor verde: a lacuna é de motor de demanda e de instrumentação.',
   },
-  features: ['home', 'framework', 'diagnostico', 'adaptiveLayer', 'documentos'],
+  features: ['home', 'lgpdNda', 'framework', 'diagnostico', 'adaptiveLayer', 'documentos'],
   password: 'bananapixel2026',
   home,
   diagnostic,
