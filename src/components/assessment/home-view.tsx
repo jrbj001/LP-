@@ -5,7 +5,7 @@ import { useLocale } from 'next-intl'
 import { motion } from 'framer-motion'
 import { PageShell, Reveal, Badge } from '@/components/adaptive/ui'
 import type { AssessmentWorkspace } from '@/lib/assessment/types'
-import { ArrowRight, BookOpen, Server, Bot, Zap, Gauge } from 'lucide-react'
+import { ArrowRight, BookOpen, Server, Bot, Zap, Gauge, ShieldCheck } from 'lucide-react'
 
 const JOURNEY_DOT = {
   done: 'bg-emerald-500',
@@ -22,6 +22,36 @@ export function HomeView({ workspace }: { workspace: AssessmentWorkspace }) {
 
   return (
     <PageShell>
+      {workspace.features.includes('lgpdNda') && (
+        <Reveal className="mb-10">
+          <Link
+            href={`${base}/lgpd-nda`}
+            className="group flex flex-col gap-3 rounded-2xl border border-black/[0.08] bg-white p-5 transition hover:border-neutral-900/20 sm:flex-row sm:items-center sm:justify-between sm:p-6"
+          >
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-neutral-900">
+                <ShieldCheck className="h-5 w-5 text-white" strokeWidth={1.75} />
+              </div>
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+                  Primeiro passo
+                </p>
+                <p className="mt-1 text-[16px] font-semibold tracking-tight text-neutral-900">
+                  NDA e autorização LGPD
+                </p>
+                <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-neutral-500">
+                  A Banana Brasil dá ok neste termo para seguir o assessment e o compartilhamento confidencial.
+                </p>
+              </div>
+            </div>
+            <span className="inline-flex items-center justify-center gap-2 self-start rounded-full bg-neutral-900 px-5 py-2.5 text-[13px] font-medium text-white transition group-hover:bg-neutral-800 sm:self-center">
+              Dar ok
+              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" strokeWidth={2} />
+            </span>
+          </Link>
+        </Reveal>
+      )}
+
       {/* Identidade */}
       <Reveal>
         <div className="mb-8 flex flex-wrap items-center gap-3">
@@ -53,22 +83,9 @@ export function HomeView({ workspace }: { workspace: AssessmentWorkspace }) {
         </div>
 
         <div className="mt-9 flex flex-wrap items-center gap-3">
-          {workspace.features.includes('lgpdNda') && (
-            <Link
-              href={`${base}/lgpd-nda`}
-              className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-[14px] font-medium hover:bg-neutral-800 transition-all"
-            >
-              NDA & LGPD · dar ok
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
-            </Link>
-          )}
           <Link
             href={`${base}/diagnostico`}
-            className={`inline-flex items-center gap-2 px-6 py-3 rounded-full text-[14px] font-medium transition-all ${
-              workspace.features.includes('lgpdNda')
-                ? 'border border-black/[0.1] text-neutral-700 hover:bg-black/[0.02]'
-                : 'group bg-neutral-900 text-white hover:bg-neutral-800'
-            }`}
+            className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-[14px] font-medium hover:bg-neutral-800 transition-all"
           >
             Ver o diagnóstico
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
