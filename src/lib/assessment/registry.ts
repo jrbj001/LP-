@@ -1,5 +1,5 @@
 import {
-  Home, Layers, FileBarChart, Server, FileText, BookOpen,
+  Home, Layers, FileBarChart, Server, FileText, BookOpen, ShieldCheck,
 } from 'lucide-react'
 import type { AssessmentWorkspace, AssessmentFeature, AssessmentNavItem } from './types'
 import { bananaBrasil } from '@/components/assessment/tenants/banana-brasil'
@@ -33,6 +33,7 @@ export function isAssessmentSlug(slug: string): boolean {
 // ─── Navegação derivada das features ────────────────────────────────────────
 const FEATURE_NAV: Partial<Record<AssessmentFeature, Omit<AssessmentNavItem, 'absolute'>>> = {
   home:          { label: 'Home',            href: '',                icon: Home },
+  lgpdNda:       { label: 'NDA & LGPD',      href: '/lgpd-nda',       icon: ShieldCheck },
   framework:     { label: 'Framework',       href: '/framework',      icon: Layers },
   diagnostico:   { label: 'Diagnóstico',     href: '/diagnostico',    icon: FileBarChart },
   adaptiveLayer: { label: 'Adaptive Layer™', href: '/adaptive-layer', icon: Server },
@@ -40,7 +41,7 @@ const FEATURE_NAV: Partial<Record<AssessmentFeature, Omit<AssessmentNavItem, 'ab
 }
 
 const FEATURE_ORDER: AssessmentFeature[] = [
-  'home', 'framework', 'diagnostico', 'adaptiveLayer', 'documentos',
+  'home', 'lgpdNda', 'framework', 'diagnostico', 'adaptiveLayer', 'documentos',
 ]
 
 /**

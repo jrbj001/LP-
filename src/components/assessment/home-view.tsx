@@ -53,9 +53,22 @@ export function HomeView({ workspace }: { workspace: AssessmentWorkspace }) {
         </div>
 
         <div className="mt-9 flex flex-wrap items-center gap-3">
+          {workspace.features.includes('lgpdNda') && (
+            <Link
+              href={`${base}/lgpd-nda`}
+              className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-[14px] font-medium hover:bg-neutral-800 transition-all"
+            >
+              NDA & LGPD · dar ok
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
+            </Link>
+          )}
           <Link
             href={`${base}/diagnostico`}
-            className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-[14px] font-medium hover:bg-neutral-800 transition-all"
+            className={`inline-flex items-center gap-2 px-6 py-3 rounded-full text-[14px] font-medium transition-all ${
+              workspace.features.includes('lgpdNda')
+                ? 'border border-black/[0.1] text-neutral-700 hover:bg-black/[0.02]'
+                : 'group bg-neutral-900 text-white hover:bg-neutral-800'
+            }`}
           >
             Ver o diagnóstico
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2} />
