@@ -21,7 +21,7 @@ export function Footer() {
           <div className="flex flex-col gap-2.5">
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 mb-1">{t('links')}</p>
             <Link href={`/${locale}/guides/valor-hora`} className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors">Guia de Valores 2026</Link>
-            <Link href={`/${locale}/pixel`} className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors">Pixel · Adaptive Layer™</Link>
+            <Link href={`/${locale}/pixel`} className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors">Adaptive Layer™</Link>
             <Link href={`/${locale}/cadence`} className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors">Cadence · Agent-ready Delivery™</Link>
             <a href="mailto:ze@pixelpulselab.dev" className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors">Contact</a>
           </div>

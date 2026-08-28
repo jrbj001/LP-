@@ -53,7 +53,7 @@ export function Nav() {
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-mono tracking-wider text-neutral-900 hover:text-neutral-600 border border-black/[0.1] hover:border-black/[0.18] rounded-md transition-colors bg-white"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Pixel
+            Adaptive Layer™
           </a>
           <a
             href={`/${locale}/cadence`}

@@ -6,6 +6,7 @@ export const PIXEL_META = {
   trademark: 'Adaptive Layer™',
   company: 'PixelPulseLab',
   tagline: 'A camada que faz seus sistemas conversarem — e seus agentes trabalharem.',
+  lede: 'Contexto sozinho não fecha o pedido. Pixel fecha o loop: o dado entra uma vez, o processo anda, o agente tem dono. GPU é custo, não produto.',
   caseStudy: 'Grupo Orfeu · Café · Agroindústria',
 }
 
@@ -26,7 +27,7 @@ export const PROBLEM = {
     },
     {
       title: 'IA sem chão',
-      detail: 'Sem camada unificada, agentes alucinam ou ficam presos a um sistema só.',
+      detail: 'Sem camada unificada, o agente só recebe contexto — e o pedido continua parado na planilha.',
     },
     {
       title: 'Projetos que não se acumulam',
@@ -69,7 +70,7 @@ export const HOW_IT_WORKS = {
     {
       label: 'Conectar',
       title: 'Seus sistemas entram',
-      detail: 'ERP, WMS, e-commerce, CRM, sensores, marketplace — cada um com conector dedicado.',
+      detail: 'ERP, WMS, e-commerce, CRM, sensores, marketplace — e o data lake, se você já tiver um.',
     },
     {
       label: 'Unificar',
@@ -92,7 +93,65 @@ export const SYSTEMS_GENERIC = [
   'Qualidade',
   'Sensores',
   'Marketplace',
+  'Lake (se já existir)',
 ]
+
+export const NOT_US = {
+  eyebrow: 'O que não somos',
+  headline: 'Não vendemos lago, hora de GPU nem “plugue o ChatGPT”.',
+  body: 'O mercado chama isso de plataforma de contexto. Pixel é a camada operacional: o processo fecha, o agente tem dono, a política fica na Layer.',
+  items: [
+    {
+      no: 'Não somos data lake',
+      yes: 'Não substituímos ERP nem montamos Delta. Conectamos o que já existe.',
+    },
+    {
+      no: 'Não vendemos hora de GPU',
+      yes: 'A placa é custo do runtime. O produto é o loop operacional.',
+    },
+    {
+      no: 'Não somos “qualquer agente”',
+      yes: 'Squad Pixel com dono de área. MCP é compatibilidade — se o cliente pedir.',
+    },
+  ],
+}
+
+export const PIXEL_LAYERS = {
+  eyebrow: 'Três camadas',
+  headline: 'Operação. Agentes. Governança.',
+  body: 'Nomes nossos. A Layer não é um catálogo de contexto para o modelo da vez — é o chão onde o pedido anda.',
+  items: [
+    {
+      id: 'operacao',
+      code: '01',
+      title: 'Operação',
+      detail: 'Conectores, eventos e verdade canônica. Quick wins nascem plugados. Grafo operacional: pedido, lote, cliente — não a wiki da empresa.',
+    },
+    {
+      id: 'agentes',
+      code: '02',
+      title: 'Agentes',
+      detail: 'Squad por área, tools do processo, memória do fluxo. MCP para o Copilot do cliente só se pedirem.',
+    },
+    {
+      id: 'governanca',
+      code: '03',
+      title: 'Governança',
+      detail: 'LGPD, audit, ACLs, residência. Evals de processo: a intervenção manual sumiu — não “o contexto ficou bonito”.',
+    },
+  ],
+}
+
+export const MCP_BLOCK = {
+  eyebrow: 'Compatibilidade',
+  headline: 'MCP é a porta. Não é o produto.',
+  body: 'O contexto e as políticas ficam na Adaptive Layer™. Trocar o modelo amanhã não reescreve integração. Claude, Copilot ou o próximo cliente MCP consomem o mesmo contrato — o squad Pixel continua com dono.',
+  points: [
+    'Política e audit na Layer, não no prompt',
+    'Um contrato para o squad e para o Copilot do cliente',
+    'Sem lock-in de modelo — sem virar “plataforma de contexto”',
+  ],
+}
 
 export const LAYER_CAPS = [
   { label: 'Integração & eventos', hint: 'conectores · filas · webhooks' },
@@ -264,10 +323,12 @@ export const SDK_MODEL = {
   headline: 'De assessment a SDK. De camada a plataforma.',
   body: 'Pixel empacota o que provamos no campo: padrões de integração, governança de dados e runtime para agentes — prontos para o próximo cliente, sem recomeçar do zero.',
   layers: [
-    { id: 'connectors', label: 'Connectors', detail: 'ERP · WMS · commerce · CX · IoT' },
+    { id: 'connectors', label: 'Connectors', detail: 'ERP · WMS · commerce · CX · IoT · lake opcional' },
     { id: 'core', label: 'Pixel Core', detail: 'eventos · modelo · políticas · audit' },
     { id: 'sdk', label: 'Pixel SDK', detail: 'APIs · auth · observability · LGPD' },
-    { id: 'agents', label: 'Agent Runtime', detail: 'squad · tools · memory · guardrails' },
+    { id: 'agents', label: 'Agent Runtime', detail: 'squad · tools · memória de processo' },
+    { id: 'mcp', label: 'MCP Gateway', detail: 'porta opcional · mesmo contrato · sem lock-in' },
+    { id: 'runtime', label: 'Runtime', detail: 'conta do cliente · ou edge no Brasil' },
     { id: 'portal', label: 'Delivery Portal', detail: 'entregas · billing · comitê ao vivo' },
   ],
   principles: [
@@ -275,6 +336,8 @@ export const SDK_MODEL = {
     'Quick wins em paralelo à fundação da camada',
     'Squad mensal com billing por entrega em produção',
     'Agentes com dono de negócio e trilha auditável',
+    'MCP se pedirem — o produto continua sendo o loop',
+    'Runtime na nuvem do cliente ou no edge brasileiro',
   ],
 }
 

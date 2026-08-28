@@ -468,7 +468,7 @@ function CadenceFooter({ locale }: { locale: string }) {
             PixelPulseLab
           </a>
           <a href={`/${locale}/pixel`} className="hover:text-neutral-900 transition-colors">
-            Pixel
+            Adaptive Layer™
           </a>
           <a
             href={`mailto:${CADENCE_META.contactEmail}`}
