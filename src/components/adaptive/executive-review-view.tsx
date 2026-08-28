@@ -736,7 +736,7 @@ export function ExecutiveReviewView({
                 href={`/${locale}/pixel`}
                 className="inline-flex items-center gap-2 text-[12px] font-medium text-white/50 hover:text-white/80 transition-colors"
               >
-                Pixel · o modelo e SDK desta camada →
+                Adaptive Layer™ →
               </a>
             </div>
           </Reveal>

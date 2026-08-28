@@ -15,8 +15,11 @@ import { AnimatedMark } from '@/components/animated-mark'
 import {
   AGENTS_SECTION,
   HOW_IT_WORKS,
+  MCP_BLOCK,
+  NOT_US,
   ORFEU_CASE,
   PIXEL_CTA,
+  PIXEL_LAYERS,
   PIXEL_META,
   PROBLEM,
   ROI,
@@ -40,8 +43,11 @@ export function PixelLP() {
       <main>
         <HeroSection />
         <ProblemSection />
+        <NotUsSection />
         <WhatIsSection />
+        <LayersSection />
         <HowSection />
+        <McpSection />
         <AgentsSection />
         <OrfeuSection locale={locale} />
         <RoiSection />
@@ -76,10 +82,28 @@ function PixelNav({ locale }: { locale: string }) {
             PixelPulseLab
           </a>
           <a
+            href="#camadas"
+            className="hidden lg:inline text-[12px] text-white/45 hover:text-emerald-300 transition-colors"
+          >
+            Camadas
+          </a>
+          <a
+            href="#arquitetura"
+            className="hidden lg:inline text-[12px] text-white/45 hover:text-emerald-300 transition-colors"
+          >
+            Arquitetura
+          </a>
+          <a
+            href="#mcp"
+            className="hidden md:inline text-[12px] text-white/45 hover:text-emerald-300 transition-colors"
+          >
+            MCP
+          </a>
+          <a
             href="#agentes"
             className="hidden md:inline text-[12px] text-white/45 hover:text-emerald-300 transition-colors"
           >
-            Squad de agentes
+            Squad
           </a>
           <a
             href="#cta"
@@ -126,12 +150,20 @@ function HeroSection() {
           </motion.h1>
 
           <motion.p
-            className="text-[17px] sm:text-[19px] text-white/60 max-w-lg leading-relaxed mb-10"
+            className="text-[17px] sm:text-[19px] text-white/60 max-w-lg leading-relaxed mb-4"
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.18 }}
           >
             {PIXEL_META.tagline}
+          </motion.p>
+          <motion.p
+            className="text-[15px] sm:text-[16px] text-white/45 max-w-xl leading-relaxed mb-10"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.22 }}
+          >
+            {PIXEL_META.lede}
           </motion.p>
 
           <motion.div
@@ -148,10 +180,10 @@ function HeroSection() {
               <ArrowRight className="w-4 h-4" strokeWidth={2} />
             </a>
             <a
-              href="#agentes"
+              href="#camadas"
               className="inline-flex items-center gap-2 px-6 py-3.5 text-sm font-medium border border-white/15 text-white/80 rounded-full hover:border-white/30 hover:text-white transition-colors"
             >
-              Ver o squad de agentes
+              Ver as três camadas
             </a>
           </motion.div>
         </div>
@@ -192,6 +224,127 @@ function ProblemSection() {
             </FadeInItem>
           ))}
         </FadeInStagger>
+      </div>
+    </section>
+  )
+}
+
+/* ─── O que não somos ───────────────────────────────────────────────────────── */
+
+function NotUsSection() {
+  return (
+    <section className="py-24 lg:py-32 px-6 bg-neutral-950 text-white border-b border-white/5" id="nao-somos">
+      <div className="mx-auto max-w-[1200px]">
+        <FadeIn>
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-emerald-400/70 mb-4">
+            {NOT_US.eyebrow}
+          </p>
+        </FadeIn>
+        <FadeIn delay={0.08}>
+          <h2 className="font-[family-name:var(--font-pixel-display)] text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-white mb-5 max-w-3xl leading-[1.08]">
+            {NOT_US.headline}
+          </h2>
+        </FadeIn>
+        <FadeIn delay={0.12}>
+          <p className="text-[17px] text-white/50 max-w-2xl leading-relaxed mb-12">
+            {NOT_US.body}
+          </p>
+        </FadeIn>
+        <FadeInStagger className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {NOT_US.items.map((item) => (
+            <FadeInItem key={item.no}>
+              <div className="h-full rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6">
+                <p className="text-[13px] font-semibold text-white/40 mb-3">{item.no}</p>
+                <p className="text-[14px] text-white/80 leading-relaxed">{item.yes}</p>
+              </div>
+            </FadeInItem>
+          ))}
+        </FadeInStagger>
+      </div>
+    </section>
+  )
+}
+
+/* ─── Três camadas ──────────────────────────────────────────────────────────── */
+
+function LayersSection() {
+  return (
+    <section className="py-24 lg:py-32 px-6 bg-white border-b border-black/[0.05]" id="camadas">
+      <div className="mx-auto max-w-[1200px]">
+        <FadeIn>
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 mb-4">
+            {PIXEL_LAYERS.eyebrow}
+          </p>
+        </FadeIn>
+        <FadeIn delay={0.08}>
+          <h2 className="font-[family-name:var(--font-pixel-display)] text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-neutral-900 mb-5 max-w-3xl leading-[1.08]">
+            {PIXEL_LAYERS.headline}
+          </h2>
+        </FadeIn>
+        <FadeIn delay={0.12}>
+          <p className="text-[17px] text-neutral-500 max-w-2xl leading-relaxed mb-12">
+            {PIXEL_LAYERS.body}
+          </p>
+        </FadeIn>
+        <FadeInStagger className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {PIXEL_LAYERS.items.map((layer) => (
+            <FadeInItem key={layer.id}>
+              <div className={`h-full rounded-2xl p-6 ${
+                layer.id === 'agentes'
+                  ? 'bg-neutral-950 text-white border border-emerald-400/20'
+                  : 'bg-white border border-black/[0.06]'
+              }`}
+              >
+                <span className={`font-mono text-[11px] ${layer.id === 'agentes' ? 'text-emerald-400/70' : 'text-neutral-400'}`}>
+                  {layer.code}
+                </span>
+                <p className={`mt-3 text-[18px] font-semibold ${layer.id === 'agentes' ? 'text-white' : 'text-neutral-900'}`}>
+                  {layer.title}
+                </p>
+                <p className={`mt-2 text-[14px] leading-relaxed ${layer.id === 'agentes' ? 'text-white/55' : 'text-neutral-500'}`}>
+                  {layer.detail}
+                </p>
+              </div>
+            </FadeInItem>
+          ))}
+        </FadeInStagger>
+      </div>
+    </section>
+  )
+}
+
+/* ─── MCP ───────────────────────────────────────────────────────────────────── */
+
+function McpSection() {
+  return (
+    <section className="py-24 lg:py-32 px-6 bg-white border-b border-black/[0.05]" id="mcp">
+      <div className="mx-auto max-w-[1200px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          <div className="lg:col-span-6">
+            <FadeIn>
+              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 mb-4">
+                {MCP_BLOCK.eyebrow}
+              </p>
+            </FadeIn>
+            <FadeIn delay={0.08}>
+              <h2 className="font-[family-name:var(--font-pixel-display)] text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-neutral-900 mb-5 leading-[1.08]">
+                {MCP_BLOCK.headline}
+              </h2>
+            </FadeIn>
+            <FadeIn delay={0.12}>
+              <p className="text-[17px] text-neutral-500 leading-relaxed">{MCP_BLOCK.body}</p>
+            </FadeIn>
+          </div>
+          <FadeInStagger className="lg:col-span-6 space-y-3">
+            {MCP_BLOCK.points.map((point) => (
+              <FadeInItem key={point}>
+                <div className="rounded-2xl border border-black/[0.06] bg-[#f2f2f0] px-5 py-4 text-[14px] text-neutral-700">
+                  {point}
+                </div>
+              </FadeInItem>
+            ))}
+          </FadeInStagger>
+        </div>
       </div>
     </section>
   )
@@ -243,7 +396,7 @@ function WhatIsSection() {
 
 function HowSection() {
   return (
-    <section className="py-24 lg:py-32 px-6 bg-[#f2f2f0] border-b border-black/[0.05]" id="como">
+    <section className="py-24 lg:py-32 px-6 bg-[#f2f2f0] border-b border-black/[0.05]" id="arquitetura">
       <div className="mx-auto max-w-[1200px]">
         <FadeIn>
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400 mb-4">

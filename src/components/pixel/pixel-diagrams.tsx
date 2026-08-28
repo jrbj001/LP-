@@ -169,7 +169,34 @@ export function ArchitectureIllustration() {
         </div>
       </div>
 
-      <FlowLabel label="cada integração amplia a próxima entrega" />
+      <FlowLabel label="a Layer alimenta os dois caminhos" />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
+        <div className="rounded-2xl border border-black/[0.07] bg-white p-5">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-neutral-400">Caminho principal</p>
+          <p className="mt-2 text-[15px] font-semibold text-neutral-900">Squad Pixel com dono</p>
+          <p className="mt-1 text-[12px] text-neutral-500 leading-relaxed">
+            Um agente por área. Tools nascem do processo. Memória do pedido, não da wiki.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-dashed border-black/[0.1] bg-white p-5">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-neutral-400">Opcional</p>
+          <p className="mt-2 text-[15px] font-semibold text-neutral-900">MCP Gateway</p>
+          <p className="mt-1 text-[12px] text-neutral-500 leading-relaxed">
+            Copilot ou o próximo cliente MCP. Mesmo contrato. Sem virar o produto.
+          </p>
+        </div>
+      </div>
+
+      <FlowLabel label="runtime na conta do cliente — ou no edge brasileiro" />
+
+      <div className="mb-8 rounded-2xl border border-black/[0.06] bg-white px-5 py-4 flex flex-wrap items-center justify-center gap-2 text-[12px] text-neutral-600">
+        <span className="rounded-full bg-[#f2f2f0] px-3 py-1.5">Conta do cliente</span>
+        <span className="text-neutral-300">·</span>
+        <span className="rounded-full bg-[#f2f2f0] px-3 py-1.5">Edge BR · residência</span>
+        <span className="text-neutral-300">·</span>
+        <span className="rounded-full bg-[#f2f2f0] px-3 py-1.5">GPU é COGS</span>
+      </div>
 
       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-emerald-800/60 text-center mb-4">
         O que a camada destrava
@@ -323,7 +350,7 @@ export function SdkStackIllustration({
   return (
     <div className="space-y-2">
       {layers.map((layer, i) => {
-        const isCore = layer.id === 'core' || layer.id === 'agents'
+        const isCore = layer.id === 'core' || layer.id === 'agents' || layer.id === 'runtime'
         return (
           <motion.div
             key={layer.id}

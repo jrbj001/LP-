@@ -1,35 +1,16 @@
 import type { Metadata } from 'next'
-import { Syne, DM_Sans } from 'next/font/google'
-import { PixelLP } from '@/components/pixel/pixel-lp'
-
-const syne = Syne({
-  subsets: ['latin'],
-  variable: '--font-pixel-display',
-  display: 'swap',
-  weight: ['500', '600', '700', '800'],
-})
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  variable: '--font-pixel-body',
-  display: 'swap',
-})
+import { AdaptiveLayerLP } from '@/components/adaptive-layer/lp'
 
 export const metadata: Metadata = {
-  title: 'Pixel · Adaptive Layer™ SDK | PixelPulseLab',
+  title: 'Adaptive Layer™ | PixelPulseLab',
   description:
-    'Pixel é o modelo e o SDK da Adaptive Layer™ — a camada que faz seus sistemas conversarem e seu squad de agentes trabalharem sobre uma única verdade.',
+    'The data and context layer that makes the enterprise AI-ready. Adaptive Layer™ — dados, contexto e ação, governados, na sua nuvem.',
   openGraph: {
-    title: 'Pixel · Adaptive Layer™ SDK',
-    description:
-      'Camada de integração + squad de agentes. Provado no Café Orfeu. Productizado pela PixelPulseLab.',
+    title: 'Adaptive Layer™ — enterprise AI-ready',
+    description: 'A camada de dados e contexto que deixa a empresa pronta para IA.',
   },
 }
 
-export default function PixelPage() {
-  return (
-    <div className={`${syne.variable} ${dmSans.variable}`}>
-      <PixelLP />
-    </div>
-  )
+export default function AdaptiveLayerPage() {
+  return <AdaptiveLayerLP />
 }
