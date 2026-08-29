@@ -31,7 +31,7 @@ export const likeMe: ClientWorkspace = {
   stats: [
     { label: 'Repos', value: '3' },
     { label: 'Reuniões', value: String(LIKEME_MEETINGS.length) },
-    { label: 'Documentos', value: '9' },
+    { label: 'Documentos', value: '10' },
   ],
   projects: [
     {
@@ -160,6 +160,17 @@ export const likeMe: ClientWorkspace = {
   },
   meetings: LIKEME_MEETINGS,
   documents: [
+    {
+      id: 'likeme-evolucao-gama-fund',
+      title: 'Like:Me × Gama Fund — Evolução AI-native',
+      category: 'Estratégia · Produto · IA',
+      description:
+        'Tese de pivot para jornadas personalizadas de saúde: GLP-1 como primeiro recorte, arquitetura Gemini, roadmap de 90 dias e narrativa de candidatura.',
+      updatedAt: '29/08/2026',
+      status: 'available',
+      href: '/evolucao-gama-fund',
+      external: false,
+    },
     {
       id: 'likeme-arquitetura-adaptive-layer',
       title: 'Arquitetura do Produto — Adaptive Layer™ & Agentes',
