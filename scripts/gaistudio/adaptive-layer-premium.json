@@ -1,0 +1,64 @@
+{
+  "title": "Adaptive Layer — premium animation",
+  "duration": 30,
+  "aspectRatio": "16:9",
+  "imageSize": "2K",
+  "imageModel": "gemini-3-pro-image",
+  "voice": {
+    "model": "gemini-3.1-flash-tts-preview",
+    "voiceName": "Kore",
+    "languageCode": "pt-BR",
+    "direction": "Fale em português brasileiro. Voz clara, sofisticada e segura, como um filme de produto de um laboratório de inteligência artificial. Ritmo natural, sem voz de trailer. Pausas breves. Fale somente:"
+  },
+  "score": {
+    "model": "lyria-3-clip-preview",
+    "prompt": "Instrumental only. No vocals and no lyrics. Thirty seconds of minimal premium product-film music: felt piano, warm analog pad, precise soft pulse, subtle glass percussion. Intelligent, calm and modern. No corporate jingle, no EDM, no trailer music."
+  },
+  "voiceover": "Seus sistemas sabem o que aconteceu. Seus documentos explicam por quê. A Adaptive Layer conecta eventos, entidades e conhecimento em uma camada governada. Qualquer modelo consulta a verdade da operação — com permissão e rastreabilidade. Sem inventar. Adaptive Layer. Contexto pronto para inteligência.",
+  "artDirection": "High-end abstract 3D motion design for a European AI research lab. Warm off-white infinite studio, museum-grade soft daylight, translucent optical glass, brushed aluminum, cobalt blue light, subtle iridescence, precise geometry, generous negative space, tactile materials, macro cinematography, restrained depth of field, elegant and intelligent. Visual language between Apple product film, LoveFrom industrial design and a contemporary generative-art installation. No people, no office, no warehouse, no dashboards, no screens, no UI, no letters, no numbers, no words, no logo, no cyberpunk, no neon room, no hologram HUD, no stock icons.",
+  "beats": [
+    {
+      "id": "01-fragments",
+      "time": "0–5s",
+      "voice": "Seus sistemas já sabem o que aconteceu.",
+      "overlay": "A operação já sabe.",
+      "prompt": "Four distinct families of exquisite physical data objects suspended far apart in a warm off-white gallery: a stack of thin aluminum discs, a cluster of clear glass cubes, one cobalt ceramic capsule, and a folded translucent sheet. Each family follows its own invisible orbit and never touches the others. Wide symmetrical composition, large negative space, quiet precision. This is the opening keyframe."
+    },
+    {
+      "id": "02-knowledge",
+      "time": "5–9s",
+      "voice": "Seus documentos explicam por quê.",
+      "overlay": "O conhecimento explica.",
+      "prompt": "The same gallery and exact same four material families. Camera closer. The folded translucent sheet opens into multiple ultra-thin glass pages, revealing delicate embossed topographic grooves with no writing. The other objects remain isolated and softly out of focus. Preserve the cobalt, glass and aluminum material system."
+    },
+    {
+      "id": "03-layer",
+      "time": "9–14s",
+      "voice": "Mas a inteligência recebe tudo sem contexto.",
+      "overlay": "Falta contexto.",
+      "prompt": "Same objects, studio and materials. A single razor-thin horizontal optical-glass membrane enters the composition, spanning left to right. The isolated data objects hover just above it; below it sits a flawless transparent sphere, beautiful but empty, unable to understand them. The cobalt edge of the membrane is the only saturated color. Minimal, iconic product image."
+    },
+    {
+      "id": "04-context",
+      "time": "14–20s",
+      "voice": "A Adaptive Layer conecta eventos, entidades e conhecimento em uma única camada governada.",
+      "overlay": "Evento. Entidade. Conhecimento.",
+      "prompt": "Same studio, membrane and material system. The four object families touch the optical-glass layer and become elegantly organized without losing their identity: aluminum discs lock into a precise timeline, glass cubes form a canonical constellation, translucent pages align into a knowledge volume. Fine cobalt light paths connect them through the membrane. The transparent sphere below begins to contain a coherent internal structure. Controlled complexity, premium generative art."
+    },
+    {
+      "id": "05-governed",
+      "time": "20–26s",
+      "voice": "Assim, qualquer modelo consulta a verdade da operação — com permissão, rastreabilidade e sem inventar.",
+      "overlay": "Qualquer modelo. A mesma verdade.",
+      "prompt": "Same composition and exact visual identity. Three different pristine model vessels — a clear sphere, a soft triangular glass volume and a rounded aluminum monolith — connect to the same cobalt-edged optical layer. Before each connection, a small physical iris aperture controls access. Only precise cobalt light passes through. Behind the layer, every path leaves a subtle engraved trace in the glass. Trust, governance and interoperability made physical, never shown as UI."
+    },
+    {
+      "id": "06-signature",
+      "time": "26–30s",
+      "voice": "Adaptive Layer. Contexto pronto para inteligência.",
+      "overlay": "Adaptive Layer™",
+      "suboverlay": "Contexto pronto para inteligência.",
+      "prompt": "Final hero still in the same warm off-white infinite studio. The optical-glass layer floats alone in perfect balance, seen in three-quarter macro perspective. Its cobalt edge emits a restrained line of light. Inside the glass, the organized material families appear as tiny precise inclusions, while three model vessels sit calmly beyond it. Maximum negative space in the center for typography to be added later. Iconic, timeless, premium product finish."
+    }
+  ]
+}

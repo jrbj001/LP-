@@ -1,0 +1,70 @@
+{
+  "title": "Adaptive Layer — animação explicativa",
+  "fps": 24,
+  "gapBefore": 0.22,
+  "gapAfter": 0.34,
+  "minBeatSeconds": 2.9,
+  "palette": {
+    "bg": "#FBFBFA",
+    "ink": "#17171A",
+    "muted": "#9A9A9E",
+    "hairline": "#E3E3DF",
+    "accent": "#1B4DFF"
+  },
+  "voice": {
+    "model": "gemini-3.1-flash-tts-preview",
+    "voiceName": "Kore",
+    "languageCode": "pt-BR",
+    "direction": "Fale em português brasileiro. Voz de Labs: clara, calma, segura, sem tom de trailer. Pausas curtas entre frases. Fale somente:"
+  },
+  "score": {
+    "model": "lyria-3-clip-preview",
+    "prompt": "Instrumental only. No vocals. No lyrics. Thirty seconds. Minimal, elegant, modern design-studio music. Soft felt piano, warm analog pad, gentle airy pulse. Calm and confident. Not dark, not cinematic trailer, not EDM."
+  },
+  "beats": [
+    {
+      "id": "sources",
+      "voice": "Cada sistema da sua empresa fala uma língua.",
+      "statement": "Cada sistema fala a sua língua."
+    },
+    {
+      "id": "layer",
+      "voice": "A Adaptive Layer entra no meio.",
+      "statement": "A Adaptive Layer entra no meio."
+    },
+    {
+      "id": "identity",
+      "voice": "O evento chega, e o fato ganha um nome único.",
+      "statement": "O fato ganha um nome único."
+    },
+    {
+      "id": "fork",
+      "voice": "Número vira registro. Texto vira busca.",
+      "statement": "Número vira registro. Texto vira busca."
+    },
+    {
+      "id": "query",
+      "voice": "Aí qualquer modelo consulta. Com permissão, e sem inventar.",
+      "statement": "Qualquer modelo consulta — com permissão."
+    },
+    {
+      "id": "sign",
+      "voice": "Adaptive Layer. O contexto que faltava.",
+      "statement": ""
+    }
+  ],
+  "labels": {
+    "sources": ["ERP", "WMS", "CRM", "Docs"],
+    "tokens": ["pedido", "lote", "cliente"],
+    "record": "um registro",
+    "fact": "registro",
+    "vector": "vetor",
+    "factHint": "número",
+    "vectorHint": "texto",
+    "consumers": ["Agentes", "Qualquer LLM", "APIs · MCP"],
+    "gate": "permissão",
+    "brand": "ADAPTIVE LAYER™",
+    "signTitle": "Adaptive Layer™",
+    "signLine": "O contexto que faltava."
+  }
+}

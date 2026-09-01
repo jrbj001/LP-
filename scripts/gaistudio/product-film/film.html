@@ -1,0 +1,1265 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Adaptive Layer — product film</title>
+<style>
+  :root {
+    --bg: #fbfbfa;
+    --ink: #171717;
+    --ink-2: #404040;
+    --mute: #737373;
+    --faint: #a3a3a3;
+    --hair: rgba(0, 0, 0, 0.07);
+    --hair-2: rgba(0, 0, 0, 0.045);
+    --panel: #ffffff;
+    --accent: #1b4dff;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+
+  #stage {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 90% at 50% -10%, #ffffff 0%, rgba(255,255,255,0) 60%),
+      var(--bg);
+  }
+
+  #grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+  }
+
+  #vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 55;
+    background: radial-gradient(105% 78% at 50% 46%, rgba(0,0,0,0) 52%, rgba(0,0,0,0.055) 100%);
+  }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    will-change: opacity, transform;
+    transform-origin: 50% 50%;
+  }
+
+  .cam {
+    position: absolute;
+    inset: 0;
+    will-change: transform, filter;
+    transform-origin: 50% 50%;
+  }
+
+  /* ---------- shared UI primitives ---------- */
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--hair);
+    border-radius: 18px;
+    box-shadow: 0 28px 64px -40px rgba(0, 0, 0, 0.34), 0 2px 6px -3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--hair-2);
+  }
+
+  .sys {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+  }
+
+  .glyph {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1px solid var(--hair);
+    display: grid;
+    place-items: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--mute);
+    background: #fafafa;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  .row {
+    display: grid;
+    align-items: center;
+    gap: 14px;
+    padding: 17px 24px;
+    border-bottom: 1px solid var(--hair-2);
+    font-size: 15px;
+  }
+  .row:last-child { border-bottom: 0; }
+
+  .thead {
+    font-size: 10.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 500;
+    padding-top: 14px;
+    padding-bottom: 12px;
+    background: #fcfcfc;
+  }
+
+  .mono { font-family: var(--mono); font-size: 13px; letter-spacing: -0.01em; }
+  .dim { color: var(--mute); }
+  .faint { color: var(--faint); }
+  .num { font-variant-numeric: tabular-nums; font-family: var(--mono); }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--hair);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 11.5px;
+    letter-spacing: 0.01em;
+    color: var(--ink-2);
+    background: #fff;
+    white-space: nowrap;
+  }
+
+  .tag.ink { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .tag.live { color: var(--mute); }
+
+  .dot {
+    width: 6px; height: 6px; border-radius: 999px; background: var(--accent);
+  }
+  .dot.grey { background: var(--faint); }
+
+  .skel {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.07);
+  }
+
+  #watermark {
+    position: absolute;
+    right: 52px; bottom: 48px;
+    z-index: 52;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(23, 23, 23, 0.34);
+    will-change: opacity;
+  }
+
+  /* ---------- caption layer ---------- */
+
+  #caption {
+    position: absolute;
+    left: 128px;
+    bottom: 96px;
+    z-index: 50;
+    max-width: 900px;
+    will-change: opacity, transform;
+  }
+
+  #cap-eyebrow {
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 14px;
+  }
+
+  #cap-text {
+    font-size: 40px;
+    font-weight: 600;
+    letter-spacing: -0.032em;
+    line-height: 1.14;
+    color: var(--ink);
+  }
+
+  #cap-rule {
+    width: 34px;
+    height: 1.5px;
+    background: var(--ink);
+    margin-bottom: 18px;
+    transform-origin: left center;
+  }
+
+  /* ---------- scene 0 — chat that fails ---------- */
+
+  #s0 .chat {
+    position: absolute;
+    left: 50%; top: 208px;
+    width: 1240px; margin-left: -620px;
+  }
+
+  #s0 .thread { padding: 48px 52px 56px; }
+
+  #s0 .bubble-user {
+    margin-left: auto;
+    width: fit-content;
+    max-width: 700px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 18px 18px 4px 18px;
+    padding: 20px 28px;
+    font-size: 22px;
+    letter-spacing: -0.015em;
+    will-change: opacity, transform;
+  }
+
+  #s0 .bubble-ai {
+    margin-top: 34px;
+    width: fit-content;
+    max-width: 780px;
+    background: #f5f5f4;
+    border: 1px solid var(--hair-2);
+    border-radius: 18px 18px 18px 4px;
+    padding: 22px 28px;
+    font-size: 21px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    will-change: opacity, transform;
+  }
+
+  #s0 .dots { display: inline-flex; gap: 7px; }
+  #s0 .dots span {
+    width: 8px; height: 8px; border-radius: 999px; background: var(--faint);
+  }
+
+  /* ---------- scene a — the layer, one view ---------- */
+
+  #sa .srcstack { position: absolute; left: 128px; top: 168px; width: 320px; }
+  #sa .srccard {
+    padding: 22px 26px;
+    margin-bottom: 22px;
+    will-change: opacity, transform;
+  }
+
+  #sa .band {
+    position: absolute;
+    left: 50%; top: 150px;
+    width: 430px; margin-left: -215px;
+    background: var(--ink);
+    border-radius: 22px;
+    color: #fff;
+    padding: 38px 38px;
+    box-shadow: 0 36px 80px -44px rgba(0, 0, 0, 0.5);
+    will-change: opacity, transform;
+  }
+
+  #sa .mod {
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding: 22px 0;
+    will-change: opacity;
+  }
+
+  #sa .modstack { position: absolute; right: 118px; top: 170px; width: 330px; }
+  #sa .modchip {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 24px;
+    margin-bottom: 18px;
+    will-change: opacity, transform;
+  }
+
+  #sa .wire {
+    position: absolute;
+    height: 1.5px;
+    background: linear-gradient(to right, rgba(0,0,0,0.02), rgba(0,0,0,0.22));
+    transform-origin: left center;
+    will-change: transform, opacity;
+  }
+  #sa .wire.r { background: linear-gradient(to right, rgba(0,0,0,0.22), rgba(0,0,0,0.02)); }
+
+  /* ---------- scene g — governance ---------- */
+
+  #sg .grid {
+    position: absolute;
+    left: 50%; top: 168px;
+    width: 1180px; margin-left: -590px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+
+  #sg .gov {
+    padding: 42px 44px 46px;
+    will-change: opacity, transform;
+  }
+
+  /* ---------- scene 1 ---------- */
+
+  #s1 .board {
+    position: absolute;
+    left: 88px; right: 88px; top: 146px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+  }
+
+  /* ---------- scene 2 ---------- */
+
+  #s2 .console {
+    position: absolute;
+    left: 196px; right: 196px; top: 138px;
+  }
+
+  #s2 .logrow {
+    display: grid;
+    grid-template-columns: 128px 104px 268px 1fr;
+    gap: 26px;
+    align-items: center;
+    padding: 19px 34px;
+    border-bottom: 1px solid var(--hair-2);
+    font-family: var(--mono);
+    font-size: 14.5px;
+    will-change: opacity, transform;
+  }
+
+  .src {
+    display: inline-flex;
+    justify-content: center;
+    border: 1px solid var(--hair);
+    border-radius: 6px;
+    padding: 3px 0;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--mute);
+    font-family: var(--sans);
+    font-weight: 600;
+    background: #fafafa;
+  }
+
+  /* ---------- scene 3 ---------- */
+
+  #s3 .record {
+    position: absolute;
+    left: 50%; top: 130px;
+    width: 1080px;
+    margin-left: -540px;
+  }
+
+  #s3 .srcchip {
+    position: absolute;
+    will-change: transform, opacity;
+  }
+
+  #s3 .field {
+    display: grid;
+    grid-template-columns: 196px 1fr;
+    gap: 20px;
+    padding: 21px 32px;
+    border-bottom: 1px solid var(--hair-2);
+    font-size: 17px;
+    will-change: opacity;
+  }
+
+  /* ---------- scene 4 ---------- */
+
+  #s4 .left  { position: absolute; left: 92px;  top: 122px; width: 840px; min-height: 566px; }
+  #s4 .right { position: absolute; right: 92px; top: 122px; width: 840px; min-height: 566px; }
+
+  #s4 .divider {
+    position: absolute;
+    left: 50%; top: 132px; height: 546px;
+    width: 1px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0), var(--hair), rgba(0,0,0,0));
+  }
+
+  #s4 .rule-note {
+    position: absolute;
+    left: 50%; top: 738px;
+    transform: translateX(-50%);
+    will-change: opacity, transform;
+  }
+
+  #s4 .chunk {
+    padding: 21px 30px;
+    border-bottom: 1px solid var(--hair-2);
+    will-change: opacity, transform;
+  }
+
+  /* ---------- scene 5 ---------- */
+
+  #s5 .connectors {
+    position: absolute;
+    left: 50%; top: 112px;
+    transform: translateX(-50%);
+    display: flex; gap: 14px;
+  }
+
+  #s5 .querybar {
+    position: absolute;
+    left: 50%; top: 210px;
+    width: 1440px; margin-left: -720px;
+    display: flex; align-items: center; gap: 20px;
+    padding: 26px 34px;
+  }
+
+  #s5 .gate {
+    position: absolute;
+    left: 50%; top: 334px;
+    width: 1440px; margin-left: -720px;
+    display: flex; align-items: center; gap: 14px;
+    padding: 19px 34px;
+    will-change: opacity, transform;
+  }
+
+  #s5 .answer {
+    position: absolute;
+    left: 50%; top: 446px;
+    width: 1440px; margin-left: -720px;
+    will-change: opacity, transform;
+  }
+
+  .caret {
+    display: inline-block;
+    width: 2px; height: 20px;
+    background: var(--ink);
+    vertical-align: -3px;
+    margin-left: 2px;
+  }
+
+  /* ---------- scene 6 ---------- */
+
+  #s6 .sign {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    will-change: opacity, transform;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="scene" id="s0"><div class="cam"></div></div>
+  <div class="scene" id="s1"><div class="cam"></div></div>
+  <div class="scene" id="sa"><div class="cam"></div></div>
+  <div class="scene" id="s2"><div class="cam"></div></div>
+  <div class="scene" id="s3"><div class="cam"></div></div>
+  <div class="scene" id="s4"><div class="cam"></div></div>
+  <div class="scene" id="s5"><div class="cam"></div></div>
+  <div class="scene" id="sg"><div class="cam"></div></div>
+  <div class="scene" id="s6"><div class="cam"></div></div>
+
+  <div id="caption">
+    <div id="cap-eyebrow"></div>
+    <div id="cap-rule"></div>
+    <div id="cap-text"></div>
+  </div>
+
+  <div id="watermark">PixelPulseLab</div>
+
+  <div id="vignette"></div>
+  <div id="grain"></div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------ *
+ * Timeline. Overridden by the capture script with TTS-derived timings.
+ * ------------------------------------------------------------------ */
+const DEFAULT_TIMELINE = [
+  { id: 's0', start: 0.0,  end: 9.4 },
+  { id: 's1', start: 9.4,  end: 19.0 },
+  { id: 'sa', start: 19.0, end: 27.2 },
+  { id: 's2', start: 27.2, end: 32.2 },
+  { id: 's3', start: 32.2, end: 37.6 },
+  { id: 's4', start: 37.6, end: 44.2 },
+  { id: 's5', start: 44.2, end: 54.4 },
+  { id: 'sg', start: 54.4, end: 60.4 },
+  { id: 's6', start: 60.4, end: 64.8 },
+]
+
+const CAPTIONS = {
+  s0: { eyebrow: 'O problema',    text: 'A IA não conhece a sua operação.' },
+  s1: { eyebrow: 'Por quê',       text: 'A informação existe. Mas está espalhada.' },
+  sa: { eyebrow: 'Adaptive Layer™', text: 'A camada entre seus sistemas, agentes e modelos.' },
+  s2: { eyebrow: '01 · Eventos',  text: 'Cada evento entra na origem.' },
+  s3: { eyebrow: '02 · Identidade', text: 'Códigos espalhados viram um registro único.' },
+  s4: { eyebrow: '03 · Contexto', text: 'Número vira registro. Texto vira busca.' },
+  s5: { eyebrow: '04 · Resposta', text: 'O agente pergunta. A camada responde com o dado real.' },
+  sg: { eyebrow: 'Governança',    text: 'Permissão, auditoria — e a sua nuvem.' },
+  s6: { eyebrow: '', text: '' },
+}
+
+const HOOK_QUESTION = 'Por que o pedido da Northwind pode atrasar?'
+
+/* ------------------------------------------------------------------ *
+ * helpers
+ * ------------------------------------------------------------------ */
+const clamp = (v, a, b) => (v < a ? a : v > b ? b : v)
+const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1)
+const easeOut = p => 1 - Math.pow(1 - p, 3)
+const easeOutQuint = p => 1 - Math.pow(1 - p, 5)
+const easeInOut = p => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2)
+const lerp = (a, b, p) => a + (b - a) * p
+const px = n => `${n}px`
+
+function el(tag, cls, html) {
+  const n = document.createElement(tag)
+  if (cls) n.className = cls
+  if (html != null) n.innerHTML = html
+  return n
+}
+
+/* ------------------------------------------------------------------ *
+ * scene 0 — the question a generic AI cannot answer
+ * ------------------------------------------------------------------ */
+function buildS0(root) {
+  const p = el('div', 'panel chat')
+  p.appendChild(el('div', 'panel-head',
+    `<div class="sys"><span class="glyph">AI</span>Assistente de IA · modelo genérico</div>
+     <span class="eyebrow">sem acesso aos seus sistemas</span>`))
+  const thread = el('div', 'thread')
+  const user = el('div', 'bubble-user')
+  user.innerHTML = `<span id="s0-q"></span><span class="caret" id="s0-caret" style="background:#fff"></span>`
+  const ai = el('div', 'bubble-ai')
+  ai.innerHTML = `
+    <span id="s0-dots" class="dots"><span></span><span></span><span></span></span>
+    <span id="s0-a" style="display:none">Não tenho acesso aos pedidos, ao estoque ou aos contratos
+    da sua empresa. Não consigo responder sobre a Northwind.</span>`
+  thread.appendChild(user)
+  thread.appendChild(ai)
+  p.appendChild(thread)
+  root.appendChild(p)
+  return {
+    panel: p, user, ai,
+    q: user.querySelector('#s0-q'),
+    caret: user.querySelector('#s0-caret'),
+    dots: ai.querySelector('#s0-dots'),
+    answer: ai.querySelector('#s0-a'),
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * scene a — the layer between systems and models
+ * ------------------------------------------------------------------ */
+const SA_SOURCES = [
+  { label: 'ERP',  hint: 'pedido · NF · crédito' },
+  { label: 'WMS',  hint: 'lote · estoque' },
+  { label: 'CRM',  hint: 'cliente · ticket' },
+  { label: 'Docs', hint: 'política · contrato' },
+]
+
+const SA_MODULES = [
+  { n: '01', title: 'Dados',    hint: 'conectores · eventos' },
+  { n: '02', title: 'Contexto', hint: 'verdade canônica · knowledge' },
+  { n: '03', title: 'Ação',     hint: 'APIs · agentes · MCP' },
+]
+
+const SA_CONSUMERS = [
+  { label: 'Agente Comercial',  hint: 'dono: time comercial' },
+  { label: 'Agente Logística',  hint: 'dono: operações' },
+  { label: 'APIs & automações', hint: 'quick wins · regras' },
+  { label: 'Qualquer modelo',   hint: 'ChatGPT · Claude · MCP' },
+]
+
+function buildSA(root) {
+  const stack = el('div', 'srcstack')
+  const sources = SA_SOURCES.map(s => {
+    const c = el('div', 'panel srccard')
+    c.innerHTML = `<div style="font-size:17px;font-weight:600;letter-spacing:-0.014em">${s.label}</div>
+      <div class="dim" style="margin-top:6px;font-size:13.5px">${s.hint}</div>`
+    stack.appendChild(c)
+    return c
+  })
+  root.appendChild(stack)
+
+  const band = el('div', 'band')
+  band.innerHTML = `
+    <div class="eyebrow" style="color:rgba(255,255,255,0.45)">A camada</div>
+    <div style="margin-top:10px;font-size:29px;font-weight:600;letter-spacing:-0.03em">Adaptive Layer™</div>
+    <div style="height:26px"></div>
+    ${SA_MODULES.map(m => `
+      <div class="mod">
+        <div style="display:flex;align-items:baseline;gap:14px">
+          <span class="mono" style="font-size:12px;color:rgba(255,255,255,0.4)">${m.n}</span>
+          <span style="font-size:20px;font-weight:600;letter-spacing:-0.02em">${m.title}</span>
+        </div>
+        <div style="margin-top:7px;font-size:14px;color:rgba(255,255,255,0.55)">${m.hint}</div>
+      </div>`).join('')}`
+  root.appendChild(band)
+  const mods = [...band.querySelectorAll('.mod')]
+
+  const modstack = el('div', 'modstack')
+  const models = SA_CONSUMERS.map(m => {
+    const c = el('div', 'panel modchip')
+    c.innerHTML = `<div>
+        <div style="font-size:16px;font-weight:600;letter-spacing:-0.012em">${m.label}</div>
+        <div class="dim" style="margin-top:5px;font-size:12.5px">${m.hint}</div>
+      </div>
+      <span class="dot grey"></span>`
+    modstack.appendChild(c)
+    return c
+  })
+  root.appendChild(modstack)
+
+  const wiresL = SA_SOURCES.map(() => root.appendChild(el('div', 'wire')))
+  const wiresR = SA_CONSUMERS.map(() => root.appendChild(el('div', 'wire r')))
+
+  // align wires to the real card centers once layout exists
+  const bandLeft = 960 - 215
+  const bandRight = 960 + 215
+  sources.forEach((c, i) => {
+    const y = stack.offsetTop + c.offsetTop + c.offsetHeight / 2
+    const x0 = stack.offsetLeft + stack.offsetWidth + 6
+    Object.assign(wiresL[i].style, { left: px(x0), top: px(y), width: px(bandLeft - x0 - 6) })
+  })
+  models.forEach((c, i) => {
+    const y = modstack.offsetTop + c.offsetTop + c.offsetHeight / 2
+    const x0 = bandRight + 6
+    Object.assign(wiresR[i].style, { left: px(x0), top: px(y), width: px(modstack.offsetLeft - x0 - 6) })
+  })
+
+  return { sources, band, mods, models, wiresL, wiresR }
+}
+
+/* ------------------------------------------------------------------ *
+ * scene g — governance
+ * ------------------------------------------------------------------ */
+const SG_CARDS = [
+  { tag: 'BYOC',  title: 'Na sua nuvem',
+    detail: 'Roda na sua conta AWS, Azure ou GCP. O dado não sai da empresa.' },
+  { tag: 'ACL',   title: 'Permissões herdadas',
+    detail: 'Cada consulta respeita as permissões do sistema de origem.' },
+  { tag: 'AUDIT', title: 'Tudo auditado',
+    detail: 'Cada acesso fica logado: pessoa, agente e sistema na mesma trilha.' },
+  { tag: 'LGPD',  title: 'LGPD no desenho',
+    detail: 'Residência, anonimização e DPA desde o início — não como anexo.' },
+]
+
+function buildSG(root) {
+  const grid = el('div', 'grid')
+  const cards = SG_CARDS.map(c => {
+    const n = el('div', 'panel gov')
+    n.innerHTML = `
+      <span class="tag ink" style="font-size:11.5px;padding:6px 15px;letter-spacing:0.08em">${c.tag}</span>
+      <div style="margin-top:24px;font-size:27px;font-weight:600;letter-spacing:-0.026em">${c.title}</div>
+      <div class="dim" style="margin-top:13px;font-size:17.5px;line-height:1.52">${c.detail}</div>`
+    grid.appendChild(n)
+    return n
+  })
+  root.appendChild(grid)
+  return { cards }
+}
+
+/* ------------------------------------------------------------------ *
+ * scene 1 — four disconnected systems
+ * ------------------------------------------------------------------ */
+const S1_SYSTEMS = [
+  {
+    code: 'E', name: 'ERP', sub: 'Pedidos',
+    cols: '1fr 74px', head: ['Pedido', 'Qtd'],
+    rows: [['#4821 · Northwind', '40'], ['#4822 · Larkin', '12'], ['#4823 · Vestra', '260'], ['#4824 · Northwind', '18'],
+           ['#4825 · Ordway', '75'], ['#4826 · Bell & Co.', '31'], ['#4827 · Vestra', '9'], ['#4828 · Larkin', '148'],
+           ['#4829 · Harlow', '54']],
+  },
+  {
+    code: 'W', name: 'WMS', sub: 'Estoque',
+    cols: '1fr 74px', head: ['Lote', 'Saldo'],
+    rows: [['L-19 · SKU-770', '38'], ['L-20 · SKU-770', '112'], ['L-07 · SKU-431', '0'], ['L-44 · SKU-118', '640'],
+           ['L-45 · SKU-118', '96'], ['L-51 · SKU-902', '204'], ['L-52 · SKU-902', '17'], ['L-63 · SKU-338', '480'],
+           ['L-64 · SKU-338', '22']],
+  },
+  {
+    code: 'C', name: 'CRM', sub: 'Contas',
+    cols: '1fr 74px', head: ['Conta', 'SLA'],
+    rows: [['Northwind Co.', '48h'], ['Larkin Group', '72h'], ['Vestra SA', '24h'], ['Ordway Ltd.', '72h'],
+           ['Bell & Co.', '48h'], ['Harlow Inc.', '24h'], ['Merrick SA', '96h'], ['Ashford Ltd.', '48h'],
+           ['Cortlin Group', '72h']],
+  },
+  { code: 'D', name: 'DOCS', sub: 'Contratos', doc: true },
+]
+
+function buildS1(root) {
+  const board = el('div', 'board')
+  S1_SYSTEMS.forEach(sys => {
+    const p = el('div', 'panel')
+    p.appendChild(el('div', 'panel-head',
+      `<div class="sys"><span class="glyph">${sys.code}</span>${sys.name}</div>
+       <span class="eyebrow">${sys.sub}</span>`))
+
+    if (sys.doc) {
+      const body = el('div', '')
+      body.style.padding = '28px 26px'
+      body.innerHTML = `
+        <div class="mono faint" style="margin-bottom:24px">politica-sla-northwind.pdf</div>
+        ${[96, 88, 100, 72, 94, 84, 100, 61, 90, 78, 100, 46, 92, 86, 99, 70, 95, 58, 100, 74, 88].map(w =>
+          `<div class="skel" style="width:${w}%;margin-bottom:16px"></div>`).join('')}
+      `
+      p.appendChild(body)
+    } else {
+      const th = el('div', 'row thead')
+      th.style.gridTemplateColumns = sys.cols
+      th.innerHTML = sys.head.map(h => `<span>${h}</span>`).join('')
+      p.appendChild(th)
+      sys.rows.forEach(r => {
+        const row = el('div', 'row')
+        row.style.gridTemplateColumns = sys.cols
+        row.innerHTML = `<span>${r[0]}</span><span class="num dim">${r[1]}</span>`
+        p.appendChild(row)
+      })
+    }
+    board.appendChild(p)
+  })
+  root.appendChild(board)
+  return { panels: [...board.children] }
+}
+
+/* ------------------------------------------------------------------ *
+ * scene 2 — event stream
+ * ------------------------------------------------------------------ */
+const S2_EVENTS = [
+  ['10:42:07.114', 'ERP',  'order.created',       'id=4821 · conta=northwind · qtd=40'],
+  ['10:42:07.960', 'DOCS', 'document.attached',   'politica-sla-northwind.pdf · 14p'],
+  ['10:42:08.402', 'WMS',  'lot.allocated',       'lote=L-19 · sku=770 · saldo=38'],
+  ['10:42:09.331', 'CRM',  'account.updated',     'conta=northwind · sla=48h'],
+  ['10:42:10.077', 'ERP',  'order.line.changed',  'id=4821 · qtd=40→38'],
+  ['10:42:11.508', 'WMS',  'shipment.planned',    'id=4821 · janela=D+2'],
+  ['10:42:12.264', 'DOCS', 'clause.indexed',      '§7.2 · escopo=conta:northwind'],
+  ['10:42:12.913', 'ERP',  'order.confirmed',     'id=4821 · status=aprovado'],
+]
+
+function buildS2(root) {
+  const p = el('div', 'panel console')
+  p.appendChild(el('div', 'panel-head',
+    `<div class="sys"><span class="glyph">AL</span>Adaptive Layer · ingestão</div>
+     <span class="tag live"><span class="dot" id="s2-live"></span>escutando</span>`))
+  const rows = S2_EVENTS.map(e => {
+    const r = el('div', 'logrow')
+    r.innerHTML = `<span class="faint">${e[0]}</span>
+                   <span class="src">${e[1]}</span>
+                   <span>${e[2]}</span>
+                   <span class="dim">${e[3]}</span>`
+    p.appendChild(r)
+    return r
+  })
+  root.appendChild(p)
+  return { rows, live: p.querySelector('#s2-live') }
+}
+
+/* ------------------------------------------------------------------ *
+ * scene 3 — canonical identity
+ * ------------------------------------------------------------------ */
+const S3_FIELDS = [
+  ['conta',       'Northwind Co.'],
+  ['item',        'SKU-770 · lote L-19'],
+  ['quantidade',  '38 un'],
+  ['sla',         '48 h'],
+  ['janela',      'D+2'],
+  ['contrato',    'politica-sla-northwind.pdf'],
+  ['atualizado',  '10:42:12.913'],
+]
+
+const S3_SOURCES = [
+  { sys: 'ERP',  id: '4821',           x: -720, y: 210 },
+  { sys: 'WMS',  id: 'L-19/770',       x:  620, y: 330 },
+  { sys: 'CRM',  id: 'ACC-88',         x: -700, y: 470 },
+]
+
+function buildS3(root) {
+  const card = el('div', 'panel record')
+  card.appendChild(el('div', 'panel-head',
+    `<div class="sys"><span class="glyph">AL</span>Entidade canônica</div>
+     <span class="mono faint">ord_4821</span>`))
+  const fields = S3_FIELDS.map(f => {
+    const n = el('div', 'field')
+    n.innerHTML = `<span class="faint">${f[0]}</span><span style="font-weight:500">${f[1]}</span>`
+    card.appendChild(n)
+    return n
+  })
+
+  const idsWrap = el('div', '')
+  idsWrap.style.cssText = 'padding:20px 28px;display:flex;gap:10px;align-items:center;flex-wrap:wrap'
+  idsWrap.appendChild(el('span', 'eyebrow', 'identidades'))
+  const docked = S3_SOURCES.map(s => {
+    const t = el('span', 'tag')
+    t.innerHTML = `<span class="dot grey"></span><span class="mono">${s.sys}:${s.id}</span>`
+    t.style.opacity = 0
+    idsWrap.appendChild(t)
+    return t
+  })
+  card.appendChild(idsWrap)
+  root.appendChild(card)
+
+  const chips = S3_SOURCES.map(s => {
+    const c = el('div', 'panel srcchip')
+    c.style.cssText += `left:50%;top:0;width:280px;padding:16px 20px;border-radius:14px`
+    c.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between">
+        <span class="sys" style="font-size:13px"><span class="glyph">${s.sys[0]}</span>${s.sys}</span>
+        <span class="mono faint">${s.id}</span></div>`
+    root.appendChild(c)
+    return { node: c, spec: s }
+  })
+
+  return { card, fields, chips, docked }
+}
+
+/* ------------------------------------------------------------------ *
+ * scene 4 — fact vs. knowledge
+ * ------------------------------------------------------------------ */
+const S4_CHUNKS = [
+  ['§2.1', 'Prazo de reposição para pedidos acima de 30 unidades…'],
+  ['§4.3', 'Multa por atraso aplicável após 48 horas corridas…'],
+  ['§7.2', 'Janela de entrega negociada em D+2 para a conta…'],
+  ['§9.1', 'Reposição parcial permitida mediante aviso prévio…'],
+]
+
+function buildS4(root) {
+  const left = el('div', 'panel left')
+  left.appendChild(el('div', 'panel-head',
+    `<div class="sys"><span class="glyph">#</span>Fato</div><span class="eyebrow">registro</span>`))
+  S3_FIELDS.forEach(f => {
+    const n = el('div', 'field')
+    n.style.cssText = 'display:grid;grid-template-columns:180px 1fr;gap:18px;padding:17px 28px;border-bottom:1px solid var(--hair-2);font-size:15px'
+    n.innerHTML = `<span class="faint">${f[0]}</span><span style="font-weight:500">${f[1]}</span>`
+    left.appendChild(n)
+  })
+  root.appendChild(left)
+
+  const right = el('div', 'panel right')
+  right.appendChild(el('div', 'panel-head',
+    `<div class="sys"><span class="glyph">¶</span>Conhecimento</div><span class="eyebrow">documento</span>`))
+  const chunks = S4_CHUNKS.map(c => {
+    const n = el('div', 'chunk')
+    n.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:11px">
+        <span class="mono faint">${c[0]}</span>
+        <span class="tag" style="padding:3px 10px;font-size:10.5px"><span class="mono">conta: northwind</span></span>
+      </div>
+      <div class="dim" style="font-size:14.5px;line-height:1.45;margin-bottom:12px">${c[1]}</div>
+      <div class="mono faint" style="font-size:12px">[ 0.128, −0.441, 0.907, … ]</div>`
+    right.appendChild(n)
+    return n
+  })
+  root.appendChild(right)
+
+  root.appendChild(el('div', 'divider'))
+
+  const note = el('div', 'rule-note tag ink')
+  note.style.cssText += 'padding:11px 22px;font-size:13px;letter-spacing:0.01em'
+  note.textContent = 'vetor só depois da identidade'
+  root.appendChild(note)
+
+  return { left, right, chunks, note }
+}
+
+/* ------------------------------------------------------------------ *
+ * scene 5 — governed query
+ * ------------------------------------------------------------------ */
+const S5_MODELS = ['Claude', 'ChatGPT', 'Gemini', 'Copilot', 'MCP']
+const S5_QUESTION = 'Por que o pedido da Northwind pode atrasar?'
+const S5_AUDIT = [
+  ['10:42:14', 'query.received'],
+  ['10:42:14', 'scope.resolved'],
+  ['10:42:14', 'acl.granted'],
+  ['10:42:15', 'answer.served'],
+]
+
+function buildS5(root) {
+  const conn = el('div', 'connectors')
+  const models = S5_MODELS.map(m => {
+    const t = el('span', 'tag', m)
+    t.style.cssText += 'padding:8px 18px;font-size:13px'
+    conn.appendChild(t)
+    return t
+  })
+  root.appendChild(conn)
+
+  const bar = el('div', 'panel querybar')
+  bar.innerHTML = `<span class="tag ink" style="font-size:12px;padding:7px 16px;white-space:nowrap">Agente Comercial</span>
+    <span class="eyebrow" style="margin:0">pergunta</span>
+    <span id="s5-q" style="font-size:19px;letter-spacing:-0.015em"></span><span class="caret" id="s5-caret"></span>`
+  root.appendChild(bar)
+
+  const gate = el('div', 'panel gate')
+  gate.innerHTML = `
+    <span class="eyebrow" style="margin:0">escopo</span>
+    <span class="tag"><span class="mono">conta: northwind</span></span>
+    <span class="tag"><span class="mono">papel: comercial</span></span>
+    <span class="tag"><span class="mono">campos: 12 de 34</span></span>
+    <span style="flex:1"></span>
+    <span class="tag ink">permitido</span>`
+  root.appendChild(gate)
+
+  const ans = el('div', 'panel answer')
+  ans.innerHTML = `
+    <div class="panel-head"><div class="sys"><span class="glyph">AL</span>Resposta</div>
+      <span class="eyebrow">com procedência</span></div>
+    <div style="padding:32px 34px;display:grid;grid-template-columns:1.15fr 1fr 0.72fr;gap:40px">
+      <div>
+        <div class="eyebrow" style="margin-bottom:14px">fato</div>
+        <div style="font-size:23px;font-weight:600;letter-spacing:-0.024em;line-height:1.28">
+          O lote L-19 cobre 38 das 40 unidades. A reposição entra na janela D+2.</div>
+        <div class="mono faint" style="margin-top:18px;font-size:12.5px">fonte · wms.lot · erp.order</div>
+      </div>
+      <div style="border-left:1px solid var(--hair-2);padding-left:40px">
+        <div class="eyebrow" style="margin-bottom:14px">cláusula</div>
+        <div class="dim" style="font-size:18px;line-height:1.46">
+          “Janela de entrega negociada em D+2 para a conta.”</div>
+        <div class="mono faint" style="margin-top:18px;font-size:12.5px">politica-sla-northwind.pdf §7.2</div>
+      </div>
+      <div id="s5-audit" style="border-left:1px solid var(--hair-2);padding-left:40px">
+        <div class="eyebrow" style="margin-bottom:16px">auditoria</div>
+      </div>
+    </div>`
+  root.appendChild(ans)
+
+  const audit = ans.querySelector('#s5-audit')
+  const auditRows = S5_AUDIT.map(a => {
+    const r = el('div', '')
+    r.style.cssText = 'font-family:var(--mono);font-size:12.5px;display:flex;gap:14px;margin-bottom:13px'
+    r.innerHTML = `<span class="faint">${a[0]}</span><span class="dim">${a[1]}</span>`
+    audit.appendChild(r)
+    return r
+  })
+
+  return {
+    conn, models, bar, gate, ans, audit, auditRows,
+    q: bar.querySelector('#s5-q'),
+    caret: bar.querySelector('#s5-caret'),
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * scene 6 — signature
+ * ------------------------------------------------------------------ */
+function buildS6(root) {
+  const s = el('div', 'sign')
+  s.innerHTML = `
+    <div id="s6-rule" style="width:44px;height:1.5px;background:var(--ink);margin:0 auto 34px"></div>
+    <div id="s6-word" style="font-size:92px;font-weight:600;letter-spacing:-0.044em">Adaptive Layer™</div>
+    <div id="s6-sub" style="margin-top:26px;font-size:27px;letter-spacing:-0.014em;color:var(--mute)">
+      Contexto pronto para inteligência.</div>
+    <div id="s6-lab" style="margin-top:78px" class="eyebrow">PixelPulseLab</div>`
+  root.appendChild(s)
+  return {
+    sign: s,
+    rule: s.querySelector('#s6-rule'),
+    word: s.querySelector('#s6-word'),
+    sub: s.querySelector('#s6-sub'),
+    lab: s.querySelector('#s6-lab'),
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * build
+ * ------------------------------------------------------------------ */
+const cams = {}
+const scenes = {}
+;['s0', 's1', 'sa', 's2', 's3', 's4', 's5', 'sg', 's6'].forEach(id => {
+  scenes[id] = document.getElementById(id)
+  cams[id] = scenes[id].querySelector('.cam')
+})
+
+const S0 = buildS0(cams.s0)
+const SA = buildSA(cams.sa)
+const SG = buildSG(cams.sg)
+const S1 = buildS1(cams.s1)
+const S2 = buildS2(cams.s2)
+const S3 = buildS3(cams.s3)
+const S4 = buildS4(cams.s4)
+const S5 = buildS5(cams.s5)
+const S6 = buildS6(cams.s6)
+
+const watermarkEl = document.getElementById('watermark')
+const capEl = document.getElementById('caption')
+const capEyebrow = document.getElementById('cap-eyebrow')
+const capRule = document.getElementById('cap-rule')
+const capText = document.getElementById('cap-text')
+
+/* ------------------------------------------------------------------ *
+ * render
+ * ------------------------------------------------------------------ */
+let TL = DEFAULT_TIMELINE
+window.__setTimeline = tl => { TL = tl }
+
+const FADE = 0.42
+
+function sceneAlpha(t, b, isLast) {
+  const inA = seg(t, b.start, b.start + FADE)
+  const outA = isLast ? 1 : 1 - seg(t, b.end - FADE, b.end)
+  if (t < b.start - 0.001 || t > b.end + 0.001) return 0
+  return Math.min(inA, outA)
+}
+
+function cam(node, scale, x, y, blur) {
+  node.style.transform = `translate3d(${px(x)}, ${px(y)}, 0) scale(${scale})`
+  node.style.filter = blur > 0.01 ? `blur(${blur.toFixed(2)}px)` : 'none'
+}
+
+function render(t) {
+  const last = TL[TL.length - 1]
+
+  TL.forEach((b, i) => {
+    const node = scenes[b.id]
+    const a = sceneAlpha(t, b, b === last)
+    node.style.opacity = a
+    node.style.display = a <= 0.001 ? 'none' : 'block'
+    if (a <= 0.001) return
+
+    const d = b.end - b.start
+    const p = clamp((t - b.start) / d, 0, 1)
+    const fn = SCENE[b.id]
+    if (fn) fn(p, t - b.start, d)
+  })
+
+  // caption
+  const active = TL.find(b => t >= b.start - FADE && t < b.end) || last
+  const cap = CAPTIONS[active.id] || { eyebrow: '', text: '' }
+  const hasCap = !!cap.text
+  capEyebrow.textContent = cap.eyebrow
+  capText.textContent = cap.text
+  const cp = seg(t, active.start + 0.18, active.start + 0.9)
+  const cOut = 1 - seg(t, active.end - 0.36, active.end)
+  const ca = hasCap ? Math.min(easeOut(cp), cOut) : 0
+  capEl.style.opacity = ca
+  capEl.style.transform = `translateY(${px(lerp(16, 0, easeOut(cp)))})`
+  capRule.style.transform = `scaleX(${easeOut(seg(t, active.start + 0.3, active.start + 1.1))})`
+
+  // watermark everywhere, except over the signature (which carries the brand)
+  watermarkEl.style.opacity =
+    active.id === 's6' ? 1 - seg(t, active.start - FADE, active.start + 0.2) : 1
+}
+
+const SCENE = {}
+
+/* scene 0: question types, generic model fails to answer */
+SCENE.s0 = (p, lt, d) => {
+  cam(cams.s0, lerp(1.0, 1.08, easeInOut(p)), 0, lerp(0, -18, easeInOut(p)), 0)
+
+  const pa = easeOut(seg(lt, 0.1, 0.8))
+  S0.panel.style.opacity = pa
+  S0.panel.style.transform = `translateY(${px(lerp(26, 0, pa))})`
+
+  const ua = easeOut(seg(lt, 0.5, 1.0))
+  S0.user.style.opacity = ua
+  const typed = Math.round(easeInOut(seg(lt, 0.8, 3.0)) * HOOK_QUESTION.length)
+  S0.q.textContent = HOOK_QUESTION.slice(0, typed)
+  S0.caret.style.opacity = lt > 3.2 ? 0 : (Math.sin(lt * Math.PI * 3.4) > 0 ? 1 : 0.15)
+
+  const aa = easeOut(seg(lt, 3.5, 4.1))
+  S0.ai.style.opacity = aa
+  S0.ai.style.transform = `translateY(${px(lerp(14, 0, aa))})`
+
+  const answered = lt > 5.6
+  S0.dots.style.display = answered ? 'none' : 'inline-flex'
+  S0.answer.style.display = answered ? 'inline' : 'none'
+  if (!answered) {
+    const dots = S0.dots.children
+    for (let i = 0; i < 3; i++) {
+      dots[i].style.opacity = 0.25 + 0.75 * Math.abs(Math.sin((lt - i * 0.18) * Math.PI * 1.6))
+    }
+  } else {
+    S0.answer.style.opacity = easeOut(seg(lt, 5.6, 6.3))
+  }
+}
+
+/* scene a: sources wire into the dark layer, models wire out */
+SCENE.sa = (p, lt, d) => {
+  cam(cams.sa, lerp(1.04, 1.0, easeOut(p)), 0, lerp(14, 0, easeOut(p)), 0)
+
+  const ba = easeOut(seg(lt, 0.15, 0.95))
+  SA.band.style.opacity = ba
+  SA.band.style.transform = `translateY(${px(lerp(30, 0, ba))})`
+  SA.mods.forEach((n, i) => {
+    n.style.opacity = easeOut(seg(lt, 0.8 + i * 0.22, 1.3 + i * 0.22))
+  })
+
+  SA.sources.forEach((n, i) => {
+    const a = easeOut(seg(lt, 0.9 + i * 0.16, 1.5 + i * 0.16))
+    n.style.opacity = a
+    n.style.transform = `translateX(${px(lerp(-26, 0, a))})`
+  })
+  SA.wiresL.forEach((w, i) => {
+    const a = easeInOut(seg(lt, 1.9 + i * 0.14, 2.6 + i * 0.14))
+    w.style.transform = `scaleX(${a})`
+    w.style.opacity = a > 0 ? 1 : 0
+  })
+
+  SA.models.forEach((n, i) => {
+    const a = easeOut(seg(lt, 2.9 + i * 0.13, 3.5 + i * 0.13))
+    n.style.opacity = a
+    n.style.transform = `translateX(${px(lerp(26, 0, a))})`
+  })
+  SA.wiresR.forEach((w, i) => {
+    const a = easeInOut(seg(lt, 3.5 + i * 0.12, 4.2 + i * 0.12))
+    w.style.transform = `scaleX(${a})`
+    w.style.opacity = a > 0 ? 1 : 0
+  })
+}
+
+/* scene g: governance cards rise */
+SCENE.sg = (p, lt, d) => {
+  cam(cams.sg, lerp(1.06, 1.0, easeOutQuint(p)), 0, lerp(20, 0, easeOut(p)), 0)
+  SG.cards.forEach((n, i) => {
+    const a = easeOut(seg(lt, 0.15 + i * 0.18, 0.85 + i * 0.18))
+    n.style.opacity = a
+    n.style.transform = `translateY(${px(lerp(30, 0, a))})`
+  })
+}
+
+/* scene 1: panels rise in sequence, camera pulls back slowly */
+SCENE.s1 = (p, lt, d) => {
+  cam(cams.s1, lerp(1.10, 1.0, easeOut(clamp(lt / d, 0, 1))), 0, lerp(18, 0, easeOut(p)), 0)
+  S1.panels.forEach((n, i) => {
+    const a = easeOut(seg(lt, 0.08 + i * 0.13, 0.78 + i * 0.13))
+    n.style.opacity = a
+    n.style.transform = `translateY(${px(lerp(34, 0, a))})`
+  })
+}
+
+/* scene 2: log rows stream in, camera pushes in */
+SCENE.s2 = (p, lt, d) => {
+  cam(cams.s2, lerp(1.0, 1.09, easeInOut(p)), 0, lerp(0, -22, easeInOut(p)), 0)
+  S2.rows.forEach((n, i) => {
+    const a = easeOut(seg(lt, 0.18 + i * 0.30, 0.62 + i * 0.30))
+    n.style.opacity = a
+    n.style.transform = `translateY(${px(lerp(20, 0, a))})`
+  })
+  const pulse = 0.45 + 0.55 * Math.abs(Math.sin(lt * Math.PI * 1.15))
+  S2.live.style.opacity = pulse
+}
+
+/* scene 3: source chips fly in and dock into the canonical record */
+SCENE.s3 = (p, lt, d) => {
+  cam(cams.s3, lerp(1.02, 1.12, easeInOut(p)), 0, lerp(0, -34, easeInOut(p)), 0)
+
+  const cardA = easeOut(seg(lt, 0.05, 0.7))
+  S3.card.style.opacity = cardA
+  S3.card.style.transform = `translateY(${px(lerp(22, 0, cardA))})`
+
+  S3.chips.forEach((c, i) => {
+    const t0 = 0.55 + i * 0.34
+    const enter = easeOut(seg(lt, t0, t0 + 0.5))
+    const dock = easeInOut(seg(lt, t0 + 0.55, t0 + 1.25))
+    const x = lerp(c.spec.x, -180, dock)
+    const y = lerp(c.spec.y, 636, dock)
+    const s = lerp(1, 0.62, dock)
+    const a = Math.min(enter, 1 - seg(lt, t0 + 1.0, t0 + 1.28))
+    c.node.style.opacity = a
+    c.node.style.transform = `translate(${px(x)}, ${px(y)}) scale(${s})`
+  })
+
+  S3.docked.forEach((n, i) => {
+    n.style.opacity = easeOut(seg(lt, 1.62 + i * 0.34, 1.92 + i * 0.34))
+  })
+
+  S3.fields.forEach((n, i) => {
+    n.style.opacity = easeOut(seg(lt, 0.42 + i * 0.11, 0.92 + i * 0.11))
+  })
+}
+
+/* scene 4: fact holds, knowledge chunks vectorize; slow lateral drift */
+SCENE.s4 = (p, lt, d) => {
+  cam(cams.s4, lerp(1.04, 1.0, easeOut(p)), lerp(34, -34, easeInOut(p)), 0, 0)
+
+  const la = easeOut(seg(lt, 0.05, 0.75))
+  S4.left.style.opacity = la
+  S4.left.style.transform = `translateY(${px(lerp(24, 0, la))})`
+
+  const ra = easeOut(seg(lt, 0.45, 1.2))
+  S4.right.style.opacity = ra
+  S4.right.style.transform = `translateY(${px(lerp(24, 0, ra))})`
+
+  S4.chunks.forEach((n, i) => {
+    const a = easeOut(seg(lt, 1.15 + i * 0.42, 1.75 + i * 0.42))
+    n.style.opacity = a
+    n.style.transform = `translateY(${px(lerp(14, 0, a))})`
+  })
+
+  const na = easeOut(seg(lt, 3.1, 3.7))
+  S4.note.style.opacity = na
+  S4.note.style.transform = `translateX(-50%) translateY(${px(lerp(14, 0, na))})`
+}
+
+/* scene 5: query types in, gate resolves, answer lands */
+SCENE.s5 = (p, lt, d) => {
+  cam(cams.s5, lerp(1.05, 1.0, easeOutQuint(p)), 0, lerp(26, 0, easeOut(p)), 0)
+
+  S5.models.forEach((n, i) => {
+    const a = easeOut(seg(lt, 0.05 + i * 0.07, 0.5 + i * 0.07))
+    n.style.opacity = a
+    n.style.transform = `translateY(${px(lerp(10, 0, a))})`
+  })
+
+  const ba = easeOut(seg(lt, 0.3, 0.9))
+  S5.bar.style.opacity = ba
+  S5.bar.style.transform = `translateY(${px(lerp(16, 0, ba))})`
+
+  const typed = Math.round(easeInOut(seg(lt, 0.65, 2.35)) * S5_QUESTION.length)
+  S5.q.textContent = S5_QUESTION.slice(0, typed)
+  S5.caret.style.opacity = lt > 2.5 ? 0 : (Math.sin(lt * Math.PI * 3.4) > 0 ? 1 : 0.15)
+
+  const ga = easeOut(seg(lt, 2.55, 3.1))
+  S5.gate.style.opacity = ga
+  S5.gate.style.transform = `translateY(${px(lerp(14, 0, ga))})`
+
+  const aa = easeOut(seg(lt, 3.25, 3.95))
+  S5.ans.style.opacity = aa
+  S5.ans.style.transform = `translateY(${px(lerp(24, 0, aa))})`
+
+  S5.audit.style.opacity = easeOut(seg(lt, 3.5, 4.0))
+  S5.auditRows.forEach((n, i) => {
+    n.style.opacity = easeOut(seg(lt, 3.6 + i * 0.2, 3.9 + i * 0.2))
+  })
+}
+
+/* scene 6: signature settles */
+SCENE.s6 = (p, lt, d) => {
+  cam(cams.s6, lerp(1.05, 1.0, easeOutQuint(clamp(lt / 2.2, 0, 1))), 0, 0, 0)
+  S6.rule.style.transform = `scaleX(${easeOut(seg(lt, 0.15, 1.0))})`
+  const wa = easeOut(seg(lt, 0.25, 1.1))
+  S6.word.style.opacity = wa
+  S6.word.style.transform = `translateY(${px(lerp(14, 0, wa))})`
+  S6.sub.style.opacity = easeOut(seg(lt, 0.7, 1.5))
+  S6.lab.style.opacity = easeOut(seg(lt, 1.2, 2.0))
+}
+
+window.__render = t => { render(t); return true }
+render(0)
+document.documentElement.dataset.ready = '1'
+</script>
+</body>
+</html>

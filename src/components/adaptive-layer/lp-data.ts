@@ -269,8 +269,8 @@ export const PROOF = {
 export const VIDEO = {
   eyebrow: 'Vídeo',
   headline: 'Como funciona.',
-  body: 'Um pitch. Um pedido. Do ERP à resposta.',
-  durationLabel: '2 min',
+  body: 'A IA não conhece a sua operação. A Adaptive Layer™ junta o que a empresa já sabe e entrega para agentes — com permissão, na sua nuvem.',
+  durationLabel: '1 min 30s',
   scenes: [
     {
       id: 'intro',

@@ -1,0 +1,98 @@
+{
+  "title": "Adaptive Layer",
+  "logline": "Não falta modelo. Falta contexto.",
+  "look": {
+    "refs": ["Blade Runner 2049", "Arrival", "Devs", "The Social Network night", "Sicario interiors"],
+    "camera": "ARRI Alexa 65, Hawk anamorphic, 24fps, T1.4, slow push-ins, steadicam, rare crane",
+    "grade": "Kodak Vision3 500T, sodium amber + cyan practicals, wet night, haze, fine grain, no teal-orange LUT cliché",
+    "forbid": [
+      "UI screenshots",
+      "hologram HUD",
+      "robots",
+      "glowing brain",
+      "stock icons",
+      "text overlays",
+      "logos",
+      "infographics"
+    ],
+    "motif": "The Adaptive Layer is only a razor-thin horizontal plane of pale glass light that cuts through real architecture and binds objects without erasing them."
+  },
+  "stylePrefix": "Photoreal cinematic, ARRI Alexa 65, Hawk anamorphic 1.3x, 24fps, T1.4 shallow depth of field, Kodak Vision3 500T, fine film grain, wet night, sodium-vapor amber and cyan practicals, volumetric haze, prestige tech-thriller. No text overlays, no UI, no logos, no robots, no hologram HUD, no stock infographics. The Adaptive Layer appears only as a razor-thin horizontal plane of pale glass light cutting through real rooms.",
+  "voice": {
+    "model": "gemini-3.1-flash-tts-preview",
+    "voiceName": "Charon",
+    "languageCode": "pt-BR",
+    "direction": "Fale em português brasileiro. Narrador de cinema, íntimo, grave, perto do microfone, ritmo de trailer de Denis Villeneuve. Sem palavras a mais. Fale somente o texto:"
+  },
+  "videoModel": "veo-3.1-generate-preview",
+  "videoFallback": "veo-3.1-fast-generate-preview",
+  "durationSeconds": 8,
+  "resolution": "1080p",
+  "aspectRatio": "16:9",
+  "score": {
+    "model": "lyria-3-pro-preview",
+    "prompt": "Instrumental only. No vocals. No lyrics. Two minutes of quiet cinematic orchestral music. Low piano, muted strings, distant analog synthesizer pads. Night industrial atmosphere. Slow, elegant, prestige film underscore. Not electronic dance music. Not a pop song."
+  },
+  "scenes": [
+    {
+      "id": "01-intro",
+      "title": "Não falta modelo",
+      "voice": "Não falta modelo. Falta contexto. A Adaptive Layer é a camada entre o que a operação já sabe... e a inteligência que vai usar isso amanhã.",
+      "prompt": "Night aerial over a vast industrial city after rain. Camera cranes down through a glass office tower into a cathedral-scale warehouse. A razor-thin horizontal plane of pale glass light materializes and slices the building in two: machinery and paper below, dark air above. Slow, heavy, reverent. Ambient: distant trucks, wind, low electrical hum."
+    },
+    {
+      "id": "02-systems",
+      "title": "A empresa já tem sistemas",
+      "voice": "No chão, é assim: ERP. Estoque. CRM. Um PDF de política. Cada um no seu canto. A Layer entra no meio. Sem apagar o que já funciona.",
+      "prompt": "Single unbroken steadicam through four isolated rooms of one company at night: a back office of CRT and modern terminals (ERP), a warehouse of palettes and forklifts (stock), a sales desk with a phone still glowing (CRM), a legal table with a thick printed policy binder. Doors connect the rooms but nothing of the data does. The pale glass light plane waits in the corridor, not yet touching. Ambient: HVAC, distant printer, fluorescent buzz."
+    },
+    {
+      "id": "03-event",
+      "title": "Algo acontece",
+      "voice": "Aí o comercial fecha um pedido. Quarenta caixas. Cliente X. Entrega sexta. Anexa a política de prazo. Isso é um fato da operação. Não é um prompt.",
+      "prompt": "Intimate documentary close-ups, no faces needed if hands only: a fountain pen signs an order, 40 cardboard boxes stamped on a wet loading dock, a manila folder labeled Client X, a wall calendar on Friday, a thick policy document clipped to the order. Rain, sodium lights, breath in cold air. This is a real operational fact, not a computer prompt. Ambient: rain, stamp, dock door."
+    },
+    {
+      "id": "04-listen",
+      "title": "A Layer escuta",
+      "voice": "A Layer escuta na origem. O evento entra uma vez. Ninguém copia pra planilha. O PDF entra junto... do mesmo cliente.",
+      "prompt": "Macro, almost supernatural but physical: the signed order and the policy binder lift a few millimeters as the pale glass light plane passes through the desk like a silent scanner. No one photocopies. No spreadsheet. Both objects are captured once, still belonging to the same client. Dust motes freeze in the beam. Ambient: a single low tone, paper hush."
+    },
+    {
+      "id": "05-identity",
+      "title": "Um nome único",
+      "voice": "Pedido, lote e cliente viram um nome só. A partir daqui, a empresa inteira aponta para o mesmo registro. Acabou o código diferente em cada sistema.",
+      "prompt": "Extreme macro of industrial identity: a steel tag engraved 4821, a lot stamp L-19, a client seal X. Heat and light fuse the three marks into one physical record, one engraved plate. Around the plate, out-of-focus, three different office rooms now point toward the same object. No digital UI. Ambient: metal cooling, a lock clicking."
+    },
+    {
+      "id": "06-split",
+      "title": "Número fica número",
+      "voice": "Aqui está a regra. Número tem forma: quantidade, prazo, nota. Fica registro. Texto não tem forma: política, contrato, e-mail. Só o texto segue.",
+      "prompt": "Split-diopter cinematic frame. Left half: a bound ledger of quantities, dates, invoice numbers — solid, engraved, immovable. Right half: flowing printed policy text, contracts, a letter, paper that wants to move. The pale glass plane touches only the text. Numbers stay matter. Ambient: page turn, clock."
+    },
+    {
+      "id": "07-vector",
+      "title": "Agora sim: vetor",
+      "voice": "Vetor não é o primeiro passo. É só um jeito de achar texto pelo sentido. A política é fatiada, vira vetor, e fica amarrada naquele cliente. O pedido... continua número. Não vira vetor.",
+      "prompt": "The policy pages slice into thin translucent sheets and become a constellation of meaning in the air, each fragment still tethered by a fine steel wire to the Client X seal. The order number 4821 remains a solid engraved plate on the desk and never dissolves. No particles of the number become stars. Beautiful, restrained, physical. Ambient: glass chimes, low drone."
+    },
+    {
+      "id": "08-ask",
+      "title": "Alguém pergunta",
+      "voice": "Quando alguém pergunta — no portal, num agente, no Copilot — todos batem na mesma porta. A Layer olha quem pode ver. Antes de responder.",
+      "prompt": "A dim executive office at night. An adult in silhouette faces a single dark glass portal. The question is felt, not written on screen. Before any answer, the pale glass plane checks a physical keycard / access badge on the desk — permission first. One door, many rooms behind it. Tension, still. Ambient: chair leather, distant city."
+    },
+    {
+      "id": "09-answer",
+      "title": "Dois lados da resposta",
+      "voice": "A resposta tem dois lados. O fato: entrega sexta. E o trecho da política daquele cliente. Tudo logado. O modelo não inventa o pedido. Ele consulta a Layer.",
+      "prompt": "Two objects land on a black oak desk in a shaft of light: a paper calendar circled on Friday, and a highlighted SLA clause from that client's policy. A red archival stamp hits a leather audit book — who saw this. No invented order appears. The engraved 4821 plate is consulted, not hallucinated. Ambient: stamp, paper, room tone."
+    },
+    {
+      "id": "10-outro",
+      "title": "Pronto para IA",
+      "voice": "Dados. Contexto. Ação. Na nuvem de vocês. Isso é a Adaptive Layer: a empresa pronta para inteligência... sem perder a verdade da operação.",
+      "prompt": "Camera pulls back from the pale glass plane through the warehouse, the offices, the wet dock, up into the night city. The light plane is the building's nervous system, still thin, still physical. Final beat: the engraved order plate rests in the dark, unaltered. End on architecture, not a logo. Ambient: city, wind, one last low note."
+    }
+  ]
+}

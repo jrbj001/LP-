@@ -1,0 +1,107 @@
+{
+  "title": "Adaptive Layer — explainer",
+  "format": "explainer animado",
+  "targetSeconds": 80,
+  "logline": "A IA não conhece a sua empresa. A Adaptive Layer resolve isso.",
+  "look": {
+    "approach": "Explainer animado com telas reais do produto em HTML/CSS no design system da LP. Arco completo: problema → camada → mecanismo → resposta → governança.",
+    "palette": [
+      "#fbfbfa",
+      "#171717",
+      "#737373",
+      "#1b4dff"
+    ],
+    "refs": [
+      "Linear",
+      "Stripe",
+      "Vercel",
+      "Apple product film"
+    ]
+  },
+  "fps": 30,
+  "scale": 2,
+  "voice": {
+    "model": "gemini-3.1-flash-tts-preview",
+    "voiceName": "Kore",
+    "languageCode": "pt-BR",
+    "direction": "Fale em português brasileiro. Voz de explainer para empresas: clara, calma, didática, sem tom de trailer. Sem palavras a mais. Fale somente:"
+  },
+  "score": {
+    "model": "lyria-3-clip-preview",
+    "prompt": "Instrumental only. No vocals. No lyrics. Sixty seconds. Calm modern product film music. Soft analog synth pad, sparse piano notes, gentle pulse. Bright, precise, confident. Not dark, not trailer, not EDM, not orchestral."
+  },
+  "beats": [
+    {
+      "id": "s0",
+      "title": "A pergunta que a IA erra",
+      "minSeconds": 9.4,
+      "gapBefore": 0.4,
+      "gapAfter": 0.28,
+      "voice": "Sua empresa quer usar inteligência artificial. Mas pergunte sobre um pedido, um estoque, um prazo — e o modelo não sabe responder. Ele nunca viu os seus dados."
+    },
+    {
+      "id": "s1",
+      "title": "A informação está espalhada",
+      "minSeconds": 9.6,
+      "gapBefore": 0.25,
+      "gapAfter": 0.28,
+      "voice": "A informação existe. Só que espalhada: o pedido no ERP, o estoque no WMS, o cliente no CRM, o prazo num PDF. Cada sistema guarda um pedaço da verdade."
+    },
+    {
+      "id": "sa",
+      "title": "A camada",
+      "minSeconds": 8.2,
+      "gapBefore": 0.25,
+      "gapAfter": 0.28,
+      "voice": "A Adaptive Layer é a camada entre os seus sistemas e quem precisa deles: agentes por área, automações e qualquer modelo. Nada é apagado. Nada é redigitado."
+    },
+    {
+      "id": "s2",
+      "title": "Escuta o evento",
+      "minSeconds": 5.0,
+      "gapBefore": 0.25,
+      "gapAfter": 0.28,
+      "voice": "Ela escuta cada evento na origem, no momento em que acontece."
+    },
+    {
+      "id": "s3",
+      "title": "Identidade única",
+      "minSeconds": 5.4,
+      "gapBefore": 0.25,
+      "gapAfter": 0.28,
+      "voice": "Junta os códigos espalhados — pedido, lote, cliente — num registro único."
+    },
+    {
+      "id": "s4",
+      "title": "Fato e conhecimento",
+      "minSeconds": 6.6,
+      "gapBefore": 0.25,
+      "gapAfter": 0.28,
+      "voice": "Número vira registro confiável. Texto vira busca — sempre amarrado ao cliente certo."
+    },
+    {
+      "id": "s5",
+      "title": "A mesma pergunta, respondida",
+      "minSeconds": 10.2,
+      "gapBefore": 0.25,
+      "gapAfter": 0.28,
+      "voice": "Agora a mesma pergunta tem resposta. Um agente com dono de área consulta a camada — pelo ChatGPT, pelo Claude, por qualquer modelo — e responde com o dado real, a cláusula do contrato e a fonte."
+    },
+    {
+      "id": "sg",
+      "title": "Governança",
+      "minSeconds": 6.0,
+      "gapBefore": 0.25,
+      "gapAfter": 0.28,
+      "voice": "Com permissão por papel, auditoria de cada acesso — e tudo rodando na sua nuvem."
+    },
+    {
+      "id": "s6",
+      "title": "Assinatura",
+      "minSeconds": 5.2,
+      "gapBefore": 0.45,
+      "gapAfter": 0.8,
+      "voice": "Adaptive Layer, da PixelPulseLab. A sua empresa, pronta para IA."
+    }
+  ]
+}
