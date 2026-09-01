@@ -10,3 +10,5 @@ next-env.d.ts
 .env*.local
 .cache
 .tmp-e2e
+tmp/
+__pycache__/

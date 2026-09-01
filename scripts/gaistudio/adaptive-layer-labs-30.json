@@ -1,0 +1,64 @@
+{
+  "title": "Adaptive Layer",
+  "format": "spot",
+  "maxSeconds": 30,
+  "logline": "Não falta modelo. Falta contexto.",
+  "look": {
+    "refs": ["DeepMind lab", "OpenAI campus", "Linear", "Apple product film", "PixelPulseLab"],
+    "forbid": [
+      "warehouse",
+      "forklift",
+      "rain night noir",
+      "Blade Runner",
+      "industrial cathedral",
+      "movie trailer voice",
+      "UI screenshots",
+      "robots",
+      "hologram HUD",
+      "order 4821"
+    ]
+  },
+  "stylePrefix": "Bright modern AI research lab, PixelPulseLab startup, daylight through glass, pale concrete, white oak, one electric-blue accent. Clean editorial photography, 24fps, shallow but not moody, confident product film. Young engineering team, laptops, whiteboards with abstract graphs. No warehouse, no rain, no forklift, no night thriller, no robots, no hologram HUD, no text overlays, no logos of other brands. The Adaptive Layer is a thin frosted-glass sheet of cool light floating between real systems and a model — elegant, lab-made, not sci-fi.",
+  "voice": {
+    "model": "gemini-3.1-flash-tts-preview",
+    "voiceName": "Kore",
+    "languageCode": "pt-BR",
+    "direction": "Fale em português brasileiro. Voz de Labs: clara, jovem, segura, sem trailer de cinema. Ritmo de spot de 30 segundos. Sem palavras a mais. Fale somente:"
+  },
+  "voiceover": "Todo mundo tem o mesmo modelo. Ninguém tem o seu contexto. A Adaptive Layer resolve isso: pega o que a operação já sabe — cada evento, cada entidade, cada documento — e entrega pronto para qualquer modelo. Com permissão. Na sua nuvem. O modelo para de adivinhar. Passa a consultar. Adaptive Layer. O contexto que faltava.",
+  "videoModel": "veo-3.1-fast-generate-preview",
+  "videoFallback": "veo-3.1-lite-generate-preview",
+  "durationSeconds": 8,
+  "resolution": "720p",
+  "aspectRatio": "16:9",
+  "score": {
+    "model": "lyria-3-clip-preview",
+    "prompt": "Instrumental only. No vocals. No lyrics. Thirty seconds. Clean optimistic tech-lab music. Soft analog synth, light piano, airy pulse. Startup product film, daylight, confident. Not dark, not trailer, not EDM drop, not warehouse drone."
+  },
+  "scenes": [
+    {
+      "id": "01-hook",
+      "title": "O gancho",
+      "voice": "Todo mundo tem o mesmo modelo. Ninguém tem o seu contexto.",
+      "prompt": "Daylit modern AI lab. A large language model shown as a bright, beautiful column of cool light on a clean desk — clearly powerful, but empty, generic, the same as everyone else's. A young engineer studies it, arms crossed, thoughtful. Pale walls, plants, laptops, whiteboard with abstract graphs. Slow push-in. Confident startup lab, daylight. Ambient: soft room tone, keyboard."
+    },
+    {
+      "id": "02-turn",
+      "title": "A virada",
+      "voice": "A Adaptive Layer resolve isso: pega o que a operação já sabe — cada evento, cada entidade, cada documento — e entrega pronto para qualquer modelo. Com permissão. Na sua nuvem.",
+      "prompt": "Same bright lab. A thin frosted-glass sheet of cool electric-blue light materializes between a wall of ordinary business systems — tidy tables of data, folders, a CRM laptop — and the glowing model column. The layer is elegant, engineered, physical. Two or three engineers collaborate calmly in the background. Product-film confidence, daylight. Ambient: soft synth swell, room tone."
+    },
+    {
+      "id": "03-proof",
+      "title": "A prova",
+      "voice": "O modelo para de adivinhar. Passa a consultar.",
+      "prompt": "Macro on a white oak lab table: four simple physical objects glide into the frosted-glass layer — a soft pulse of light (event), a small engraved metal tag (entity), a thin document, a keycard (permission). The model column receives only what the layer allows, clean beams connecting them. Graphic, elegant, startup-product. No warehouse, no night. Ambient: precise soft clicks, glass tone."
+    },
+    {
+      "id": "04-seal",
+      "title": "O selo",
+      "voice": "Adaptive Layer. O contexto que faltava.",
+      "prompt": "Wide of the PixelPulseLab studio at warm late afternoon: glass, pale concrete, white oak, the frosted-blue layer now quietly running through the whole space like calm infrastructure. A small team building, talking, confident. Hopeful and short. End on architecture and light, not a logo card. Ambient: soft city through glass, footsteps."
+    }
+  ]
+}
