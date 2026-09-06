@@ -397,6 +397,16 @@ function MessageBubble({
         {message.sources && message.sources.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {message.sources.map((source, index) => {
+              if (source.kind === 'sql') {
+                return (
+                  <span
+                    key={`${source.repo}-${source.path}-${index}`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-teal-200 bg-teal-50 px-2.5 py-1 text-[10px] font-mono text-teal-800"
+                  >
+                    SQL · {source.path ?? source.repo}
+                  </span>
+                )
+              }
               const href = source.path
                 ? `https://github.com/${source.repo}/blob/HEAD/${source.path}`
                 : `https://github.com/${source.repo}`

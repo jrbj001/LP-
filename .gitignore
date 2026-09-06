@@ -12,3 +12,5 @@ next-env.d.ts
 .tmp-e2e
 tmp/
 __pycache__/
+# Pacote Keynote/PDF local — não versionar nem enviar à Vercel
+docs/alquimia/2026-08-7_Alquemia_Templates-2026/

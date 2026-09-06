@@ -65,7 +65,7 @@ export async function gatherDocumentGithubContext(
 ): Promise<GithubContextBundle> {
   const repos = client.delivery?.repos ?? []
   if (repos.length === 0) {
-    return { repos: [], snippets: [], notes: ['Cliente sem repositórios configurados.'] }
+    return { repos: [], snippets: [], activity: [], notes: ['Cliente sem repositórios configurados.'] }
   }
   const query = [document.title, ...keywordsFromText(document.extraction?.text ?? '')].join(' ')
   return gatherGithubContextForQuery({ clientId: client.slug, boardId, query }, repos)

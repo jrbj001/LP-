@@ -1,3 +1,4 @@
+import { syncCadenceDocuments } from '@/lib/cadence/sync'
 import { deleteDocumentBlob, fetchDocumentIndex, putDocumentIndex } from './blob'
 import {
   DOCUMENT_STORE_VERSION,
@@ -49,6 +50,7 @@ export async function writeDocumentStore(
   }
   await putDocumentIndex(clientId, next)
   memory.set(clientId, next)
+  void syncCadenceDocuments(clientId, Object.values(next.documents))
   return next
 }
 

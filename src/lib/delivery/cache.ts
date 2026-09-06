@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import path from 'path'
+import { syncCadenceDelivery } from '@/lib/cadence/sync'
 import type { DeliveryType, FixKind, PrRow, RepoStatus } from './types'
 
 export interface CachedCommit {
@@ -63,6 +64,7 @@ export async function writeDeliveryCache(clientId: string, payload: DeliveryCach
     // para a vida da instância.
     console.warn('[delivery/cache] persistência em disco indisponível:', e)
   }
+  void syncCadenceDelivery(clientId, payload)
 }
 
 /** Acima disso o cache é velho demais para ser exibido enquanto revalida. */

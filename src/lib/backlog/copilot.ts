@@ -1,3 +1,5 @@
+import { formatCadenceSummaryForPrompt, getCadenceSummary, type CadenceSummary } from '@/lib/cadence/summary'
+import { seedCadenceClient } from '@/lib/cadence/seed'
 import type { RepoConfig } from '@/lib/delivery/types'
 import {
   formatGithubContextForPrompt,
@@ -38,6 +40,7 @@ Regras:
 - Sempre responda em português do Brasil, direto e concreto, sem preâmbulo.
 - SEMPRE devolva um "diagram" ilustrando o que você explicou (fluxo, arquitetura ou jornada). O desenho é obrigatório em toda resposta.
 - Use o contexto de código do GitHub quando disponível e cite os arquivos que consultou pelo caminho real.
+- Use o resumo Cadence (contagens de cards, PRs, docs e reuniões) quando a pergunta for quantitativa. Não invente números fora desse resumo.
 - Só proponha "storyDraft" quando houver informação suficiente para uma story útil (persona, objetivo, valor e critérios de aceite testáveis). Caso falte informação essencial, deixe storyDraft como null e faça perguntas objetivas.
 - Critérios de aceite devem ser verificáveis e escritos no formato "Dado/Quando/Então" ou como afirmações checáveis.
 - Nunca invente nomes de arquivos ou endpoints que não estejam no contexto; se for hipótese, deixe claro no texto.
@@ -146,10 +149,21 @@ function asStoryDraft(value: unknown, boardId: BacklogBoardId): StoryDraft | und
   return { boardId, title, persona, want, soThat, acceptance, priority }
 }
 
-function sourcesFromContext(bundle: GithubContextBundle, reply: string): GithubRef[] {
+function sourcesFromContext(
+  bundle: GithubContextBundle,
+  summary: CadenceSummary,
+  reply: string
+): GithubRef[] {
   const cited = bundle.snippets.filter(s => reply.includes(s.path) || reply.includes(s.path.split('/').pop() ?? ''))
   const chosen = cited.length > 0 ? cited : bundle.snippets.slice(0, 4)
-  return chosen.slice(0, 6).map(s => ({ repo: s.repo, path: s.path }))
+  const git = chosen.slice(0, 6).map(s => ({ repo: s.repo, path: s.path, kind: 'git' as const }))
+  const sql: GithubRef[] = summary.available
+    ? [
+        { repo: 'cadence', path: 'cadence_cards', kind: 'sql' },
+        { repo: 'cadence', path: 'cadence_delivery_prs', kind: 'sql' },
+      ]
+    : []
+  return [...git, ...sql]
 }
 
 export async function runCopilotTurn(input: {
@@ -165,16 +179,21 @@ export async function runCopilotTurn(input: {
   const prompt = systemPrompt(clientId, clientName, clientSector)
 
   const queryParts = [message, card?.title ?? '', thread.title].filter(Boolean)
-  const bundle = await gatherGithubContextForQuery(
-    { clientId, boardId: thread.boardId, query: queryParts.join(' ') },
-    repos
-  )
+  const [bundle] = await Promise.all([
+    gatherGithubContextForQuery(
+      { clientId, boardId: thread.boardId, query: queryParts.join(' ') },
+      repos
+    ),
+    seedCadenceClient(clientId),
+  ])
+  const summary = await getCadenceSummary(clientId)
 
   const user = [
     `Cliente: ${clientName} (${clientSector})`,
     `Board / produto: ${boardLabel(clientId, thread.boardId)}`,
     `Card vinculado:\n${cardBrief(card)}`,
     `Histórico recente:\n${historyBrief(thread.messages)}`,
+    formatCadenceSummaryForPrompt(summary),
     `Contexto do código (GitHub):\n${formatGithubContextForPrompt(bundle)}`,
     `Pergunta atual do PM:\n${message}`,
   ].join('\n\n')
@@ -207,6 +226,6 @@ export async function runCopilotTurn(input: {
     diagram: diagram ?? fallbackDiagram(clientId, thread.boardId, message),
     storyDraft: asStoryDraft(parsed.storyDraft, thread.boardId),
     followUps: asStringArray(parsed.followUps).slice(0, 4),
-    sources: sourcesFromContext(bundle, reply),
+    sources: sourcesFromContext(bundle, summary, reply),
   }
 }

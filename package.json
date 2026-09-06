@@ -12,10 +12,12 @@
     "alquimia:migrate": "node --env-file=.env.local scripts/alquimia-migrate.mjs"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^4.0.57",
     "@dagrejs/dagre": "^3.1.0",
     "@notionhq/client": "^5.23.1",
     "@vercel/blob": "^2.8.0",
     "@xyflow/react": "^12.11.2",
+    "ai": "^7.0.91",
     "exceljs": "^4.4.0",
     "framer-motion": "^11",
     "html-to-image": "^1.11.13",
@@ -26,6 +28,7 @@
     "postgres": "^3.4.9",
     "react": "^19",
     "react-dom": "^19",
+    "recharts": "^3.10.1",
     "simple-icons": "^16.23.0",
     "unpdf": "^1.8.1"
   },

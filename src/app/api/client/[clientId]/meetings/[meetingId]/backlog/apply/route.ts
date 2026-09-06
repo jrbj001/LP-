@@ -35,7 +35,7 @@ export async function POST(
 
   try {
     const { items } = parseMeetingApplyItems(body, client.slug)
-    const cards = meetingItemsToCards(meeting, items)
+    const cards = meetingItemsToCards(meeting, items, client.slug)
     const result = await createBacklogCardsBatch(client.slug, cards)
     return NextResponse.json({
       ok: true,

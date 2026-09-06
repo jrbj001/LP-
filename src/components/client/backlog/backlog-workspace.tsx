@@ -102,6 +102,11 @@ export function BacklogWorkspace({
       const data = await res.json()
       if (!res.ok || !data.ok) throw new Error(data.error || 'Falha ao enriquecer.')
       upsertLocal(data.card)
+      const notes = Array.isArray(data.githubNotes) ? data.githubNotes : data.card?.githubNotes
+      const blocking = Array.isArray(notes)
+        ? notes.filter((note: string) => /sem acesso|token recusado|GITHUB_PAT ausente|Contents: Read/i.test(note))
+        : []
+      if (blocking.length > 0) setError(blocking.join(' '))
       return data.card as BacklogCard
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro ao enriquecer.')

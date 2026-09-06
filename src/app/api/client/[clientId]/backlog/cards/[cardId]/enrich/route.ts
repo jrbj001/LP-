@@ -55,6 +55,7 @@ export async function POST(
         mode,
         model: codingModel(),
         card,
+        githubNotes: card.githubNotes ?? [],
         generatedAt: new Date().toISOString(),
       })
     }
@@ -66,6 +67,7 @@ export async function POST(
       mode,
       model: codingModel(),
       card,
+      githubNotes: card.githubNotes ?? [],
       generatedAt: new Date().toISOString(),
     })
   } catch (e) {

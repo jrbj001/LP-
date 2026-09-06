@@ -107,6 +107,7 @@ export async function enrichCardToStory(
   repos: RepoConfig[]
 ): Promise<StoryEnrichment> {
   const gh = await gatherGithubContext(client.clientId, card, repos)
+  card.githubNotes = gh.notes
   const system = `Você é um PM técnico sênior da PixelPulseLab.
 ${domainPrompt(client)}
 Transforme requisitos brutos em user stories claras em português do Brasil.
@@ -138,7 +139,8 @@ export async function enrichCardToSpec(
   card: BacklogCard,
   repos: RepoConfig[]
 ): Promise<SpecEnrichment> {
-  const gh = await gatherGithubContext(client.clientId, card, repos)
+  const gh = await gatherGithubContext(client.clientId, card, repos, { mode: 'spec' })
+  card.githubNotes = gh.notes
   const system = `Você é um tech lead / staff engineer preparando uma especificação agent-ready para um agente de desenvolvimento.
 ${domainPrompt(client)}
 Responda APENAS JSON com:
@@ -210,6 +212,7 @@ export function applyStoryEnrichment(card: BacklogCard, enrich: StoryEnrichment)
     acceptance: enrich.acceptance,
     priority: enrich.priority ?? card.priority,
     diagram: enrich.diagram,
+    githubNotes: card.githubNotes,
     level: 'story',
     column: card.column === 'requirement' ? 'story' : card.column,
     updatedAt: new Date().toISOString(),
@@ -230,6 +233,7 @@ export function applySpecEnrichment(card: BacklogCard, enrich: SpecEnrichment): 
     testPlan: enrich.testPlan,
     risks: enrich.risks,
     githubRefs: enrich.githubRefs,
+    githubNotes: card.githubNotes,
     diagram: enrich.diagram,
     level: 'spec',
     column: card.column === 'requirement' || card.column === 'story' ? 'ready' : card.column,

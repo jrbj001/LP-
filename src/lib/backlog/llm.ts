@@ -1,3 +1,5 @@
+import { generateObject, generateText } from 'ai'
+import { openai } from '@ai-sdk/openai'
 import { describeOpenAiError } from '@/lib/ai/openai-error'
 import type { BacklogDiagram } from './types'
 
@@ -5,48 +7,82 @@ export function codingModel(): string {
   return process.env.OPENAI_CODING_MODEL || process.env.OPENAI_MODEL || 'gpt-4.1'
 }
 
+export function chatModel(): string {
+  return process.env.OPENAI_MODEL || 'gpt-4o-mini'
+}
+
+function requireApiKey(): void {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY não configurada no ambiente.')
+  }
+}
+
+function mapAiError(error: unknown): Error {
+  if (error && typeof error === 'object') {
+    const rec = error as Record<string, unknown>
+    const status =
+      typeof rec.statusCode === 'number'
+        ? rec.statusCode
+        : typeof rec.status === 'number'
+          ? rec.status
+          : 0
+    const body =
+      typeof rec.responseBody === 'string'
+        ? rec.responseBody
+        : typeof rec.message === 'string'
+          ? rec.message
+          : ''
+    if (status >= 400) {
+      return new Error(describeOpenAiError(status, body))
+    }
+  }
+  if (error instanceof Error) return error
+  return new Error('Falha ao chamar a OpenAI.')
+}
+
 export async function callOpenAiJson(
   system: string,
   user: string,
-  options?: { temperature?: number; maxTokens?: number }
+  options?: { temperature?: number; maxTokens?: number; model?: string }
 ): Promise<unknown> {
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY não configurada no ambiente.')
-  }
-
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: codingModel(),
-      temperature: options?.temperature ?? 0.2,
-      max_tokens: options?.maxTokens ?? 2200,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user },
-      ],
-    }),
-  })
-
-  if (!res.ok) {
-    const errText = await res.text().catch(() => '')
-    throw new Error(describeOpenAiError(res.status, errText))
-  }
-
-  const data = (await res.json()) as {
-    choices?: { message?: { content?: string } }[]
-  }
-  const raw = data.choices?.[0]?.message?.content?.trim()
-  if (!raw) throw new Error('Resposta vazia da OpenAI.')
+  requireApiKey()
   try {
-    return JSON.parse(raw)
-  } catch {
-    throw new Error('A IA retornou um JSON inválido.')
+    const result = await generateObject({
+      model: openai(options?.model || codingModel()),
+      output: 'no-schema',
+      system,
+      prompt: user,
+      temperature: options?.temperature ?? 0.2,
+      maxOutputTokens: options?.maxTokens ?? 2200,
+    })
+    if (result.object == null) {
+      throw new Error('Resposta vazia da OpenAI.')
+    }
+    return result.object
+  } catch (error) {
+    throw mapAiError(error)
+  }
+}
+
+export async function callOpenAiText(
+  system: string,
+  user: string,
+  options?: { temperature?: number; maxTokens?: number; model?: string }
+): Promise<string> {
+  requireApiKey()
+  try {
+    const result = await generateText({
+      model: openai(options?.model || chatModel()),
+      system,
+      prompt: user,
+      temperature: options?.temperature ?? 0.4,
+      maxOutputTokens: options?.maxTokens ?? 900,
+    })
+    const text = result.text.trim()
+    if (!text) throw new Error('Resposta vazia da OpenAI.')
+    return text
+  } catch (error) {
+    throw mapAiError(error)
   }
 }
 

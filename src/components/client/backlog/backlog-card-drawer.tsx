@@ -253,6 +253,14 @@ export function BacklogCardDrawer({
             </div>
           )}
 
+          {card.githubNotes && card.githubNotes.length > 0 && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-[12px] leading-relaxed text-amber-900">
+              {card.githubNotes.map(note => (
+                <p key={note}>{note}</p>
+              ))}
+            </div>
+          )}
+
           {card.githubRefs && card.githubRefs.length > 0 && (
             <div>
               <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-neutral-400 mb-2">
