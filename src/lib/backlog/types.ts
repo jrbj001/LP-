@@ -15,6 +15,7 @@ export interface GithubRef {
   repo: string
   path?: string
   pr?: number
+  kind?: 'git' | 'sql'
 }
 
 export interface BacklogDiagramNode {
@@ -61,6 +62,8 @@ export interface BacklogCard {
   testPlan?: string[]
   risks?: string[]
   githubRefs?: GithubRef[]
+  /** Diagnóstico da última leitura de repositório no enrichment. */
+  githubNotes?: string[]
   diagram?: BacklogDiagram
   phase?: string
   priority?: 'Alta' | 'Média' | 'Baixa'
@@ -78,6 +81,8 @@ export interface BacklogBoard {
   projectIds?: string[]
   /** Repositório principal que fornece grounding e entregas. */
   repository?: string
+  /** Repos adicionais do mesmo produto (ex.: backend novo, frontend de visibilidade). */
+  repositories?: string[]
 }
 
 export interface StoryDraft {
@@ -170,6 +175,7 @@ export type CardPatch = Partial<
     | 'testPlan'
     | 'risks'
     | 'githubRefs'
+    | 'githubNotes'
     | 'diagram'
     | 'phase'
     | 'priority'

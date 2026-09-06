@@ -142,6 +142,18 @@ export const be180Ooh: ClientWorkspace = {
       },
       {
         owner: 'jrbj001',
+        repo: 'be180_main_service',
+        label: 'Colmeia · Backend (main service)',
+        products: [
+          {
+            label: 'Banco de Ativos',
+            pattern:
+              'banco[\\s-]*(de[\\s-]*)?ativos?|\\bativos\\b|exibidor(?:es)?|invent[aá]rio(?:s)?|google[\\s-]*places',
+          },
+        ],
+      },
+      {
+        owner: 'jrbj001',
         repo: 'image_brand_processing',
         label: 'Teste de Visibilidade · Backend',
       },

@@ -1,6 +1,7 @@
 import { createHash } from 'crypto'
 import type { ClientMeeting, ClientWorkspace } from '@/lib/client/types'
 import { getMeetingSource } from '@/lib/meetings/source'
+import { formatGithubContextForPrompt, gatherGithubContextForQuery } from './github-context'
 import { getBacklogBoards } from './boards'
 import { asStringArray, callOpenAiJson } from './llm'
 import type { BacklogBoardId, BacklogCard } from './types'
@@ -123,10 +124,20 @@ export async function generateMeetingBacklogDrafts(
       ? ', "persona": "...", "want": "...", "soThat": "...", "acceptance": ["critério testável"]'
       : ''
   const currentBrief = cleanString(brief, 6000)
+  const github = await gatherGithubContextForQuery(
+    {
+      clientId: client.slug,
+      boardId: boards[0]?.id,
+      query: `${meeting.title} ${source.content.slice(0, 800)}`,
+    },
+    client.delivery?.repos ?? [],
+    { allRepos: true }
+  )
 
   const parsed = await callOpenAiJson(
     `Você é um product manager sênior. Converta reuniões em itens de backlog revisáveis, em português do Brasil.
 Use somente fatos da fonte confiável. Não invente escopo, decisões, responsáveis, métricas ou integrações.
+Use o contexto de código só para ancorar itens em repositórios e arquivos reais — não invente paths.
 Retorne apenas JSON no formato {"drafts":[...]}, com 1 a 8 itens úteis e sem duplicatas.`,
     `Cliente: ${client.name}
 Reunião: ${meeting.title}
@@ -136,6 +147,9 @@ Modo obrigatório: ${mode === 'story' ? 'user stories' : 'requisitos'}
 
 Boards válidos (use somente estes IDs):
 ${boardList}
+
+Contexto do repositório:
+${formatGithubContextForPrompt(github)}
 
 Fonte confiável (${source.kind}):
 ${source.content}
@@ -224,26 +238,35 @@ export function buildMeetingCardContext(meeting: ClientMeeting): string {
     .slice(0, 1800)
 }
 
-export function meetingItemsToCards(meeting: ClientMeeting, items: MeetingApplyItem[]): BacklogCard[] {
+export function meetingItemsToCards(
+  meeting: ClientMeeting,
+  items: MeetingApplyItem[],
+  clientId?: string
+): BacklogCard[] {
   const now = new Date().toISOString()
   const context = buildMeetingCardContext(meeting)
-  return items.map(item => ({
-    id: `meeting-${createHash('sha256')
-      .update(`${meeting.id}:${normalizeMeetingItemTitle(item.title)}`)
-      .digest('hex')
-      .slice(0, 20)}`,
-    boardId: item.boardId,
-    column: item.mode === 'story' ? 'story' : 'requirement',
-    title: item.title,
-    level: item.mode === 'story' ? 'story' : 'raw',
-    persona: item.mode === 'story' ? item.persona : undefined,
-    want: item.mode === 'story' ? item.want : undefined,
-    soThat: item.mode === 'story' ? item.soThat : undefined,
-    acceptance: item.mode === 'story' ? item.acceptance : undefined,
-    context,
-    priority: item.priority,
-    source: { kind: 'meeting', ref: meetingSourceRef(meeting.id, item.title) },
-    createdAt: now,
-    updatedAt: now,
-  }))
+  const boards = clientId ? getBacklogBoards(clientId) : []
+  return items.map(item => {
+    const repository = boards.find(board => board.id === item.boardId)?.repository
+    return {
+      id: `meeting-${createHash('sha256')
+        .update(`${meeting.id}:${normalizeMeetingItemTitle(item.title)}`)
+        .digest('hex')
+        .slice(0, 20)}`,
+      boardId: item.boardId,
+      column: item.mode === 'story' ? 'story' : 'requirement',
+      title: item.title,
+      level: item.mode === 'story' ? 'story' : 'raw',
+      persona: item.mode === 'story' ? item.persona : undefined,
+      want: item.mode === 'story' ? item.want : undefined,
+      soThat: item.mode === 'story' ? item.soThat : undefined,
+      acceptance: item.mode === 'story' ? item.acceptance : undefined,
+      context,
+      priority: item.priority,
+      githubRefs: repository ? [{ repo: repository, kind: 'git' as const }] : undefined,
+      source: { kind: 'meeting', ref: meetingSourceRef(meeting.id, item.title) },
+      createdAt: now,
+      updatedAt: now,
+    }
+  })
 }

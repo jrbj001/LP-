@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
+import { chatModel, callOpenAiText } from '@/lib/backlog/llm'
 import { getClient } from '@/lib/client/registry'
 import { getDeliveryReport } from '@/lib/delivery/service'
-import { describeOpenAiError } from '@/lib/ai/openai-error'
 import type { DeliveryReport } from '@/lib/delivery/types'
 
 export const dynamic = 'force-dynamic'
@@ -62,14 +62,6 @@ export async function POST(
     return NextResponse.json({ ok: false, error: 'Cliente sem repositórios' }, { status: 400 })
   }
 
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) {
-    return NextResponse.json(
-      { ok: false, error: 'OPENAI_API_KEY não configurada no ambiente.' },
-      { status: 503 }
-    )
-  }
-
   let days = 90
   try {
     const body = await req.json().catch(() => ({}))
@@ -94,48 +86,16 @@ export async function POST(
     }
 
     const prompt = buildPrompt(client.name, report)
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-        temperature: 0.4,
-        max_tokens: 900,
-        messages: [
-          {
-            role: 'system',
-            content:
-              'Você analisa portfólios de entrega de software para líderes de negócio. Seja preciso, direto e útil.',
-          },
-          { role: 'user', content: prompt },
-        ],
-      }),
-    })
-
-    if (!res.ok) {
-      const errText = await res.text().catch(() => '')
-      console.error('[client/analysis] openai', res.status, errText.slice(0, 300))
-      return NextResponse.json(
-        { ok: false, error: describeOpenAiError(res.status, errText) },
-        { status: 502 }
-      )
-    }
-
-    const data = (await res.json()) as {
-      choices?: { message?: { content?: string } }[]
-    }
-    const analysis = data.choices?.[0]?.message?.content?.trim()
-    if (!analysis) {
-      return NextResponse.json({ ok: false, error: 'Resposta vazia da OpenAI' }, { status: 502 })
-    }
+    const analysis = await callOpenAiText(
+      'Você analisa portfólios de entrega de software para líderes de negócio. Seja preciso, direto e útil.',
+      prompt,
+      { temperature: 0.4, maxTokens: 900, model: chatModel() }
+    )
 
     return NextResponse.json({
       ok: true,
       analysis,
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      model: chatModel(),
       generatedAt: new Date().toISOString(),
     })
   } catch (e) {

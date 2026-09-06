@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getClient, listClients } from '@/lib/client/registry'
+import { readDeliveryCache } from '@/lib/delivery/cache'
 import { getDeliveryTeaser } from '@/lib/delivery/teaser'
 import { isBacklogEnabled } from '@/lib/backlog/access'
 import { getBacklogSnapshot } from '@/lib/backlog/store'
@@ -21,6 +22,7 @@ export default async function ClientWorkspacePage({ params }: Props) {
   const deliveryTeaser = client.delivery?.repos.length
     ? await getDeliveryTeaser(client.slug)
     : null
+  const deliveryCache = client.delivery?.repos.length ? await readDeliveryCache(client.slug) : null
   const backlogSnapshot = isBacklogEnabled(client.slug)
     ? await getBacklogSnapshot(client.slug)
     : null
@@ -30,6 +32,7 @@ export default async function ClientWorkspacePage({ params }: Props) {
       client={client}
       locale={locale}
       deliveryTeaser={deliveryTeaser}
+      repoStatuses={deliveryCache?.repos}
       backlogSnapshot={backlogSnapshot}
     />
   )

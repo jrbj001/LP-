@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import path from 'path'
+import { syncCadenceCards } from '@/lib/cadence/sync'
 import { buildSeedCards, listBoards } from './seed'
 import { getBacklogBoards } from './boards'
 import {
@@ -68,6 +69,7 @@ export async function writeBacklogStore(clientId: string, payload: BacklogStoreP
   } catch (e) {
     console.warn('[backlog/store] persistência em disco indisponível:', e)
   }
+  void syncCadenceCards(clientId, mergeCards(next))
 }
 
 /** Merge seed + overrides do PM (overrides ganham). */

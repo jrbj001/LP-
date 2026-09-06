@@ -1,5 +1,6 @@
 import type { ClientWorkspace } from '@/lib/client/types'
 import type { DeliveryTeaser } from '@/lib/delivery/teaser'
+import type { RepoStatus } from '@/lib/delivery/types'
 import type { BacklogSnapshot } from '@/lib/backlog/types'
 import Link from 'next/link'
 import {
@@ -9,6 +10,7 @@ import {
   CircleDot,
   FileText,
   FolderKanban,
+  GitBranch,
   GitPullRequest,
   PanelTop,
   Sparkles,
@@ -18,10 +20,19 @@ type Props = {
   client: ClientWorkspace
   locale: string
   deliveryTeaser?: DeliveryTeaser | null
+  repoStatuses?: RepoStatus[]
   backlogSnapshot?: BacklogSnapshot | null
 }
 
-export function ClientHome({ client, locale, deliveryTeaser, backlogSnapshot }: Props) {
+const REPO_ERROR: Record<string, string> = {
+  token: 'aguardando GITHUB_PAT',
+  'invalid-token': 'token recusado',
+  'no-access': 'PAT sem Contents: Read neste repo',
+  rate: 'limite da API',
+  'rate-authenticated': 'cota do token esgotada',
+}
+
+export function ClientHome({ client, locale, deliveryTeaser, repoStatuses, backlogSnapshot }: Props) {
   const base = `/${locale}/client/${client.slug}`
   const meetings = client.meetings ?? []
   const documents = client.documents ?? []
@@ -188,6 +199,60 @@ export function ClientHome({ client, locale, deliveryTeaser, backlogSnapshot }: 
           })}
         </div>
       </section>
+
+      {client.delivery?.repos.length ? (
+        <section className="mt-12">
+          <div className="mb-4 flex items-baseline justify-between gap-4">
+            <h2 className="font-[family-name:var(--font-cadence-display)] text-[14px] font-semibold text-neutral-900">
+              Repositórios do workspace
+            </h2>
+            <Link href={`${base}/entregas?periodo=90`} className="text-[11px] text-neutral-400 hover:text-neutral-800">
+              Ver entregas
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            {client.delivery.repos.map(repo => {
+              const full = `${repo.owner}/${repo.repo}`
+              const status = repoStatuses?.find(item => item.repo.toLowerCase() === full.toLowerCase())
+              const ok = status?.ok
+              const detail = ok
+                ? 'Acessível pelo Cadence'
+                : status
+                  ? REPO_ERROR[status.error ?? ''] ?? status.error ?? 'sem acesso'
+                  : 'ainda não consultado — abra Entregas para sincronizar'
+              return (
+                <a
+                  key={full}
+                  href={`https://github.com/${full}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 rounded-xl border border-black/[0.06] bg-white p-4 hover:border-black/[0.13]"
+                >
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500">
+                    <GitBranch className="h-4 w-4" strokeWidth={1.8} />
+                  </div>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[12px] font-semibold text-neutral-800">{repo.label}</span>
+                    <span className="mt-0.5 block truncate font-mono text-[10px] text-neutral-400">{full}</span>
+                    <span className="mt-2 block text-[11px] text-neutral-500">{detail}</span>
+                  </span>
+                  <span
+                    className={`mt-0.5 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${
+                      ok === true
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                        : ok === false
+                          ? 'border-amber-200 bg-amber-50 text-amber-800'
+                          : 'border-black/[0.08] bg-neutral-50 text-neutral-500'
+                    }`}
+                  >
+                    {ok === true ? 'ok' : ok === false ? 'sem acesso' : 'pendente'}
+                  </span>
+                </a>
+              )
+            })}
+          </div>
+        </section>
+      ) : null}
 
       <section className="mt-12 grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-4">
         <div className="rounded-2xl border border-black/[0.06] bg-white p-6">

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
+import { callOpenAiJson, chatModel } from '@/lib/backlog/llm'
 import { getClient } from '@/lib/client/registry'
-import { describeOpenAiError } from '@/lib/ai/openai-error'
 import { getMeetingSource } from '@/lib/meetings/source'
 
 export const dynamic = 'force-dynamic'
@@ -56,14 +56,6 @@ export async function POST(
     )
   }
 
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) {
-    return NextResponse.json(
-      { ok: false, error: 'OPENAI_API_KEY não configurada no ambiente.' },
-      { status: 503 }
-    )
-  }
-
   const domainRules =
     client.slug === 'be180-ooh'
       ? `- Se a reunião mapear pilares, frentes ou escopos, cite todos no resumo — inclusive o que ficou fora desta fase.
@@ -105,51 +97,11 @@ ${domainRules}
 - O plano de ação deve refletir tanto o que avançar quanto o que deliberadamente adiar.`
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-        temperature: 0.2,
-        max_tokens: 1200,
-        response_format: { type: 'json_object' },
-        messages: [
-          {
-            role: 'system',
-            content:
-              'Você transforma registros de reuniões em briefings executivos precisos, rastreáveis e acionáveis.',
-          },
-          { role: 'user', content: prompt },
-        ],
-      }),
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '')
-      console.error('[client/meeting-summary] openai', response.status, errorText.slice(0, 300))
-      return NextResponse.json(
-        { ok: false, error: describeOpenAiError(response.status, errorText) },
-        { status: 502 }
-      )
-    }
-
-    const data = (await response.json()) as {
-      choices?: { message?: { content?: string } }[]
-    }
-    const raw = data.choices?.[0]?.message?.content?.trim()
-    if (!raw) {
-      return NextResponse.json({ ok: false, error: 'Resposta vazia da OpenAI.' }, { status: 502 })
-    }
-
-    let brief: unknown
-    try {
-      brief = JSON.parse(raw)
-    } catch {
-      return NextResponse.json({ ok: false, error: 'A IA retornou um formato inválido.' }, { status: 502 })
-    }
+    const brief = await callOpenAiJson(
+      'Você transforma registros de reuniões em briefings executivos precisos, rastreáveis e acionáveis.',
+      prompt,
+      { temperature: 0.2, maxTokens: 1200, model: chatModel() }
+    )
 
     if (!isMeetingBrief(brief)) {
       return NextResponse.json(
@@ -161,7 +113,7 @@ ${domainRules}
     return NextResponse.json({
       ok: true,
       brief,
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      model: chatModel(),
       generatedAt: new Date().toISOString(),
     })
   } catch (error) {

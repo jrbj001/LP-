@@ -115,23 +115,28 @@ export function documentItemsToCards(
   items: DocumentApplyItem[]
 ): BacklogCard[] {
   const now = new Date().toISOString()
-  return items.map(item => ({
-    id: `document-${createHash('sha256')
-      .update(`${document.id}:${normalizeDraftTitle(item.title)}`)
-      .digest('hex')
-      .slice(0, 20)}`,
-    boardId: item.boardId,
-    column: item.mode === 'story' ? 'story' : 'requirement',
-    title: item.title,
-    level: item.mode === 'story' ? 'story' : 'raw',
-    persona: item.mode === 'story' ? item.persona : undefined,
-    want: item.mode === 'story' ? item.want : undefined,
-    soThat: item.mode === 'story' ? item.soThat : undefined,
-    acceptance: item.mode === 'story' ? item.acceptance : undefined,
-    context: buildDocumentCardContext(document, item.context),
-    priority: item.priority,
-    source: { kind: 'document', ref: documentSourceRef(document.id, item.title) },
-    createdAt: now,
-    updatedAt: now,
-  }))
+  const boards = getBacklogBoards(document.clientId)
+  return items.map(item => {
+    const repository = boards.find(board => board.id === item.boardId)?.repository
+    return {
+      id: `document-${createHash('sha256')
+        .update(`${document.id}:${normalizeDraftTitle(item.title)}`)
+        .digest('hex')
+        .slice(0, 20)}`,
+      boardId: item.boardId,
+      column: item.mode === 'story' ? 'story' : 'requirement',
+      title: item.title,
+      level: item.mode === 'story' ? 'story' : 'raw',
+      persona: item.mode === 'story' ? item.persona : undefined,
+      want: item.mode === 'story' ? item.want : undefined,
+      soThat: item.mode === 'story' ? item.soThat : undefined,
+      acceptance: item.mode === 'story' ? item.acceptance : undefined,
+      context: buildDocumentCardContext(document, item.context),
+      priority: item.priority,
+      githubRefs: repository ? [{ repo: repository, kind: 'git' as const }] : undefined,
+      source: { kind: 'document', ref: documentSourceRef(document.id, item.title) },
+      createdAt: now,
+      updatedAt: now,
+    }
+  })
 }
