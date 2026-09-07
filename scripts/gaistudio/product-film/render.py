@@ -77,14 +77,14 @@ def concat_voiceover(beats: list[dict], vo: dict[str, Path], dest: Path) -> Path
     return dest
 
 
-def capture_frames(timeline: list[dict], fps: int, scale: int, frames_dir: Path) -> None:
+def capture_frames(timeline: list[dict], fps: int, scale: int, frames_dir: Path, html: Path | None = None) -> None:
     timeline_path = OUT / "timeline.json"
     timeline_path.write_text(json.dumps(timeline, indent=2))
     subprocess.run(
         [
             "node",
             str(HERE / "capture.mjs"),
-            f"--html={HERE / 'film.html'}",
+            f"--html={html or HERE / 'film.html'}",
             f"--out={frames_dir}",
             f"--timeline={timeline_path}",
             f"--fps={fps}",
@@ -137,12 +137,21 @@ def encode(
 
 
 def main() -> None:
+    global SPEC_PATH, OUT
     ap = argparse.ArgumentParser()
     ap.add_argument("--fps", type=int, default=None)
     ap.add_argument("--scale", type=int, default=None)
     ap.add_argument("--silent", action="store_true", help="pula TTS e trilha")
     ap.add_argument("--reuse-frames", action="store_true")
+    ap.add_argument("--spec", default=str(SPEC_PATH))
+    ap.add_argument("--html", default=str(HERE / "film.html"))
+    ap.add_argument("--out", default=str(OUT))
+    ap.add_argument("--name", default="adaptive-layer-product-film.mp4")
     args = ap.parse_args()
+
+    SPEC_PATH = Path(args.spec)
+    OUT = Path(args.out)
+    html_path = Path(args.html)
 
     spec = json.loads(SPEC_PATH.read_text())
     fps = args.fps or spec["fps"]
@@ -171,11 +180,11 @@ def main() -> None:
     frames_dir = OUT / "frames"
     if not (args.reuse_frames and frames_dir.exists()):
         print("captura")
-        capture_frames(timeline, fps, scale, frames_dir)
+        capture_frames(timeline, fps, scale, frames_dir, html_path)
 
     vo_track = concat_voiceover(timeline, vo_clips, OUT / "vo" / "track.wav") if vo_clips else None
 
-    dest = OUT / "adaptive-layer-product-film.mp4"
+    dest = OUT / args.name
     print("encode")
     encode(frames_dir, fps, vo_track, score, dest, duration)
     print(f"\n{dest}  {dest.stat().st_size / 1_000_000:.1f} MB  {duration:.1f}s")

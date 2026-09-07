@@ -5,8 +5,19 @@ import { AnimatedMark } from '@/components/animated-mark'
 import { ExplainerVideo } from './explainer-video'
 import { VIDEO } from './lp-data'
 
-export function AdaptiveLayerVideoPage() {
+type FilmProps = {
+  eyebrow: string
+  headline: string
+  body: string
+  durationLabel: string
+  src?: string
+  poster?: string
+  fallbackDuration?: number
+}
+
+export function AdaptiveLayerVideoPage({ film }: { film?: FilmProps } = {}) {
   const locale = useLocale()
+  const copy = film ?? VIDEO
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
@@ -23,11 +34,16 @@ export function AdaptiveLayerVideoPage() {
         </a>
       </nav>
       <main className="mx-auto max-w-[1120px] px-6 pb-16 pt-8">
-        <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-white/35">{VIDEO.eyebrow}</p>
-        <h1 className="text-[28px] font-semibold tracking-[-0.03em] sm:text-[36px]">{VIDEO.headline}</h1>
-        <p className="mt-3 max-w-xl text-[15px] text-white/45">{VIDEO.body}</p>
+        <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-white/35">{copy.eyebrow}</p>
+        <h1 className="text-[28px] font-semibold tracking-[-0.03em] sm:text-[36px]">{copy.headline}</h1>
+        <p className="mt-3 max-w-xl text-[15px] text-white/45">{copy.body}</p>
         <div className="mt-8">
-          <ExplainerVideo />
+          <ExplainerVideo
+            src={film?.src}
+            poster={film?.poster}
+            durationLabel={copy.durationLabel}
+            fallbackDuration={film?.fallbackDuration}
+          />
         </div>
       </main>
     </div>

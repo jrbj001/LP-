@@ -12,7 +12,17 @@ function formatSec(sec: number) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
-export function ExplainerVideo() {
+export function ExplainerVideo({
+  src = SRC,
+  poster = POSTER,
+  durationLabel = VIDEO.durationLabel,
+  fallbackDuration = 89,
+}: {
+  src?: string
+  poster?: string
+  durationLabel?: string
+  fallbackDuration?: number
+} = {}) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const [playing, setPlaying] = useState(false)
@@ -20,7 +30,7 @@ export function ExplainerVideo() {
   const [muted, setMuted] = useState(false)
   const [progress, setProgress] = useState(0)
   const [current, setCurrent] = useState(0)
-  const [duration, setDuration] = useState(89)
+  const [duration, setDuration] = useState(fallbackDuration)
 
   const play = useCallback(async () => {
     const video = videoRef.current
@@ -54,8 +64,8 @@ export function ExplainerVideo() {
       <div className="relative aspect-video bg-[#fbfbfa]">
         <video
           ref={videoRef}
-          src={SRC}
-          poster={POSTER}
+          src={src}
+          poster={poster}
           playsInline
           preload="metadata"
           className="absolute inset-0 h-full w-full object-cover"
@@ -73,7 +83,7 @@ export function ExplainerVideo() {
             setCurrent(v.currentTime)
             if (v.duration) setProgress(v.currentTime / v.duration)
           }}
-          onLoadedMetadata={e => setDuration(e.currentTarget.duration || 89)}
+          onLoadedMetadata={e => setDuration(e.currentTarget.duration || fallbackDuration)}
         />
 
         {!started && (
@@ -85,7 +95,7 @@ export function ExplainerVideo() {
             <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-neutral-950">
               <Play className="h-6 w-6 translate-x-0.5" fill="currentColor" />
             </span>
-            <span className="mt-4 text-[13px] text-neutral-800/80">Assistir · {VIDEO.durationLabel}</span>
+            <span className="mt-4 text-[13px] text-neutral-800/80">Assistir · {durationLabel}</span>
           </button>
         )}
       </div>

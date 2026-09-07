@@ -1,0 +1,60 @@
+{
+  "title": "Adaptive Layer — filme 2 · a empresa a uma pergunta de distância",
+  "targetSeconds": 58,
+  "fps": 30,
+  "scale": 2,
+  "voice": {
+    "model": "gemini-3.1-flash-tts-preview",
+    "voiceName": "Kore",
+    "languageCode": "pt-BR",
+    "direction": "Fale em português brasileiro. Voz de explainer para executivos: clara, calma, confiante, sem tom de trailer. Sem palavras a mais. Fale somente:"
+  },
+  "score": {
+    "model": "lyria-3-clip-preview",
+    "prompt": "Instrumental only. No vocals. No lyrics. Sixty seconds. Calm modern product film music. Soft analog synth pad, sparse piano notes, gentle pulse. Bright, precise, confident, slightly warm. Not dark, not tense, not trailer, not EDM, not orchestral."
+  },
+  "beats": [
+    {
+      "id": "b0",
+      "minSeconds": 9.0,
+      "gapBefore": 0.4,
+      "gapAfter": 0.7,
+      "voice": "Antes, o dia começava em dez abas e três planilhas. Agora, começa com uma conversa."
+    },
+    {
+      "id": "b1",
+      "minSeconds": 10.5,
+      "gapBefore": 0.35,
+      "gapAfter": 0.7,
+      "voice": "Pergunte como perguntaria ao time: como a empresa acordou? Vendas, caixa, entregas — com fonte. E um alerta na margem."
+    },
+    {
+      "id": "b2",
+      "minSeconds": 10.0,
+      "gapBefore": 0.35,
+      "gapAfter": 0.7,
+      "voice": "O porquê vem na mesma conversa: pedido, frete e contrato cruzados — a causa, com o documento junto."
+    },
+    {
+      "id": "b3",
+      "minSeconds": 9.5,
+      "gapBefore": 0.35,
+      "gapAfter": 0.7,
+      "voice": "Pedir é executar: relatório para a diretoria, revisão na agenda. Você confirma — o audit grava."
+    },
+    {
+      "id": "b4",
+      "minSeconds": 9.0,
+      "gapBefore": 0.35,
+      "gapAfter": 0.7,
+      "voice": "No fim da conversa, a diretoria tem o relatório — e você tem a manhã. Todo dia. Não só na crise."
+    },
+    {
+      "id": "b5",
+      "minSeconds": 7.0,
+      "gapBefore": 0.45,
+      "gapAfter": 1.4,
+      "voice": "Adaptive Layer, da PixelPulseLab. A sua empresa, a uma pergunta de distância. pixelpulselab ponto dev."
+    }
+  ]
+}
