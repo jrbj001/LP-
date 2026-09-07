@@ -1,0 +1,99 @@
+{
+  "title": "Adaptive Layer — O recall antes do café",
+  "logline": "Antes, um recall era um dia de guerra. Hoje, cabe no bolso.",
+  "look": {
+    "refs": ["Blade Runner 2049", "Arrival", "Devs", "Michael Clayton dawn", "The Bear kitchen tension"],
+    "camera": "ARRI Alexa 65, Hawk anamorphic, 24fps, T1.4, slow push-ins, steadicam, handheld only inside the warehouse",
+    "grade": "Kodak Vision3 500T, cold blue dawn + warm tungsten interiors, light haze, fine grain, no teal-orange LUT cliché",
+    "forbid": [
+      "readable UI screenshots",
+      "readable on-screen text",
+      "hologram HUD",
+      "robots",
+      "glowing brain",
+      "stock icons",
+      "text overlays",
+      "logos",
+      "infographics"
+    ],
+    "motif": "The Adaptive Layer exists only as the calm pale glass glow of one smartphone screen — never readable, always present — and as a razor-thin horizontal plane of pale light inside the factory."
+  },
+  "stylePrefix": "Photoreal cinematic, ARRI Alexa 65, Hawk anamorphic 1.3x, 24fps, T1.4 shallow depth of field, Kodak Vision3 500T, fine film grain, cold blue dawn light mixed with warm tungsten practicals, light volumetric haze, prestige tech-thriller. No readable text anywhere, no UI close-ups, no logos, no robots, no hologram HUD, no infographics. The smartphone screen appears only as a soft pale glass glow, never legible. The Adaptive Layer may appear inside the factory only as a razor-thin horizontal plane of pale glass light.",
+  "voice": {
+    "model": "gemini-3.1-flash-tts-preview",
+    "voiceName": "Charon",
+    "languageCode": "pt-BR",
+    "direction": "Fale em português brasileiro. Narrador de cinema, íntimo, grave, perto do microfone, ritmo de trailer de Denis Villeneuve. Sem palavras a mais. Fale somente o texto:"
+  },
+  "videoModel": "veo-3.1-generate-preview",
+  "videoFallback": "veo-3.1-fast-generate-preview",
+  "durationSeconds": 8,
+  "resolution": "1080p",
+  "aspectRatio": "16:9",
+  "score": {
+    "model": "lyria-3-pro-preview",
+    "prompt": "Instrumental only. No vocals. No lyrics. Two minutes of quiet cinematic orchestral music that starts tense and resolves into calm confidence. Low piano, muted strings, soft analog synthesizer pads, a slow heartbeat-like pulse in the first half that relaxes in the second half. Dawn atmosphere, elegant, prestige film underscore. Not electronic dance music. Not a pop song."
+  },
+  "scenes": [
+    {
+      "id": "01-laudo",
+      "title": "06h47 — o laudo",
+      "voice": "Seis e quarenta e sete. O laboratório aponta desvio de qualidade no lote L dezenove. Antes, isso era um dia de guerra. Hoje... a operação inteira está no bolso.",
+      "prompt": "High apartment bedroom at blue dawn, a vast industrial city waking beyond floor-to-ceiling windows. On the nightstand, a smartphone screen lights up with a soft pale glass glow — never readable — casting light on a water glass and a wedding ring. A hand reaches for it. Tension without panic. Ambient: distant city hum, one soft notification tone, sheets moving."
+    },
+    {
+      "id": "02-pergunta",
+      "title": "A pergunta de um bilhão",
+      "voice": "A pergunta que decide tudo: quem recebeu o lote? A Layer navega o grafo da operação. Lote. Pedidos. Clientes. Contratos. Doze clientes. Três ainda na doca. Cada resposta... com fonte.",
+      "prompt": "Kitchen counter at dawn, espresso dripping into a small cup. A man in an open collar shirt types one short message on his phone, screen only a pale glow, never legible. Macro on his eyes reading, reflected glow on his face. Behind him, out of focus, the city. The espresso finishes exactly as his shoulders drop half an inch — the answer arrived. Ambient: espresso machine, low room tone."
+    },
+    {
+      "id": "03-bloqueio",
+      "title": "Bloquear o que não saiu",
+      "voice": "Três caminhões ainda não saíram. A Layer pede confirmação antes de escrever no sistema do armazém. O polegar confirma. O audit grava quem mandou... e quando.",
+      "prompt": "Extreme macro: a thumb hovers over a softly glowing phone screen — no readable text, just a single warm point of light like a physical button. A beat of hesitation. The thumb presses. Cut to a wide of the man by the window, phone lowered, exhaling. The city below keeps moving, unaware. Ambient: one deep low tone on the press, heartbeat, distant traffic."
+    },
+    {
+      "id": "04-fisico",
+      "title": "O mundo físico responde",
+      "voice": "Não é um chat que responde. É a expedição que para a tempo. No galpão, a esteira congela. Os paletes do L dezenove... ficam.",
+      "prompt": "Cathedral-scale warehouse at dawn, sodium lights still on. A loaded conveyor line slows and stops. A forklift pivots and isolates a group of shrink-wrapped pallets, moving them behind a painted floor line. Workers exchange a look — orderly, fast, no chaos. A razor-thin horizontal plane of pale glass light passes silently along the aisle. Ambient: conveyor winding down, forklift beeps, warehouse echo."
+    },
+    {
+      "id": "05-contratos",
+      "title": "Cada contrato, sua cláusula",
+      "voice": "Para os nove que já receberam, a Layer cruza o contrato de cada um. Janela de recall. Quem notificar. Em quanto tempo. O fato do grafo... e o texto do contrato. Juntos.",
+      "prompt": "Back seat of a black sedan moving through dawn streets, rain drying on the window. The executive reads his phone, pale glow on his face, city lights sliding across the glass. Intercut: macro of thick printed contracts in a dark legal archive, one clause catching a blade of light — text never readable. Two worlds, one answer. Ambient: tires on wet asphalt, paper whisper, low drone."
+    },
+    {
+      "id": "06-comunicacao",
+      "title": "A comunicação sai pronta",
+      "voice": "As notificações saem geradas por cliente, no tom de cada contrato, prontas para o jurídico revisar. O que tomava a manhã inteira... saiu antes das sete.",
+      "prompt": "A law office waking up: a lawyer arrives with coffee, sits, and her desk phone screen glows softly — never readable. She reads, nods slowly, impressed despite herself. Through the window behind her, the city fully lit by sunrise now. Wide shot: one person, one screen, work already done. Ambient: elevator ding far away, chair, morning birds through glass."
+    },
+    {
+      "id": "07-comite",
+      "title": "O comitê sabe primeiro",
+      "voice": "O comitê recebe o relatório do incidente. Lote. Clientes. Ações. Prazos. Com fonte no registro. Não numa planilha feita de madrugada.",
+      "prompt": "Empty boardroom at golden dawn, long walnut table, ten chairs. On the table, phones and one tablet light up almost in unison with the same soft pale glow — no readable content. No people yet. The information arrived before them. Slow push-in on the head chair. Ambient: HVAC, distant city, one soft chord."
+    },
+    {
+      "id": "08-forecast",
+      "title": "Forecast do impacto",
+      "voice": "A projeção chega junto. Impacto contido. Reposição na sexta. O nível de serviço, preservado. Decisão com número... não com pânico.",
+      "prompt": "The executive's corner office, empty, dawn light cutting long blades across the floor. On the desk, his phone lies face up, glowing softly. Outside the window, the industrial district: trucks leaving on schedule, cranes moving, a normal morning that almost wasn't. Slow crane up from the phone to the horizon. Ambient: city awakening, low warm pad."
+    },
+    {
+      "id": "09-verdade",
+      "title": "A verdade da operação",
+      "voice": "Cada resposta com fonte. Cada ação com trilha. Auditável para a agência... e para o conselho. O modelo não inventa o lote. Ele consulta a Layer.",
+      "prompt": "A dark archive room: a leather-bound audit ledger on a steel table, a red archival stamp pressing down once, firm. Macro of engraved metal tag L-19 resting beside the ledger — solid, physical, untouched. The razor-thin plane of pale glass light hovers above the table like a guardian. Ambient: stamp thud, metal on steel, room tone with weight."
+    },
+    {
+      "id": "10-outro",
+      "title": "Encerramento",
+      "voice": "Adaptive Layer. O sistema operacional de IA da sua empresa. Uma criação PixelPulseLab. pixelpulselab ponto dev.",
+      "prompt": "The executive walks into the factory floor in morning light, sleeves rolled, phone sliding dark into his pocket. The production line runs again, workers nod as he passes. Camera pulls back and up: the thin plane of pale glass light runs the length of the building, quiet, part of the architecture now. End on the building breathing, not on a logo. Ambient: line running, footsteps, one final resolved chord."
+    }
+  ]
+}

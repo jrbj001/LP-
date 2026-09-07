@@ -344,6 +344,16 @@ export const PROOF = {
   ],
 }
 
+export const FILME2 = {
+  eyebrow: 'Filme 2',
+  headline: 'A empresa inteira, a uma pergunta de distância.',
+  body: 'Pelo celular, em linguagem natural: o executivo pergunta como a empresa acordou, entende por que a margem caiu — com o documento junto — e, numa frase, manda preparar o relatório e agendar a revisão. Os agentes executam, com confirmação e audit. Tudo antes do café. Uma criação PixelPulseLab · pixelpulselab.dev.',
+  durationLabel: '1 min',
+  src: '/video/adaptive-layer-executivo.mp4',
+  poster: '/video/adaptive-layer-executivo-poster.jpg',
+  fallbackDuration: 66,
+}
+
 export const VIDEO = {
   eyebrow: 'Vídeo',
   headline: 'Como funciona.',

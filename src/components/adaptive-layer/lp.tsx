@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useState } from 'react'
 import { useLocale } from 'next-intl'
 import { ArrowRight } from 'lucide-react'
 import { FadeIn, FadeInItem, FadeInStagger } from '@/components/fade-in'
@@ -8,7 +9,7 @@ import { AnimatedMark } from '@/components/animated-mark'
 import { BootSequence } from './boot-sequence'
 import { HowItWorksAnimation, ProductArchitecture } from './diagrams'
 import { ExplainerVideo } from './explainer-video'
-import { ARCH, AUDIENCES, CAPABILITIES, CTA, GOVERNANCE, GRAPHRAG, META, OUTPUTS, PLATFORM, PRODUCT_ARCH, PROOF, STEPS, VECTORIZATION, VIDEO } from './lp-data'
+import { ARCH, AUDIENCES, CAPABILITIES, CTA, FILME2, GOVERNANCE, GRAPHRAG, META, OUTPUTS, PLATFORM, PRODUCT_ARCH, PROOF, STEPS, VECTORIZATION, VIDEO } from './lp-data'
 
 export function AdaptiveLayerLP() {
   const locale = useLocale()
@@ -161,7 +162,33 @@ function Hero() {
   )
 }
 
+const FILMS = [
+  {
+    id: 'como-funciona',
+    label: '01 · Como funciona',
+    headline: VIDEO.headline,
+    body: VIDEO.body,
+    durationLabel: VIDEO.durationLabel,
+    src: '/video/adaptive-layer.mp4',
+    poster: '/video/adaptive-layer-poster.jpg',
+    fallbackDuration: 89,
+  },
+  {
+    id: 'executivo',
+    label: '02 · A uma pergunta de distância',
+    headline: FILME2.headline,
+    body: FILME2.body,
+    durationLabel: FILME2.durationLabel,
+    src: FILME2.src,
+    poster: FILME2.poster,
+    fallbackDuration: FILME2.fallbackDuration,
+  },
+]
+
 function Video() {
+  const [active, setActive] = useState(0)
+  const film = FILMS[active]
+
   return (
     <section className="scroll-mt-20 border-b border-black/[0.06] bg-white px-6 py-16 sm:py-24" id="video">
       <div className="mx-auto max-w-[1120px]">
@@ -170,15 +197,39 @@ function Video() {
         </FadeIn>
         <FadeIn delay={0.06}>
           <h2 className="max-w-3xl text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
-            {VIDEO.headline}
+            {film.headline}
           </h2>
         </FadeIn>
         <FadeIn delay={0.1}>
-          <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-neutral-500">{VIDEO.body}</p>
+          <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-neutral-500">{film.body}</p>
         </FadeIn>
         <FadeIn delay={0.14}>
-          <div className="mt-10">
-            <ExplainerVideo />
+          <div className="mt-8 flex flex-wrap items-center gap-2">
+            {FILMS.map((f, i) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setActive(i)}
+                aria-pressed={i === active}
+                className={`rounded-full border px-4 py-2 font-mono text-[12.5px] transition-colors ${
+                  i === active
+                    ? 'border-neutral-900 bg-neutral-900 text-white'
+                    : 'border-black/[0.1] bg-white text-neutral-500 hover:border-neutral-400 hover:text-neutral-900'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+            <span className="ml-1 font-mono text-[11px] text-neutral-400">{film.durationLabel}</span>
+          </div>
+          <div className="mt-6">
+            <ExplainerVideo
+              key={film.id}
+              src={film.src}
+              poster={film.poster}
+              durationLabel={film.durationLabel}
+              fallbackDuration={film.fallbackDuration}
+            />
           </div>
         </FadeIn>
       </div>

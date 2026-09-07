@@ -1,0 +1,1005 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Adaptive Layer — filme 2 · o dia começa com uma conversa</title>
+<style>
+  :root {
+    --bg: #fbfbfa;
+    --ink: #171717;
+    --ink-2: #404040;
+    --mute: #737373;
+    --faint: #a3a3a3;
+    --hair: rgba(0, 0, 0, 0.07);
+    --hair-2: rgba(0, 0, 0, 0.045);
+    --panel: #ffffff;
+    --accent: #1b4dff;
+    --ok: #059669;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+
+  #stage {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 90% at 50% -10%, #ffffff 0%, rgba(255,255,255,0) 60%),
+      var(--bg);
+  }
+
+  #grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+  }
+
+  #vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 55;
+    background: radial-gradient(105% 78% at 50% 46%, rgba(0,0,0,0) 52%, rgba(0,0,0,0.055) 100%);
+  }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    will-change: opacity, transform;
+    transform-origin: 50% 50%;
+  }
+
+  .cam {
+    position: absolute;
+    inset: 0;
+    will-change: transform, filter;
+    transform-origin: 50% 50%;
+  }
+
+  /* ---------- shared primitives (mesma linguagem do filme 1) ---------- */
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--hair);
+    border-radius: 18px;
+    box-shadow: 0 28px 64px -40px rgba(0, 0, 0, 0.34), 0 2px 6px -3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--hair-2);
+  }
+
+  .sys {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+  }
+
+  .glyph {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1px solid var(--hair);
+    display: grid;
+    place-items: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--mute);
+    background: #fafafa;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  .mono { font-family: var(--mono); font-size: 13px; letter-spacing: -0.01em; }
+  .dim { color: var(--mute); }
+  .faint { color: var(--faint); }
+  .num { font-variant-numeric: tabular-nums; font-family: var(--mono); }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid var(--hair);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 11.5px;
+    letter-spacing: 0.01em;
+    color: var(--ink-2);
+    background: #fff;
+    white-space: nowrap;
+  }
+  .tag.ink { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .tag.ok { border-color: rgba(5,150,105,0.35); color: var(--ok); }
+
+  .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--accent); }
+  .dot.grey { background: var(--faint); }
+  .dot.ok { background: var(--ok); }
+
+  #watermark {
+    position: absolute;
+    right: 52px; bottom: 48px;
+    z-index: 52;
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    font-family: var(--mono);
+    color: rgba(23, 23, 23, 0.34);
+    will-change: opacity;
+  }
+
+  /* ---------- caption ---------- */
+
+  #caption {
+    position: absolute;
+    left: 128px;
+    bottom: 96px;
+    z-index: 50;
+    max-width: 860px;
+    will-change: opacity, transform;
+  }
+
+  #cap-eyebrow {
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 14px;
+  }
+
+  #cap-rule {
+    width: 34px;
+    height: 1.5px;
+    background: var(--ink);
+    margin-bottom: 18px;
+    transform-origin: left center;
+  }
+
+  #cap-text {
+    font-size: 40px;
+    font-weight: 600;
+    letter-spacing: -0.032em;
+    line-height: 1.14;
+    color: var(--ink);
+  }
+
+  /* ---------- phone ---------- */
+
+  .phone {
+    position: absolute;
+    width: 400px;
+    height: 830px;
+    border-radius: 58px;
+    background: #111;
+    padding: 14px;
+    box-shadow:
+      0 60px 120px -50px rgba(0, 0, 0, 0.45),
+      0 4px 14px -6px rgba(0, 0, 0, 0.2),
+      inset 0 0 0 2px rgba(255,255,255,0.06);
+    will-change: opacity, transform;
+  }
+
+  .screen {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 46px;
+    background: var(--bg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .island {
+    position: absolute;
+    left: 50%; top: 14px;
+    width: 100px; height: 26px;
+    margin-left: -50px;
+    border-radius: 999px;
+    background: #111;
+    z-index: 5;
+  }
+
+  .statusbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px 6px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .statusbar .right { display: flex; gap: 6px; align-items: center; color: var(--ink-2); font-size: 12px; }
+
+  .apphead {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--hair-2);
+  }
+  .apphead .title { font-size: 15.5px; font-weight: 600; letter-spacing: -0.014em; }
+  .apphead .sub { font-size: 11px; color: var(--faint); margin-top: 1px; }
+
+  .chatbody { flex: 1; padding: 20px 18px; overflow: hidden; }
+
+  .bub-user {
+    margin-left: auto;
+    width: fit-content;
+    max-width: 300px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 16px 16px 4px 16px;
+    padding: 13px 17px;
+    font-size: 15.5px;
+    letter-spacing: -0.012em;
+    line-height: 1.4;
+    will-change: opacity, transform;
+  }
+
+  .bub-ai {
+    margin-top: 16px;
+    width: fit-content;
+    max-width: 330px;
+    background: #fff;
+    border: 1px solid var(--hair);
+    border-radius: 16px 16px 16px 4px;
+    padding: 15px 17px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--ink-2);
+    box-shadow: 0 10px 28px -20px rgba(0,0,0,0.25);
+    will-change: opacity, transform;
+  }
+
+  .airow {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--hair-2);
+    font-size: 13.5px;
+  }
+  .airow:last-child { border-bottom: 0; }
+
+  .caret {
+    display: inline-block;
+    width: 2px; height: 16px;
+    background: #fff;
+    vertical-align: -3px;
+    margin-left: 2px;
+  }
+
+  /* ---------- b0 lockscreen ---------- */
+
+  #b0 .phone { left: 50%; top: 110px; margin-left: -200px; }
+  #b0 .clock { text-align: center; margin-top: 128px; }
+  #b0 .clock .h { font-size: 84px; font-weight: 600; letter-spacing: -0.04em; }
+  #b0 .clock .d { font-size: 15px; color: var(--mute); margin-top: 4px; }
+
+  #b0 .notif {
+    margin: 44px 16px 0;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--hair);
+    border-radius: 20px;
+    padding: 16px 18px;
+    box-shadow: 0 18px 40px -24px rgba(0,0,0,0.35);
+    will-change: opacity, transform;
+  }
+
+  #b0 .sidefact {
+    position: absolute;
+    width: 330px;
+    padding: 22px 26px;
+    will-change: opacity, transform;
+  }
+
+  /* ---------- b1 pergunta ao grafo ---------- */
+
+  #b1 .phone { left: 320px; top: 110px; }
+  #b1 .graphpanel {
+    position: absolute;
+    left: 880px; top: 218px;
+    width: 700px;
+    will-change: opacity, transform;
+  }
+  #b1 .hop {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 18px;
+    align-items: center;
+    padding: 17px 28px;
+    border-bottom: 1px solid var(--hair-2);
+    will-change: opacity, transform;
+  }
+  #b1 .hop:last-child { border-bottom: 0; }
+
+  /* ---------- b2 o porquê — documentos ---------- */
+
+  #b2 .phone { left: 300px; top: 110px; }
+  #b2 .contract {
+    position: absolute;
+    left: 860px;
+    width: 760px;
+    padding: 0;
+    will-change: opacity, transform;
+  }
+  #b2 .clause {
+    padding: 20px 30px;
+    border-bottom: 1px solid var(--hair-2);
+  }
+
+  /* ---------- b3 execução com governança ---------- */
+
+  #b3 .phone { left: 50%; top: 96px; margin-left: -200px; }
+  #b3 .action {
+    margin: 22px 16px 0;
+    border: 1px solid var(--hair);
+    border-radius: 18px;
+    background: #fff;
+    padding: 18px;
+    box-shadow: 0 14px 34px -22px rgba(0,0,0,0.3);
+    will-change: opacity, transform;
+  }
+  #b3 .confirm {
+    margin-top: 16px;
+    border-radius: 12px;
+    background: var(--ink);
+    color: #fff;
+    text-align: center;
+    padding: 13px;
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    position: relative;
+    will-change: transform;
+  }
+  #b3 .auditline {
+    margin: 14px 16px 0;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--mute);
+    padding: 12px 16px;
+    border: 1px solid var(--hair-2);
+    border-radius: 12px;
+    background: #fcfcfc;
+    will-change: opacity, transform;
+  }
+  #b3 .sidefact {
+    position: absolute;
+    width: 340px;
+    padding: 22px 26px;
+    will-change: opacity, transform;
+  }
+
+  /* ---------- b4 comitê + forecast ---------- */
+
+  #b4 .phone { left: 50%; top: 96px; margin-left: -200px; }
+  #b4 .card {
+    margin: 20px 16px 0;
+    border: 1px solid var(--hair);
+    border-radius: 18px;
+    background: #fff;
+    padding: 17px 18px;
+    box-shadow: 0 14px 34px -22px rgba(0,0,0,0.28);
+    will-change: opacity, transform;
+  }
+  #b4 .sidefact {
+    position: absolute;
+    width: 340px;
+    padding: 22px 26px;
+    will-change: opacity, transform;
+  }
+
+  /* ---------- b5 assinatura ---------- */
+
+  #b5 .sign {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    will-change: opacity, transform;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="scene" id="b0"><div class="cam"></div></div>
+  <div class="scene" id="b1"><div class="cam"></div></div>
+  <div class="scene" id="b2"><div class="cam"></div></div>
+  <div class="scene" id="b3"><div class="cam"></div></div>
+  <div class="scene" id="b4"><div class="cam"></div></div>
+  <div class="scene" id="b5"><div class="cam"></div></div>
+
+  <div id="caption">
+    <div id="cap-eyebrow"></div>
+    <div id="cap-rule"></div>
+    <div id="cap-text"></div>
+  </div>
+
+  <div id="watermark">pixelpulselab.dev</div>
+
+  <div id="vignette"></div>
+  <div id="grain"></div>
+</div>
+
+<script>
+const DEFAULT_TIMELINE = [
+  { id: 'b0', start: 0.0,  end: 10.0 },
+  { id: 'b1', start: 10.0, end: 21.0 },
+  { id: 'b2', start: 21.0, end: 30.5 },
+  { id: 'b3', start: 30.5, end: 40.0 },
+  { id: 'b4', start: 40.0, end: 49.5 },
+  { id: 'b5', start: 49.5, end: 57.0 },
+]
+
+const CAPTIONS = {
+  b0: { eyebrow: 'Bom dia',           text: 'O dia começa com uma conversa.' },
+  b1: { eyebrow: 'Pergunte',          text: 'Fale com a empresa como fala com o seu time.' },
+  b2: { eyebrow: 'Entenda',           text: 'O porquê vem com a fonte — não com palpite.' },
+  b3: { eyebrow: 'Execute',           text: 'Uma frase vira ação — com confirmação e audit.' },
+  b4: { eyebrow: 'Decida',            text: 'Com número — todo dia.' },
+  b5: { eyebrow: '', text: '' },
+}
+
+const clamp = (v, a, b) => (v < a ? a : v > b ? b : v)
+const seg = (t, a, b) => clamp((t - a) / (b - a), 0, 1)
+const easeOut = p => 1 - Math.pow(1 - p, 3)
+const easeOutQuint = p => 1 - Math.pow(1 - p, 5)
+const easeInOut = p => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2)
+const lerp = (a, b, p) => a + (b - a) * p
+const px = n => `${n}px`
+
+function el(tag, cls, html) {
+  const n = document.createElement(tag)
+  if (cls) n.className = cls
+  if (html != null) n.innerHTML = html
+  return n
+}
+
+function phoneShell(opts = {}) {
+  const phone = el('div', 'phone')
+  const screen = el('div', 'screen')
+  phone.appendChild(screen)
+  screen.appendChild(el('div', 'island'))
+  screen.appendChild(el('div', 'statusbar',
+    `<span></span>
+     <span class="right"><span class="dot ok"></span>Layer</span>`))
+  if (opts.app) {
+    screen.appendChild(el('div', 'apphead',
+      `<span class="glyph">AL</span>
+       <div><div class="title">Adaptive Layer</div>
+       <div class="sub">${opts.sub || 'o OS da operação · no bolso'}</div></div>`))
+  }
+  return { phone, screen }
+}
+
+/* ---------------- b0 — o briefing chegou ---------------- */
+function buildB0(root) {
+  const { phone, screen } = phoneShell()
+  const clock = el('div', 'clock', `
+    <div style="font-size:46px;font-weight:600;letter-spacing:-0.035em;line-height:1.1">Bom dia.</div>
+    <div class="d" style="font-size:15px;color:var(--mute);margin-top:10px">seu briefing está pronto</div>`)
+  screen.appendChild(clock)
+  const notif = el('div', 'notif', `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
+      <span class="glyph">AL</span>
+      <span style="font-size:13px;font-weight:600">Adaptive Layer</span>
+      <span class="faint" style="font-size:11px;margin-left:auto">agora</span>
+    </div>
+    <div style="font-size:14.5px;font-weight:600;letter-spacing:-0.012em">Briefing diário pronto</div>
+    <div class="dim" style="font-size:13px;margin-top:4px;line-height:1.4">
+      Vendas, caixa e entregas de ontem consolidados. 1 ponto de atenção.</div>`)
+  screen.appendChild(notif)
+  root.appendChild(phone)
+
+  const factL = el('div', 'panel sidefact')
+  factL.style.cssText += 'left:212px;top:330px'
+  factL.innerHTML = `
+    <div class="eyebrow" style="margin-bottom:12px">antes</div>
+    <div style="font-size:21px;font-weight:600;letter-spacing:-0.02em;line-height:1.3">Dez abas e três planilhas.</div>
+    <div class="dim" style="margin-top:10px;font-size:14.5px;line-height:1.5">ERP, BI, e-mails — e a dúvida: qual número vale?</div>`
+  root.appendChild(factL)
+
+  const factR = el('div', 'panel sidefact')
+  factR.style.cssText += 'right:212px;top:410px'
+  factR.innerHTML = `
+    <div class="eyebrow" style="margin-bottom:12px">hoje</div>
+    <div style="font-size:21px;font-weight:600;letter-spacing:-0.02em;line-height:1.3">A empresa inteira numa conversa.</div>
+    <div class="dim" style="margin-top:10px;font-size:14.5px;line-height:1.5">O mesmo OS que roda a operação — pelo celular.</div>`
+  root.appendChild(factR)
+
+  return { phone, clock, notif, factL, factR }
+}
+
+/* ---------------- b1 — como a empresa acordou? ---------------- */
+const B1_QUESTION = 'Como a empresa acordou hoje?'
+const B1_ROWS = [
+  ['Vendas',   'R$ 2,4 mi · +6% vs. meta'],
+  ['Caixa',    'R$ 8,1 mi · confortável'],
+  ['Entregas', '96% no prazo · 3 exceções'],
+]
+const B1_HOPS = [
+  ['vendas',   'ERP · 412 pedidos faturados ontem'],
+  ['caixa',    'conciliação bancária · hoje, 6h00'],
+  ['entregas', 'WMS · 388 expedições no prazo'],
+  ['margem',   'atacado · −3 pts vs. semana passada'],
+]
+
+function buildB1(root) {
+  const { phone, screen } = phoneShell({ app: true })
+  const body = el('div', 'chatbody')
+  const user = el('div', 'bub-user')
+  user.innerHTML = `<span id="b1-q"></span><span class="caret" id="b1-caret"></span>`
+  const ai = el('div', 'bub-ai')
+  ai.innerHTML = `
+    <div style="font-weight:600;color:var(--ink);font-size:14.5px;letter-spacing:-0.012em">
+      Bom dia. Ontem fechou assim:</div>
+    <div style="margin-top:8px">
+      ${B1_ROWS.map(r => `<div class="airow"><span style="font-weight:500;color:var(--ink)">${r[0]}</span><span class="dim">${r[1]}</span></div>`).join('')}
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <span class="tag"><span class="dot grey"></span>atenção: margem do atacado −3 pts</span>
+    </div>
+    <div class="mono faint" style="margin-top:10px;font-size:11px">fonte · registro do OS, não planilha</div>`
+  body.appendChild(user)
+  body.appendChild(ai)
+  screen.appendChild(body)
+  root.appendChild(phone)
+
+  const graph = el('div', 'panel graphpanel')
+  graph.appendChild(el('div', 'panel-head',
+    `<div class="sys"><span class="glyph">AL</span>Por trás da resposta</div>
+     <span class="eyebrow">a Layer percorreu a operação</span>`))
+  const hops = B1_HOPS.map(h => {
+    const n = el('div', 'hop')
+    n.innerHTML = `<span class="tag" style="justify-content:center"><span class="mono">${h[0]}</span></span>
+      <span style="font-size:16.5px;font-weight:500;letter-spacing:-0.012em">${h[1]}</span>`
+    graph.appendChild(n)
+    return n
+  })
+  root.appendChild(graph)
+
+  return {
+    phone, user, ai, graph, hops,
+    q: user.querySelector('#b1-q'),
+    caret: user.querySelector('#b1-caret'),
+  }
+}
+
+/* ---------------- b2 — por que a margem caiu? o documento junto ---------------- */
+const B2_QUESTION = 'Por que a margem do atacado caiu?'
+const B2_DOCS = [
+  { conta: 'Contrato de frete — TransLog', clausula: '§4.3 — rota litoral com adicional de 12% em alta temporada.', doc: 'contrato-translog.pdf' },
+  { conta: 'Política comercial',           clausula: '§2.1 — desconto acima de 8% exige aprovação de diretoria.',   doc: 'politica-comercial.pdf' },
+]
+
+function buildB2(root) {
+  const { phone, screen } = phoneShell({ app: true, sub: 'resposta com fonte' })
+  const body = el('div', 'chatbody')
+  const user = el('div', 'bub-user')
+  user.innerHTML = `<span id="b2-q"></span><span class="caret" id="b2-caret"></span>`
+  const ai = el('div', 'bub-ai')
+  ai.style.maxWidth = '340px'
+  ai.innerHTML = `
+    <div style="font-weight:600;color:var(--ink);font-size:14.5px;letter-spacing:-0.012em">
+      Duas causas — as duas com documento:</div>
+    <div style="margin-top:8px">
+      <div class="airow"><span style="font-weight:500;color:var(--ink)">Frete</span><span class="dim">+R$ 84 mil · rota litoral</span></div>
+      <div class="airow"><span style="font-weight:500;color:var(--ink)">Desconto</span><span class="dim">2 pedidos fora da política</span></div>
+    </div>
+    <div class="mono faint" style="margin-top:10px;font-size:11px">fonte · grafo: pedido → canal → custo</div>`
+  body.appendChild(user)
+  body.appendChild(ai)
+  screen.appendChild(body)
+  root.appendChild(phone)
+
+  const cards = B2_DOCS.map((c, i) => {
+    const n = el('div', 'panel contract')
+    n.style.top = px(220 + i * 250)
+    n.innerHTML = `
+      <div class="panel-head">
+        <div class="sys"><span class="glyph">¶</span>${c.conta}</div>
+        <span class="mono faint">${c.doc}</span>
+      </div>
+      <div class="clause">
+        <div style="font-size:17.5px;line-height:1.45;color:var(--ink-2)">“${c.clausula}”</div>
+        <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+          <span class="tag ink" style="font-size:11px;padding:5px 13px">a causa, com fonte</span>
+          <span class="mono faint" style="font-size:11.5px">GraphRAG · fato do grafo + texto do documento</span>
+        </div>
+      </div>`
+    root.appendChild(n)
+    return n
+  })
+
+  return {
+    phone, user, ai, cards,
+    q: user.querySelector('#b2-q'),
+    caret: user.querySelector('#b2-caret'),
+  }
+}
+
+/* ---------------- b3 — pedir é executar, com governança ---------------- */
+const B3_ORDER = 'Prepara o relatório pra diretoria e agenda revisão com o comercial.'
+
+function buildB3(root) {
+  const { phone, screen } = phoneShell({ app: true, sub: 'ação com governança' })
+  const body = el('div', '')
+  body.style.cssText = 'padding:18px 18px 0'
+  const user = el('div', 'bub-user')
+  user.innerHTML = `<span id="b3-q"></span><span class="caret" id="b3-caret"></span>`
+  body.appendChild(user)
+  screen.appendChild(body)
+  const action = el('div', 'action')
+  action.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:15px;font-weight:600;letter-spacing:-0.014em">Relatório + revisão · diretoria</span>
+      <span class="tag" id="b3-state"><span class="dot grey"></span>aguardando</span>
+    </div>
+    <div style="margin-top:12px">
+      <div class="airow"><span class="dim">relatório</span><span class="mono" style="font-size:12px">resumo + causa da margem · 5 pessoas</span></div>
+      <div class="airow"><span class="dim">agenda</span><span class="mono" style="font-size:12px">comercial · hoje, 9h30</span></div>
+      <div class="airow"><span class="dim">permissão</span><span class="mono" style="font-size:12px">papel: ceo · envio</span></div>
+    </div>
+    <div class="confirm" id="b3-btn">Confirmar envio</div>`
+  screen.appendChild(action)
+  const audit = el('div', 'auditline', `action.executed · report.send + calendar.invite · por: ceo — logado no audit`)
+  screen.appendChild(audit)
+  root.appendChild(phone)
+
+  const factL = el('div', 'panel sidefact')
+  factL.style.cssText += 'left:200px;top:360px'
+  factL.innerHTML = `
+    <div class="eyebrow" style="margin-bottom:12px">regra do OS</div>
+    <div style="font-size:20px;font-weight:600;letter-spacing:-0.02em;line-height:1.32">Ação de escrita pede confirmação.</div>
+    <div class="dim" style="margin-top:10px;font-size:14.5px;line-height:1.5">O agente propõe. A pessoa decide. O audit grava quem mandou — e quando.</div>`
+  root.appendChild(factL)
+
+  const factR = el('div', 'panel sidefact')
+  factR.style.cssText += 'right:200px;top:430px'
+  factR.innerHTML = `
+    <div class="eyebrow" style="margin-bottom:12px">nos bastidores</div>
+    <div style="font-size:20px;font-weight:600;letter-spacing:-0.02em;line-height:1.32">Os agentes escrevem e agendam.</div>
+    <div class="dim" style="margin-top:10px;font-size:14.5px;line-height:1.5">Relatório redigido do registro. Convite na agenda do comercial, com pauta.</div>`
+  root.appendChild(factR)
+
+  return {
+    phone, action, audit, factL, factR, user,
+    q: user.querySelector('#b3-q'),
+    caret: user.querySelector('#b3-caret'),
+    state: action.querySelector('#b3-state'),
+    btn: action.querySelector('#b3-btn'),
+  }
+}
+
+/* ---------------- b4 — a manhã resolvida ---------------- */
+function buildB4(root) {
+  const { phone, screen } = phoneShell({ app: true, sub: 'agentes concluíram' })
+
+  const report = el('div', 'card')
+  report.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:14.5px;font-weight:600;letter-spacing:-0.014em">Relatório da manhã</span>
+      <span class="tag ok" id="b4-sent"><span class="dot ok"></span>na caixa da diretoria</span>
+    </div>
+    <div style="margin-top:10px">
+      <div class="airow"><span class="dim">causa</span><span class="mono" style="font-size:12px">frete litoral + desconto fora da política</span></div>
+      <div class="airow"><span class="dim">fonte</span><span class="mono" style="font-size:12px">registro do OS · não planilha</span></div>
+    </div>`
+  screen.appendChild(report)
+
+  const forecast = el('div', 'card')
+  forecast.innerHTML = `
+    <div style="font-size:14.5px;font-weight:600;letter-spacing:-0.014em">Agenda & projeção</div>
+    <div style="margin-top:10px">
+      <div class="airow"><span class="dim">revisão comercial</span><span style="font-weight:500">hoje, 9h30 · pauta anexada</span></div>
+      <div class="airow"><span class="dim">margem</span><span style="font-weight:600;color:var(--ok)">recupera com reajuste</span></div>
+      <div class="airow"><span class="dim">meta do trimestre</span><span style="font-weight:500">mantida</span></div>
+    </div>`
+  screen.appendChild(forecast)
+  root.appendChild(phone)
+
+  const factL = el('div', 'panel sidefact')
+  factL.style.cssText += 'left:200px;top:380px'
+  factL.innerHTML = `
+    <div class="eyebrow" style="margin-bottom:12px">da pergunta à ação</div>
+    <div style="font-size:20px;font-weight:600;letter-spacing:-0.02em;line-height:1.32">Uma conversa. Não um dia.</div>
+    <div class="dim" style="margin-top:10px;font-size:14.5px;line-height:1.5">Números, causa, relatório e agenda — antes do café.</div>`
+  root.appendChild(factL)
+
+  const factR = el('div', 'panel sidefact')
+  factR.style.cssText += 'right:200px;top:430px'
+  factR.innerHTML = `
+    <div class="eyebrow" style="margin-bottom:12px">decisão</div>
+    <div style="font-size:20px;font-weight:600;letter-spacing:-0.02em;line-height:1.32">Com número. Todo dia.</div>
+    <div class="dim" style="margin-top:10px;font-size:14.5px;line-height:1.5">Cada resposta com fonte. Cada ação com trilha.</div>`
+  root.appendChild(factR)
+
+  return { phone, report, forecast, factL, factR, sent: report.querySelector('#b4-sent') }
+}
+
+/* ---------------- b5 — assinatura ---------------- */
+function buildB5(root) {
+  const s = el('div', 'sign')
+  s.innerHTML = `
+    <div id="b5-rule" style="width:44px;height:1.5px;background:var(--ink);margin:0 auto 34px"></div>
+    <div id="b5-word" style="font-size:88px;font-weight:600;letter-spacing:-0.044em">Adaptive Layer™</div>
+    <div id="b5-sub" style="margin-top:24px;font-size:26px;letter-spacing:-0.014em;color:var(--mute)">
+      A empresa inteira, a uma pergunta de distância.</div>
+    <div id="b5-lab" style="margin-top:72px">
+      <span class="eyebrow" style="font-size:12px">PixelPulseLab</span>
+      <div class="mono" style="margin-top:12px;font-size:17px;color:var(--ink)">pixelpulselab.dev</div>
+    </div>`
+  root.appendChild(s)
+  return {
+    sign: s,
+    rule: s.querySelector('#b5-rule'),
+    word: s.querySelector('#b5-word'),
+    sub: s.querySelector('#b5-sub'),
+    lab: s.querySelector('#b5-lab'),
+  }
+}
+
+/* ---------------- build ---------------- */
+const cams = {}
+const scenes = {}
+;['b0', 'b1', 'b2', 'b3', 'b4', 'b5'].forEach(id => {
+  scenes[id] = document.getElementById(id)
+  cams[id] = scenes[id].querySelector('.cam')
+})
+
+const B0 = buildB0(cams.b0)
+const B1 = buildB1(cams.b1)
+const B2 = buildB2(cams.b2)
+const B3 = buildB3(cams.b3)
+const B4 = buildB4(cams.b4)
+const B5 = buildB5(cams.b5)
+
+const watermarkEl = document.getElementById('watermark')
+const capEl = document.getElementById('caption')
+const capEyebrow = document.getElementById('cap-eyebrow')
+const capRule = document.getElementById('cap-rule')
+const capText = document.getElementById('cap-text')
+
+let TL = DEFAULT_TIMELINE
+window.__setTimeline = tl => { TL = tl }
+
+const FADE = 0.42
+
+function sceneAlpha(t, b, isLast) {
+  const inA = seg(t, b.start, b.start + FADE)
+  const outA = isLast ? 1 : 1 - seg(t, b.end - FADE, b.end)
+  if (t < b.start - 0.001 || t > b.end + 0.001) return 0
+  return Math.min(inA, outA)
+}
+
+function cam(node, scale, x, y) {
+  node.style.transform = `translate3d(${px(x)}, ${px(y)}, 0) scale(${scale})`
+}
+
+function render(t) {
+  const last = TL[TL.length - 1]
+
+  TL.forEach(b => {
+    const node = scenes[b.id]
+    const a = sceneAlpha(t, b, b === last)
+    node.style.opacity = a
+    node.style.display = a <= 0.001 ? 'none' : 'block'
+    if (a <= 0.001) return
+    const d = b.end - b.start
+    const p = clamp((t - b.start) / d, 0, 1)
+    const fn = SCENE[b.id]
+    if (fn) fn(p, t - b.start, d)
+  })
+
+  const active = TL.find(b => t >= b.start - FADE && t < b.end) || last
+  const cap = CAPTIONS[active.id] || { eyebrow: '', text: '' }
+  const hasCap = !!cap.text
+  capEyebrow.textContent = cap.eyebrow
+  capText.textContent = cap.text
+  const cp = seg(t, active.start + 0.18, active.start + 0.9)
+  const cOut = 1 - seg(t, active.end - 0.36, active.end)
+  const ca = hasCap ? Math.min(easeOut(cp), cOut) : 0
+  capEl.style.opacity = ca
+  capEl.style.transform = `translateY(${px(lerp(16, 0, easeOut(cp)))})`
+  capRule.style.transform = `scaleX(${easeOut(seg(t, active.start + 0.3, active.start + 1.1))})`
+
+  // watermark sempre presente; some só na assinatura (que carrega a marca)
+  watermarkEl.style.opacity =
+    active.id === 'b5' ? 1 - seg(t, active.start - FADE, active.start + 0.2) : 1
+}
+
+const SCENE = {}
+
+/* b0: relógio, notificação desce, fatos laterais */
+SCENE.b0 = (p, lt) => {
+  cam(cams.b0, lerp(1.0, 1.06, easeInOut(p)), 0, lerp(0, -14, easeInOut(p)))
+
+  const pa = easeOut(seg(lt, 0.1, 0.9))
+  B0.phone.style.opacity = pa
+  B0.phone.style.transform = `translateY(${px(lerp(30, 0, pa))})`
+
+  const na = easeOut(seg(lt, 1.3, 2.0))
+  B0.notif.style.opacity = na
+  B0.notif.style.transform = `translateY(${px(lerp(-18, 0, na))})`
+
+  const fa = easeOut(seg(lt, 3.2, 4.0))
+  B0.factL.style.opacity = fa
+  B0.factL.style.transform = `translateX(${px(lerp(-22, 0, fa))})`
+
+  const fb = easeOut(seg(lt, 4.4, 5.2))
+  B0.factR.style.opacity = fb
+  B0.factR.style.transform = `translateX(${px(lerp(22, 0, fb))})`
+}
+
+/* b1: pergunta digita, resposta chega, grafo abre ao lado */
+SCENE.b1 = (p, lt) => {
+  cam(cams.b1, lerp(1.03, 1.0, easeOut(p)), 0, lerp(12, 0, easeOut(p)))
+
+  const pa = easeOut(seg(lt, 0.05, 0.7))
+  B1.phone.style.opacity = pa
+  B1.phone.style.transform = `translateY(${px(lerp(26, 0, pa))})`
+
+  const ua = easeOut(seg(lt, 0.4, 0.9))
+  B1.user.style.opacity = ua
+  const typed = Math.round(easeInOut(seg(lt, 0.7, 2.2)) * B1_QUESTION.length)
+  B1.q.textContent = B1_QUESTION.slice(0, typed)
+  B1.caret.style.opacity = lt > 2.4 ? 0 : (Math.sin(lt * Math.PI * 3.4) > 0 ? 1 : 0.15)
+
+  const aa = easeOut(seg(lt, 2.7, 3.4))
+  B1.ai.style.opacity = aa
+  B1.ai.style.transform = `translateY(${px(lerp(14, 0, aa))})`
+
+  const ga = easeOut(seg(lt, 3.4, 4.1))
+  B1.graph.style.opacity = ga
+  B1.graph.style.transform = `translateY(${px(lerp(24, 0, ga))})`
+  B1.hops.forEach((n, i) => {
+    const a = easeOut(seg(lt, 3.9 + i * 0.34, 4.5 + i * 0.34))
+    n.style.opacity = a
+    n.style.transform = `translateX(${px(lerp(16, 0, a))})`
+  })
+}
+
+/* b2: pergunta digita, causa chega, documentos abrem à direita */
+SCENE.b2 = (p, lt) => {
+  cam(cams.b2, lerp(1.03, 1.0, easeOut(p)), lerp(16, -16, easeInOut(p)), 0)
+
+  const pa = easeOut(seg(lt, 0.05, 0.7))
+  B2.phone.style.opacity = pa
+  B2.phone.style.transform = `translateY(${px(lerp(26, 0, pa))})`
+
+  const ua = easeOut(seg(lt, 0.4, 0.9))
+  B2.user.style.opacity = ua
+  const typed = Math.round(easeInOut(seg(lt, 0.7, 2.2)) * B2_QUESTION.length)
+  B2.q.textContent = B2_QUESTION.slice(0, typed)
+  B2.caret.style.opacity = lt > 2.4 ? 0 : (Math.sin(lt * Math.PI * 3.4) > 0 ? 1 : 0.15)
+
+  const aa = easeOut(seg(lt, 2.7, 3.4))
+  B2.ai.style.opacity = aa
+  B2.ai.style.transform = `translateY(${px(lerp(14, 0, aa))})`
+
+  B2.cards.forEach((n, i) => {
+    const a = easeOut(seg(lt, 3.6 + i * 0.55, 4.4 + i * 0.55))
+    n.style.opacity = a
+    n.style.transform = `translateY(${px(lerp(26, 0, a))})`
+  })
+}
+
+/* b3: ordem digita, card de ação, botão confirma, audit aparece */
+SCENE.b3 = (p, lt) => {
+  cam(cams.b3, lerp(1.0, 1.07, easeInOut(p)), 0, lerp(0, -16, easeInOut(p)))
+
+  const pa = easeOut(seg(lt, 0.05, 0.7))
+  B3.phone.style.opacity = pa
+  B3.phone.style.transform = `translateY(${px(lerp(26, 0, pa))})`
+
+  const ua = easeOut(seg(lt, 0.4, 0.9))
+  B3.user.style.opacity = ua
+  const typed = Math.round(easeInOut(seg(lt, 0.6, 2.4)) * B3_ORDER.length)
+  B3.q.textContent = B3_ORDER.slice(0, typed)
+  B3.caret.style.opacity = lt > 2.6 ? 0 : (Math.sin(lt * Math.PI * 3.4) > 0 ? 1 : 0.15)
+
+  const aa = easeOut(seg(lt, 2.7, 3.4))
+  B3.action.style.opacity = aa
+  B3.action.style.transform = `translateY(${px(lerp(16, 0, aa))})`
+
+  // botão pulsa e "confirma" em lt=4.6
+  const press = seg(lt, 4.45, 4.75)
+  const rel = seg(lt, 4.75, 5.05)
+  const s = press > 0 && rel < 1 ? lerp(1, 0.96, Math.min(press, 1 - rel)) : 1
+  B3.btn.style.transform = `scale(${s})`
+  const confirmed = lt > 4.75
+  B3.btn.textContent = confirmed ? 'Enviado — agentes executando' : 'Confirmar envio'
+  B3.btn.style.background = confirmed ? 'var(--ok)' : 'var(--ink)'
+  B3.state.innerHTML = confirmed
+    ? '<span class="dot ok"></span>executando'
+    : '<span class="dot grey"></span>aguardando'
+
+  const ada = easeOut(seg(lt, 5.1, 5.7))
+  B3.audit.style.opacity = ada
+  B3.audit.style.transform = `translateY(${px(lerp(10, 0, ada))})`
+
+  const fa = easeOut(seg(lt, 5.8, 6.5))
+  B3.factL.style.opacity = fa
+  B3.factL.style.transform = `translateX(${px(lerp(-22, 0, fa))})`
+  const fb = easeOut(seg(lt, 6.4, 7.1))
+  B3.factR.style.opacity = fb
+  B3.factR.style.transform = `translateX(${px(lerp(22, 0, fb))})`
+}
+
+/* b4: relatório enviado, forecast, fatos laterais */
+SCENE.b4 = (p, lt) => {
+  cam(cams.b4, lerp(1.0, 1.06, easeInOut(p)), 0, lerp(0, -14, easeInOut(p)))
+
+  const pa = easeOut(seg(lt, 0.05, 0.7))
+  B4.phone.style.opacity = pa
+  B4.phone.style.transform = `translateY(${px(lerp(26, 0, pa))})`
+
+  const ra = easeOut(seg(lt, 0.5, 1.2))
+  B4.report.style.opacity = ra
+  B4.report.style.transform = `translateY(${px(lerp(16, 0, ra))})`
+
+  const fo = easeOut(seg(lt, 1.4, 2.1))
+  B4.forecast.style.opacity = fo
+  B4.forecast.style.transform = `translateY(${px(lerp(16, 0, fo))})`
+
+  const fa = easeOut(seg(lt, 2.6, 3.3))
+  B4.factL.style.opacity = fa
+  B4.factL.style.transform = `translateX(${px(lerp(-22, 0, fa))})`
+  const fb = easeOut(seg(lt, 3.4, 4.1))
+  B4.factR.style.opacity = fb
+  B4.factR.style.transform = `translateX(${px(lerp(22, 0, fb))})`
+}
+
+/* b5: assinatura */
+SCENE.b5 = (p, lt) => {
+  cam(cams.b5, lerp(1.05, 1.0, easeOutQuint(clamp(lt / 2.2, 0, 1))), 0, 0)
+  B5.rule.style.transform = `scaleX(${easeOut(seg(lt, 0.15, 1.0))})`
+  const wa = easeOut(seg(lt, 0.25, 1.1))
+  B5.word.style.opacity = wa
+  B5.word.style.transform = `translateY(${px(lerp(14, 0, wa))})`
+  B5.sub.style.opacity = easeOut(seg(lt, 0.7, 1.5))
+  B5.lab.style.opacity = easeOut(seg(lt, 1.2, 2.0))
+}
+
+window.__render = t => { render(t); return true }
+render(0)
+document.documentElement.dataset.ready = '1'
+</script>
+</body>
+</html>
