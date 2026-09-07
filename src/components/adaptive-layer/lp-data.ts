@@ -5,7 +5,7 @@ export const META = {
   headline: 'The AI operating system for the enterprise.',
   headlinePt: 'O sistema operacional de IA da sua empresa.',
   lede:
-    'Adaptive Layer™ integra agentes, fluxos e os sistemas que a empresa já usa sob uma governança comum — agnóstico de modelo, rodando na sua nuvem.',
+    'Adaptive Layer™ integra agentes, fluxos e os sistemas que a empresa já usa sob uma governança comum — agnóstico de modelo, rodando na sua nuvem. Do relatório ao código: o modelo trabalha com o contexto inteiro.',
 }
 
 export const BOOT = {
@@ -39,7 +39,7 @@ export const PLATFORM = {
     {
       n: '03',
       title: 'Ação',
-      detail: 'Os aplicativos do OS: agentes com dono de área, APIs, regras e quick wins. O modelo consulta a Layer — não uma planilha paralela.',
+      detail: 'Os aplicativos do OS: agentes com dono de área, APIs e quick wins — gerando relatório, código e forecast. O modelo consulta a Layer — não uma planilha paralela.',
     },
   ],
 }
@@ -280,6 +280,46 @@ export const GRAPHRAG = {
   ],
   closing:
     'É a diferença entre um POC que impressiona e uma solução que opera em produção — com escala, governança e rastreabilidade.',
+}
+
+export const OUTPUTS = {
+  eyebrow: 'Output',
+  headline: 'Um LLM plugado na empresa inteira. Veja o que sai do outro lado.',
+  body:
+    'Modelo genérico responde genérico. Plugado no contexto inteiro da operação — grafo, documentos, histórico — ele vira força de trabalho: qualquer output nasce pronto, com fonte e permissão. Não é rascunho para revisar. É trabalho entregue.',
+  items: [
+    {
+      command: '$ layer report',
+      title: 'Relatórios executivos',
+      detail: 'OTD da semana, ruptura por canal, aging de pedidos. Cada número com fonte: o registro, não a planilha de alguém.',
+    },
+    {
+      command: '$ layer code',
+      title: 'Código',
+      detail: 'Integrações, automações e scripts escritos sobre as APIs da Layer — o modelo conhece o schema real, não um exemplo genérico.',
+    },
+    {
+      command: '$ layer stories',
+      title: 'User stories',
+      detail: 'Backlog escrito a partir do processo real: o atraso do #4821 vira story com critério de aceite — não suposição de reunião.',
+    },
+    {
+      command: '$ layer forecast',
+      title: 'Forecasting',
+      detail: 'Demanda, caixa e capacidade projetados sobre o histórico do grafo — a série já existe, amarrada à identidade.',
+    },
+    {
+      command: '$ layer answer',
+      title: 'Respostas com fonte',
+      detail: 'GraphRAG em ação: o fato do registro + a cláusula do documento. Explicável, rastreável, logado no audit.',
+    },
+    {
+      command: '$ layer draft',
+      title: 'Documentos & apresentações',
+      detail: 'Propostas, atas e resumos executivos com a verdade da operação — números do registro, não de memória.',
+    },
+  ],
+  closing: 'Um sistema operacional totalmente AI — qualquer output, mesmo contexto, mesma governança.',
 }
 
 export const GOVERNANCE = {
