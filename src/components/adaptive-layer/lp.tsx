@@ -7,7 +7,7 @@ import { AnimatedMark } from '@/components/animated-mark'
 import { BootSequence } from './boot-sequence'
 import { HowItWorksAnimation, ProductArchitecture } from './diagrams'
 import { ExplainerVideo } from './explainer-video'
-import { ARCH, CAPABILITIES, CTA, GOVERNANCE, GRAPHRAG, META, OUTPUTS, PLATFORM, PRODUCT_ARCH, PROOF, STEPS, VECTORIZATION, VIDEO } from './lp-data'
+import { ARCH, AUDIENCES, CAPABILITIES, CTA, GOVERNANCE, GRAPHRAG, META, OUTPUTS, PLATFORM, PRODUCT_ARCH, PROOF, STEPS, VECTORIZATION, VIDEO } from './lp-data'
 
 export function AdaptiveLayerLP() {
   const locale = useLocale()
@@ -27,6 +27,7 @@ export function AdaptiveLayerLP() {
         <Outputs />
         <Governance />
         <Proof locale={locale} />
+        <Audiences locale={locale} />
         <Cta locale={locale} />
       </main>
       <SiteFooter locale={locale} />
@@ -81,6 +82,9 @@ function Nav({ locale }: { locale: string }) {
           </a>
           <a href="#governanca" className="hidden text-[13px] text-neutral-500 hover:text-neutral-900 lg:inline">
             Governança
+          </a>
+          <a href={`/${locale}/pixel/devs`} className="hidden text-[13px] text-neutral-500 hover:text-neutral-900 md:inline">
+            Devs
           </a>
           <a
             href="#cta"
@@ -561,6 +565,105 @@ function Proof({ locale }: { locale: string }) {
   )
 }
 
+function Audiences({ locale }: { locale: string }) {
+  const { dev, ceo } = AUDIENCES
+  return (
+    <section className="scroll-mt-20 border-b border-black/[0.06] bg-white px-6 py-20 sm:py-24" id="comecar">
+      <div className="mx-auto max-w-[1120px]">
+        <FadeIn>
+          <Eyebrow>{AUDIENCES.eyebrow}</Eyebrow>
+        </FadeIn>
+        <FadeIn delay={0.06}>
+          <h2 className="max-w-3xl text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
+            {AUDIENCES.headline}
+          </h2>
+        </FadeIn>
+
+        <FadeInStagger className="mt-12 grid gap-4 lg:grid-cols-2">
+          {/* devs — janela escura */}
+          <FadeInItem>
+            <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-black/[0.08] bg-[#171717] text-white shadow-[0_32px_96px_-40px_rgba(0,0,0,0.5)]">
+              <div className="flex items-center gap-2 border-b border-white/[0.06] px-5 py-3">
+                <span className="h-[7px] w-[7px] rounded-full bg-neutral-600" />
+                <span className="h-[7px] w-[7px] rounded-full bg-neutral-600" />
+                <span className="h-[7px] w-[7px] rounded-full bg-neutral-600" />
+                <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.14em] text-white/30">
+                  {dev.kicker}
+                </span>
+              </div>
+              <div className="flex flex-1 flex-col p-7">
+                <h3 className="text-[22px] font-semibold tracking-[-0.02em]">{dev.title}</h3>
+                <p className="mt-2.5 max-w-md text-[14px] leading-relaxed text-white/50">{dev.body}</p>
+                <div className="mt-5 rounded-xl bg-white/[0.04] p-4 font-mono text-[12px] leading-[1.9]">
+                  {dev.code.map(line => (
+                    <p key={line} className={line.startsWith('$') ? 'text-white/90' : 'text-emerald-300/80'}>
+                      {line.startsWith('$') ? (
+                        <>
+                          <span className="text-emerald-400/90">$ </span>
+                          {line.slice(2)}
+                        </>
+                      ) : (
+                        line
+                      )}
+                    </p>
+                  ))}
+                </div>
+                <div className="mt-auto pt-6">
+                  <a
+                    href={`/${locale}${dev.href}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-[13.5px] font-medium text-neutral-900 hover:bg-neutral-200"
+                  >
+                    {dev.label}
+                    <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                  </a>
+                </div>
+              </div>
+            </article>
+          </FadeInItem>
+
+          {/* ceo — card claro com stat */}
+          <FadeInItem>
+            <article className="flex h-full flex-col overflow-hidden rounded-3xl border border-black/[0.08] bg-[#fbfbfa]">
+              <div className="flex items-center gap-2 border-b border-black/[0.05] bg-white px-5 py-3">
+                <span className="h-[7px] w-[7px] rounded-full bg-neutral-300" />
+                <span className="h-[7px] w-[7px] rounded-full bg-neutral-300" />
+                <span className="h-[7px] w-[7px] rounded-full bg-neutral-300" />
+                <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-400">
+                  {ceo.kicker}
+                </span>
+              </div>
+              <div className="flex flex-1 flex-col p-7">
+                <h3 className="text-[22px] font-semibold tracking-[-0.02em] text-neutral-900">{ceo.title}</h3>
+                <p className="mt-2.5 max-w-md text-[14px] leading-relaxed text-neutral-500">{ceo.body}</p>
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-black/[0.06] bg-white px-4 py-3.5">
+                    <p className="text-[26px] font-semibold tracking-[-0.02em] text-emerald-600">{ceo.stat.roi}</p>
+                    <p className="font-mono text-[10.5px] text-neutral-400">{ceo.stat.roiLabel}</p>
+                  </div>
+                  <div className="rounded-xl border border-black/[0.06] bg-white px-4 py-3.5">
+                    <p className="text-[26px] font-semibold tracking-[-0.02em] text-neutral-900">{ceo.stat.payback}</p>
+                    <p className="font-mono text-[10.5px] text-neutral-400">{ceo.stat.paybackLabel}</p>
+                  </div>
+                </div>
+                <p className="mt-2 font-mono text-[10.5px] text-neutral-400">{ceo.stat.note}</p>
+                <div className="mt-auto pt-6">
+                  <a
+                    href={`/${locale}${ceo.href}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-5 py-2.5 text-[13.5px] font-medium text-white hover:bg-neutral-800"
+                  >
+                    {ceo.label}
+                    <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                  </a>
+                </div>
+              </div>
+            </article>
+          </FadeInItem>
+        </FadeInStagger>
+      </div>
+    </section>
+  )
+}
+
 function Cta({ locale }: { locale: string }) {
   return (
     <section className="scroll-mt-20 bg-neutral-950 px-6 py-20 text-white sm:py-28" id="cta">
@@ -588,6 +691,12 @@ function Cta({ locale }: { locale: string }) {
               className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-[14px] font-medium text-neutral-900 hover:bg-neutral-200"
             >
               {CTA.primary}
+            </a>
+            <a
+              href={`/${locale}/pixel/roi`}
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-[14px] font-medium text-white/80 hover:bg-white/[0.06] hover:text-white"
+            >
+              Calcular o ROI
             </a>
             <a
               href={`/${locale}${CTA.orfeu}`}
@@ -621,6 +730,12 @@ function SiteFooter({ locale }: { locale: string }) {
         <div className="flex gap-5 text-[13px] text-white/40">
           <a href={`/${locale}`} className="hover:text-white">
             Home
+          </a>
+          <a href={`/${locale}/pixel/devs`} className="hover:text-white">
+            Devs
+          </a>
+          <a href={`/${locale}/pixel/roi`} className="hover:text-white">
+            ROI
           </a>
           <a href={`/${locale}/adaptive/executive-review`} className="hover:text-white">
             Orfeu
