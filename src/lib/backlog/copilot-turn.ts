@@ -45,6 +45,8 @@ export async function runAndPersistTurn(input: {
     content: turn.reply,
     diagram: turn.diagram,
     storyDraft: turn.storyDraft,
+    flowNotes: turn.flowNotes,
+    sqlEvidence: turn.sqlEvidence,
     sources: turn.sources,
     followUps: turn.followUps,
     createdAt: new Date().toISOString(),

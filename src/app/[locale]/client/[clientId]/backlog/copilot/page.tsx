@@ -43,7 +43,7 @@ export default async function BacklogCopilotPage({ params, searchParams }: Props
       <WorkspacePageHeader
         eyebrow={`${client.name} · Backlog`}
         title="Copiloto de user stories"
-        description="Descreva a necessidade em linguagem natural. O copiloto lê o código no GitHub, desenha o fluxo, responde dúvidas e propõe o rascunho da story — você aplica no board com um clique."
+        description="Converse para mapear o fluxo da empresa. O copiloto enriquece o entendimento a cada turno — e o call to action para gerar a user story fica sempre visível."
         backHref={`${base}/backlog`}
       />
       <CopilotChat

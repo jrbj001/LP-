@@ -22,18 +22,21 @@ import {
 } from '@/lib/backlog/types'
 import { BacklogDiagramView } from './backlog-diagram'
 
+const GENERATE_STORY_PROMPT =
+  'Com o fluxo da empresa que já aprendemos nesta conversa, escreva agora o rascunho completo da user story (persona, quero, para que e critérios de aceite testáveis) para eu aplicar no board.'
+
 const BE180_STARTERS = [
   'Como funciona hoje a promoção de inventário ao Banco de Ativos?',
-  'Escreva a user story para o exibidor completar o cadastro pendente.',
-  'Quais critérios de aceite garantem que o roteiro só publica com mídia válida?',
+  'Quem dispara, valida e aprova o cadastro do exibidor?',
   'Desenhe o fluxo do agente que valida inventário antes da aprovação.',
+  'Quando o fluxo estiver claro, escreva a user story do roteiro só publicar com mídia válida.',
 ]
 
 const LIKEME_STARTERS = [
-  'Desenhe a jornada de saúde do usuário entre descoberta e acompanhamento.',
-  'Escreva uma user story para uma experiência de compra no marketplace.',
-  'Quais critérios de aceite precisamos para uma interação segura na comunidade?',
-  'Mapeie os requisitos de pagamento sem presumir detalhes da integração.',
+  'Desenhe a jornada de saúde entre descoberta e acompanhamento.',
+  'Como a empresa trata uma interação na comunidade hoje?',
+  'Mapeie o fluxo de pagamento sem presumir detalhes da integração.',
+  'Quando o fluxo estiver claro, escreva a user story de compra no marketplace.',
 ]
 
 export function CopilotChat({
@@ -253,11 +256,11 @@ export function CopilotChat({
                 <Sparkles className="w-5 h-5" strokeWidth={1.8} style={{ color: accent }} />
               </div>
               <h3 className="text-[17px] font-semibold tracking-tight text-neutral-900">
-                Construa a user story conversando
+                Entenda o fluxo, depois feche a story
               </h3>
               <p className="text-[13px] text-neutral-500 mt-2 leading-relaxed">
-                O copiloto lê o código no GitHub, responde em linguagem natural, desenha o fluxo e
-                propõe o rascunho. Você aplica ao board com um clique.
+                O copiloto aprende o fluxo da empresa (código, board e conversa) antes de propor a
+                user story. O botão de gerar a story fica sempre à mão quando você quiser avançar.
               </p>
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
                 {starters.map(starter => (
@@ -289,7 +292,7 @@ export function CopilotChat({
           {sending && (
             <div className="flex items-center gap-2 text-[12px] text-neutral-400">
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              Lendo o repositório e escrevendo a resposta…
+              Lendo o repositório e o fluxo da empresa…
             </div>
           )}
         </div>
@@ -300,18 +303,30 @@ export function CopilotChat({
           </div>
         )}
 
-        {lastAssistant?.followUps && lastAssistant.followUps.length > 0 && !sending && (
-          <div className="px-5 pb-3 flex flex-wrap gap-2">
-            {lastAssistant.followUps.map(followUp => (
-              <button
-                key={followUp}
-                type="button"
-                onClick={() => void send(followUp)}
-                className="rounded-full border border-black/[0.08] bg-[#fafaf8] px-3 py-1.5 text-[11px] text-neutral-600 hover:border-neutral-300"
-              >
-                {followUp}
-              </button>
-            ))}
+        {lastAssistant && !sending && (
+          <div className="px-5 pb-3 space-y-2">
+            <StoryTurnCta
+              lastAssistant={lastAssistant}
+              appliedCardId={lastAssistant.appliedCardId ?? appliedCards[lastAssistant.id]}
+              applying={applyingId === lastAssistant.id}
+              onApply={() => void applyDraft(lastAssistant.id)}
+              onGenerate={() => void send(GENERATE_STORY_PROMPT)}
+              detailBase={detailBase}
+            />
+            {lastAssistant.followUps && lastAssistant.followUps.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {lastAssistant.followUps.map(followUp => (
+                  <button
+                    key={followUp}
+                    type="button"
+                    onClick={() => void send(followUp)}
+                    className="rounded-full border border-black/[0.08] bg-[#fafaf8] px-3 py-1.5 text-[11px] text-neutral-600 hover:border-neutral-300"
+                  >
+                    {followUp}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -332,7 +347,7 @@ export function CopilotChat({
               }
             }}
             rows={2}
-            placeholder="Descreva a necessidade, peça um desenho ou pergunte sobre o código…"
+            placeholder="Pergunte sobre o fluxo da empresa ou descreva a necessidade…"
             className="flex-1 resize-none rounded-xl border border-black/[0.08] px-3.5 py-2.5 text-[13px] leading-relaxed outline-none focus:border-neutral-400"
           />
           <button
@@ -351,6 +366,69 @@ export function CopilotChat({
         </form>
       </div>
     </div>
+  )
+}
+
+function StoryTurnCta({
+  lastAssistant,
+  appliedCardId,
+  applying,
+  onApply,
+  onGenerate,
+  detailBase,
+}: {
+  lastAssistant: CopilotMessage
+  appliedCardId?: string
+  applying: boolean
+  onApply: () => void
+  onGenerate: () => void
+  detailBase: string
+}) {
+  if (appliedCardId) {
+    return (
+      <Link
+        href={`${detailBase}/${encodeURIComponent(appliedCardId)}`}
+        className="flex items-center justify-between gap-3 rounded-xl border border-teal-200 bg-teal-50 px-3.5 py-2.5 text-[12px] font-medium text-teal-800"
+      >
+        <span className="inline-flex items-center gap-1.5">
+          <Check className="w-3.5 h-3.5" strokeWidth={2} />
+          User story aplicada no board
+        </span>
+        <span className="inline-flex items-center gap-1 text-[11px]">
+          Abrir card
+          <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={1.8} />
+        </span>
+      </Link>
+    )
+  }
+
+  if (lastAssistant.storyDraft) {
+    return (
+      <button
+        type="button"
+        onClick={onApply}
+        disabled={applying}
+        className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-neutral-900 text-white text-[13px] font-medium px-4 py-2.5 disabled:opacity-50"
+      >
+        {applying ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <UserRound className="w-4 h-4" strokeWidth={1.8} />
+        )}
+        Aplicar user story no board
+      </button>
+    )
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onGenerate}
+      className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50 text-sky-900 text-[13px] font-medium px-4 py-2.5"
+    >
+      <Sparkles className="w-4 h-4" strokeWidth={1.8} />
+      Gerar user story com o fluxo aprendido
+    </button>
   )
 }
 
@@ -393,6 +471,52 @@ function MessageBubble({
         </div>
 
         {message.diagram && <BacklogDiagramView diagram={message.diagram} compact />}
+
+        {message.flowNotes && message.flowNotes.length > 0 && (
+          <div className="rounded-xl border border-black/[0.06] bg-white px-3.5 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-neutral-400 mb-2">
+              Fluxo da empresa · o que já sabemos
+            </p>
+            <ul className="space-y-1.5">
+              {message.flowNotes.map((note, index) => (
+                <li key={`${note}-${index}`} className="flex items-start gap-2">
+                  <span className="mt-[0.45em] w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0" />
+                  <span className="text-[12px] text-neutral-600 leading-relaxed">{note}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {message.sqlEvidence && (
+          <details className="group rounded-xl border border-teal-200/70 bg-teal-50/40 px-3.5 py-3">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-700">
+                  Evidência consultada no banco
+                </p>
+                <p className="mt-1 text-[12px] text-neutral-700">
+                  {message.sqlEvidence.question}
+                </p>
+              </div>
+              <span className="shrink-0 text-[10px] text-teal-700">
+                {message.sqlEvidence.rows.length}{' '}
+                {message.sqlEvidence.rows.length === 1 ? 'linha' : 'linhas'}
+              </span>
+            </summary>
+            <div className="mt-3 space-y-2 border-t border-teal-200/60 pt-3">
+              <p className="text-[11px] leading-relaxed text-neutral-600">
+                {message.sqlEvidence.explanation}
+              </p>
+              <pre className="overflow-x-auto rounded-lg bg-neutral-950 px-3 py-2 text-[10px] leading-relaxed text-teal-100">
+                {message.sqlEvidence.sql}
+              </pre>
+              <pre className="max-h-48 overflow-auto rounded-lg border border-black/[0.06] bg-white px-3 py-2 text-[10px] leading-relaxed text-neutral-600">
+                {JSON.stringify(message.sqlEvidence.rows, null, 2)}
+              </pre>
+            </div>
+          </details>
+        )}
 
         {message.sources && message.sources.length > 0 && (
           <div className="flex flex-wrap gap-1.5">

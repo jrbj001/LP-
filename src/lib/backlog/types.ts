@@ -96,12 +96,24 @@ export interface StoryDraft {
   diagram?: BacklogDiagram
 }
 
+export interface CopilotSqlEvidence {
+  question: string
+  sql: string
+  explanation: string
+  columns: string[]
+  rows: Record<string, unknown>[]
+}
+
 export interface CopilotMessage {
   id: string
   role: 'user' | 'assistant'
   content: string
   diagram?: BacklogDiagram
   storyDraft?: StoryDraft
+  /** Fatos acumulados sobre o fluxo da empresa nesta conversa. */
+  flowNotes?: string[]
+  /** Evidência consultada no Cadence para fundamentar este turno. */
+  sqlEvidence?: CopilotSqlEvidence
   sources?: GithubRef[]
   followUps?: string[]
   /** Card criado/atualizado quando o PM aplica o rascunho. */
