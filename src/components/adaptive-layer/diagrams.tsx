@@ -37,7 +37,7 @@ export function ProductArchitecture() {
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] px-5 py-4">
             <div>
               <p className="text-[15px] font-semibold tracking-tight">Adaptive Layer™</p>
-              <p className="text-[11px] text-white/35">data + context layer · enterprise AI-ready</p>
+              <p className="text-[11px] text-white/35">sistema operacional de IA · agnóstico de modelo</p>
             </div>
             <span className="rounded-full border border-white/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] text-white/40">
               produto
