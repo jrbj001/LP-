@@ -7,7 +7,7 @@ import { AnimatedMark } from '@/components/animated-mark'
 import { BootSequence } from './boot-sequence'
 import { HowItWorksAnimation, ProductArchitecture } from './diagrams'
 import { ExplainerVideo } from './explainer-video'
-import { ARCH, CAPABILITIES, CTA, GOVERNANCE, GRAPHRAG, META, PLATFORM, PRODUCT_ARCH, PROOF, STEPS, VECTORIZATION, VIDEO } from './lp-data'
+import { ARCH, CAPABILITIES, CTA, GOVERNANCE, GRAPHRAG, META, OUTPUTS, PLATFORM, PRODUCT_ARCH, PROOF, STEPS, VECTORIZATION, VIDEO } from './lp-data'
 
 export function AdaptiveLayerLP() {
   const locale = useLocale()
@@ -24,6 +24,7 @@ export function AdaptiveLayerLP() {
         <Capabilities />
         <Architecture />
         <GraphRag />
+        <Outputs />
         <Governance />
         <Proof locale={locale} />
         <Cta locale={locale} />
@@ -74,6 +75,9 @@ function Nav({ locale }: { locale: string }) {
           </a>
           <a href="#passo-a-passo" className="hidden text-[13px] text-neutral-500 hover:text-neutral-900 lg:inline">
             Passo a passo
+          </a>
+          <a href="#output" className="hidden text-[13px] text-neutral-500 hover:text-neutral-900 lg:inline">
+            Output
           </a>
           <a href="#governanca" className="hidden text-[13px] text-neutral-500 hover:text-neutral-900 lg:inline">
             Governança
@@ -437,6 +441,52 @@ function GraphRag() {
         </FadeInStagger>
         <FadeIn delay={0.12}>
           <p className="mt-10 max-w-2xl text-[14px] leading-relaxed text-neutral-500">{GRAPHRAG.closing}</p>
+        </FadeIn>
+      </div>
+    </section>
+  )
+}
+
+function Outputs() {
+  return (
+    <section className="scroll-mt-20 border-b border-black/[0.06] bg-white px-6 py-20 sm:py-24" id="output">
+      <div className="mx-auto max-w-[1120px]">
+        <FadeIn>
+          <Eyebrow>{OUTPUTS.eyebrow}</Eyebrow>
+        </FadeIn>
+        <FadeIn delay={0.06}>
+          <h2 className="max-w-3xl text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
+            {OUTPUTS.headline}
+          </h2>
+        </FadeIn>
+        <FadeIn delay={0.1}>
+          <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-neutral-500">{OUTPUTS.body}</p>
+        </FadeIn>
+        <FadeInStagger className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {OUTPUTS.items.map(item => (
+            <FadeInItem key={item.command}>
+              <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-black/[0.06] bg-[#fbfbfa]">
+                <div className="flex items-center gap-1.5 border-b border-black/[0.05] bg-white px-4 py-2.5">
+                  <span className="h-[6px] w-[6px] rounded-full bg-neutral-300" />
+                  <span className="h-[6px] w-[6px] rounded-full bg-neutral-300" />
+                  <span className="h-[6px] w-[6px] rounded-full bg-neutral-300" />
+                  <span className="ml-2 font-mono text-[11px] tracking-[0.02em] text-neutral-500">
+                    <span className="text-emerald-600/70">$ </span>
+                    {item.command.replace(/^\$\s*/, '')}
+                  </span>
+                </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <h3 className="text-[15px] font-semibold text-neutral-900">{item.title}</h3>
+                  <p className="mt-2 text-[13px] leading-relaxed text-neutral-500">{item.detail}</p>
+                </div>
+              </article>
+            </FadeInItem>
+          ))}
+        </FadeInStagger>
+        <FadeIn delay={0.12}>
+          <p className="mt-10 max-w-2xl font-mono text-[12px] leading-relaxed text-neutral-400">
+            {OUTPUTS.closing}
+          </p>
         </FadeIn>
       </div>
     </section>
