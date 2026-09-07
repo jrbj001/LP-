@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useLocale } from 'next-intl'
 import { ArrowRight } from 'lucide-react'
 import { FadeIn, FadeInItem, FadeInStagger } from '@/components/fade-in'
@@ -19,6 +20,7 @@ export function AdaptiveLayerLP() {
         <Hero />
         <Video />
         <Platform />
+        <KernelBand />
         <ProductArch />
         <Steps />
         <Capabilities />
@@ -140,7 +142,19 @@ function Hero() {
           </FadeIn>
         </div>
         <FadeIn delay={0.24}>
-          <BootSequence />
+          <div className="relative overflow-hidden rounded-3xl p-4 shadow-[0_32px_96px_-40px_rgba(0,0,0,0.5)] sm:p-5">
+            <Image
+              src="/adaptive-layer/hero-glow.jpg"
+              alt=""
+              fill
+              priority
+              sizes="(min-width: 1024px) 440px, 100vw"
+              className="object-cover"
+            />
+            <div className="relative">
+              <BootSequence />
+            </div>
+          </div>
         </FadeIn>
       </div>
     </section>
@@ -200,6 +214,34 @@ function Platform() {
             </FadeInItem>
           ))}
         </FadeInStagger>
+      </div>
+    </section>
+  )
+}
+
+function KernelBand() {
+  return (
+    <section className="relative border-b border-black/[0.06]">
+      <div className="relative h-[300px] sm:h-[420px]">
+        <Image
+          src="/adaptive-layer/os-kernel.jpg"
+          alt="Render abstrato do kernel do sistema operacional de IA, com módulos orbitando um núcleo de vidro"
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-black/30" />
+        <div className="absolute inset-x-0 bottom-0 px-6 pb-7">
+          <div className="mx-auto flex max-w-[1120px] flex-wrap items-baseline justify-between gap-2">
+            <p className="font-mono text-[12px] text-white/70">
+              <span className="text-emerald-400/90">$ </span>
+              o kernel da operação — dados, contexto e ação num só contrato
+            </p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/35">
+              adaptive layer™ os
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   )
@@ -396,14 +438,26 @@ function GraphRag() {
             return (
               <FadeInItem key={rule.answer}>
                 <article
-                  className={`flex h-full flex-col overflow-hidden rounded-2xl border ${
+                  className={`relative flex h-full flex-col overflow-hidden rounded-2xl border ${
                     active
                       ? 'border-neutral-900 bg-neutral-900 text-white shadow-[0_24px_64px_-32px_rgba(0,0,0,0.5)]'
                       : 'border-black/[0.06] bg-white'
                   }`}
                 >
+                  {active && (
+                    <>
+                      <Image
+                        src="/adaptive-layer/graph-web.jpg"
+                        alt=""
+                        fill
+                        sizes="(min-width: 768px) 33vw, 100vw"
+                        className="object-cover opacity-50"
+                      />
+                      <div className="absolute inset-0 bg-neutral-950/55" />
+                    </>
+                  )}
                   <div
-                    className={`flex items-center gap-1.5 border-b px-4 py-2.5 ${
+                    className={`relative flex items-center gap-1.5 border-b px-4 py-2.5 ${
                       active ? 'border-white/[0.08]' : 'border-black/[0.05]'
                     }`}
                   >
@@ -418,7 +472,7 @@ function GraphRag() {
                       {label}
                     </span>
                   </div>
-                  <div className="flex flex-1 flex-col p-5">
+                  <div className="relative flex flex-1 flex-col p-5">
                     <p
                       className={`font-mono text-[12px] leading-relaxed ${
                         active ? 'text-white/55' : 'text-neutral-400'
@@ -514,16 +568,34 @@ function Governance() {
             {GOVERNANCE.body}
           </p>
         </FadeIn>
-        <FadeInStagger className="mt-12 grid gap-3 sm:grid-cols-2">
-          {GOVERNANCE.items.map(item => (
-            <FadeInItem key={item.title}>
-              <article className="h-full rounded-2xl border border-black/[0.06] bg-white p-6">
-                <h3 className="text-[15px] font-semibold text-neutral-900">{item.title}</h3>
-                <p className="mt-2 text-[13px] leading-relaxed text-neutral-500">{item.detail}</p>
-              </article>
-            </FadeInItem>
-          ))}
-        </FadeInStagger>
+        <div className="mt-12 grid items-stretch gap-4 lg:grid-cols-[1fr_380px]">
+          <FadeInStagger className="grid gap-3 sm:grid-cols-2">
+            {GOVERNANCE.items.map(item => (
+              <FadeInItem key={item.title}>
+                <article className="h-full rounded-2xl border border-black/[0.06] bg-white p-6">
+                  <h3 className="text-[15px] font-semibold text-neutral-900">{item.title}</h3>
+                  <p className="mt-2 text-[13px] leading-relaxed text-neutral-500">{item.detail}</p>
+                </article>
+              </FadeInItem>
+            ))}
+          </FadeInStagger>
+          <FadeIn delay={0.12} className="hidden lg:block">
+            <div className="relative h-full min-h-[340px] overflow-hidden rounded-3xl border border-black/[0.08]">
+              <Image
+                src="/adaptive-layer/governance-vault.jpg"
+                alt="Render abstrato de uma esfera de vidro protegida por anéis — governança de dados"
+                fill
+                sizes="380px"
+                className="object-cover"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-5 pb-4 pt-12">
+                <p className="font-mono text-[10.5px] text-white/60">
+                  dado na conta do cliente · acl · audit · lgpd
+                </p>
+              </div>
+            </div>
+          </FadeIn>
+        </div>
       </div>
     </section>
   )
@@ -666,8 +738,15 @@ function Audiences({ locale }: { locale: string }) {
 
 function Cta({ locale }: { locale: string }) {
   return (
-    <section className="scroll-mt-20 bg-neutral-950 px-6 py-20 text-white sm:py-28" id="cta">
-      <div className="mx-auto max-w-[720px] text-center">
+    <section className="relative scroll-mt-20 overflow-hidden bg-neutral-950 px-6 py-20 text-white sm:py-28" id="cta">
+      <Image
+        src="/adaptive-layer/cta-texture.jpg"
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover opacity-70"
+      />
+      <div className="relative mx-auto max-w-[720px] text-center">
         <FadeIn>
           <p className="mb-4 font-mono text-[12px] text-white/35">
             <span className="text-emerald-400/80">$ </span>
