@@ -443,6 +443,36 @@ export const VIDEO = {
   ],
 }
 
+export const AUDIENCES = {
+  eyebrow: 'Comece agora',
+  headline: 'Dois jeitos de entrar no OS.',
+  dev: {
+    kicker: 'para devs e fornecedores',
+    title: 'Construa sobre o OS.',
+    body: 'SDK tipado, API REST e MCP — a mesma porta, com ACL e audit. Credencial de sandbox no mesmo dia.',
+    code: [
+      '$ npm install @adaptive-layer/sdk',
+      "await layer.query('Por que o #4821 pode atrasar?')",
+    ],
+    label: 'Explorar o portal de devs',
+    href: '/pixel/devs',
+  },
+  ceo: {
+    kicker: 'para CEOs',
+    title: 'Quanto vale na sua empresa?',
+    body: 'Calcule o ROI do sistema operacional de IA com as premissas da sua operação — leva um minuto.',
+    stat: {
+      roi: '+170%',
+      roiLabel: 'roi ano 1',
+      payback: '4,4 meses',
+      paybackLabel: 'payback',
+      note: 'exemplo: 60 pessoas · premissas conservadoras',
+    },
+    label: 'Calcular o ROI',
+    href: '/pixel/roi',
+  },
+}
+
 export const CTA = {
   eyebrow: 'Próximo passo',
   headline: 'Quer o sistema operacional de IA na sua operação?',
