@@ -2,32 +2,44 @@ export const META = {
   product: 'Adaptive Layer™',
   company: 'PixelPulseLab',
   eyebrow: 'Adaptive Layer™',
-  headline: 'The data and context layer that makes the enterprise AI-ready.',
-  headlinePt: 'A camada de dados e contexto que deixa a empresa pronta para IA.',
+  headline: 'The AI operating system for the enterprise.',
+  headlinePt: 'O sistema operacional de IA da sua empresa.',
   lede:
-    'Adaptive Layer™ conecta os sistemas da empresa, organiza a verdade operacional e entrega contexto governado para agentes e times — rodando na sua nuvem.',
+    'Adaptive Layer™ integra agentes, fluxos e os sistemas que a empresa já usa sob uma governança comum — agnóstico de modelo, rodando na sua nuvem.',
+}
+
+export const BOOT = {
+  title: 'adaptive-layer — boot',
+  prompt: '$ adaptive-layer boot',
+  lines: [
+    '✓ conectores montados — erp · wms · crm',
+    '✓ knowledge graph carregado',
+    '✓ embeddings amarrados à identidade',
+    '✓ agentes prontos · governança ativa',
+  ],
+  ready: 'os · online',
 }
 
 export const PLATFORM = {
   eyebrow: 'Plataforma',
-  headline: 'Uma camada. Dados, contexto e ação.',
+  headline: 'Um sistema operacional. Dados, contexto e ação.',
   body:
-    'A Adaptive Layer™ unifica o que a operação já produz e expõe isso como contrato único: para APIs, automações e qualquer agente.',
+    'Assim como a nuvem virou a base da empresa moderna, o sistema operacional de IA é a próxima base — uma categoria que o mercado global acaba de validar. A Adaptive Layer™ é esse OS: o que a operação já produz vira contrato único para APIs, automações e qualquer agente.',
   layers: [
     {
       n: '01',
       title: 'Dados',
-      detail: 'Ingestão, eventos e conectores. ERP, WMS, CRM, commerce, EDI e sensores entram na mesma malha.',
+      detail: 'Os drivers do OS: conectores, eventos e ingestão. ERP, WMS, CRM, commerce, EDI e sensores entram na mesma malha — nenhum é substituído.',
     },
     {
       n: '02',
       title: 'Contexto',
-      detail: 'Verdade canônica e conhecimento do processo. Pedido, lote, cliente e evento atravessam a jornada uma vez.',
+      detail: 'A memória do sistema: verdade canônica + knowledge graph. Pedido, lote, cliente e evento atravessam a jornada uma vez.',
     },
     {
       n: '03',
       title: 'Ação',
-      detail: 'APIs, regras, quick wins e agentes com dono de área. O modelo consulta a Layer — não uma planilha paralela.',
+      detail: 'Os aplicativos do OS: agentes com dono de área, APIs, regras e quick wins. O modelo consulta a Layer — não uma planilha paralela.',
     },
   ],
 }
@@ -41,20 +53,20 @@ export const CAPABILITIES = {
       detail: 'Conectores, filas e webhooks. Cada sistema continua no seu lugar. A Layer é o tecido entre eles.',
     },
     {
-      title: 'Verdade operacional',
-      detail: 'Pedido, lote, cliente, evento. Grafo do processo — o dado entra uma vez e serve a jornada inteira.',
+      title: 'Knowledge graph',
+      detail: 'Pedido → cliente → política: entidades e relações do processo. Responde “como X se relaciona com Y” — o dado entra uma vez e serve a jornada inteira.',
     },
     {
-      title: 'Knowledge',
-      detail: 'Documentos, políticas e memória da operação, indexados sobre a mesma verdade canônica.',
+      title: 'RAG sobre a mesma identidade',
+      detail: 'Documentos, políticas e memória da operação, indexados sobre a verdade canônica. Responde “o que os documentos dizem sobre X”.',
     },
     {
       title: 'Agentes & skills',
       detail: 'Squad por área, prompt de domínio e ferramentas executáveis. Cada agente tem dono e trilha auditável.',
     },
     {
-      title: 'MCP',
-      detail: 'A Layer se expõe a Claude, ChatGPT, Copilot ou o próximo cliente. Troque o modelo. O contexto fica.',
+      title: 'MCP · agnóstico de modelo',
+      detail: 'A Layer se expõe a Claude, ChatGPT, Copilot ou o próximo cliente. Troque o modelo sem reconstruir a infraestrutura. O contexto fica.',
     },
     {
       title: 'Governança',
@@ -65,8 +77,8 @@ export const CAPABILITIES = {
 
 export const PRODUCT_ARCH = {
   eyebrow: 'Arquitetura',
-  headline: 'O produto, em uma vista.',
-  body: 'Fontes entram. A Adaptive Layer™ organiza dados, contexto e ação — com governança no mesmo desenho. O contrato sai para agentes, APIs e qualquer modelo.',
+  headline: 'O sistema operacional, em uma vista.',
+  body: 'Fontes entram. O OS organiza dados, contexto e ação — com governança no mesmo desenho. O contrato sai para agentes, APIs e qualquer modelo.',
   sources: [
     { label: 'ERP', hint: 'pedido · NF · crédito' },
     { label: 'WMS', hint: 'lote · estoque' },
@@ -85,7 +97,7 @@ export const PRODUCT_ARCH = {
     {
       n: '02',
       title: 'Contexto',
-      modules: ['Verdade canônica', 'Knowledge', 'Vetor*', 'Memória'],
+      modules: ['Verdade canônica', 'Knowledge graph', 'Vetor*', 'Memória'],
     },
     {
       n: '03',
@@ -131,7 +143,7 @@ export const STEPS = {
     {
       n: '04',
       title: 'O fato ganha um nome único',
-      say: 'Pedido, lote e cliente viram identidade. A partir daqui, todo mundo aponta para a mesma coisa — não para três códigos diferentes.',
+      say: 'Pedido, lote e cliente viram identidade — um nó no knowledge graph da operação. A partir daqui, todo mundo aponta para a mesma coisa — não para três códigos diferentes.',
       example: '#4821, lote L-19 e cliente X passam a ser um só registro na Layer.',
     },
     {
@@ -143,7 +155,7 @@ export const STEPS = {
     {
       n: '06',
       title: 'Agora sim: vetorização',
-      say: 'Vetor é um jeito de achar texto pelo significado, não pela palavra exata. Só acontece depois da identidade — e o pedaço de texto fica amarrado ao pedido ou ao cliente.',
+      say: 'Vetor é um jeito de achar texto pelo significado, não pela palavra exata. Só acontece depois da identidade — e o pedaço de texto fica amarrado ao pedido ou ao cliente. É isso que habilita o RAG sobre a mesma identidade.',
       example: 'A política é fatiada, vira vetor e aponta para o cliente X. #4821 continua número.',
     },
     {
@@ -155,7 +167,7 @@ export const STEPS = {
     {
       n: '08',
       title: 'A Layer responde os dois lados',
-      say: 'Devolve o fato (prazo, estoque, status) e o trecho da política que vale para aquele cliente. Tudo logado. O modelo não inventa o pedido.',
+      say: 'Devolve o fato do grafo (prazo, estoque, status) e o trecho da política que vale para aquele cliente — é o GraphRAG na prática. Tudo logado. O modelo não inventa o pedido.',
       example: 'Resposta: sexta no registro + cláusula de SLA do cliente X. Audit gravou quem viu.',
     },
   ],
@@ -187,7 +199,7 @@ export const FLOW = {
       id: 'verdade',
       label: 'Verdade',
       hint: 'identidade canônica',
-      say: 'Pedido, lote e cliente viram registro único. O fato ganha identidade antes de qualquer modelo.',
+      say: 'Pedido, lote e cliente viram registro único — um nó do grafo. O fato ganha identidade antes de qualquer modelo.',
     },
     {
       id: 'fork',
@@ -205,7 +217,7 @@ export const FLOW = {
       id: 'contrato',
       label: 'Contrato',
       hint: 'API · agente · MCP',
-      say: 'O agente consulta a Layer: fato estruturado + trecho semântico, com ACL e audit.',
+      say: 'O agente consulta a Layer: fato estruturado + trecho semântico (GraphRAG), com ACL e audit.',
     },
   ],
   packets: [
@@ -218,7 +230,7 @@ export const VECTORIZATION = {
   eyebrow: 'Vetorização',
   headline: 'Quando o embedding acontece.',
   body:
-    'Vetor não é o primeiro passo. É o passo que o conhecimento pede — depois que a identidade já existe e a governança já cortou o que não pode sair.',
+    'Vetor não é o primeiro passo. É o passo que o conhecimento pede — depois que a identidade já existe e a governança já cortou o que não pode sair. É isso que torna o GraphRAG possível: o vetor aponta para o nó do grafo — pedido, lote, cliente — e não para um trecho solto.',
   when: [
     {
       title: 'Depois da identidade',
@@ -242,6 +254,32 @@ export const VECTORIZATION = {
     { title: 'Saldo, NF, OTD', detail: 'Número tem schema.' },
     { title: 'Crédito aprovado', detail: 'Decisão auditável.' },
   ],
+}
+
+export const GRAPHRAG = {
+  eyebrow: 'RAG × Graph',
+  headline: 'A pergunta certa não é “qual tecnologia usar”.',
+  body:
+    'É qual arquitetura representa o conhecimento e o raciocínio que o negócio precisa. RAG encontra o que os documentos dizem. O knowledge graph entende como as coisas se relacionam. A Layer combina os dois — e a escolha começa pelo problema, não pelo modelo de IA.',
+  rules: [
+    {
+      question: '“O que os documentos dizem sobre X?”',
+      answer: 'RAG',
+      detail: 'Busca semântica em políticas, contratos, manuais e FAQs. O conhecimento está no conteúdo.',
+    },
+    {
+      question: '“Como X se relaciona com Y?”',
+      answer: 'Knowledge Graph',
+      detail: 'Entidades e relações: cliente → pedido → política → fornecedor. Raciocínio multi-hop, com rastreabilidade.',
+    },
+    {
+      question: '“Como X se relaciona com Y — e o que os documentos dizem dessa relação?”',
+      answer: 'GraphRAG — o caminho da Layer',
+      detail: 'O grafo entrega a relação; o retrieval entrega o texto; o LLM conecta os dois. Resposta contextualizada, explicável e fundamentada.',
+    },
+  ],
+  closing:
+    'É a diferença entre um POC que impressiona e uma solução que opera em produção — com escala, governança e rastreabilidade.',
 }
 
 export const GOVERNANCE = {
@@ -269,7 +307,7 @@ export const PROOF = {
 export const VIDEO = {
   eyebrow: 'Vídeo',
   headline: 'Como funciona.',
-  body: 'A IA não conhece a sua operação. A Adaptive Layer™ junta o que a empresa já sabe e entrega para agentes — com permissão, na sua nuvem.',
+  body: 'A IA não conhece a sua operação. A Adaptive Layer™ é o sistema operacional que junta o que a empresa já sabe e entrega para agentes — com permissão, na sua nuvem.',
   durationLabel: '1 min 30s',
   scenes: [
     {
@@ -278,8 +316,8 @@ export const VIDEO = {
       kicker: 'Adaptive Layer™',
       title: 'Do pedido à resposta.',
       voice:
-        'Não falta modelo. Falta contexto. A Adaptive Layer é a camada entre o que a operação já sabe... e a inteligência que vai usar isso amanhã.',
-      caption: 'A camada de dados e contexto que deixa a empresa pronta para IA.',
+        'Não falta modelo. Falta contexto. A Adaptive Layer é o sistema operacional entre o que a operação já sabe... e a inteligência que vai usar isso amanhã.',
+      caption: 'O sistema operacional de IA da sua empresa.',
     },
     {
       id: 'systems',
@@ -359,15 +397,15 @@ export const VIDEO = {
       kicker: 'Adaptive Layer™',
       title: 'Pronto para IA. Sem inventar o pedido.',
       voice:
-        'Dados. Contexto. Ação. Na nuvem de vocês. Isso é a Adaptive Layer: a empresa pronta para inteligência... sem perder a verdade da operação.',
-      caption: 'The data and context layer that makes the enterprise AI-ready.',
+        'Dados. Contexto. Ação. Na nuvem de vocês. Isso é a Adaptive Layer: o sistema operacional de IA da empresa... sem perder a verdade da operação.',
+      caption: 'The AI operating system for the enterprise.',
     },
   ],
 }
 
 export const CTA = {
   eyebrow: 'Próximo passo',
-  headline: 'Quer a Adaptive Layer™ na sua operação?',
+  headline: 'Quer o sistema operacional de IA na sua operação?',
   body: 'Começamos com um assessment curto e um piloto sobre a Layer — o mesmo caminho que abriu o plano do Café Orfeu.',
   primary: 'Falar com a PixelPulseLab',
   email: 'mailto:ze@pixelpulselab.dev',

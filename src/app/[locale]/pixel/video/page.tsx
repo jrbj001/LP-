@@ -3,7 +3,7 @@ import { AdaptiveLayerVideoPage } from '@/components/adaptive-layer/video-page'
 
 export const metadata: Metadata = {
   title: 'Como funciona · Adaptive Layer™ | PixelPulseLab',
-  description: 'Como a Adaptive Layer™ deixa a empresa pronta para IA: sistemas, agentes e governança.',
+  description: 'Como funciona o sistema operacional de IA da sua empresa: sistemas, agentes e governança com a Adaptive Layer™.',
 }
 
 export default function VideoRoute() {

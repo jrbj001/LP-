@@ -4,9 +4,10 @@ import { useLocale } from 'next-intl'
 import { ArrowRight } from 'lucide-react'
 import { FadeIn, FadeInItem, FadeInStagger } from '@/components/fade-in'
 import { AnimatedMark } from '@/components/animated-mark'
+import { BootSequence } from './boot-sequence'
 import { HowItWorksAnimation, ProductArchitecture } from './diagrams'
 import { ExplainerVideo } from './explainer-video'
-import { ARCH, CAPABILITIES, CTA, GOVERNANCE, META, PLATFORM, PRODUCT_ARCH, PROOF, STEPS, VECTORIZATION, VIDEO } from './lp-data'
+import { ARCH, CAPABILITIES, CTA, GOVERNANCE, GRAPHRAG, META, PLATFORM, PRODUCT_ARCH, PROOF, STEPS, VECTORIZATION, VIDEO } from './lp-data'
 
 export function AdaptiveLayerLP() {
   const locale = useLocale()
@@ -22,6 +23,7 @@ export function AdaptiveLayerLP() {
         <Steps />
         <Capabilities />
         <Architecture />
+        <GraphRag />
         <Governance />
         <Proof locale={locale} />
         <Cta locale={locale} />
@@ -31,17 +33,35 @@ export function AdaptiveLayerLP() {
   )
 }
 
+function Eyebrow({ children, className = 'mb-4' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <p className={`${className} text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400`}>
+      <span className="font-mono normal-case tracking-normal text-neutral-300">{'// '}</span>
+      {children}
+    </p>
+  )
+}
+
 function Nav({ locale }: { locale: string }) {
   return (
     <nav className="sticky top-0 z-50 border-b border-black/[0.06] bg-[#fbfbfa]/90 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-6">
-        <a href={`/${locale}/pixel`} className="flex items-center gap-2.5">
-          <AnimatedMark className="h-7 w-7 flex-shrink-0" />
-          <span className="text-[14px] font-semibold tracking-[-0.03em]">
-            Adaptive Layer™
-            <span className="ml-1.5 font-normal text-neutral-400">by PixelPulseLab</span>
+        <div className="flex items-center gap-3">
+          <a href={`/${locale}/pixel`} className="flex items-center gap-2.5">
+            <AnimatedMark className="h-7 w-7 flex-shrink-0" />
+            <span className="text-[14px] font-semibold tracking-[-0.03em]">
+              Adaptive Layer™
+              <span className="ml-1.5 font-normal text-neutral-400">by PixelPulseLab</span>
+            </span>
+          </a>
+          <span className="hidden items-center gap-1.5 rounded-full border border-black/[0.07] bg-white px-2.5 py-1 font-mono text-[10px] text-neutral-400 sm:flex">
+            <span className="relative flex h-[6px] w-[6px]">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+              <span className="relative inline-flex h-[6px] w-[6px] rounded-full bg-emerald-500" />
+            </span>
+            os · online
           </span>
-        </a>
+        </div>
         <div className="flex items-center gap-4">
           <a href="#video" className="hidden text-[13px] text-neutral-500 hover:text-neutral-900 sm:inline">
             Vídeo
@@ -73,43 +93,46 @@ function Nav({ locale }: { locale: string }) {
 function Hero() {
   return (
     <section className="border-b border-black/[0.06] px-6 pb-20 pt-16 sm:pb-28 sm:pt-24">
-      <div className="mx-auto max-w-[1120px]">
-        <FadeIn>
-          <p className="mb-6 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-            {META.eyebrow}
-          </p>
-        </FadeIn>
-        <FadeIn delay={0.06}>
-          <h1 className="max-w-4xl text-[34px] font-semibold leading-[1.08] tracking-[-0.035em] text-neutral-900 sm:text-[52px]">
-            {META.headline}
-          </h1>
-        </FadeIn>
-        <FadeIn delay={0.1}>
-          <p className="mt-5 max-w-2xl text-[18px] leading-relaxed text-neutral-500">
-            {META.headlinePt}
-          </p>
-        </FadeIn>
-        <FadeIn delay={0.14}>
-          <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-neutral-500">
-            {META.lede}
-          </p>
-        </FadeIn>
-        <FadeIn delay={0.2}>
-          <div className="mt-10 flex flex-wrap gap-3">
-            <a
-              href="#cta"
-              className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[14px] font-medium text-white hover:bg-neutral-800"
-            >
-              Falar com a PixelPulseLab
-              <ArrowRight className="h-4 w-4" strokeWidth={2} />
-            </a>
-            <a
-              href="#video"
-              className="inline-flex items-center gap-2 rounded-full border border-black/[0.1] px-6 py-3 text-[14px] font-medium text-neutral-700 hover:bg-white"
-            >
-              Assistir o vídeo
-            </a>
-          </div>
+      <div className="mx-auto grid max-w-[1120px] items-center gap-12 lg:grid-cols-[1fr_400px]">
+        <div>
+          <FadeIn>
+            <Eyebrow className="mb-6">{META.eyebrow}</Eyebrow>
+          </FadeIn>
+          <FadeIn delay={0.06}>
+            <h1 className="max-w-4xl text-[34px] font-semibold leading-[1.08] tracking-[-0.035em] text-neutral-900 sm:text-[52px]">
+              {META.headline}
+            </h1>
+          </FadeIn>
+          <FadeIn delay={0.1}>
+            <p className="mt-5 max-w-2xl text-[18px] leading-relaxed text-neutral-500">
+              {META.headlinePt}
+            </p>
+          </FadeIn>
+          <FadeIn delay={0.14}>
+            <p className="mt-6 max-w-2xl text-[16px] leading-relaxed text-neutral-500">
+              {META.lede}
+            </p>
+          </FadeIn>
+          <FadeIn delay={0.2}>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <a
+                href="#cta"
+                className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[14px] font-medium text-white hover:bg-neutral-800"
+              >
+                Falar com a PixelPulseLab
+                <ArrowRight className="h-4 w-4" strokeWidth={2} />
+              </a>
+              <a
+                href="#video"
+                className="inline-flex items-center gap-2 rounded-full border border-black/[0.1] px-6 py-3 text-[14px] font-medium text-neutral-700 hover:bg-white"
+              >
+                Assistir o vídeo
+              </a>
+            </div>
+          </FadeIn>
+        </div>
+        <FadeIn delay={0.24}>
+          <BootSequence />
         </FadeIn>
       </div>
     </section>
@@ -121,9 +144,7 @@ function Video() {
     <section className="scroll-mt-20 border-b border-black/[0.06] bg-white px-6 py-16 sm:py-24" id="video">
       <div className="mx-auto max-w-[1120px]">
         <FadeIn>
-          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-            {VIDEO.eyebrow}
-          </p>
+          <Eyebrow>{VIDEO.eyebrow}</Eyebrow>
         </FadeIn>
         <FadeIn delay={0.06}>
           <h2 className="max-w-3xl text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
@@ -148,9 +169,7 @@ function Platform() {
     <section className="scroll-mt-20 border-b border-black/[0.06] bg-white px-6 py-20 sm:py-24" id="plataforma">
       <div className="mx-auto max-w-[1120px]">
         <FadeIn>
-          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-            {PLATFORM.eyebrow}
-          </p>
+          <Eyebrow>{PLATFORM.eyebrow}</Eyebrow>
         </FadeIn>
         <FadeIn delay={0.06}>
           <h2 className="max-w-3xl text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
@@ -183,9 +202,7 @@ function ProductArch() {
     <section className="scroll-mt-20 border-b border-black/[0.06] px-6 py-20 sm:py-24" id="arquitetura">
       <div className="mx-auto max-w-[1120px]">
         <FadeIn>
-          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-            {PRODUCT_ARCH.eyebrow}
-          </p>
+          <Eyebrow>{PRODUCT_ARCH.eyebrow}</Eyebrow>
         </FadeIn>
         <FadeIn delay={0.06}>
           <h2 className="max-w-3xl text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
@@ -210,9 +227,7 @@ function Steps() {
     <section className="scroll-mt-20 border-b border-black/[0.06] bg-white px-6 py-20 sm:py-24" id="passo-a-passo">
       <div className="mx-auto max-w-[1120px]">
         <FadeIn>
-          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-            {STEPS.eyebrow}
-          </p>
+          <Eyebrow>{STEPS.eyebrow}</Eyebrow>
         </FadeIn>
         <FadeIn delay={0.06}>
           <h2 className="max-w-3xl text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
@@ -253,9 +268,7 @@ function Capabilities() {
     <section className="scroll-mt-20 border-b border-black/[0.06] px-6 py-20 sm:py-24" id="capacidades">
       <div className="mx-auto max-w-[1120px]">
         <FadeIn>
-          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-            {CAPABILITIES.eyebrow}
-          </p>
+          <Eyebrow>{CAPABILITIES.eyebrow}</Eyebrow>
         </FadeIn>
         <FadeIn delay={0.06}>
           <h2 className="max-w-3xl text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
@@ -282,9 +295,7 @@ function Architecture() {
     <section className="scroll-mt-20 border-b border-black/[0.06] bg-white px-6 py-20 sm:py-24" id="como">
       <div className="mx-auto max-w-[1120px]">
         <FadeIn>
-          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-            {ARCH.eyebrow}
-          </p>
+          <Eyebrow>{ARCH.eyebrow}</Eyebrow>
         </FadeIn>
         <FadeIn delay={0.06}>
           <h2 className="max-w-3xl text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
@@ -316,9 +327,7 @@ function Architecture() {
 
         <div className="mt-16" id="vetorizacao">
           <FadeIn>
-            <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-              {VECTORIZATION.eyebrow}
-            </p>
+            <Eyebrow>{VECTORIZATION.eyebrow}</Eyebrow>
           </FadeIn>
           <FadeIn delay={0.06}>
             <h3 className="max-w-3xl text-[24px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[30px]">
@@ -357,14 +366,89 @@ function Architecture() {
   )
 }
 
+function GraphRag() {
+  return (
+    <section className="scroll-mt-20 border-b border-black/[0.06] px-6 py-20 sm:py-24" id="graphrag">
+      <div className="mx-auto max-w-[1120px]">
+        <FadeIn>
+          <Eyebrow>{GRAPHRAG.eyebrow}</Eyebrow>
+        </FadeIn>
+        <FadeIn delay={0.06}>
+          <h2 className="max-w-3xl text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
+            {GRAPHRAG.headline}
+          </h2>
+        </FadeIn>
+        <FadeIn delay={0.1}>
+          <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-neutral-500">{GRAPHRAG.body}</p>
+        </FadeIn>
+        <FadeInStagger className="mt-12 grid gap-3 md:grid-cols-3">
+          {GRAPHRAG.rules.map((rule, i) => {
+            const active = i === GRAPHRAG.rules.length - 1
+            const label = ['rag', 'graph', 'graphrag'][i]
+            return (
+              <FadeInItem key={rule.answer}>
+                <article
+                  className={`flex h-full flex-col overflow-hidden rounded-2xl border ${
+                    active
+                      ? 'border-neutral-900 bg-neutral-900 text-white shadow-[0_24px_64px_-32px_rgba(0,0,0,0.5)]'
+                      : 'border-black/[0.06] bg-white'
+                  }`}
+                >
+                  <div
+                    className={`flex items-center gap-1.5 border-b px-4 py-2.5 ${
+                      active ? 'border-white/[0.08]' : 'border-black/[0.05]'
+                    }`}
+                  >
+                    <span className={`h-[6px] w-[6px] rounded-full ${active ? 'bg-white/25' : 'bg-neutral-300'}`} />
+                    <span className={`h-[6px] w-[6px] rounded-full ${active ? 'bg-white/25' : 'bg-neutral-300'}`} />
+                    <span className={`h-[6px] w-[6px] rounded-full ${active ? 'bg-white/25' : 'bg-neutral-300'}`} />
+                    <span
+                      className={`ml-2 font-mono text-[10px] tracking-[0.08em] ${
+                        active ? 'text-emerald-400/80' : 'text-neutral-400'
+                      }`}
+                    >
+                      {label}
+                    </span>
+                  </div>
+                  <div className="flex flex-1 flex-col p-5">
+                    <p
+                      className={`font-mono text-[12px] leading-relaxed ${
+                        active ? 'text-white/55' : 'text-neutral-400'
+                      }`}
+                    >
+                      <span className={active ? 'text-emerald-400/80' : 'text-neutral-300'}>&gt; </span>
+                      {rule.question}
+                    </p>
+                    <h3 className={`mt-4 text-[15px] font-semibold ${active ? 'text-white' : 'text-neutral-900'}`}>
+                      {rule.answer}
+                    </h3>
+                    <p
+                      className={`mt-2 text-[13px] leading-relaxed ${
+                        active ? 'text-white/55' : 'text-neutral-500'
+                      }`}
+                    >
+                      {rule.detail}
+                    </p>
+                  </div>
+                </article>
+              </FadeInItem>
+            )
+          })}
+        </FadeInStagger>
+        <FadeIn delay={0.12}>
+          <p className="mt-10 max-w-2xl text-[14px] leading-relaxed text-neutral-500">{GRAPHRAG.closing}</p>
+        </FadeIn>
+      </div>
+    </section>
+  )
+}
+
 function Governance() {
   return (
     <section className="scroll-mt-20 border-b border-black/[0.06] px-6 py-20 sm:py-24" id="governanca">
       <div className="mx-auto max-w-[1120px]">
         <FadeIn>
-          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-            {GOVERNANCE.eyebrow}
-          </p>
+          <Eyebrow>{GOVERNANCE.eyebrow}</Eyebrow>
         </FadeIn>
         <FadeIn delay={0.06}>
           <h2 className="max-w-3xl text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
@@ -396,9 +480,7 @@ function Proof({ locale }: { locale: string }) {
     <section className="scroll-mt-20 border-b border-black/[0.06] bg-white px-6 py-20 sm:py-24" id="campo">
       <div className="mx-auto max-w-[1120px]">
         <FadeIn>
-          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-            {PROOF.eyebrow}
-          </p>
+          <Eyebrow>{PROOF.eyebrow}</Eyebrow>
         </FadeIn>
         <FadeIn delay={0.06}>
           <h2 className="max-w-3xl text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
@@ -431,20 +513,21 @@ function Proof({ locale }: { locale: string }) {
 
 function Cta({ locale }: { locale: string }) {
   return (
-    <section className="scroll-mt-20 px-6 py-20 sm:py-24" id="cta">
+    <section className="scroll-mt-20 bg-neutral-950 px-6 py-20 text-white sm:py-28" id="cta">
       <div className="mx-auto max-w-[720px] text-center">
         <FadeIn>
-          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-            {CTA.eyebrow}
+          <p className="mb-4 font-mono text-[12px] text-white/35">
+            <span className="text-emerald-400/80">$ </span>
+            próximo passo
           </p>
         </FadeIn>
         <FadeIn delay={0.06}>
-          <h2 className="text-[28px] font-semibold tracking-[-0.03em] text-neutral-900 sm:text-[36px]">
+          <h2 className="text-[28px] font-semibold tracking-[-0.03em] text-white sm:text-[36px]">
             {CTA.headline}
           </h2>
         </FadeIn>
         <FadeIn delay={0.1}>
-          <p className="mx-auto mt-5 max-w-xl text-[16px] leading-relaxed text-neutral-500">
+          <p className="mx-auto mt-5 max-w-xl text-[16px] leading-relaxed text-white/50">
             {CTA.body}
           </p>
         </FadeIn>
@@ -452,13 +535,13 @@ function Cta({ locale }: { locale: string }) {
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <a
               href={CTA.email}
-              className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-[14px] font-medium text-white hover:bg-neutral-800"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-[14px] font-medium text-neutral-900 hover:bg-neutral-200"
             >
               {CTA.primary}
             </a>
             <a
               href={`/${locale}${CTA.orfeu}`}
-              className="inline-flex items-center gap-2 rounded-full border border-black/[0.1] px-6 py-3 text-[14px] font-medium text-neutral-700 hover:bg-white"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-[14px] font-medium text-white/80 hover:bg-white/[0.06] hover:text-white"
             >
               Case Orfeu
             </a>
@@ -466,7 +549,7 @@ function Cta({ locale }: { locale: string }) {
               href={CTA.whatsapp}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center px-6 py-3 text-[14px] text-neutral-400 hover:text-neutral-900"
+              className="inline-flex items-center px-6 py-3 text-[14px] text-white/40 hover:text-white"
             >
               WhatsApp
             </a>
@@ -479,20 +562,20 @@ function Cta({ locale }: { locale: string }) {
 
 function SiteFooter({ locale }: { locale: string }) {
   return (
-    <footer className="border-t border-black/[0.06] px-6 py-10">
+    <footer className="border-t border-white/10 bg-neutral-950 px-6 py-10 text-white">
       <div className="mx-auto flex max-w-[1120px] flex-wrap items-center justify-between gap-4">
-        <p className="text-[13px] text-neutral-500">
-          <span className="font-semibold text-neutral-900">Adaptive Layer™</span>
-          <span className="text-neutral-400"> · PixelPulseLab</span>
+        <p className="text-[13px] text-white/50">
+          <span className="font-semibold text-white">Adaptive Layer™</span>
+          <span className="text-white/35"> · PixelPulseLab</span>
         </p>
-        <div className="flex gap-5 text-[13px] text-neutral-400">
-          <a href={`/${locale}`} className="hover:text-neutral-900">
+        <div className="flex gap-5 text-[13px] text-white/40">
+          <a href={`/${locale}`} className="hover:text-white">
             Home
           </a>
-          <a href={`/${locale}/adaptive/executive-review`} className="hover:text-neutral-900">
+          <a href={`/${locale}/adaptive/executive-review`} className="hover:text-white">
             Orfeu
           </a>
-          <a href="mailto:ze@pixelpulselab.dev" className="hover:text-neutral-900">
+          <a href="mailto:ze@pixelpulselab.dev" className="hover:text-white">
             Contato
           </a>
         </div>
