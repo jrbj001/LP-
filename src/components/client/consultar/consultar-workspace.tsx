@@ -1,30 +1,45 @@
 'use client'
 
-import { useState } from 'react'
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
-import { Loader2, Search } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
+import Link from 'next/link'
+import { Database, Loader2, Search, Settings2 } from 'lucide-react'
+
+const ConsultarChart = dynamic(
+  () => import('./consultar-chart').then(mod => mod.ConsultarChart),
+  { ssr: false }
+)
 
 interface QueryPayload {
   sql: string
   explanation: string
+  suggestions: string[]
+  sourceName?: string
   columns: string[]
   rows: Record<string, unknown>[]
   chart: { labelKey: string; valueKey: string } | null
 }
 
-const EXAMPLES = [
+const DEFAULT_EXAMPLES = [
   'Quantas PRs do app Like:Me nas últimas 6 semanas?',
   'Cards por coluna do backlog',
   'Quais reuniões aconteceram em agosto?',
 ]
+
+const BE180_EXAMPLES = [
+  'Quantos cards existem no Colmeia e no Banco de Ativos, separados por produto?',
+  'Quais são os cards prontos para desenvolvimento no Banco de Ativos?',
+  'Quais entregas recentes estão relacionadas ao Colmeia?',
+]
+
+type DataSourceSummary = {
+  id: string
+  name: string
+  kind: 'postgresql' | 'sqlserver'
+  tableCount: number
+}
+
+const ADMIN_KEY_STORAGE = 'cadence.data-source-admin-key'
 
 function cellValue(value: unknown): string {
   if (value == null) return '—'
@@ -35,14 +50,36 @@ function cellValue(value: unknown): string {
 export function ConsultarWorkspace({
   clientId,
   accent,
+  sourcesHref,
 }: {
   clientId: string
   accent: string
+  sourcesHref: string
 }) {
   const [question, setQuestion] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<QueryPayload | null>(null)
+  const [sourceId, setSourceId] = useState('')
+  const [externalSources, setExternalSources] = useState<DataSourceSummary[]>([])
+  const examples = clientId === 'be180-ooh' ? BE180_EXAMPLES : DEFAULT_EXAMPLES
+
+  useEffect(() => {
+    const adminKey = window.sessionStorage.getItem(ADMIN_KEY_STORAGE)
+    if (!adminKey) return
+    void fetch(`/api/client/${clientId}/data-sources`, {
+      cache: 'no-store',
+      headers: { 'x-data-source-admin-key': adminKey },
+    })
+      .then(async response => {
+        const data = (await response.json()) as {
+          ok?: boolean
+          sources?: DataSourceSummary[]
+        }
+        if (response.ok && data.ok) setExternalSources(data.sources ?? [])
+      })
+      .catch(() => undefined)
+  }, [clientId])
 
   async function run(nextQuestion: string) {
     const trimmed = nextQuestion.trim()
@@ -50,10 +87,14 @@ export function ConsultarWorkspace({
     setLoading(true)
     setError(null)
     try {
+      const adminKey = window.sessionStorage.getItem(ADMIN_KEY_STORAGE)
       const res = await fetch(`/api/client/${clientId}/consultar`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: trimmed }),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(sourceId && adminKey ? { 'x-data-source-admin-key': adminKey } : {}),
+        },
+        body: JSON.stringify({ question: trimmed, sourceId: sourceId || undefined }),
       })
       const data = (await res.json()) as { ok: boolean; error?: string } & Partial<QueryPayload>
       if (!res.ok || !data.ok) {
@@ -62,6 +103,8 @@ export function ConsultarWorkspace({
       setResult({
         sql: data.sql ?? '',
         explanation: data.explanation ?? '',
+        suggestions: data.suggestions ?? [],
+        sourceName: data.sourceName,
         columns: data.columns ?? [],
         rows: data.rows ?? [],
         chart: data.chart ?? null,
@@ -90,9 +133,41 @@ export function ConsultarWorkspace({
         }}
         className="rounded-2xl border border-black/[0.06] bg-[#fbfbfa] p-4 sm:p-5"
       >
-        <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
-          Pergunta
-        </label>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <label className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
+            Pergunta
+          </label>
+          <Link
+            href={sourcesHref}
+            className="inline-flex items-center gap-1.5 text-[11px] text-neutral-500 hover:text-neutral-800"
+          >
+            <Settings2 className="h-3.5 w-3.5" />
+            Gerenciar fontes
+          </Link>
+        </div>
+        <div className="mb-3 flex items-center gap-2">
+          <Database className="h-3.5 w-3.5 text-neutral-400" />
+          <select
+            value={sourceId}
+            onChange={event => {
+              setSourceId(event.target.value)
+              setResult(null)
+            }}
+            className="h-9 min-w-64 rounded-xl border border-black/[0.08] bg-white px-3 text-[11px] text-neutral-700 outline-none"
+          >
+            <option value="">Workspace Cadence</option>
+            {externalSources.map(source => (
+              <option key={source.id} value={source.id}>
+                {source.name} · {source.tableCount} tabelas · {source.kind === 'sqlserver' ? 'SQL Server' : 'PostgreSQL'}
+              </option>
+            ))}
+          </select>
+          {externalSources.length === 0 && (
+            <span className="text-[10px] text-neutral-400">
+              Cadastre e desbloqueie uma fonte externa para selecioná-la.
+            </span>
+          )}
+        </div>
         <div className="flex flex-col gap-3 sm:flex-row">
           <input
             value={question}
@@ -111,7 +186,7 @@ export function ConsultarWorkspace({
           </button>
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {EXAMPLES.map(example => (
+          {examples.map(example => (
             <button
               key={example}
               type="button"
@@ -137,7 +212,7 @@ export function ConsultarWorkspace({
         <div className="space-y-5">
           <div className="rounded-2xl border border-black/[0.06] bg-white px-5 py-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-teal-700">
-              Explicação
+              Explicação{result.sourceName ? ` · ${result.sourceName}` : ''}
             </p>
             <p className="mt-1.5 text-[14px] leading-relaxed text-neutral-700">{result.explanation}</p>
             <pre className="mt-3 overflow-x-auto rounded-xl bg-neutral-950 px-3 py-2.5 text-[11px] leading-relaxed text-teal-100">
@@ -145,22 +220,40 @@ export function ConsultarWorkspace({
             </pre>
           </div>
 
+          {result.suggestions.length > 0 && (
+            <div className="rounded-2xl border border-black/[0.06] bg-[#fbfbfa] px-5 py-4">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
+                Próximas consultas sugeridas
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {result.suggestions.map(suggestion => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => {
+                      setQuestion(suggestion)
+                      void run(suggestion)
+                    }}
+                    className="rounded-full border border-black/[0.08] bg-white px-3 py-1.5 text-left text-[11px] text-neutral-600 hover:border-neutral-300"
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {chartRows && result.chart && (
             <div className="rounded-2xl border border-black/[0.06] bg-[#fbfbfa] px-4 py-4">
               <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
                 Gráfico
               </p>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartRows}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
-                    <XAxis dataKey={result.chart.labelKey} tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} />
-                    <Tooltip />
-                    <Bar dataKey={result.chart.valueKey} fill={accent} radius={[6, 6, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <ConsultarChart
+                rows={chartRows}
+                labelKey={result.chart.labelKey}
+                valueKey={result.chart.valueKey}
+                accent={accent}
+              />
             </div>
           )}
 

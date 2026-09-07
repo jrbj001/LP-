@@ -8,6 +8,7 @@ import {
   BarChart3,
   CalendarDays,
   ChevronDown,
+  Database,
   FileText,
   FolderKanban,
   LayoutDashboard,
@@ -29,6 +30,7 @@ const NAV_ITEMS = [
   { path: '/documentos', label: 'Documentos', section: 'context', icon: FileText },
   { path: '/entregas', label: 'Entregas', section: 'context', icon: BarChart3 },
   { path: '/consultar', label: 'Consultar', section: 'context', icon: Search },
+  { path: '/fontes-de-dados', label: 'Fontes de dados', section: 'context', icon: Database },
 ] as const
 
 type NavItem = (typeof NAV_ITEMS)[number]
@@ -45,7 +47,10 @@ export function ClientShell({
   const [open, setOpen] = useState(false)
   const base = `/${locale}/client/${client.slug}`
   const wide =
-    pathname.endsWith('/entregas') || pathname.includes('/backlog') || pathname.includes('/consultar')
+    pathname.endsWith('/entregas') ||
+    pathname.includes('/backlog') ||
+    pathname.includes('/consultar') ||
+    pathname.includes('/fontes-de-dados')
   const navItems = NAV_ITEMS.filter(item => item.path !== '/backlog' || isBacklogEnabled(client.slug))
 
   const isActive = (item: NavItem) => {

@@ -292,7 +292,7 @@ export function CopilotChat({
           {sending && (
             <div className="flex items-center gap-2 text-[12px] text-neutral-400">
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              Lendo o repositório e o fluxo da empresa…
+              Lendo o repositório, o fluxo e o banco quando necessário…
             </div>
           )}
         </div>
@@ -493,7 +493,7 @@ function MessageBubble({
             <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-700">
-                  Evidência consultada no banco
+                  Evidência consultada no banco{message.sqlEvidence.sourceName ? ` · ${message.sqlEvidence.sourceName}` : ''}
                 </p>
                 <p className="mt-1 text-[12px] text-neutral-700">
                   {message.sqlEvidence.question}

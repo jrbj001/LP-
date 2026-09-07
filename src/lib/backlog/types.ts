@@ -102,6 +102,7 @@ export interface CopilotSqlEvidence {
   explanation: string
   columns: string[]
   rows: Record<string, unknown>[]
+  sourceName?: string
 }
 
 export interface CopilotMessage {

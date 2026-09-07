@@ -22,7 +22,11 @@ export default async function ConsultarPage({ params }: Props) {
         description="Pergunte em português sobre cards, entregas, reuniões e documentos. A resposta vem de SQL somente-leitura no Neon."
         backHref={`/${locale}/client/${client.slug}`}
       />
-      <ConsultarWorkspace clientId={client.slug} accent={client.accent} />
+      <ConsultarWorkspace
+        clientId={client.slug}
+        accent={client.accent}
+        sourcesHref={`/${locale}/client/${client.slug}/fontes-de-dados`}
+      />
     </div>
   )
 }

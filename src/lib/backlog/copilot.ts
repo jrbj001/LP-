@@ -55,8 +55,8 @@ Regras:
 - SEMPRE devolva um "diagram" do fluxo da empresa (como é hoje, o trecho que está em discussão, ou o to-be). O desenho é obrigatório em toda resposta.
 - Deixe "storyDraft" como null enquanto faltar fluxo, persona, valor ou aceite verificável. Faça 1 a 3 perguntas objetivas e avance o entendimento. Não invente uma story só para preencher o campo.
 - Proponha "storyDraft" somente quando (a) o PM pedir explicitamente a user story / rascunho, ou (b) o fluxo da empresa já estiver claro o bastante para uma story útil. Se já existir rascunho, refine-o — não recomece do zero.
-- Use GitHub, cards do board e o resumo Cadence como memória da empresa. Cite arquivos reais. Não invente números fora do resumo Cadence.
-- Quando houver "Consulta SQL deste turno", use seus resultados como evidência factual e explique o que eles confirmam. Diferencie a modelagem disponível dos dados realmente retornados.
+- Use GitHub, cards do board, o resumo Cadence e, quando houver, a consulta ao banco de produção (Colmeia ou Banco de Ativos). Cite arquivos reais. Não invente números.
+- Quando houver "Consulta SQL deste turno", use seus resultados como evidência factual e explique o que eles confirmam. Diferencie workspace Cadence de dados de produção. Se não houver consulta, não invente volumes operacionais.
 - Critérios de aceite devem ser verificáveis (Dado/Quando/Então ou afirmações checáveis).
 - Nunca invente nomes de arquivos ou endpoints que não estejam no contexto; se for hipótese, deixe claro no texto.
 - "followUps" aprofundam o fluxo da empresa (exceções, sistemas, papéis, regras). Não sugira "aplicar no board" — isso é um botão na interface.
@@ -251,16 +251,18 @@ function sourcesFromContext(
   const queriedTables = sqlEvidence
     ? [
         ...sqlEvidence.sql.matchAll(
-          /\b(?:from|join)\s+(cadence_[a-z_]+)/gi
+          /\b(?:from|join)\s+(?:\[?[a-z_][a-z0-9_]*\]?\.)?\[?([a-z_][a-z0-9_]*)\]?/gi
         ),
       ].map(match => match[1].toLowerCase())
     : []
-  const sql: GithubRef[] = [...new Set(queriedTables)].map(path => ({
-    repo: 'cadence',
+  const sql: GithubRef[] = [...new Set(queriedTables)].slice(0, 4).map(path => ({
+    repo: sqlEvidence?.sourceName ?? 'sql',
     path,
     kind: 'sql' as const,
   }))
-  if (sql.length === 0 && summary.available) {
+  if (sql.length === 0 && sqlEvidence?.sourceName) {
+    sql.push({ repo: sqlEvidence.sourceName, path: 'consulta', kind: 'sql' })
+  } else if (sql.length === 0 && summary.available) {
     sql.push({ repo: 'cadence', path: 'resumo agregado', kind: 'sql' })
   }
   return [...git, ...sql]
@@ -308,7 +310,7 @@ export async function runCopilotTurn(input: {
     `Histórico recente:\n${historyBrief(thread.messages)}`,
     `O que já aprendemos do fluxo da empresa:\n${previousNotes.length ? previousNotes.map(n => `- ${n}`).join('\n') : 'Ainda nada acumulado. Comece a registrar fatos.'}`,
     `Rascunho atual (refine só se for escrever storyDraft):\n${lastStoryDraftBrief(thread.messages)}`,
-    `Modelagem disponível do banco Cadence:\n${CADENCE_SCHEMA}`,
+    `Modelagem do workspace Cadence (não é produção):\n${CADENCE_SCHEMA}`,
     formatCadenceSummaryForPrompt(summary),
     `Consulta SQL deste turno:\n${formatCopilotSqlContext(sqlEvidence)}`,
     `Contexto do código (GitHub):\n${formatGithubContextForPrompt(bundle)}`,
