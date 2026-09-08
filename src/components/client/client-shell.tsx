@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import {
   BarChart3,
@@ -12,6 +12,7 @@ import {
   FileText,
   FolderKanban,
   LayoutDashboard,
+  LogOut,
   Menu,
   PanelTop,
   Search,
@@ -45,7 +46,14 @@ export function ClientShell({
 }) {
   const locale = useLocale()
   const pathname = usePathname()
+  const router = useRouter()
   const [open, setOpen] = useState(false)
+
+  async function logout() {
+    await fetch('/api/client/auth', { method: 'DELETE' })
+    router.push(`/${locale}/client/${client.slug}/login`)
+    router.refresh()
+  }
   const base = `/${locale}/client/${client.slug}`
   const wide =
     pathname.endsWith('/entregas') ||
@@ -132,7 +140,19 @@ export function ClientShell({
         </Link>
         <div className="mt-3 flex items-center justify-between px-1 text-[10px] text-neutral-400">
           <span>PixelPulseLab</span>
-          <a href={`mailto:${client.docs.supportEmail}`} className="hover:text-neutral-700">Suporte</a>
+          <span className="flex items-center gap-2.5">
+            <a href={`mailto:${client.docs.supportEmail}`} className="hover:text-neutral-700">
+              Suporte
+            </a>
+            <button
+              type="button"
+              onClick={() => void logout()}
+              className="inline-flex items-center gap-1 hover:text-neutral-700"
+            >
+              <LogOut className="h-3 w-3" />
+              Sair
+            </button>
+          </span>
         </div>
       </div>
     </>

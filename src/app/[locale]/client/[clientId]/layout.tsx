@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { DM_Sans, Sora } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import { getClient } from '@/lib/client/registry'
-import { ClientShell } from '@/components/client/client-shell'
 
 const sora = Sora({
   subsets: ['latin'],
@@ -22,7 +21,11 @@ type Props = {
   params: Promise<{ clientId: string }>
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ clientId: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ clientId: string }>
+}): Promise<Metadata> {
   const { clientId } = await params
   const client = getClient(clientId)
   if (!client) return { title: 'Cliente | PixelPulseLab' }
@@ -32,14 +35,9 @@ export async function generateMetadata({ params }: { params: Promise<{ clientId:
   }
 }
 
-export default async function ClientWorkspaceLayout({ children, params }: Props) {
+export default async function ClientRootLayout({ children, params }: Props) {
   const { clientId } = await params
-  const client = getClient(clientId)
-  if (!client) notFound()
+  if (!getClient(clientId)) notFound()
 
-  return (
-    <div className={`${sora.variable} ${dmSans.variable}`}>
-      <ClientShell client={client}>{children}</ClientShell>
-    </div>
-  )
+  return <div className={`${sora.variable} ${dmSans.variable}`}>{children}</div>
 }
