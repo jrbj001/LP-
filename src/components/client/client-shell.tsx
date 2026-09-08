@@ -24,6 +24,7 @@ import { isBacklogEnabled } from '@/lib/backlog/access'
 
 const NAV_ITEMS = [
   { path: '', label: 'Visão geral', section: 'work', icon: LayoutDashboard },
+  { path: '/copilot', label: 'Copilot', section: 'work', icon: Sparkles },
   { path: '/backlog', label: 'Boards', section: 'work', icon: PanelTop },
   { path: '/projetos', label: 'Projetos', section: 'work', icon: FolderKanban },
   { path: '/reunioes', label: 'Reuniões', section: 'context', icon: CalendarDays },
@@ -49,9 +50,13 @@ export function ClientShell({
   const wide =
     pathname.endsWith('/entregas') ||
     pathname.includes('/backlog') ||
+    pathname.includes('/copilot') ||
     pathname.includes('/consultar') ||
     pathname.includes('/fontes-de-dados')
-  const navItems = NAV_ITEMS.filter(item => item.path !== '/backlog' || isBacklogEnabled(client.slug))
+  const navItems = NAV_ITEMS.filter(
+    item =>
+      (item.path !== '/backlog' && item.path !== '/copilot') || isBacklogEnabled(client.slug)
+  )
 
   const isActive = (item: NavItem) => {
     const href = `${base}${item.path}`
@@ -113,15 +118,15 @@ export function ClientShell({
 
       <div className="mt-auto p-3">
         <Link
-          href={`${base}/backlog/copilot`}
+          href={`${base}/fontes-de-dados`}
           onClick={() => setOpen(false)}
-          className="group flex items-start gap-3 rounded-xl border border-teal-950/10 bg-teal-50/70 p-3.5 transition-colors hover:bg-teal-50"
+          className="group flex items-start gap-3 rounded-xl border border-black/[0.06] bg-white/70 p-3.5 transition-colors hover:bg-white"
         >
-          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-teal-700" strokeWidth={1.75} />
+          <Database className="mt-0.5 h-4 w-4 shrink-0 text-neutral-500" strokeWidth={1.75} />
           <span>
-            <span className="block text-[11px] font-semibold text-teal-950">Cadence Copilot</span>
-            <span className="mt-0.5 block text-[10px] leading-relaxed text-teal-800/60">
-              Transforme contexto em trabalho agent-ready.
+            <span className="block text-[11px] font-semibold text-neutral-800">Fontes de dados</span>
+            <span className="mt-0.5 block text-[10px] leading-relaxed text-neutral-500">
+              Conexões que o Consultar usa para perguntas em linguagem natural.
             </span>
           </span>
         </Link>
@@ -216,7 +221,7 @@ function NavSection({
             >
               <Icon className={`h-4 w-4 ${selected ? 'text-teal-300' : 'text-neutral-400 group-hover:text-neutral-700'}`} strokeWidth={1.75} />
               {item.label}
-              {item.path === '/backlog' && <span className={`ml-auto h-1.5 w-1.5 rounded-full ${selected ? 'bg-teal-300' : 'bg-teal-500'}`} />}
+              {item.path === '/copilot' && <span className={`ml-auto h-1.5 w-1.5 rounded-full ${selected ? 'bg-teal-300' : 'bg-teal-500'}`} />}
             </Link>
           )
         })}

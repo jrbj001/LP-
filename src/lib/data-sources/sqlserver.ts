@@ -105,6 +105,24 @@ export async function describeSqlServerTables(
   }
 }
 
+export const SQL_SERVER_CATALOG_SQL = `SELECT
+  s.name AS table_schema,
+  o.name AS table_name,
+  CASE o.type WHEN 'U' THEN 'BASE TABLE' WHEN 'V' THEN 'VIEW' ELSE o.type END AS table_type,
+  CAST(p.value AS nvarchar(400)) AS description
+FROM sys.objects o
+INNER JOIN sys.schemas s ON s.schema_id = o.schema_id
+LEFT JOIN sys.extended_properties p
+  ON p.major_id = o.object_id AND p.minor_id = 0 AND p.name = N'MS_Description'
+WHERE o.type IN ('U', 'V')
+ORDER BY s.name, o.name`
+
+export async function listSqlServerCatalog(
+  config: SqlServerDataSourceConfig
+): Promise<Record<string, unknown>[]> {
+  return executeSqlServerReadOnly(config, SQL_SERVER_CATALOG_SQL)
+}
+
 export async function executeSqlServerReadOnly(
   config: SqlServerDataSourceConfig,
   sqlText: string

@@ -19,7 +19,7 @@ export default async function DataSourcesPage({ params }: Props) {
       <WorkspacePageHeader
         eyebrow={`${client.name} · Workspace`}
         title="Fontes de dados"
-        description="Cadastre conexões PostgreSQL somente-leitura para consultar dados reais em linguagem natural."
+        description="Cadastre as conexões PostgreSQL e SQL Server que o Consultar usa para fatos da operação."
         backHref={`/${locale}/client/${client.slug}`}
       />
       <DataSourcesWorkspace clientId={client.slug} accent={client.accent} />

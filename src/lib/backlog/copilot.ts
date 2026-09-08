@@ -1,9 +1,5 @@
 import { formatCadenceSummaryForPrompt, getCadenceSummary, type CadenceSummary } from '@/lib/cadence/summary'
 import { seedCadenceClient } from '@/lib/cadence/seed'
-import {
-  formatCopilotSqlContext,
-  gatherCopilotSqlContext,
-} from '@/lib/cadence/copilot-sql-context'
 import { CADENCE_SCHEMA } from '@/lib/cadence/schema'
 import type { RepoConfig } from '@/lib/delivery/types'
 import {
@@ -17,7 +13,6 @@ import {
   type BacklogCard,
   type BacklogDiagram,
   type CopilotMessage,
-  type CopilotSqlEvidence,
   type CopilotThread,
   type GithubRef,
   type StoryDraft,
@@ -30,7 +25,6 @@ export interface CopilotTurn {
   diagram: BacklogDiagram
   storyDraft?: StoryDraft
   flowNotes: string[]
-  sqlEvidence?: CopilotSqlEvidence
   followUps: string[]
   sources: GithubRef[]
 }
@@ -41,26 +35,25 @@ function systemPrompt(clientId: string, clientName: string, sector: string): str
       ? 'Especialize-se em saúde, marketplace, comunidade e nas integrações relevantes Tabia, pagamentos e Social Plus. Não presuma detalhes de implementação que não apareçam no contexto fornecido.'
       : 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia, Banco de Ativos, agentes e teste de visibilidade.'
 
-  return `Você é o copiloto de produto de ${clientName} (${sector}). ${specialization}
+  return `Você é o copiloto da empresa ${clientName} (${sector}). ${specialization}
 
-Você conversa com um Product Manager em português do Brasil. A user story é o destino — não o primeiro passo.
+Você conversa em português do Brasil. Seu foco é entender fluxo, código, schemas, documentos do portal, backlog e o que precisa virar user story. Números operacionais de produção (inventário, roteiros, exibidores) ficam em Consultar — não invente volumes.
 
 Como trabalhar:
-1. Enriquecer: entender o fluxo real da empresa (atores, sistemas, regras, exceções, o que já existe no código e no board).
-2. Aprender: acumule fatos em "flowNotes" a cada turno. Não descarte o que já foi aprendido.
-3. Só então escrever a story: persona, objetivo, valor e critérios de aceite testáveis, ancorados no fluxo aprendido.
+1. Se a pergunta pede entendimento de fluxo, enriqueça com código no GitHub, cards do board, documentos e conversa. Acumule fatos em "flowNotes".
+2. Se a pergunta pede um volume ou ranking de produção, explique que isso é Consultar e, se souber, aponte a tabela ou o handler — sem inventar o número.
+3. A user story só vem quando o PM pedir ou o fluxo já estiver claro o bastante. storyDraft fica null enquanto faltar persona, valor ou aceite.
 
 Regras:
 - Sempre responda em português do Brasil, direto e concreto, sem preâmbulo.
-- SEMPRE devolva um "diagram" do fluxo da empresa (como é hoje, o trecho que está em discussão, ou o to-be). O desenho é obrigatório em toda resposta.
-- Deixe "storyDraft" como null enquanto faltar fluxo, persona, valor ou aceite verificável. Faça 1 a 3 perguntas objetivas e avance o entendimento. Não invente uma story só para preencher o campo.
+- SEMPRE devolva um "diagram" do fluxo ou do recorte em discussão. O desenho é obrigatório em toda resposta.
+- Deixe "storyDraft" como null enquanto faltar fluxo, persona, valor ou aceite verificável. Faça 1 a 3 perguntas objetivas quando estiver no modo de story.
 - Proponha "storyDraft" somente quando (a) o PM pedir explicitamente a user story / rascunho, ou (b) o fluxo da empresa já estiver claro o bastante para uma story útil. Se já existir rascunho, refine-o — não recomece do zero.
-- Use GitHub, cards do board, o resumo Cadence e, quando houver, a consulta ao banco de produção (Colmeia ou Banco de Ativos). Cite arquivos reais. Não invente números.
-- Quando houver "Consulta SQL deste turno", use seus resultados como evidência factual e explique o que eles confirmam. Diferencie workspace Cadence de dados de produção. Se não houver consulta, não invente volumes operacionais.
+- Use GitHub, cards do board, documentos do workspace e o resumo Cadence. Cite arquivos reais. Não invente números de produção.
 - Critérios de aceite devem ser verificáveis (Dado/Quando/Então ou afirmações checáveis).
 - Nunca invente nomes de arquivos ou endpoints que não estejam no contexto; se for hipótese, deixe claro no texto.
-- "followUps" aprofundam o fluxo da empresa (exceções, sistemas, papéis, regras). Não sugira "aplicar no board" — isso é um botão na interface.
-- "flowNotes": 3 a 8 fatos curtos sobre o fluxo da empresa, mesclando o que já foi aprendido com o que este turno revelou.
+- "followUps" são próximas perguntas úteis: exceção de fluxo, schema ou recorte da story. Não sugira "aplicar no board" — isso é um botão na interface.
+- "flowNotes": 3 a 8 fatos curtos sobre a empresa, mesclando o que já foi aprendido com o que este turno revelou.
 
 Responda SOMENTE com um objeto JSON:
 {
@@ -242,30 +235,15 @@ function asStoryDraft(value: unknown, boardId: BacklogBoardId): StoryDraft | und
 function sourcesFromContext(
   bundle: GithubContextBundle,
   summary: CadenceSummary,
-  sqlEvidence: CopilotSqlEvidence | null,
   reply: string
 ): GithubRef[] {
   const cited = bundle.snippets.filter(s => reply.includes(s.path) || reply.includes(s.path.split('/').pop() ?? ''))
   const chosen = cited.length > 0 ? cited : bundle.snippets.slice(0, 4)
   const git = chosen.slice(0, 6).map(s => ({ repo: s.repo, path: s.path, kind: 'git' as const }))
-  const queriedTables = sqlEvidence
-    ? [
-        ...sqlEvidence.sql.matchAll(
-          /\b(?:from|join)\s+(?:\[?[a-z_][a-z0-9_]*\]?\.)?\[?([a-z_][a-z0-9_]*)\]?/gi
-        ),
-      ].map(match => match[1].toLowerCase())
+  const cadence = summary.available
+    ? [{ repo: 'cadence', path: 'resumo agregado', kind: 'sql' as const }]
     : []
-  const sql: GithubRef[] = [...new Set(queriedTables)].slice(0, 4).map(path => ({
-    repo: sqlEvidence?.sourceName ?? 'sql',
-    path,
-    kind: 'sql' as const,
-  }))
-  if (sql.length === 0 && sqlEvidence?.sourceName) {
-    sql.push({ repo: sqlEvidence.sourceName, path: 'consulta', kind: 'sql' })
-  } else if (sql.length === 0 && summary.available) {
-    sql.push({ repo: 'cadence', path: 'resumo agregado', kind: 'sql' })
-  }
-  return [...git, ...sql]
+  return [...git, ...cadence]
 }
 
 export async function runCopilotTurn(input: {
@@ -291,15 +269,7 @@ export async function runCopilotTurn(input: {
     getBacklogSnapshot(clientId),
     seedCadenceClient(clientId),
   ])
-  const [summary, sqlEvidence] = await Promise.all([
-    getCadenceSummary(clientId),
-    gatherCopilotSqlContext({
-      clientId,
-      boardId: thread.boardId,
-      message,
-      recentContext: `${historyBrief(thread.messages)}\n${previousNotes.join('\n')}`.slice(0, 4000),
-    }),
-  ])
+  const summary = await getCadenceSummary(clientId)
 
   const user = [
     `Cliente: ${clientName} (${clientSector})`,
@@ -312,7 +282,6 @@ export async function runCopilotTurn(input: {
     `Rascunho atual (refine só se for escrever storyDraft):\n${lastStoryDraftBrief(thread.messages)}`,
     `Modelagem do workspace Cadence (não é produção):\n${CADENCE_SCHEMA}`,
     formatCadenceSummaryForPrompt(summary),
-    `Consulta SQL deste turno:\n${formatCopilotSqlContext(sqlEvidence)}`,
     `Contexto do código (GitHub):\n${formatGithubContextForPrompt(bundle)}`,
     `Pergunta atual do PM:\n${message}`,
   ].join('\n\n')
@@ -351,8 +320,7 @@ export async function runCopilotTurn(input: {
     diagram: diagram ?? fallbackDiagram(clientId, thread.boardId, message),
     storyDraft,
     flowNotes: mergeFlowNotes(previousNotes, asStringArray(parsed.flowNotes)),
-    sqlEvidence: sqlEvidence ?? undefined,
     followUps: withFlowFollowUps(asStringArray(parsed.followUps)),
-    sources: sourcesFromContext(bundle, summary, sqlEvidence, reply),
+    sources: sourcesFromContext(bundle, summary, reply),
   }
 }

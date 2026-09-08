@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { callOpenAiJson, chatModel } from '@/lib/backlog/llm'
+import { narrateQueryResult } from '@/lib/consultar/narrate'
 import { cadenceDb, hasCadenceDatabase } from './db'
 import { assertReadOnlySelect, inferChart } from './query'
 import { CADENCE_SCHEMA } from './schema'
@@ -8,6 +9,7 @@ import { CADENCE_SCHEMA } from './schema'
 export interface NlQueryResult {
   sql: string
   explanation: string
+  answer: string
   suggestions: string[]
   columns: string[]
   rows: Record<string, unknown>[]
@@ -100,6 +102,12 @@ Retorne somente JSON:
   return {
     sql: executed.sql,
     explanation: draft.explanation,
+    answer: await narrateQueryResult({
+      question,
+      explanation: draft.explanation,
+      columns: executed.columns,
+      rows: executed.rows,
+    }),
     suggestions: draft.suggestions,
     columns: executed.columns,
     rows: executed.rows,

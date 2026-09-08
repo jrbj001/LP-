@@ -19,7 +19,7 @@ export default async function ConsultarPage({ params }: Props) {
       <WorkspacePageHeader
         eyebrow={`${client.name} · Workspace`}
         title="Consultar"
-        description="Pergunte em português sobre cards, entregas, reuniões e documentos. A resposta vem de SQL somente-leitura no Neon."
+        description="Pergunte em português sobre o workspace ou os bancos cadastrados. A resposta vem em linguagem natural, com SQL somente-leitura, tabela e gráfico."
         backHref={`/${locale}/client/${client.slug}`}
       />
       <ConsultarWorkspace

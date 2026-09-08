@@ -13,6 +13,7 @@ const ConsultarChart = dynamic(
 interface QueryPayload {
   sql: string
   explanation: string
+  answer: string
   suggestions: string[]
   sourceName?: string
   columns: string[]
@@ -27,9 +28,9 @@ const DEFAULT_EXAMPLES = [
 ]
 
 const BE180_EXAMPLES = [
-  'Quantos cards existem no Colmeia e no Banco de Ativos, separados por produto?',
-  'Quais são os cards prontos para desenvolvimento no Banco de Ativos?',
-  'Quais entregas recentes estão relacionadas ao Colmeia?',
+  'Quantos pontos ativos existem hoje no Banco de Ativos?',
+  'Qual o exibidor com o maior número de pontos ativos?',
+  'Quais roteiros mais recentes aparecem no Colmeia?',
 ]
 
 type DataSourceSummary = {
@@ -103,6 +104,7 @@ export function ConsultarWorkspace({
       setResult({
         sql: data.sql ?? '',
         explanation: data.explanation ?? '',
+        answer: data.answer ?? data.explanation ?? '',
         suggestions: data.suggestions ?? [],
         sourceName: data.sourceName,
         columns: data.columns ?? [],
@@ -172,7 +174,7 @@ export function ConsultarWorkspace({
           <input
             value={question}
             onChange={event => setQuestion(event.target.value)}
-            placeholder="Ex.: quantas PRs do app nas últimas 6 semanas?"
+            placeholder="Ex.: qual o exibidor com mais pontos ativos?"
             className="h-11 flex-1 rounded-xl border border-black/[0.08] bg-white px-3.5 text-[13px] text-neutral-800 outline-none ring-0 placeholder:text-neutral-400 focus:border-neutral-400"
           />
           <button
@@ -212,9 +214,20 @@ export function ConsultarWorkspace({
         <div className="space-y-5">
           <div className="rounded-2xl border border-black/[0.06] bg-white px-5 py-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-teal-700">
-              Explicação{result.sourceName ? ` · ${result.sourceName}` : ''}
+              Resposta{result.sourceName ? ` · ${result.sourceName}` : ''}
             </p>
-            <p className="mt-1.5 text-[14px] leading-relaxed text-neutral-700">{result.explanation}</p>
+            <p className="mt-2 text-[15px] leading-relaxed text-neutral-800">
+              {result.answer || result.explanation}
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-black/[0.06] bg-white px-5 py-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
+              Como consultamos
+            </p>
+            {result.explanation && result.explanation !== result.answer && (
+              <p className="mt-1.5 text-[13px] leading-relaxed text-neutral-600">{result.explanation}</p>
+            )}
             <pre className="mt-3 overflow-x-auto rounded-xl bg-neutral-950 px-3 py-2.5 text-[11px] leading-relaxed text-teal-100">
               {result.sql}
             </pre>

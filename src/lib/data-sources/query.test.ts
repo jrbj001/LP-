@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assertExternalReadOnlySelect } from './query'
+import { assertExternalReadOnlySelect, isCatalogQuestion, isCatalogRelation } from './query'
 
 const TABLES = [
   { schema: 'public', table: 'media_points', type: 'table' as const },
@@ -41,6 +41,39 @@ describe('assertExternalReadOnlySelect', () => {
     expect(
       assertExternalReadOnlySelect('SELECT * FROM public.media_points LIMIT 500', TABLES)
     ).toMatch(/LIMIT 100$/)
+  })
+
+  it('aceita information_schema.tables para listar o catálogo', () => {
+    expect(
+      assertExternalReadOnlySelect(
+        'SELECT table_schema, table_name, table_type FROM information_schema.tables',
+        TABLES,
+        'sqlserver'
+      )
+    ).toMatch(/TOP 500/i)
+  })
+
+  it('reconhece pergunta de catálogo', () => {
+    expect(
+      isCatalogQuestion('me de o nome e a descricao de cada tabela que temos no banco')
+    ).toBe(true)
+    expect(isCatalogQuestion('qual o exibidor com mais pontos ativos?')).toBe(false)
+  })
+
+  it('reconhece information_schema com três partes', () => {
+    expect(isCatalogRelation('serv_product_be180.information_schema.tables')).toBe(true)
+    expect(isCatalogRelation('sys.extended_properties')).toBe(true)
+    expect(isCatalogRelation('public.media_points')).toBe(false)
+  })
+
+  it('aceita information_schema qualificado com o banco', () => {
+    expect(
+      assertExternalReadOnlySelect(
+        'SELECT table_name FROM [serv_product_be180].[information_schema].[tables]',
+        TABLES,
+        'sqlserver'
+      )
+    ).toContain('information_schema')
   })
 
   it('rejeita funções internas do PostgreSQL', () => {

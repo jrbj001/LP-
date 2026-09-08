@@ -2,19 +2,25 @@ import 'server-only'
 
 import { callOpenAiJson, chatModel } from '@/lib/backlog/llm'
 import { inferChart } from '@/lib/cadence/query'
+import { narrateQueryResult } from '@/lib/consultar/narrate'
 import { decryptDataSourceConfig } from './crypto'
 import {
   describePostgresTables,
   executePostgresReadOnly,
+  listPostgresCatalog,
+  POSTGRES_CATALOG_SQL,
   testPostgresConnection,
 } from './postgresql'
-import { assertExternalReadOnlySelect } from './query'
+import { assertExternalReadOnlySelect, isCatalogQuestion } from './query'
 import {
   describeSqlServerTables,
   executeSqlServerReadOnly,
+  listSqlServerCatalog,
+  SQL_SERVER_CATALOG_SQL,
   testSqlServerConnection,
   type SqlServerDataSourceConfig,
 } from './sqlserver'
+
 import { getStoredDataSource } from './store'
 import type { DataSourceCatalogEntry, DataSourceColumn, PostgresDataSourceConfig } from './types'
 
@@ -22,6 +28,7 @@ export interface ExternalNlQueryResult {
   sourceName: string
   sql: string
   explanation: string
+  answer: string
   suggestions: string[]
   columns: string[]
   rows: Record<string, unknown>[]
@@ -106,10 +113,47 @@ export async function runExternalNaturalLanguageQuery(input: {
   const dialect = source.kind === 'sqlserver' ? 'sqlserver' : 'postgresql'
   const engine = dialect === 'sqlserver' ? 'SQL Server (T-SQL)' : 'PostgreSQL'
 
+  const config = decryptDataSourceConfig<SqlServerDataSourceConfig | PostgresDataSourceConfig>(
+    source.encryptedConfig
+  )
   const catalog =
     dialect === 'sqlserver'
-      ? await testSqlServerConnection(decryptDataSourceConfig<SqlServerDataSourceConfig>(source.encryptedConfig))
-      : await testPostgresConnection(decryptDataSourceConfig<PostgresDataSourceConfig>(source.encryptedConfig))
+      ? await testSqlServerConnection(config as SqlServerDataSourceConfig)
+      : await testPostgresConnection(config as PostgresDataSourceConfig)
+
+  if (isCatalogQuestion(input.question)) {
+    const rows = normalizeRows(
+      dialect === 'sqlserver'
+        ? await listSqlServerCatalog(config as SqlServerDataSourceConfig)
+        : await listPostgresCatalog(config as PostgresDataSourceConfig)
+    )
+    const columns = rows[0]
+      ? Object.keys(rows[0])
+      : ['table_schema', 'table_name', 'table_type', 'description']
+    const explanation = `Lista do catálogo de ${source.name}: nome, tipo e descrição (quando o banco tiver comentário na tabela).`
+    return {
+      sourceName: source.name,
+      sql: dialect === 'sqlserver' ? SQL_SERVER_CATALOG_SQL : POSTGRES_CATALOG_SQL,
+      explanation,
+      answer: await narrateQueryResult({
+        question: input.question,
+        sourceName: source.name,
+        explanation,
+        columns,
+        rows,
+        catalog: true,
+      }),
+      suggestions: [
+        'Quais colunas existem na tabela mais usada desta fonte?',
+        'Quantas tabelas existem em cada schema?',
+        'Quais views estão disponíveis neste banco?',
+      ],
+      columns,
+      rows,
+      chart: inferChart(rows),
+    }
+  }
+
   const catalogText = catalog.entries
     .map(entry => `${entry.schema}.${entry.table} (${entry.type})`)
     .join('\n')
@@ -139,7 +183,8 @@ Retorne somente JSON: {"tables":["schema.tabela"]}.`,
   const draft = sqlDraft(
     await callOpenAiJson(
       `Você traduz perguntas em português do Brasil para um único SELECT ${engine} somente-leitura.
-Use somente as tabelas e colunas fornecidas. Qualifique cada tabela com o schema.
+Use somente as tabelas e colunas fornecidas, ou information_schema.tables / information_schema.columns / sys.tables quando a pergunta for sobre o catálogo.
+Qualifique cada tabela com o schema.
 Não use escrita, DDL, comentários, múltiplos statements ou subconsultas em FROM/JOIN.
 ${dialect === 'sqlserver' ? 'Use SELECT TOP 100 ao listar registros.' : 'Use LIMIT 100 ao listar registros. Não use funções pg_*.'}
 Prefira agregações curtas.
@@ -169,12 +214,20 @@ ${schemaForPrompt(entries, columns)}`,
           sql
         )
   )
+  const resultColumns = rows[0] ? Object.keys(rows[0]) : []
   return {
     sourceName: source.name,
     sql,
     explanation: draft.explanation,
+    answer: await narrateQueryResult({
+      question: input.question,
+      sourceName: source.name,
+      explanation: draft.explanation,
+      columns: resultColumns,
+      rows,
+    }),
     suggestions: draft.suggestions,
-    columns: rows[0] ? Object.keys(rows[0]) : [],
+    columns: resultColumns,
     rows,
     chart: inferChart(rows),
   }

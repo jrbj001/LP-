@@ -188,6 +188,26 @@ export async function describePostgresTables(
   }
 }
 
+export const POSTGRES_CATALOG_SQL = `SELECT
+  t.table_schema,
+  t.table_name,
+  t.table_type,
+  obj_description(
+    (quote_ident(t.table_schema) || '.' || quote_ident(t.table_name))::regclass,
+    'pg_class'
+  ) AS description
+FROM information_schema.tables t
+WHERE t.table_schema NOT IN ('information_schema', 'pg_catalog')
+  AND t.table_type IN ('BASE TABLE', 'VIEW')
+ORDER BY t.table_schema, t.table_name
+LIMIT 500`
+
+export async function listPostgresCatalog(
+  config: PostgresDataSourceConfig
+): Promise<Record<string, unknown>[]> {
+  return executePostgresReadOnly(config, POSTGRES_CATALOG_SQL)
+}
+
 export async function executePostgresReadOnly(
   config: PostgresDataSourceConfig,
   sqlText: string
