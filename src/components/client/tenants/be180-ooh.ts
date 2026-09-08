@@ -142,18 +142,6 @@ export const be180Ooh: ClientWorkspace = {
       },
       {
         owner: 'jrbj001',
-        repo: 'be180_main_service',
-        label: 'Colmeia · Backend (main service)',
-        products: [
-          {
-            label: 'Banco de Ativos',
-            pattern:
-              'banco[\\s-]*(de[\\s-]*)?ativos?|\\bativos\\b|exibidor(?:es)?|invent[aá]rio(?:s)?|google[\\s-]*places',
-          },
-        ],
-      },
-      {
-        owner: 'jrbj001',
         repo: 'image_brand_processing',
         label: 'Teste de Visibilidade · Backend',
       },
@@ -360,6 +348,17 @@ Ações acordadas:
     },
   ],
   documents: [
+    {
+      id: 'be180-produto-engenharia-arquitetura',
+      title: 'Produto, Engenharia & Arquitetura · Ecossistema Be180',
+      category: 'Produto · Engenharia · Arquitetura · Roadmap',
+      description:
+        'Visão integrada de Colmeia, Banco de Ativos e Teste de Visibilidade: mapa de features, arquitetura atual e alvo, riscos e roadmap M0–M4.',
+      updatedAt: '07/09/2026',
+      status: 'available',
+      href: '/produto-engenharia-arquitetura',
+      external: false,
+    },
     {
       id: 'colmeia-arquitetura-agentes',
       title: 'Arquitetura de Agentes · Colmeia & Banco de Ativos',

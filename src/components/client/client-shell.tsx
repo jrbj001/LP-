@@ -2,15 +2,17 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import {
   BarChart3,
   CalendarDays,
   ChevronDown,
+  Database,
   FileText,
   FolderKanban,
   LayoutDashboard,
+  LogOut,
   Menu,
   PanelTop,
   Search,
@@ -23,12 +25,14 @@ import { isBacklogEnabled } from '@/lib/backlog/access'
 
 const NAV_ITEMS = [
   { path: '', label: 'Visão geral', section: 'work', icon: LayoutDashboard },
+  { path: '/copilot', label: 'Copilot', section: 'work', icon: Sparkles },
   { path: '/backlog', label: 'Boards', section: 'work', icon: PanelTop },
   { path: '/projetos', label: 'Projetos', section: 'work', icon: FolderKanban },
   { path: '/reunioes', label: 'Reuniões', section: 'context', icon: CalendarDays },
   { path: '/documentos', label: 'Documentos', section: 'context', icon: FileText },
   { path: '/entregas', label: 'Entregas', section: 'context', icon: BarChart3 },
   { path: '/consultar', label: 'Consultar', section: 'context', icon: Search },
+  { path: '/fontes-de-dados', label: 'Fontes de dados', section: 'context', icon: Database },
 ] as const
 
 type NavItem = (typeof NAV_ITEMS)[number]
@@ -42,11 +46,25 @@ export function ClientShell({
 }) {
   const locale = useLocale()
   const pathname = usePathname()
+  const router = useRouter()
   const [open, setOpen] = useState(false)
+
+  async function logout() {
+    await fetch('/api/client/auth', { method: 'DELETE' })
+    router.push(`/${locale}/client/${client.slug}/login`)
+    router.refresh()
+  }
   const base = `/${locale}/client/${client.slug}`
   const wide =
-    pathname.endsWith('/entregas') || pathname.includes('/backlog') || pathname.includes('/consultar')
-  const navItems = NAV_ITEMS.filter(item => item.path !== '/backlog' || isBacklogEnabled(client.slug))
+    pathname.endsWith('/entregas') ||
+    pathname.includes('/backlog') ||
+    pathname.includes('/copilot') ||
+    pathname.includes('/consultar') ||
+    pathname.includes('/fontes-de-dados')
+  const navItems = NAV_ITEMS.filter(
+    item =>
+      (item.path !== '/backlog' && item.path !== '/copilot') || isBacklogEnabled(client.slug)
+  )
 
   const isActive = (item: NavItem) => {
     const href = `${base}${item.path}`
@@ -108,21 +126,33 @@ export function ClientShell({
 
       <div className="mt-auto p-3">
         <Link
-          href={`${base}/backlog/copilot`}
+          href={`${base}/fontes-de-dados`}
           onClick={() => setOpen(false)}
-          className="group flex items-start gap-3 rounded-xl border border-teal-950/10 bg-teal-50/70 p-3.5 transition-colors hover:bg-teal-50"
+          className="group flex items-start gap-3 rounded-xl border border-black/[0.06] bg-white/70 p-3.5 transition-colors hover:bg-white"
         >
-          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-teal-700" strokeWidth={1.75} />
+          <Database className="mt-0.5 h-4 w-4 shrink-0 text-neutral-500" strokeWidth={1.75} />
           <span>
-            <span className="block text-[11px] font-semibold text-teal-950">Cadence Copilot</span>
-            <span className="mt-0.5 block text-[10px] leading-relaxed text-teal-800/60">
-              Transforme contexto em trabalho agent-ready.
+            <span className="block text-[11px] font-semibold text-neutral-800">Fontes de dados</span>
+            <span className="mt-0.5 block text-[10px] leading-relaxed text-neutral-500">
+              Conexões que o Consultar usa para perguntas em linguagem natural.
             </span>
           </span>
         </Link>
         <div className="mt-3 flex items-center justify-between px-1 text-[10px] text-neutral-400">
           <span>PixelPulseLab</span>
-          <a href={`mailto:${client.docs.supportEmail}`} className="hover:text-neutral-700">Suporte</a>
+          <span className="flex items-center gap-2.5">
+            <a href={`mailto:${client.docs.supportEmail}`} className="hover:text-neutral-700">
+              Suporte
+            </a>
+            <button
+              type="button"
+              onClick={() => void logout()}
+              className="inline-flex items-center gap-1 hover:text-neutral-700"
+            >
+              <LogOut className="h-3 w-3" />
+              Sair
+            </button>
+          </span>
         </div>
       </div>
     </>
@@ -211,7 +241,7 @@ function NavSection({
             >
               <Icon className={`h-4 w-4 ${selected ? 'text-teal-300' : 'text-neutral-400 group-hover:text-neutral-700'}`} strokeWidth={1.75} />
               {item.label}
-              {item.path === '/backlog' && <span className={`ml-auto h-1.5 w-1.5 rounded-full ${selected ? 'bg-teal-300' : 'bg-teal-500'}`} />}
+              {item.path === '/copilot' && <span className={`ml-auto h-1.5 w-1.5 rounded-full ${selected ? 'bg-teal-300' : 'bg-teal-500'}`} />}
             </Link>
           )
         })}

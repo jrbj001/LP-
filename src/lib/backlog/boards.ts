@@ -8,7 +8,6 @@ const BE180_BOARDS: BacklogBoard[] = [
     productLabel: 'Colmeia · Meus Roteiros',
     projectIds: ['colmeia-meus-roteiros', 'metodologia-cobertura-frequencia', 'tendencias-transporte-publico', 'ux-redesign-onboarding'],
     repository: 'jrbj001/colmeia---meusroteirosdefault',
-    repositories: ['jrbj001/be180_main_service'],
   },
   {
     id: 'banco-ativos',
@@ -17,7 +16,6 @@ const BE180_BOARDS: BacklogBoard[] = [
     productLabel: 'Banco de Ativos',
     projectIds: ['banco-de-ativos'],
     repository: 'jrbj001/colmeia---meusroteirosdefault',
-    repositories: ['jrbj001/be180_main_service'],
   },
   {
     id: 'agentes',
@@ -25,7 +23,7 @@ const BE180_BOARDS: BacklogBoard[] = [
     description: 'Copiloto, agentes da jornada e contratos da Adaptive Layer™.',
     productLabel: 'Agentes · Adaptive Layer™',
     projectIds: ['colmeia-ai-mvp', 'agentes'],
-    repository: 'jrbj001/be180_main_service',
+    repository: 'jrbj001/colmeia---meusroteirosdefault',
   },
   {
     id: 'visibilidade',

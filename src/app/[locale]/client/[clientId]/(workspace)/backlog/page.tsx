@@ -39,7 +39,7 @@ export default async function ClientBacklogPage({ params, searchParams }: Props)
         clientName={client.name}
         accent={client.accent}
         detailBase={`${base}/backlog`}
-        copilotBase={`${base}/backlog/copilot`}
+        copilotBase={`${base}/copilot`}
         initial={snapshot}
         initialBoardId={snapshot.boards.some(item => item.id === board) ? board : undefined}
       />

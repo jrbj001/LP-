@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 import {
+  AlignLeft,
   ArrowRight,
   Check,
   ClipboardList,
@@ -14,9 +15,24 @@ import {
   Trash2,
   Upload,
 } from 'lucide-react'
-import type { ClientDocumentRecord, DocumentBacklogDraft } from '@/lib/documents/types'
+import type {
+  ClientDocumentRecord,
+  DocumentBacklogDraft,
+  DocumentExtraction,
+} from '@/lib/documents/types'
 import { AgentProgress, type AgentStepId, type AgentStepState } from './agent-progress'
 import { ArchitectureView, WorkPlanView } from './document-artifacts-view'
+
+const EXTRACT_PREVIEW_CHARS = 4_000
+
+function draftsFromArtifacts(
+  artifacts: ClientDocumentRecord['artifacts']
+): DocumentBacklogDraft[] {
+  return (artifacts?.backlogDrafts ?? []).map(draft => ({
+    ...draft,
+    alreadyExported: false,
+  }))
+}
 
 interface Board {
   id: string
@@ -94,8 +110,12 @@ export function DocumentWorkspace({
   const [pasteUrl, setPasteUrl] = useState('')
   const [pasteContent, setPasteContent] = useState('')
   const [boardId, setBoardId] = useState(boards[0]?.id ?? '')
-  const [drafts, setDrafts] = useState<DocumentBacklogDraft[]>([])
-  const [selectedDrafts, setSelectedDrafts] = useState<Set<string>>(new Set())
+  const [drafts, setDrafts] = useState<DocumentBacklogDraft[]>(() =>
+    draftsFromArtifacts(initialDocuments[0]?.artifacts)
+  )
+  const [selectedDrafts, setSelectedDrafts] = useState<Set<string>>(
+    () => new Set(draftsFromArtifacts(initialDocuments[0]?.artifacts).map(draft => draft.id))
+  )
   const [applyResult, setApplyResult] = useState<{ created: number; skipped: number } | null>(null)
   const fileInput = useRef<HTMLInputElement>(null)
 
@@ -110,7 +130,44 @@ export function DocumentWorkspace({
         : [record, ...current]
     })
     setSelectedId(record.id)
+    const nextDrafts = draftsFromArtifacts(record.artifacts)
+    setDrafts(nextDrafts)
+    setSelectedDrafts(new Set(nextDrafts.map(draft => draft.id)))
   }, [])
+
+  function selectDocument(document: ClientDocumentRecord) {
+    setSelectedId(document.id)
+    setApplyResult(null)
+    setError(null)
+    const nextDrafts = draftsFromArtifacts(document.artifacts)
+    setDrafts(nextDrafts)
+    setSelectedDrafts(new Set(nextDrafts.map(draft => draft.id)))
+  }
+
+  async function postDocumentStep(step: 'extract' | 'spec', documentId: string) {
+    const data = await readJson(
+      await fetch(`${base}/${encodeURIComponent(documentId)}/${step}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ boardId: boardId || undefined }),
+      }),
+      step === 'extract' ? 'Não foi possível ler o arquivo.' : 'Não foi possível gerar os artefatos.'
+    )
+    replaceDocument(data.document as ClientDocumentRecord)
+    if (Array.isArray(data.failures) && data.failures.length > 0) {
+      setError(`Parte da análise falhou — ${data.failures.join(' · ')}`)
+    }
+    return data.document as ClientDocumentRecord
+  }
+
+  async function runPipeline(documentId: string, needsExtract: boolean) {
+    if (needsExtract) {
+      setBusy('extract')
+      await postDocumentStep('extract', documentId)
+    }
+    setBusy('spec')
+    await postDocumentStep('spec', documentId)
+  }
 
   const accepted = useMemo(() => extensions.map(extension => `.${extension}`).join(','), [extensions])
 
@@ -131,9 +188,12 @@ export function DocumentWorkspace({
         await fetch(`${base}/upload`, { method: 'POST', body: form }),
         'Não foi possível enviar o arquivo.'
       )
-      replaceDocument(data.document as ClientDocumentRecord)
+      const document = data.document as ClientDocumentRecord
+      replaceDocument(document)
+      await runPipeline(document.id, Boolean(document.pathname))
     } catch (caught) {
       setError(errorMessage(caught))
+      void refresh()
     } finally {
       setBusy(null)
     }
@@ -142,6 +202,8 @@ export function DocumentWorkspace({
   async function register() {
     setBusy('register')
     setError(null)
+    setDrafts([])
+    setApplyResult(null)
     try {
       const data = await readJson(
         await fetch(`${base}/register`, {
@@ -156,13 +218,16 @@ export function DocumentWorkspace({
         }),
         'Não foi possível registrar o conteúdo.'
       )
-      replaceDocument(data.document as ClientDocumentRecord)
+      const document = data.document as ClientDocumentRecord
+      replaceDocument(document)
       setPasteOpen(false)
       setPasteTitle('')
       setPasteUrl('')
       setPasteContent('')
+      await runPipeline(document.id, false)
     } catch (caught) {
       setError(errorMessage(caught))
+      void refresh()
     } finally {
       setBusy(null)
     }
@@ -172,21 +237,13 @@ export function DocumentWorkspace({
     setBusy(step)
     setError(null)
     try {
-      const data = await readJson(
-        await fetch(`${base}/${encodeURIComponent(documentId)}/${step}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ boardId: boardId || undefined }),
-        }),
-        step === 'extract' ? 'Não foi possível ler o arquivo.' : 'Não foi possível gerar os artefatos.'
-      )
-      replaceDocument(data.document as ClientDocumentRecord)
-      if (Array.isArray(data.failures) && data.failures.length > 0) {
-        setError(`Parte da análise falhou — ${data.failures.join(' · ')}`)
+      if (step === 'extract') {
+        await runPipeline(documentId, true)
+        return
       }
+      await postDocumentStep('spec', documentId)
     } catch (caught) {
       setError(errorMessage(caught))
-      // Recarrega para refletir o status 'failed' gravado pela rota.
       void refresh()
     } finally {
       setBusy(null)
@@ -333,8 +390,8 @@ export function DocumentWorkspace({
             Documentos com inteligência
           </h2>
           <p className="mt-1 text-[12px] leading-relaxed text-neutral-500">
-            Envie planilhas, documentos, PDFs ou imagens. O agente lê o conteúdo, cruza com o código no
-            GitHub e gera plano de trabalho, arquitetura, requisitos e user stories.
+            Envie o arquivo. O agente lê o conteúdo, cruza com o GitHub e gera plano, arquitetura e
+            user stories — sem cliques extras.
           </p>
         </div>
         {boards.length > 1 && (
@@ -479,12 +536,7 @@ export function DocumentWorkspace({
               >
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedId(document.id)
-                    setDrafts([])
-                    setApplyResult(null)
-                    setError(null)
-                  }}
+                  onClick={() => selectDocument(document)}
                   className="flex flex-1 items-center gap-3 text-left min-w-0"
                 >
                   <span
@@ -530,7 +582,11 @@ export function DocumentWorkspace({
                       disabled={busy !== null}
                       className="rounded-full border border-black/[0.08] px-3 py-1.5 text-[11px] font-semibold text-neutral-600 disabled:opacity-40"
                     >
-                      {busy === 'extract' && isSelected ? 'Lendo…' : 'Ler conteúdo'}
+                      {busy === 'extract' && isSelected
+                        ? 'Lendo…'
+                        : busy === 'spec' && isSelected
+                          ? 'Analisando…'
+                          : 'Ler e analisar'}
                     </button>
                   )}
                   {document.extraction && (
@@ -576,6 +632,10 @@ export function DocumentWorkspace({
             }
           />
 
+          {selected.extraction && (
+            <ExtractionPreview extraction={selected.extraction} />
+          )}
+
           {selected.artifacts?.workPlan && (
             <WorkPlanView plan={selected.artifacts.workPlan} accent={accent} />
           )}
@@ -592,7 +652,9 @@ export function DocumentWorkspace({
                     Requisitos e user stories
                   </h3>
                   <p className="mt-1 text-[12px] text-neutral-400">
-                    Revise e ajuste antes de enviar aos boards.
+                    {drafts.length > 0
+                      ? 'Itens gerados na análise. Revise antes de enviar aos boards.'
+                      : 'A análise ainda não gerou itens. Gere a partir do texto lido.'}
                   </p>
                 </div>
                 <button
@@ -711,6 +773,41 @@ export function DocumentWorkspace({
           )}
         </div>
       )}
+    </section>
+  )
+}
+
+const METHOD_LABEL: Record<DocumentExtraction['method'], string> = {
+  exceljs: 'Planilha',
+  mammoth: 'Documento Word',
+  unpdf: 'PDF',
+  vision: 'Imagem',
+  plain: 'Texto',
+}
+
+function ExtractionPreview({ extraction }: { extraction: DocumentExtraction }) {
+  const clipped = extraction.text.length > EXTRACT_PREVIEW_CHARS
+  const preview = clipped ? extraction.text.slice(0, EXTRACT_PREVIEW_CHARS) : extraction.text
+
+  return (
+    <section className="rounded-xl border border-black/[0.07] bg-white px-4 py-3.5">
+      <h3 className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+        <AlignLeft className="h-3.5 w-3.5" />
+        Conteúdo lido
+      </h3>
+      <p className="mt-1 text-[12px] text-neutral-400">
+        {formatCount(extraction.charCount)} caracteres
+        {extraction.truncated ? ' · truncado na extração' : ''}
+        {clipped ? ' · trecho inicial' : ''}
+        {' · '}
+        {METHOD_LABEL[extraction.method]}
+        {extraction.sheets?.length ? ` · abas ${extraction.sheets.join(', ')}` : ''}
+        {extraction.pages ? ` · ${extraction.pages} página(s)` : ''}
+      </p>
+      <pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-neutral-50 px-3 py-2.5 text-[12px] leading-relaxed text-neutral-700">
+        {preview}
+        {clipped ? '\n\n[…]' : ''}
+      </pre>
     </section>
   )
 }

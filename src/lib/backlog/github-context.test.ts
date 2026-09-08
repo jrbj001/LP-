@@ -26,18 +26,15 @@ describe('resolveReposForBoard', () => {
     ])
   })
 
-  it('inclui o backend público junto do Colmeia e do Banco de Ativos', () => {
+  it('resolve Colmeia e Banco de Ativos no repositório canônico', () => {
     const be180: RepoConfig[] = [
       { owner: 'jrbj001', repo: 'colmeia---meusroteirosdefault', label: 'Colmeia · Meus Roteiros' },
-      { owner: 'jrbj001', repo: 'be180_main_service', label: 'Colmeia · Backend (main service)' },
     ]
     expect(resolveReposForBoard('be180-ooh', 'colmeia', be180).map(r => r.repo)).toEqual([
       'colmeia---meusroteirosdefault',
-      'be180_main_service',
     ])
     expect(resolveReposForBoard('be180-ooh', 'banco-ativos', be180).map(r => r.repo)).toEqual([
       'colmeia---meusroteirosdefault',
-      'be180_main_service',
     ])
   })
 })

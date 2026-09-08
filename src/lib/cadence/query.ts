@@ -1,10 +1,6 @@
-const ALLOWED_TABLES = new Set([
-  'cadence_cards',
-  'cadence_delivery_prs',
-  'cadence_delivery_commits',
-  'cadence_meetings',
-  'cadence_documents',
-])
+import { CADENCE_TABLES } from './schema'
+
+const ALLOWED_TABLES = new Set<string>(CADENCE_TABLES)
 
 const FORBIDDEN =
   /\b(insert|update|delete|drop|alter|truncate|grant|revoke|copy|create|comment|do\s|call|execute|vacuum|lock|notify|listen|set\s|reset|security|into\s+outfile|pg_sleep|dblink)\b/i
@@ -31,8 +27,11 @@ export function assertReadOnlySelect(sql: string): string {
     }
   }
 
-  if (!/\bclient_id\b/i.test(stripped)) {
-    throw new Error('A consulta deve filtrar por client_id.')
+  const tenantFilter =
+    /(?:\b[a-z_][a-z0-9_]*\.)?\bclient_id\s*=\s*\$1\b/i.test(stripped) ||
+    /\$1\s*=\s*(?:\b[a-z_][a-z0-9_]*\.)?\bclient_id\b/i.test(stripped)
+  if (!tenantFilter) {
+    throw new Error('A consulta deve filtrar client_id = $1.')
   }
 
   const limited = /\blimit\s+\d+/i.test(stripped) ? stripped : `${stripped} LIMIT 100`

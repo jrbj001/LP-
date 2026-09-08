@@ -18,16 +18,15 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { clientId } = await params
   const client = getClient(clientId)
-  if (!client || !isBacklogEnabled(client.slug)) return { title: 'Copiloto do Backlog' }
+  if (!client || !isBacklogEnabled(client.slug)) return { title: 'Copilot' }
   return {
-    title: `Copiloto de user stories | Backlog ${client.name}`,
-    description:
-      'Converse com o copiloto para construir user stories com contexto do GitHub, desenhos de fluxo e rascunhos aplicáveis ao board.',
+    title: `Copilot | ${client.name}`,
+    description: 'Pergunte sobre fluxo, código, documentos do portal e o que precisa virar user story.',
     robots: { index: false, follow: false },
   }
 }
 
-export default async function BacklogCopilotPage({ params, searchParams }: Props) {
+export default async function CopilotPage({ params, searchParams }: Props) {
   const { locale, clientId } = await params
   const { board, card: cardId } = await searchParams
   const client = getClient(clientId)
@@ -39,12 +38,12 @@ export default async function BacklogCopilotPage({ params, searchParams }: Props
   const base = `/${locale}/client/${client.slug}`
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-14 py-10 sm:py-14">
+    <div className="px-4 py-10 sm:px-6 sm:py-14 lg:px-8 xl:px-10 2xl:px-14">
       <WorkspacePageHeader
-        eyebrow={`${client.name} · Backlog`}
-        title="Copiloto de user stories"
-        description="Descreva a necessidade em linguagem natural. O copiloto lê o código no GitHub, desenha o fluxo, responde dúvidas e propõe o rascunho da story — você aplica no board com um clique."
-        backHref={`${base}/backlog`}
+        eyebrow={`${client.name} · Workspace`}
+        title="Copilot"
+        description="Pergunte sobre fluxo, GitHub, documentos do portal e o que precisa virar trabalho no board. Fatos de produção ficam em Consultar."
+        backHref={base}
       />
       <CopilotChat
         clientId={client.slug}

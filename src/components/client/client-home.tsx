@@ -99,9 +99,9 @@ export function ClientHome({ client, locale, deliveryTeaser, repoStatuses, backl
           </div>
           {backlogSnapshot && (
             <div className="flex items-center gap-2">
-              <Link href={`${base}/backlog/copilot`} className="inline-flex items-center gap-2 rounded-lg border border-black/[0.08] bg-white px-3.5 py-2 text-[11px] font-semibold text-neutral-700 hover:border-black/[0.16]">
+              <Link href={`${base}/copilot`} className="inline-flex items-center gap-2 rounded-lg border border-black/[0.08] bg-white px-3.5 py-2 text-[11px] font-semibold text-neutral-700 hover:border-black/[0.16]">
                 <Sparkles className="h-3.5 w-3.5 text-teal-600" />
-                Abrir copiloto
+                Abrir Copilot
               </Link>
               <Link href={`${base}/backlog`} className="inline-flex items-center gap-2 rounded-lg bg-neutral-950 px-3.5 py-2 text-[11px] font-semibold text-white hover:bg-neutral-800">
                 Ver boards
