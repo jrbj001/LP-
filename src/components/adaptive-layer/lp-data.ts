@@ -5,7 +5,7 @@ export const META = {
   headline: 'The AI operating system for the enterprise.',
   headlinePt: 'O sistema operacional de IA da sua empresa.',
   lede:
-    'Adaptive Layer™ integra agentes, fluxos e os sistemas que a empresa já usa sob uma governança comum — agnóstico de modelo, rodando na sua nuvem. Do relatório ao código: o modelo trabalha com o contexto inteiro.',
+    'Adaptive Layer™ conecta agentes de IA aos sistemas, dados e conhecimento da sua empresa — com contexto, identidade e governança. É agnóstico de modelo, integra-se ao que você já usa e roda na sua própria nuvem.',
 }
 
 export const BOOT = {
