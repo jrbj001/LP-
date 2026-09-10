@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { handleWhatsappInbound } from '@/lib/twilio/inbound'
+import { orientationWelcome } from '@/lib/twilio/quick-reply'
+import { sendWhatsappMessage } from '@/lib/twilio/send'
 import { shouldSkipTwilioSignature, verifyTwilioSignature } from '@/lib/twilio/signature'
 import { renderTwiml } from '@/lib/twilio/twiml'
 
@@ -34,7 +35,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: 'From/To ausentes.' }, { status: 400 })
   }
 
+  const welcome = orientationWelcome(to, body)
+  if (welcome) {
+    try {
+      await sendWhatsappMessage({ to: from, from: welcome.from, body: welcome.reply })
+      return twiml()
+    } catch (error) {
+      console.error('[twilio/whatsapp] welcome send', error)
+      return twiml(welcome.reply)
+    }
+  }
+
   try {
+    const { handleWhatsappInbound } = await import('@/lib/twilio/inbound')
     const result = await handleWhatsappInbound({
       from,
       to,
