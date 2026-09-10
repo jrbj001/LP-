@@ -17,7 +17,7 @@ import {
   type GithubRef,
   type StoryDraft,
 } from './types'
-import { getBacklogBoards } from './boards'
+import { BE180_WHATSAPP_BOARD_IDS, getBacklogBoards } from './boards'
 import { getBacklogSnapshot } from './store'
 
 export interface CopilotTurn {
@@ -29,13 +29,21 @@ export interface CopilotTurn {
   sources: GithubRef[]
 }
 
-function systemPrompt(clientId: string, clientName: string, sector: string): string {
+function systemPrompt(
+  clientId: string,
+  clientName: string,
+  sector: string,
+  channel?: CopilotThread['channel']
+): string {
+  const whatsapp = channel === 'whatsapp'
   const specialization =
     clientId === 'likeme'
       ? 'Especialize-se em saúde, marketplace, comunidade e nas integrações relevantes Tabia, pagamentos e Social Plus. Não presuma detalhes de implementação que não apareçam no contexto fornecido.'
       : clientId === 'pixelpulselab'
         ? 'Especialize-se no Cadence e na Adaptive Layer™: workspace do cliente, copiloto, consultar, backlog e canais (WhatsApp). Responda curto o bastante para caber no WhatsApp, sem inventar números de produção.'
-        : 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia, Banco de Ativos, agentes e teste de visibilidade.'
+        : clientId === 'be180-ooh' && whatsapp
+          ? 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia · Meus Roteiros, Banco de Ativos e Teste de Visibilidade. Responda curto o bastante para caber no WhatsApp, sem inventar números de produção. Se a pergunta for de um produto, foque nele; se for transversal, compare os três.'
+          : 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia, Banco de Ativos, agentes e teste de visibilidade.'
 
   return `Você é o copiloto da empresa ${clientName} (${sector}). ${specialization}
 
@@ -67,6 +75,7 @@ Responda SOMENTE com um objeto JSON:
   },
   "flowNotes": ["fato curto sobre o fluxo da empresa"],
   "storyDraft": {
+    "boardId": "colmeia|banco-ativos|visibilidade quando o canal for WhatsApp Be180",
     "title": "string",
     "persona": "string",
     "want": "string",
@@ -156,8 +165,17 @@ function mergeFlowNotes(previous: string[], next: string[]): string[] {
   return merged.slice(-8)
 }
 
-function boardMemoryBrief(cards: BacklogCard[], boardId: BacklogBoardId): string {
-  const same = cards.filter(card => card.boardId === boardId).slice(0, 10)
+function boardMemoryBrief(
+  cards: BacklogCard[],
+  boardId: BacklogBoardId,
+  clientId: string,
+  channel?: CopilotThread['channel']
+): string {
+  const ids =
+    clientId === 'be180-ooh' && (boardId === 'cadence' || channel === 'whatsapp')
+      ? BE180_WHATSAPP_BOARD_IDS
+      : [boardId]
+  const same = cards.filter(card => ids.includes(card.boardId)).slice(0, 12)
   if (same.length === 0) return 'Nenhum card neste board ainda.'
   return same
     .map(card => {
@@ -220,7 +238,22 @@ function fallbackDiagram(clientId: string, boardId: BacklogBoardId, question: st
   }
 }
 
-function asStoryDraft(value: unknown, boardId: BacklogBoardId): StoryDraft | undefined {
+function resolveStoryBoardId(
+  value: Record<string, unknown>,
+  fallback: BacklogBoardId,
+  clientId: string
+): BacklogBoardId {
+  const raw = typeof value.boardId === 'string' ? value.boardId.trim() : ''
+  if (
+    clientId === 'be180-ooh' &&
+    (BE180_WHATSAPP_BOARD_IDS as string[]).includes(raw)
+  ) {
+    return raw as BacklogBoardId
+  }
+  return fallback
+}
+
+function asStoryDraft(value: unknown, boardId: BacklogBoardId, clientId: string): StoryDraft | undefined {
   if (!value || typeof value !== 'object') return undefined
   const v = value as Record<string, unknown>
   const title = typeof v.title === 'string' ? v.title.trim() : ''
@@ -231,7 +264,15 @@ function asStoryDraft(value: unknown, boardId: BacklogBoardId): StoryDraft | und
   if (!title || !want || acceptance.length === 0) return undefined
   const priority =
     v.priority === 'Alta' || v.priority === 'Média' || v.priority === 'Baixa' ? v.priority : undefined
-  return { boardId, title, persona, want, soThat, acceptance, priority }
+  return {
+    boardId: resolveStoryBoardId(v, boardId, clientId),
+    title,
+    persona,
+    want,
+    soThat,
+    acceptance,
+    priority,
+  }
 }
 
 function sourcesFromContext(
@@ -258,27 +299,35 @@ export async function runCopilotTurn(input: {
   repos: RepoConfig[]
 }): Promise<CopilotTurn> {
   const { clientId, clientName, clientSector, thread, message, card, repos } = input
-  const prompt = systemPrompt(clientId, clientName, clientSector)
+  const prompt = systemPrompt(clientId, clientName, clientSector, thread.channel)
 
   const queryParts = [message, card?.title ?? '', thread.title].filter(Boolean)
   const askForStory = wantsStoryNow(message)
   const previousNotes = lastFlowNotes(thread.messages)
+  const be180Whatsapp = clientId === 'be180-ooh' && (thread.channel === 'whatsapp' || thread.boardId === 'cadence')
   const [bundle, snapshot] = await Promise.all([
     gatherGithubContextForQuery(
       { clientId, boardId: thread.boardId, query: queryParts.join(' ') },
-      repos
+      repos,
+      be180Whatsapp ? { allRepos: true } : undefined
     ),
     getBacklogSnapshot(clientId),
     seedCadenceClient(clientId),
   ])
   const summary = await getCadenceSummary(clientId)
 
+  const productLine = be180Whatsapp
+    ? 'Cadence · WhatsApp (Colmeia, Banco de Ativos e Teste de Visibilidade)'
+    : boardLabel(clientId, thread.boardId)
   const user = [
     `Cliente: ${clientName} (${clientSector})`,
-    `Board / produto: ${boardLabel(clientId, thread.boardId)}`,
+    `Board / produto: ${productLine}`,
+    be180Whatsapp
+      ? 'Se escrever storyDraft, use boardId "colmeia", "banco-ativos" ou "visibilidade" conforme o produto da pergunta.'
+      : '',
     `Modo deste turno: ${askForStory ? 'O PM pediu a user story agora. Devolva storyDraft completo, ancorado no fluxo aprendido.' : 'Enriquecer e aprender o fluxo da empresa. storyDraft só se o fluxo já estiver claro.'}`,
     `Card vinculado:\n${cardBrief(card)}`,
-    `Memória do board (como a empresa já descreve o trabalho):\n${boardMemoryBrief(snapshot.cards, thread.boardId)}`,
+    `Memória do board (como a empresa já descreve o trabalho):\n${boardMemoryBrief(snapshot.cards, thread.boardId, clientId, thread.channel)}`,
     `Histórico recente:\n${historyBrief(thread.messages)}`,
     `O que já aprendemos do fluxo da empresa:\n${previousNotes.length ? previousNotes.map(n => `- ${n}`).join('\n') : 'Ainda nada acumulado. Comece a registrar fatos.'}`,
     `Rascunho atual (refine só se for escrever storyDraft):\n${lastStoryDraftBrief(thread.messages)}`,
@@ -286,7 +335,9 @@ export async function runCopilotTurn(input: {
     formatCadenceSummaryForPrompt(summary),
     `Contexto do código (GitHub):\n${formatGithubContextForPrompt(bundle)}`,
     `Pergunta atual do PM:\n${message}`,
-  ].join('\n\n')
+  ]
+    .filter(Boolean)
+    .join('\n\n')
 
   let parsed = (await callOpenAiJson(prompt, user, {
     temperature: 0.3,
@@ -295,7 +346,7 @@ export async function runCopilotTurn(input: {
 
   let reply = typeof parsed.reply === 'string' ? parsed.reply.trim() : ''
   let diagram = asDiagram(parsed.diagram)
-  let storyDraft = asStoryDraft(parsed.storyDraft, thread.boardId)
+  let storyDraft = asStoryDraft(parsed.storyDraft, thread.boardId, clientId)
 
   if (!reply || !diagram || (askForStory && !storyDraft)) {
     parsed = (await callOpenAiJson(
@@ -305,7 +356,7 @@ export async function runCopilotTurn(input: {
     )) as Record<string, unknown>
     reply = typeof parsed.reply === 'string' ? parsed.reply.trim() : reply
     diagram = asDiagram(parsed.diagram) ?? diagram
-    storyDraft = asStoryDraft(parsed.storyDraft, thread.boardId) ?? storyDraft
+    storyDraft = asStoryDraft(parsed.storyDraft, thread.boardId, clientId) ?? storyDraft
   }
 
   if (!reply) {
