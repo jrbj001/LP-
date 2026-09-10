@@ -1,6 +1,8 @@
-import { handleWhatsappInbound } from './inbound'
+import { orientationWelcome } from './quick-reply'
+import { persistWhatsappWelcome } from './persist-welcome'
+import { sendWhatsappMessage } from './send'
 import { shouldSkipTwilioSignature, verifyTwilioSignature } from './signature'
-import { withWhatsappTyping } from './typing'
+import { sendWhatsappTyping, withWhatsappTyping } from './typing'
 import { renderTwiml } from './twiml'
 
 export type TwilioWebhookResult = {
@@ -9,8 +11,8 @@ export type TwilioWebhookResult = {
   contentType: string
 }
 
-function xml(): TwilioWebhookResult {
-  return { status: 200, body: renderTwiml(), contentType: 'text/xml' }
+function xml(body?: string): TwilioWebhookResult {
+  return { status: 200, body: renderTwiml(body), contentType: 'text/xml' }
 }
 
 function json(status: number, payload: Record<string, unknown>): TwilioWebhookResult {
@@ -41,8 +43,32 @@ export async function handleTwilioWhatsappWebhook(input: {
   }
 
   const messageSid = input.params.MessageSid?.trim() || input.params.SmsSid?.trim()
+  await sendWhatsappTyping(messageSid)
+
+  const welcome = orientationWelcome(to, body)
+  if (welcome) {
+    try {
+      await sendWhatsappMessage({ to: from, from: to, body: welcome.reply })
+    } catch (error) {
+      console.error('[twilio/whatsapp] send', error)
+      return xml(welcome.reply)
+    }
+    try {
+      await persistWhatsappWelcome({
+        from,
+        to,
+        body,
+        reply: welcome.reply,
+        profileName: input.params.ProfileName?.trim(),
+      })
+    } catch (error) {
+      console.error('[twilio/whatsapp] persist', error)
+    }
+    return xml()
+  }
 
   try {
+    const { handleWhatsappInbound } = await import('./inbound')
     const result = await withWhatsappTyping(messageSid, () =>
       handleWhatsappInbound({
         from,
