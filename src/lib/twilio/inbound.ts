@@ -6,12 +6,14 @@ import { createCopilotThread, findCopilotThreadByExternalId } from '@/lib/backlo
 import { getClient } from '@/lib/client/registry'
 import { routeWhatsappSender } from './routing'
 import { sendWhatsappMessage } from './send'
+import { withWhatsappTyping } from './typing'
 
 export async function handleWhatsappInbound(input: {
   from: string
   to: string
   body: string
   profileName?: string
+  messageSid?: string
 }): Promise<{ ok: true; clientSlug: string } | { ok: false; error: string }> {
   const message = input.body.trim()
   if (!message) return { ok: false, error: 'Mensagem vazia.' }
@@ -36,17 +38,35 @@ export async function handleWhatsappInbound(input: {
         : `WhatsApp · ${client.name} · ${input.from}`,
     }))
 
-  const updated = await runAndPersistTurn({
-    clientId: client.slug,
-    clientName: client.name,
-    clientSector: client.sector,
-    thread,
-    message,
-    repos: client.delivery?.repos ?? [],
-  })
-  const reply = [...updated.messages].reverse().find(item => item.role === 'assistant')?.content
-  if (!reply) return { ok: false, error: 'O copiloto não devolveu texto.' }
+  try {
+    const updated = await withWhatsappTyping(input.messageSid, () =>
+      runAndPersistTurn({
+        clientId: client.slug,
+        clientName: client.name,
+        clientSector: client.sector,
+        thread,
+        message,
+        repos: client.delivery?.repos ?? [],
+      })
+    )
+    const reply = [...updated.messages].reverse().find(item => item.role === 'assistant')?.content
+    if (!reply) {
+      await sendWhatsappMessage({
+        to: input.from,
+        from: input.to,
+        body: 'Não consegui montar a resposta agora. Pode repetir em uma frase?',
+      })
+      return { ok: false, error: 'O copiloto não devolveu texto.' }
+    }
 
-  await sendWhatsappMessage({ to: input.from, from: input.to, body: reply })
-  return { ok: true, clientSlug: client.slug }
+    await sendWhatsappMessage({ to: input.from, from: input.to, body: reply })
+    return { ok: true, clientSlug: client.slug }
+  } catch (error) {
+    await sendWhatsappMessage({
+      to: input.from,
+      from: input.to,
+      body: 'Tive um problema para olhar isso agora. Pode tentar de novo em instantes?',
+    }).catch(() => undefined)
+    return { ok: false, error: error instanceof Error ? error.message : 'Falha no copiloto.' }
+  }
 }

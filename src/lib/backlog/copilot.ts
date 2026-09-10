@@ -1,3 +1,6 @@
+import { formatCopilotSqlContext, gatherCopilotSqlContext } from '@/lib/cadence/copilot-sql-context'
+import { gatherWorkspaceContext } from '@/lib/cadence/workspace-gather'
+import { formatWorkspaceContextForPrompt } from '@/lib/cadence/workspace-context'
 import { formatCadenceSummaryForPrompt, getCadenceSummary, type CadenceSummary } from '@/lib/cadence/summary'
 import { seedCadenceClient } from '@/lib/cadence/seed'
 import { CADENCE_SCHEMA } from '@/lib/cadence/schema'
@@ -13,10 +16,12 @@ import {
   type BacklogCard,
   type BacklogDiagram,
   type CopilotMessage,
+  type CopilotSqlEvidence,
   type CopilotThread,
   type GithubRef,
   type StoryDraft,
 } from './types'
+import { isChitChat } from '@/lib/twilio/format'
 import { BE180_WHATSAPP_BOARD_IDS, getBacklogBoards } from './boards'
 import { getBacklogSnapshot } from './store'
 
@@ -27,6 +32,7 @@ export interface CopilotTurn {
   flowNotes: string[]
   followUps: string[]
   sources: GithubRef[]
+  sqlEvidence?: CopilotSqlEvidence
 }
 
 function systemPrompt(
@@ -40,34 +46,40 @@ function systemPrompt(
     clientId === 'likeme'
       ? 'Especialize-se em saúde, marketplace, comunidade e nas integrações relevantes Tabia, pagamentos e Social Plus. Não presuma detalhes de implementação que não apareçam no contexto fornecido.'
       : clientId === 'pixelpulselab'
-        ? 'Especialize-se no Cadence e na Adaptive Layer™: workspace do cliente, copiloto, consultar, backlog e canais (WhatsApp). Responda curto o bastante para caber no WhatsApp, sem inventar números de produção.'
+        ? 'Especialize-se no Cadence e na Adaptive Layer™: workspace do cliente, copiloto, consultar, backlog e canais (WhatsApp). Responda curto o bastante para caber no WhatsApp.'
         : clientId === 'be180-ooh' && whatsapp
-          ? 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia · Meus Roteiros, Banco de Ativos e Teste de Visibilidade. Responda curto o bastante para caber no WhatsApp, sem inventar números de produção. Se a pergunta for de um produto, foque nele; se for transversal, compare os três.'
+          ? 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia · Meus Roteiros, Banco de Ativos e Teste de Visibilidade. Fale como um colega no WhatsApp. Se a pergunta for de um produto, foque nele; se for transversal, compare os três. Quando houver números reais, comece por eles em linguagem falada.'
           : 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia, Banco de Ativos, agentes e teste de visibilidade.'
+
+  const voice = whatsapp
+    ? `Canal WhatsApp: a "reply" é uma mensagem de colega — português do Brasil, 2 a 6 frases curtas. Nunca cole SQL, JSON, nome de tabela, endpoint, boardId ou "user story" (só se a pessoa pedir). Não mande para outra tela. Números em fala: "Olhei agora no Colmeia: são 3.541 roteiros." Saudação: responda humano e ofereça ajuda concreta. Feche com uma pergunta natural quando fizer sentido.`
+    : `Canal web: a "reply" é conversa em português do Brasil, direta, sem preâmbulo. Markdown simples. Sem SQL cru.`
 
   return `Você é o copiloto da empresa ${clientName} (${sector}). ${specialization}
 
-Você conversa em português do Brasil. Seu foco é entender fluxo, código, schemas, documentos do portal, backlog e o que precisa virar user story. Números operacionais de produção (inventário, roteiros, exibidores) ficam em Consultar — não invente volumes.
+${voice}
+
+Um agente de dados já pode ter consultado Cadence, Colmeia ou Banco de Ativos neste turno. Use esses números em linguagem natural. Sem evidência, não invente volumes.
 
 Como trabalhar:
-1. Se a pergunta pede entendimento de fluxo, enriqueça com código no GitHub, cards do board, documentos e conversa. Acumule fatos em "flowNotes".
-2. Se a pergunta pede um volume ou ranking de produção, explique que isso é Consultar e, se souber, aponte a tabela ou o handler — sem inventar o número.
+1. Se a pergunta pede entendimento de fluxo, enriqueça com código no GitHub, cards do board, reuniões, documentos do workspace e conversa. Acumule fatos em "flowNotes".
+2. Se a pergunta pede volume, ranking ou status e houver evidência, responda com o número falado e o produto (Colmeia, Banco de Ativos, Cadence). Sem evidência, diga que não achou o dado agora — não invente e não mande o usuário para outra tela.
 3. A user story só vem quando o PM pedir ou o fluxo já estiver claro o bastante. storyDraft fica null enquanto faltar persona, valor ou aceite.
 
 Regras:
 - Sempre responda em português do Brasil, direto e concreto, sem preâmbulo.
-- SEMPRE devolva um "diagram" do fluxo ou do recorte em discussão. O desenho é obrigatório em toda resposta.
+- SEMPRE devolva um "diagram" do fluxo ou do recorte em discussão. O desenho é obrigatório em toda resposta (fica no workspace; no WhatsApp só a reply aparece).
 - Deixe "storyDraft" como null enquanto faltar fluxo, persona, valor ou aceite verificável. Faça 1 a 3 perguntas objetivas quando estiver no modo de story.
 - Proponha "storyDraft" somente quando (a) o PM pedir explicitamente a user story / rascunho, ou (b) o fluxo da empresa já estiver claro o bastante para uma story útil. Se já existir rascunho, refine-o — não recomece do zero.
-- Use GitHub, cards do board, documentos do workspace e o resumo Cadence. Cite arquivos reais. Não invente números de produção.
+- Use GitHub, cards do board, reuniões e documentos do workspace Cadence e a evidência do agente de dados. Cite o título da reunião ou do documento em linguagem natural. Cite arquivos reais só no canal web. Não invente números de produção.
 - Critérios de aceite devem ser verificáveis (Dado/Quando/Então ou afirmações checáveis).
 - Nunca invente nomes de arquivos ou endpoints que não estejam no contexto; se for hipótese, deixe claro no texto.
-- "followUps" são próximas perguntas úteis: exceção de fluxo, schema ou recorte da story. Não sugira "aplicar no board" — isso é um botão na interface.
+- "followUps" são próximas perguntas úteis, em linguagem natural. Não sugira "aplicar no board" — isso é um botão na interface.
 - "flowNotes": 3 a 8 fatos curtos sobre a empresa, mesclando o que já foi aprendido com o que este turno revelou.
 
 Responda SOMENTE com um objeto JSON:
 {
-  "reply": "resposta em markdown simples (sem títulos H1), 2 a 6 parágrafos curtos ou bullets",
+  "reply": "conversa em português do Brasil, sem SQL e sem jargão de sistema",
   "diagram": {
     "title": "string",
     "nodes": [{ "id": "n1", "label": "string", "detail": "string opcional", "kind": "actor|input|process|system|output" }],
@@ -278,15 +290,23 @@ function asStoryDraft(value: unknown, boardId: BacklogBoardId, clientId: string)
 function sourcesFromContext(
   bundle: GithubContextBundle,
   summary: CadenceSummary,
-  reply: string
+  reply: string,
+  evidence?: CopilotSqlEvidence | null,
+  workspaceTitles: string[] = []
 ): GithubRef[] {
   const cited = bundle.snippets.filter(s => reply.includes(s.path) || reply.includes(s.path.split('/').pop() ?? ''))
   const chosen = cited.length > 0 ? cited : bundle.snippets.slice(0, 4)
   const git = chosen.slice(0, 6).map(s => ({ repo: s.repo, path: s.path, kind: 'git' as const }))
-  const cadence = summary.available
-    ? [{ repo: 'cadence', path: 'resumo agregado', kind: 'sql' as const }]
-    : []
-  return [...git, ...cadence]
+  const queried = evidence
+    ? [{ repo: evidence.sourceName ?? 'consulta', path: evidence.question, kind: 'sql' as const }]
+    : summary.available
+      ? [{ repo: 'cadence', path: 'resumo agregado', kind: 'sql' as const }]
+      : []
+  const workspace = workspaceTitles
+    .filter(title => reply.toLowerCase().includes(title.toLowerCase().slice(0, 24)))
+    .slice(0, 4)
+    .map(title => ({ repo: 'cadence', path: title, kind: 'workspace' as const }))
+  return [...git, ...queried, ...workspace]
 }
 
 export async function runCopilotTurn(input: {
@@ -305,13 +325,33 @@ export async function runCopilotTurn(input: {
   const askForStory = wantsStoryNow(message)
   const previousNotes = lastFlowNotes(thread.messages)
   const be180Whatsapp = clientId === 'be180-ooh' && (thread.channel === 'whatsapp' || thread.boardId === 'cadence')
-  const [bundle, snapshot] = await Promise.all([
-    gatherGithubContextForQuery(
-      { clientId, boardId: thread.boardId, query: queryParts.join(' ') },
-      repos,
-      be180Whatsapp ? { allRepos: true } : undefined
-    ),
+  const chitChat = isChitChat(message)
+  const emptyGithub = { repos: [] as string[], snippets: [], activity: [], notes: [] }
+  const [bundle, snapshot, sqlEvidence, workspace] = await Promise.all([
+    chitChat
+      ? Promise.resolve(emptyGithub)
+      : gatherGithubContextForQuery(
+          { clientId, boardId: thread.boardId, query: queryParts.join(' ') },
+          repos,
+          be180Whatsapp ? { allRepos: true } : undefined
+        ),
     getBacklogSnapshot(clientId),
+    chitChat
+      ? Promise.resolve(null)
+      : gatherCopilotSqlContext({
+          clientId,
+          boardId: thread.boardId,
+          message,
+          recentContext: `${previousNotes.join('; ')}\n${historyBrief(thread.messages)}`,
+          channel: thread.channel,
+        }),
+    chitChat
+      ? Promise.resolve({
+          meetings: [],
+          documents: [],
+          catalog: { meetings: [] as string[], documents: [] as string[] },
+        })
+      : gatherWorkspaceContext(clientId, queryParts.join(' ')),
     seedCadenceClient(clientId),
   ])
   const summary = await getCadenceSummary(clientId)
@@ -333,6 +373,8 @@ export async function runCopilotTurn(input: {
     `Rascunho atual (refine só se for escrever storyDraft):\n${lastStoryDraftBrief(thread.messages)}`,
     `Modelagem do workspace Cadence (não é produção):\n${CADENCE_SCHEMA}`,
     formatCadenceSummaryForPrompt(summary),
+    formatWorkspaceContextForPrompt(workspace),
+    `Evidência do agente de dados (use estes números; não invente outros):\n${formatCopilotSqlContext(sqlEvidence)}`,
     `Contexto do código (GitHub):\n${formatGithubContextForPrompt(bundle)}`,
     `Pergunta atual do PM:\n${message}`,
   ]
@@ -374,6 +416,10 @@ export async function runCopilotTurn(input: {
     storyDraft,
     flowNotes: mergeFlowNotes(previousNotes, asStringArray(parsed.flowNotes)),
     followUps: withFlowFollowUps(asStringArray(parsed.followUps)),
-    sources: sourcesFromContext(bundle, summary, reply),
+    sources: sourcesFromContext(bundle, summary, reply, sqlEvidence, [
+      ...workspace.catalog.meetings,
+      ...workspace.catalog.documents,
+    ]),
+    sqlEvidence: sqlEvidence ?? undefined,
   }
 }

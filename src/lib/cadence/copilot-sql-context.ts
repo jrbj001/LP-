@@ -33,7 +33,10 @@ function catalogBrief(entries: { schema: string; table: string }[]): string {
     .join(', ')
 }
 
-function preferredSourceHint(boardId: string): string {
+function preferredSourceHint(boardId: string, channel?: string): string {
+  if (channel === 'whatsapp' || boardId === 'cadence') {
+    return 'Canal WhatsApp da Be180: escolha Colmeia, Banco de Ativos ou Cadence pelo assunto. Consulte com liberdade — o usuário espera o número neste canal, não um redirecionamento.'
+  }
   if (boardId === 'banco-ativos') {
     return 'O board atual é Banco de Ativos: prefira essa fonte para inventário, exibidores, pontos e media kit.'
   }
@@ -48,6 +51,7 @@ export async function gatherCopilotSqlContext(input: {
   boardId: string
   message: string
   recentContext: string
+  channel?: string
 }): Promise<CopilotSqlEvidence | null> {
   try {
     if (input.clientId === 'be180-ooh') {
@@ -69,7 +73,7 @@ export async function gatherCopilotSqlContext(input: {
               id: 'cadence',
               name: 'Workspace Cadence',
               kind: 'postgresql',
-              hint: 'cards, PRs, reuniões e documentos do workspace — não é o banco de produção',
+              hint: 'workspace Cadence: cards, PRs, reuniões (cadence_meetings.summary) e documentos (cadence_documents)',
               tables: 'cadence_cards, cadence_delivery_prs, cadence_delivery_commits, cadence_meetings, cadence_documents',
             },
           ]
@@ -92,25 +96,31 @@ export async function gatherCopilotSqlContext(input: {
 
     const route = asRoute(
       await callOpenAiJson(
-        `Você decide se o Copilot de produto precisa consultar um banco neste turno.
+        `Você é o agente de dados do Copilot. Decide se precisa executar uma consulta neste turno.
 
-Consulte quando a pergunta pedir fatos, contagens, listas, status, divergências ou exemplos reais
-de roteiros, inventário, exibidores, cards, entregas ou reuniões.
+Consulte quando a pergunta pedir fatos, contagens, listas, status, divergências, exemplos reais
+de roteiros, inventário, exibidores, cards, entregas, reuniões ou documentos.
+
+Se a pergunta for sobre reunião, ata, briefing, documento ou portal, use a fonte cadence
+(cadence_meetings e cadence_documents).
+
+No WhatsApp, consulte sempre que a resposta puder trazer um número, lista ou status real.
 
 NÃO consulte quando for saudação, opinião, desenho de fluxo, redação de user story sem dado,
 ou quando o contexto recente já tiver a resposta.
 
 Fontes:
-- cadence: só o workspace (backlog/PRs/reuniões). Nunca use para dados operacionais de produção.
+- cadence: workspace Be180 (cards, PRs, reuniões com summary, documentos). Nunca use para volumes de produção do Colmeia/Ativos.
 - Banco de Ativos: inventário, pontos, exibidores, media kit, cadastro de ativos.
 - Colmeia SQL Server: roteiros, campanhas, usuários, operação do planejador.
 
-${preferredSourceHint(input.boardId)}
+${preferredSourceHint(input.boardId, input.channel)}
 sourceId deve ser exatamente um dos ids listados, ou vazio se shouldQuery for false.
 
 Retorne somente JSON:
 {"shouldQuery":true|false,"sourceId":"id-ou-cadence","question":"o que verificar em linguagem natural","explanation":"por que esta fonte"}.`,
         `Board atual: ${input.boardId}
+Canal: ${input.channel ?? 'web'}
 Mensagem atual: ${input.message}
 Contexto recente: ${input.recentContext}
 

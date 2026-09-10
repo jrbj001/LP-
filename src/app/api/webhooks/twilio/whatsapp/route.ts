@@ -39,6 +39,7 @@ export async function POST(request: Request) {
       to,
       body,
       profileName: params.ProfileName?.trim(),
+      messageSid: params.MessageSid?.trim() || params.SmsSid?.trim(),
     })
     if (!result.ok) {
       console.error('[twilio/whatsapp]', result.error)
