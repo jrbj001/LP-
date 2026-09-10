@@ -1,3 +1,4 @@
+import { createHmac } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
 import { routeWhatsappSender } from './routing'
 import { formatWhatsappReply, isChitChat } from './format'
@@ -85,5 +86,13 @@ describe('verifyTwilioSignature', () => {
         authToken: 'token',
       })
     ).toBe(false)
+  })
+
+  it('aceita HMAC válido', () => {
+    const url = 'https://example.com/hook'
+    const params: Record<string, string> = { Body: 'oi', From: 'whatsapp:+5511' }
+    const payload = url + Object.keys(params).sort().map(key => `${key}${params[key]}`).join('')
+    const signature = createHmac('sha1', 'token').update(payload, 'utf8').digest('base64')
+    expect(verifyTwilioSignature({ url, params, signature, authToken: 'token' })).toBe(true)
   })
 })
