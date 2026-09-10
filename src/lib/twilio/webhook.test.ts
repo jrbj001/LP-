@@ -1,22 +1,20 @@
 import { createHmac } from 'node:crypto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const sendWhatsappTyping = vi.fn(async (_messageSid?: string) => true)
-vi.mock('./typing', () => ({
-  sendWhatsappTyping: (messageSid?: string) => sendWhatsappTyping(messageSid),
-}))
+vi.mock('server-only', () => ({}))
 
-const sendWhatsappMessage = vi.fn(async (_input: { to: string; from?: string; body: string }) => ({
-  sid: 'SMsent',
-  status: 'queued',
-}))
+const sendWhatsappMessage = vi.fn(async (_input: { to: string; from?: string; body: string }) => undefined)
 vi.mock('./send', () => ({
   sendWhatsappMessage: (input: { to: string; from?: string; body: string }) => sendWhatsappMessage(input),
 }))
 
-const handleWhatsappInbound = vi.fn()
-vi.mock('./inbound', () => ({
-  handleWhatsappInbound: (input: unknown) => handleWhatsappInbound(input),
+const sendWhatsappTyping = vi.fn(async (_sid?: string) => true)
+vi.mock('./typing', () => ({
+  sendWhatsappTyping: (sid?: string) => sendWhatsappTyping(sid),
+  withWhatsappTyping: async (sid: string | undefined, work: () => Promise<unknown>) => {
+    await sendWhatsappTyping(sid)
+    return work()
+  },
 }))
 
 import { handleTwilioWhatsappWebhook } from './webhook'
@@ -50,10 +48,8 @@ describe('handleTwilioWhatsappWebhook', () => {
     process.env.TWILIO_AUTH_TOKEN = TOKEN
     process.env.TWILIO_WEBHOOK_URL = URL
     delete process.env.TWILIO_SKIP_SIGNATURE
-    sendWhatsappTyping.mockClear()
     sendWhatsappMessage.mockClear()
-    handleWhatsappInbound.mockClear()
-    sendWhatsappMessage.mockResolvedValue({ sid: 'SMsent', status: 'queued' })
+    sendWhatsappTyping.mockClear()
   })
 
   afterEach(() => {
@@ -73,12 +69,11 @@ describe('handleTwilioWhatsappWebhook', () => {
       signature: 'assinatura-falsa',
     })
     expect(result.status).toBe(403)
-    expect(sendWhatsappTyping).not.toHaveBeenCalled()
     expect(sendWhatsappMessage).not.toHaveBeenCalled()
-    expect(handleWhatsappInbound).not.toHaveBeenCalled()
+    expect(sendWhatsappTyping).not.toHaveBeenCalled()
   })
 
-  it('no oi o TwiML NÃO pode vir vazio — senão os pontinhos somem sem texto', async () => {
+  it('no oi marca lida/pontinhos e envia o menu pela API com From/To crus', async () => {
     const params = inbound()
     const result = await handleTwilioWhatsappWebhook({
       url: URL,
@@ -86,45 +81,13 @@ describe('handleTwilioWhatsappWebhook', () => {
       signature: sign(params),
     })
     expect(result.status).toBe(200)
-    expect(result.contentType).toBe('text/xml')
-    expect(result.body).toContain('<Message>')
-    expect(result.body).toContain('Colmeia')
-    expect(result.body).toContain('Banco de Ativos')
-    expect(result.body).toContain('O que você quer ver primeiro?')
-    expect(result.body).not.toContain(' from=')
-    expect(result.body).not.toContain(' to=')
-    expect(result.body).not.toMatch(/<Response><\/Response>/)
+    expect(result.body).toBe('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
     expect(sendWhatsappTyping).toHaveBeenCalledWith('SMtestoi001')
     expect(sendWhatsappMessage).toHaveBeenCalledTimes(1)
-    expect(handleWhatsappInbound).not.toHaveBeenCalled()
-  })
-
-  it('mesmo se a API de envio falhar, o menu continua no TwiML', async () => {
-    sendWhatsappMessage.mockRejectedValueOnce(new Error('Twilio recusou o envio (400)'))
-    const params = inbound()
-    const result = await handleTwilioWhatsappWebhook({
-      url: URL,
-      params,
-      signature: sign(params),
+    expect(sendWhatsappMessage).toHaveBeenCalledWith({
+      to: 'whatsapp:+5511999999999',
+      from: 'whatsapp:+15553533015',
+      body: expect.stringContaining('Colmeia'),
     })
-    expect(result.body).toContain('<Message>')
-    expect(result.body).toContain('Colmeia')
-  })
-
-  it('em pergunta de negócio também devolve o texto no TwiML', async () => {
-    handleWhatsappInbound.mockResolvedValue({
-      ok: true,
-      clientSlug: 'be180-ooh',
-      reply: 'Olhei agora no Colmeia: são 3.541 roteiros.',
-    })
-    const params = inbound({ Body: 'Quantos roteiros existem no Colmeia?' })
-    const result = await handleTwilioWhatsappWebhook({
-      url: URL,
-      params,
-      signature: sign(params),
-    })
-    expect(handleWhatsappInbound).toHaveBeenCalledTimes(1)
-    expect(result.body).toContain('3.541 roteiros')
-    expect(result.body).toContain('<Message>')
   })
 })

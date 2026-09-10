@@ -35,7 +35,7 @@ describe('sendWhatsappMessage', () => {
         from: 'whatsapp:+15553533015',
         body: 'Oi — menu Colmeia',
       })
-    ).resolves.toEqual({ sid: 'SM123', status: 'queued' })
+    ).resolves.toBeUndefined()
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]

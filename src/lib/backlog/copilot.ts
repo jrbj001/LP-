@@ -23,7 +23,7 @@ import {
 } from './types'
 import { BE180_WHATSAPP_BOARD_IDS, getBacklogBoards } from './boards'
 import { getBacklogSnapshot } from './store'
-import { triageClarify, triageCopilotAsk, wantsStoryNow } from './triage'
+import { triageCopilotAsk, wantsStoryNow } from './triage'
 import {
   firstTurnFooter,
   firstTurnWelcome,
@@ -54,13 +54,13 @@ function systemPrompt(
       ? 'Especialize-se em saúde, marketplace, comunidade e nas integrações relevantes Tabia, pagamentos e Social Plus. Não presuma detalhes de implementação que não apareçam no contexto fornecido.'
       : clientId === 'pixelpulselab'
         ? 'Especialize-se no Cadence e na Adaptive Layer™: workspace do cliente, copiloto, consultar, backlog e canais (WhatsApp). Responda curto o bastante para caber no WhatsApp.'
-        : clientId === 'be180-ooh' && whatsapp
-          ? 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia · Meus Roteiros, Banco de Ativos e Teste de Visibilidade. Fale como um colega no WhatsApp. Se a pergunta for de um produto, foque nele; se for transversal, compare os três. Quando houver números reais, comece por eles em linguagem falada.'
+        : clientId === 'be180-ooh'
+          ? 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia · Meus Roteiros, Banco de Ativos e Teste de Visibilidade. WhatsApp e web são o mesmo Copiloto: só você fala com a pessoa. Se a pergunta for de um produto, foque nele; se for transversal, compare os três. Quando houver números reais, comece por eles em linguagem falada.'
           : 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia, Banco de Ativos, agentes e teste de visibilidade.'
 
   const voice = whatsapp
     ? `Canal WhatsApp: a "reply" é uma mensagem de colega — português do Brasil, 2 a 6 frases curtas. Nunca cole SQL, JSON, nome de tabela, endpoint, boardId ou "user story" (só se a pessoa pedir). Não mande para outra tela. Números em fala: "Olhei agora no Colmeia: são 3.541 roteiros." Saudação: responda humano e ofereça ajuda concreta. Feche com uma pergunta natural quando fizer sentido.`
-    : `Canal web: a "reply" é conversa em português do Brasil, direta, sem preâmbulo. Markdown simples. Sem SQL cru.`
+    : `Canal web: a "reply" é conversa em português do Brasil, direta, sem preâmbulo. Markdown simples. Nunca cole SQL, nome de tabela, endpoint ou boardId — a pessoa só vê a voz do Copiloto. Números em fala: "Olhei agora no Colmeia: são 3.541 roteiros."`
 
   return `Você é o copiloto da empresa ${clientName} (${sector}). ${specialization}
 
@@ -78,7 +78,7 @@ Regras:
 - SEMPRE devolva um "diagram" do fluxo ou do recorte em discussão. O desenho é obrigatório em toda resposta (fica no workspace; no WhatsApp só a reply aparece).
 - Deixe "storyDraft" como null enquanto faltar fluxo, persona, valor ou aceite verificável. Faça 1 a 3 perguntas objetivas quando estiver no modo de story.
 - Proponha "storyDraft" somente quando (a) o PM pedir explicitamente a user story / rascunho, ou (b) o fluxo da empresa já estiver claro o bastante para uma story útil. Se já existir rascunho, refine-o — não recomece do zero.
-- Use GitHub, cards do board, reuniões e documentos do workspace Cadence e a evidência do agente de dados. Cite o título da reunião ou do documento em linguagem natural. Cite arquivos reais só no canal web. Não invente números de produção.
+- Use GitHub, cards do board, reuniões e documentos do workspace Cadence e a evidência do agente de dados. Cite o título da reunião ou do documento em linguagem natural. Cite arquivos reais só no canal web. Não invente números de produção. SQL, nome de tabela e endpoint nunca entram na "reply".
 - Critérios de aceite devem ser verificáveis (Dado/Quando/Então ou afirmações checáveis).
 - Nunca invente nomes de arquivos ou endpoints que não estejam no contexto; se for hipótese, deixe claro no texto.
 - "followUps" são próximas perguntas úteis, em linguagem natural. Não sugira "aplicar no board" — isso é um botão na interface.
@@ -310,6 +310,14 @@ function sourcesFromContext(
   return [...git, ...queried, ...workspace]
 }
 
+function stripSchemaFromReply(text: string): string {
+  return text
+    .replace(/```(?:sql)?[\s\S]*?```/gi, '')
+    .replace(/^\s*(fonte|sql|query|endpoint|boardid|tabela)\s*:\s*.+$/gim, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 export async function runCopilotTurn(input: {
   clientId: string
   clientName: string
@@ -327,15 +335,6 @@ export async function runCopilotTurn(input: {
   if (isOrientationAsk(message) || triage.intent === 'orient') {
     return {
       reply: firstTurnWelcome(clientId, clientName),
-      diagram: welcomeDiagram(clientName),
-      flowNotes: [],
-      followUps: welcomeFollowUps(clientId),
-      sources: [],
-    }
-  }
-  if (triage.intent === 'unclear' && thread.channel === 'whatsapp') {
-    return {
-      reply: triageClarify(clientId),
       diagram: welcomeDiagram(clientName),
       flowNotes: [],
       followUps: welcomeFollowUps(clientId),
@@ -433,8 +432,10 @@ export async function runCopilotTurn(input: {
     storyDraft = { ...previousDraft, boardId: thread.boardId }
   }
 
+  const spoken = stripSchemaFromReply(reply)
+
   return {
-    reply: firstTurn ? `${reply}\n\n${firstTurnFooter(clientId)}` : reply,
+    reply: firstTurn ? `${spoken}\n\n${firstTurnFooter(clientId)}` : spoken,
     diagram: diagram ?? fallbackDiagram(clientId, thread.boardId, message),
     storyDraft,
     flowNotes: mergeFlowNotes(previousNotes, asStringArray(parsed.flowNotes)),

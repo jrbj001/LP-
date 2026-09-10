@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import {
   ArrowUpRight,
@@ -18,24 +17,17 @@ import {
   type BacklogBoardId,
   type BacklogCard,
   type CopilotMessage,
-  type CopilotSqlEvidence,
   type CopilotThread,
   type CopilotThreadSummary,
 } from '@/lib/backlog/types'
-import { inferChart } from '@/lib/cadence/query'
 import { BacklogDiagramView } from './backlog-diagram'
-
-const ConsultarChart = dynamic(
-  () => import('@/components/client/consultar/consultar-chart').then(mod => mod.ConsultarChart),
-  { ssr: false }
-)
 
 const GENERATE_STORY_PROMPT =
   'Com o fluxo da empresa que já aprendemos nesta conversa, escreva agora o rascunho completo da user story (persona, quero, para que e critérios de aceite testáveis) para eu aplicar no board.'
 
 const BE180_STARTERS = [
   'Como a operação promove inventário do Colmeia para o Banco de Ativos?',
-  'Quais handlers e tabelas o Colmeia usa para montar roteiro?',
+  'Como o Colmeia monta um roteiro?',
   'O que o portal já documenta sobre o funil comercial da face?',
   'Quando o fluxo estiver claro, escreva a user story do roteiro só publicar com mídia válida.',
 ]
@@ -534,24 +526,17 @@ function MessageBubble({
           </div>
         )}
 
-        {message.sqlEvidence && (
-          <SqlEvidenceBlock evidence={message.sqlEvidence} accent={accent} />
-        )}
-
         {message.sources && message.sources.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {message.sources.map((source, index) => {
-              if (source.kind === 'sql' || source.kind === 'workspace') {
+              if (source.kind === 'sql') return null
+              if (source.kind === 'workspace') {
                 return (
                   <span
                     key={`${source.repo}-${source.path}-${index}`}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-mono ${
-                      source.kind === 'workspace'
-                        ? 'border-sky-200 bg-sky-50 text-sky-800'
-                        : 'border-teal-200 bg-teal-50 text-teal-800'
-                    }`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[10px] font-mono text-sky-800"
                   >
-                    {source.kind === 'workspace' ? 'Workspace' : 'SQL'} · {source.path ?? source.repo}
+                    Workspace · {source.path ?? source.repo}
                   </span>
                 )
               }
@@ -650,91 +635,6 @@ function DraftRow({ label, value }: { label: string; value?: string }) {
       <p className="text-[12px] text-neutral-700 leading-relaxed">
         {value || <span className="text-neutral-300">—</span>}
       </p>
-    </div>
-  )
-}
-
-function cellValue(value: unknown): string {
-  if (value == null) return '—'
-  if (typeof value === 'object') return JSON.stringify(value)
-  return String(value)
-}
-
-function SqlEvidenceBlock({
-  evidence,
-  accent,
-}: {
-  evidence: CopilotSqlEvidence
-  accent: string
-}) {
-  const chart = inferChart(evidence.rows)
-  const chartRows =
-    chart &&
-    evidence.rows.map(row => ({
-      ...row,
-      [chart.valueKey]: Number(row[chart.valueKey]),
-    }))
-
-  return (
-    <div className="rounded-xl border border-teal-200/70 bg-teal-50/40 px-3.5 py-3">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-700">
-            Evidência consultada no banco{evidence.sourceName ? ` · ${evidence.sourceName}` : ''}
-          </p>
-          <p className="mt-1 text-[12px] text-neutral-700">{evidence.question}</p>
-        </div>
-        <span className="shrink-0 text-[10px] text-teal-700">
-          {evidence.rows.length} {evidence.rows.length === 1 ? 'linha' : 'linhas'}
-        </span>
-      </div>
-      <div className="mt-3 space-y-3 border-t border-teal-200/60 pt-3">
-        <p className="text-[11px] leading-relaxed text-neutral-600">{evidence.explanation}</p>
-        {chartRows && chart && (
-          <ConsultarChart
-            rows={chartRows}
-            labelKey={chart.labelKey}
-            valueKey={chart.valueKey}
-            accent={accent}
-          />
-        )}
-        {evidence.rows.length === 0 ? (
-          <p className="text-[12px] text-neutral-400">Nenhuma linha retornada.</p>
-        ) : (
-          <div className="overflow-x-auto rounded-lg border border-black/[0.06] bg-white">
-            <table className="min-w-full text-left text-[11px]">
-              <thead className="bg-[#fbfbfa] text-[10px] uppercase tracking-[0.08em] text-neutral-400">
-                <tr>
-                  {evidence.columns.map(column => (
-                    <th key={column} className="px-2.5 py-2 font-semibold">
-                      {column}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {evidence.rows.map((row, index) => (
-                  <tr key={index} className="border-t border-black/[0.05]">
-                    {evidence.columns.map(column => (
-                      <td key={column} className="max-w-[14rem] truncate px-2.5 py-2 text-neutral-700">
-                        {cellValue(row[column])}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        <details>
-          <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-700">
-            SQL
-          </summary>
-          <pre className="mt-2 overflow-x-auto rounded-lg bg-neutral-950 px-3 py-2 text-[10px] leading-relaxed text-teal-100">
-            {evidence.sql}
-          </pre>
-        </details>
-      </div>
     </div>
   )
 }

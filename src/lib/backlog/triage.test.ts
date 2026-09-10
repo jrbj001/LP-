@@ -1,69 +1,55 @@
 import { describe, expect, it } from 'vitest'
-import { triageClarify, triageCopilotAsk } from './triage'
+import { triageCopilotAsk } from './triage'
 
 describe('triageCopilotAsk', () => {
   it('reconhece o oi como orientação, sem ferramentas', () => {
     expect(triageCopilotAsk({ message: 'oi' })).toEqual({ intent: 'orient', tools: [] })
+    expect(triageCopilotAsk({ message: 'oi', channel: 'whatsapp' })).toEqual({
+      intent: 'orient',
+      tools: [],
+    })
   })
 
-  it('no WhatsApp manda volume só para o agente de dados', () => {
+  it('WhatsApp e portal usam o mesmo Copiloto numa pergunta de volume', () => {
+    const expected = { intent: 'numbers', tools: ['sql', 'workspace'] }
     expect(
       triageCopilotAsk({ message: 'Quantos roteiros existem no Colmeia?', channel: 'whatsapp' })
-    ).toEqual({
-      intent: 'numbers',
-      tools: ['sql'],
+    ).toEqual(expected)
+    expect(triageCopilotAsk({ message: 'Quantos roteiros existem no Colmeia?' })).toEqual(expected)
+  })
+
+  it('reunião e documento entram pelo workspace, com o agente de dados decidindo', () => {
+    expect(triageCopilotAsk({ message: 'O que combinamos na reunião de inventário?' })).toEqual({
+      intent: 'workspace',
+      tools: ['sql', 'workspace'],
     })
   })
 
-  it('no portal a mesma pergunta de volume continua com o Copilot completo', () => {
-    expect(triageCopilotAsk({ message: 'Quantos roteiros existem no Colmeia?' }).tools).toEqual([
-      'sql',
-      'workspace',
-      'github',
-    ])
+  it('fluxo de produto abre o agente de código nos dois canais', () => {
+    const expected = { intent: 'code', tools: ['sql', 'workspace', 'github'] }
+    expect(triageCopilotAsk({ message: 'Como o Colmeia monta um roteiro?' })).toEqual(expected)
+    expect(
+      triageCopilotAsk({ message: 'Como o Colmeia monta um roteiro?', channel: 'whatsapp' })
+    ).toEqual(expected)
   })
 
-  it('manda reunião e documento para o workspace', () => {
-    expect(triageCopilotAsk({ message: 'O que combinamos na reunião de inventário?' }).intent).toBe(
-      'workspace'
-    )
+  it('pedido misto não escolhe uma faixa — workspace entra e o agente de dados decide', () => {
+    const expected = { intent: 'mixed', tools: ['sql', 'workspace'] }
+    expect(
+      triageCopilotAsk({
+        message: 'Quantos pontos tem e o que ficou na reunião?',
+        channel: 'whatsapp',
+      })
+    ).toEqual(expected)
+    expect(
+      triageCopilotAsk({ message: 'Quantos pontos tem e o que ficou na reunião?' })
+    ).toEqual(expected)
   })
 
-  it('manda fluxo de produto para o GitHub', () => {
-    expect(triageCopilotAsk({ message: 'Como o Colmeia monta um roteiro?' }).intent).toBe('code')
-  })
-
-  it('no WhatsApp escolhe uma faixa quando o pedido mistura assuntos', () => {
-    const triage = triageCopilotAsk({
-      message: 'Quantos pontos tem e o que ficou na reunião?',
-      channel: 'whatsapp',
+  it('pergunta aberta ainda carrega workspace e deixa o agente de dados decidir', () => {
+    expect(triageCopilotAsk({ message: 'Como a operação promove inventário do Colmeia?' })).toEqual({
+      intent: 'unclear',
+      tools: ['sql', 'workspace'],
     })
-    expect(triage.intent).toBe('numbers')
-    expect(triage.tools).toEqual(['sql'])
-  })
-
-  it('no portal um pedido amplo ainda abre todas as ferramentas', () => {
-    const triage = triageCopilotAsk({
-      message: 'Quantos pontos tem e o que ficou na reunião?',
-    })
-    expect(triage.intent).toBe('mixed')
-    expect(triage.tools).toEqual(['sql', 'workspace', 'github'])
-  })
-
-  it('no portal uma pergunta aberta continua com todas as ferramentas', () => {
-    expect(triageCopilotAsk({ message: 'Como a operação promove inventário do Colmeia?' }).tools).toEqual([
-      'sql',
-      'workspace',
-      'github',
-    ])
-  })
-})
-
-describe('triageClarify', () => {
-  it('oferece as três faixas da Be180', () => {
-    const text = triageClarify('be180-ooh')
-    expect(text).toContain('número')
-    expect(text).toContain('reunião')
-    expect(text).toContain('código')
   })
 })

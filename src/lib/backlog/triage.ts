@@ -30,29 +30,22 @@ function flags(message: string) {
   }
 }
 
-function toolsFor(intent: CopilotIntent, channel?: string): CopilotTool[] {
-  if (channel !== 'whatsapp') {
-    return intent === 'orient' ? [] : ['sql', 'workspace', 'github']
+/**
+ * WhatsApp e web compartilham o mesmo Copiloto.
+ * Saudação: nenhum agente.
+ * Todo o resto: workspace sempre + agente de dados (ele decide se consulta).
+ * Código só quando o pedido é de fluxo ou implementação.
+ */
+function toolsFor(intent: CopilotIntent, found: ReturnType<typeof flags>): CopilotTool[] {
+  if (intent === 'orient') return []
+  const tools: CopilotTool[] = ['sql', 'workspace']
+  if (intent === 'code' || intent === 'story' || found.code) {
+    tools.push('github')
   }
-  switch (intent) {
-    case 'orient':
-    case 'unclear':
-      return []
-    case 'numbers':
-    case 'mixed':
-      return ['sql']
-    case 'workspace':
-      return ['workspace']
-    case 'code':
-    case 'story':
-      return ['github']
-  }
+  return tools
 }
 
-function primaryIntent(
-  found: ReturnType<typeof flags>,
-  channel?: string
-): CopilotIntent {
+function primaryIntent(found: ReturnType<typeof flags>): CopilotIntent {
   const hits = (['story', 'numbers', 'workspace', 'code'] as const).filter(key => found[key])
   if (hits.length === 0) return 'unclear'
   if (hits.length === 1) {
@@ -61,16 +54,10 @@ function primaryIntent(
     if (found.workspace) return 'workspace'
     return 'code'
   }
-  if (channel === 'whatsapp') {
-    if (found.story) return 'story'
-    if (found.numbers) return 'numbers'
-    if (found.workspace) return 'workspace'
-    return 'code'
-  }
   return 'mixed'
 }
 
-/** Escolhe a faixa do Copilot. No portal, pedido amplo ainda usa todas as ferramentas. */
+/** Escolhe a faixa do Copiloto. O canal não muda as ferramentas. */
 export function triageCopilotAsk(input: {
   message: string
   channel?: string
@@ -79,18 +66,7 @@ export function triageCopilotAsk(input: {
   if (isOrientationAsk(message)) {
     return { intent: 'orient', tools: [] }
   }
-  const intent = primaryIntent(flags(message), input.channel)
-  return { intent, tools: toolsFor(intent, input.channel) }
-}
-
-export function triageClarify(clientId: string): string {
-  if (clientId === 'be180-ooh') {
-    return [
-      'Me diz o recorte que você quer que eu olhe:',
-      '• um número — ex.: quantos roteiros no Colmeia?',
-      '• uma reunião ou documento do portal',
-      '• o fluxo no código — ex.: como o Colmeia monta um roteiro?',
-    ].join('\n')
-  }
-  return 'Me diz se você quer um número, o que ficou numa reunião ou o fluxo no código.'
+  const found = flags(message)
+  const intent = primaryIntent(found)
+  return { intent, tools: toolsFor(intent, found) }
 }
