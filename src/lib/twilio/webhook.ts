@@ -1,4 +1,5 @@
 import { orientationWelcome } from './quick-reply'
+import { sendWhatsappMessage } from './send'
 import { shouldSkipTwilioSignature, verifyTwilioSignature } from './signature'
 import { sendWhatsappTyping } from './typing'
 import { renderTwiml } from './twiml'
@@ -15,6 +16,16 @@ function xml(body?: string): TwilioWebhookResult {
 
 function json(status: number, payload: Record<string, unknown>): TwilioWebhookResult {
   return { status, body: JSON.stringify(payload), contentType: 'application/json' }
+}
+
+async function deliverReply(input: { to: string; from: string; body: string }): Promise<TwilioWebhookResult> {
+  try {
+    await sendWhatsappMessage(input)
+    return xml()
+  } catch (error) {
+    console.error('[twilio/whatsapp] send', error)
+    return xml(input.body)
+  }
 }
 
 export async function handleTwilioWhatsappWebhook(input: {
@@ -45,7 +56,7 @@ export async function handleTwilioWhatsappWebhook(input: {
 
   const welcome = orientationWelcome(to, body)
   if (welcome) {
-    return xml(welcome.reply)
+    return deliverReply({ to: from, from: welcome.from, body: welcome.reply })
   }
 
   try {
@@ -60,7 +71,8 @@ export async function handleTwilioWhatsappWebhook(input: {
     if (!result.ok) {
       console.error('[twilio/whatsapp]', result.error)
     }
-    return xml(result.reply)
+    if (!result.reply) return xml()
+    return deliverReply({ to: from, from: to, body: result.reply })
   } catch (error) {
     console.error('[twilio/whatsapp]', error)
     return xml()
