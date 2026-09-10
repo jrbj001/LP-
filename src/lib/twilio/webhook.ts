@@ -10,8 +10,8 @@ export type TwilioWebhookResult = {
   contentType: string
 }
 
-function xml(body?: string): TwilioWebhookResult {
-  return { status: 200, body: renderTwiml(body), contentType: 'text/xml' }
+function xml(body?: string, addresses?: { to: string; from: string }): TwilioWebhookResult {
+  return { status: 200, body: renderTwiml(body, addresses), contentType: 'text/xml' }
 }
 
 function json(status: number, payload: Record<string, unknown>): TwilioWebhookResult {
@@ -21,11 +21,12 @@ function json(status: number, payload: Record<string, unknown>): TwilioWebhookRe
 async function deliverReply(input: { to: string; from: string; body: string }): Promise<TwilioWebhookResult> {
   try {
     await sendWhatsappMessage(input)
-    return xml()
   } catch (error) {
     console.error('[twilio/whatsapp] send', error)
-    return xml(input.body)
   }
+  // Nunca devolver Response vazio depois do oi: a Twilio trata isso como “não responder”
+  // e o indicador de digitação some sem texto.
+  return xml(input.body, { to: input.to, from: input.from })
 }
 
 export async function handleTwilioWhatsappWebhook(input: {

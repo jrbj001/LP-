@@ -1,4 +1,5 @@
 import { formatWhatsappReply } from './format'
+import { normalizeSender } from './routing'
 
 function escapeXml(value: string): string {
   return value
@@ -9,9 +10,12 @@ function escapeXml(value: string): string {
     .replaceAll("'", '&apos;')
 }
 
-/** Resposta inbound: a Twilio entrega o texto sem segunda chamada REST. */
-export function renderTwiml(body?: string): string {
-  const text = body?.trim()
-  const inner = text ? `<Message>${escapeXml(formatWhatsappReply(text))}</Message>` : ''
-  return `<?xml version="1.0" encoding="UTF-8"?><Response>${inner}</Response>`
+export function renderTwiml(body?: string, addresses?: { to?: string; from?: string }): string {
+  const text = body?.trim() ? formatWhatsappReply(body) : ''
+  if (!text) {
+    return '<?xml version="1.0" encoding="UTF-8"?><Response></Response>'
+  }
+  const to = addresses?.to ? ` to="${escapeXml(normalizeSender(addresses.to))}"` : ''
+  const from = addresses?.from ? ` from="${escapeXml(normalizeSender(addresses.from))}"` : ''
+  return `<?xml version="1.0" encoding="UTF-8"?><Response><Message${from}${to}><Body>${escapeXml(text)}</Body></Message></Response>`
 }

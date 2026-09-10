@@ -66,6 +66,7 @@ describe('renderTwiml', () => {
     const xml = renderTwiml(firstTurnWelcome('be180-ooh', 'Be180 OOH'))
     expect(xml).toContain('<Response>')
     expect(xml).toContain('<Message>')
+    expect(xml).toContain('<Body>')
     expect(xml).toContain('Colmeia')
     expect(xml).toContain('Banco de Ativos')
   })
