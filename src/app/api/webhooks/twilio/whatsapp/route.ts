@@ -1,8 +1,6 @@
-import { after } from 'next/server'
 import { NextResponse } from 'next/server'
 import { handleWhatsappInbound } from '@/lib/twilio/inbound'
 import { shouldSkipTwilioSignature, verifyTwilioSignature } from '@/lib/twilio/signature'
-import { sendWhatsappTyping } from '@/lib/twilio/typing'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -35,25 +33,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: 'From/To ausentes.' }, { status: 400 })
   }
 
-  const messageSid = params.MessageSid?.trim() || params.SmsSid?.trim()
-  await sendWhatsappTyping(messageSid)
-
-  after(async () => {
-    try {
-      const result = await handleWhatsappInbound({
-        from,
-        to,
-        body,
-        profileName: params.ProfileName?.trim(),
-        messageSid,
-      })
-      if (!result.ok) {
-        console.error('[twilio/whatsapp]', result.error)
-      }
-    } catch (error) {
-      console.error('[twilio/whatsapp]', error)
+  try {
+    const result = await handleWhatsappInbound({
+      from,
+      to,
+      body,
+      profileName: params.ProfileName?.trim(),
+      messageSid: params.MessageSid?.trim() || params.SmsSid?.trim(),
+    })
+    if (!result.ok) {
+      console.error('[twilio/whatsapp]', result.error)
     }
-  })
+  } catch (error) {
+    console.error('[twilio/whatsapp]', error)
+  }
 
   return twiml()
 }
