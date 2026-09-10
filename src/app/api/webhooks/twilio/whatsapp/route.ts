@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { orientationWelcome } from '@/lib/twilio/quick-reply'
-import { sendWhatsappMessage } from '@/lib/twilio/send'
 import { shouldSkipTwilioSignature, verifyTwilioSignature } from '@/lib/twilio/signature'
+import { sendWhatsappTyping } from '@/lib/twilio/typing'
 import { renderTwiml } from '@/lib/twilio/twiml'
 
 export const dynamic = 'force-dynamic'
@@ -35,15 +35,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: 'From/To ausentes.' }, { status: 400 })
   }
 
+  const messageSid = params.MessageSid?.trim() || params.SmsSid?.trim()
+  await sendWhatsappTyping(messageSid)
+
   const welcome = orientationWelcome(to, body)
   if (welcome) {
-    try {
-      await sendWhatsappMessage({ to: from, from: welcome.from, body: welcome.reply })
-      return twiml()
-    } catch (error) {
-      console.error('[twilio/whatsapp] welcome send', error)
-      return twiml(welcome.reply)
-    }
+    return twiml(welcome.reply)
   }
 
   try {
@@ -53,7 +50,7 @@ export async function POST(request: Request) {
       to,
       body,
       profileName: params.ProfileName?.trim(),
-      messageSid: params.MessageSid?.trim() || params.SmsSid?.trim(),
+      messageSid,
     })
     if (!result.ok) {
       console.error('[twilio/whatsapp]', result.error)
