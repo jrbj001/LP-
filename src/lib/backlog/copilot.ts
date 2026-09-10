@@ -329,7 +329,7 @@ export async function runCopilotTurn(input: {
   const prompt = systemPrompt(clientId, clientName, clientSector, thread.channel)
 
   const firstTurn = !thread.messages.some(item => item.role === 'assistant')
-  if (firstTurn && isOrientationAsk(message)) {
+  if (isOrientationAsk(message)) {
     return {
       reply: firstTurnWelcome(clientId, clientName),
       diagram: welcomeDiagram(clientName),
