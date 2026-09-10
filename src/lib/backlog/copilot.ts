@@ -24,6 +24,13 @@ import {
 import { isChitChat } from '@/lib/twilio/format'
 import { BE180_WHATSAPP_BOARD_IDS, getBacklogBoards } from './boards'
 import { getBacklogSnapshot } from './store'
+import {
+  firstTurnFooter,
+  firstTurnWelcome,
+  isOrientationAsk,
+  welcomeDiagram,
+  welcomeFollowUps,
+} from './welcome'
 
 export interface CopilotTurn {
   reply: string
@@ -321,6 +328,17 @@ export async function runCopilotTurn(input: {
   const { clientId, clientName, clientSector, thread, message, card, repos } = input
   const prompt = systemPrompt(clientId, clientName, clientSector, thread.channel)
 
+  const firstTurn = !thread.messages.some(item => item.role === 'assistant')
+  if (firstTurn && isOrientationAsk(message)) {
+    return {
+      reply: firstTurnWelcome(clientId, clientName),
+      diagram: welcomeDiagram(clientName),
+      flowNotes: [],
+      followUps: welcomeFollowUps(clientId),
+      sources: [],
+    }
+  }
+
   const queryParts = [message, card?.title ?? '', thread.title].filter(Boolean)
   const askForStory = wantsStoryNow(message)
   const previousNotes = lastFlowNotes(thread.messages)
@@ -411,11 +429,13 @@ export async function runCopilotTurn(input: {
   }
 
   return {
-    reply,
+    reply: firstTurn ? `${reply}\n\n${firstTurnFooter(clientId)}` : reply,
     diagram: diagram ?? fallbackDiagram(clientId, thread.boardId, message),
     storyDraft,
     flowNotes: mergeFlowNotes(previousNotes, asStringArray(parsed.flowNotes)),
-    followUps: withFlowFollowUps(asStringArray(parsed.followUps)),
+    followUps: firstTurn
+      ? welcomeFollowUps(clientId)
+      : withFlowFollowUps(asStringArray(parsed.followUps)),
     sources: sourcesFromContext(bundle, summary, reply, sqlEvidence, [
       ...workspace.catalog.meetings,
       ...workspace.catalog.documents,
