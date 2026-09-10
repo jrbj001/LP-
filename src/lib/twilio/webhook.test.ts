@@ -88,6 +88,7 @@ describe('handleTwilioWhatsappWebhook', () => {
       to: 'whatsapp:+5511999999999',
       from: 'whatsapp:+15553533015',
       body: expect.stringContaining('Colmeia'),
+      conversationSid: undefined,
     })
   })
 

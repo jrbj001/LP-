@@ -17,6 +17,7 @@ export async function handleWhatsappInbound(input: {
   to: string
   body: string
   profileName?: string
+  conversationSid?: string
 }): Promise<WhatsappInboundResult> {
   const message = input.body.trim()
   if (!message) return { ok: false, error: 'Mensagem vazia.' }
@@ -56,6 +57,11 @@ export async function handleWhatsappInbound(input: {
   const reply = [...updated.messages].reverse().find(item => item.role === 'assistant')?.content
   if (!reply) return { ok: false, error: 'O copiloto não devolveu texto.' }
 
-  await sendWhatsappMessage({ to: input.from, from: input.to, body: reply })
+  await sendWhatsappMessage({
+    to: input.from,
+    from: input.to,
+    body: reply,
+    conversationSid: input.conversationSid,
+  })
   return { ok: true, clientSlug: client.slug }
 }
