@@ -7,6 +7,7 @@ export async function sendWhatsappMessage(input: {
   to: string
   body: string
   from?: string
+  conversationSid?: string
 }): Promise<{ sid: string; status: string }> {
   const sid = process.env.TWILIO_ACCOUNT_SID
   const token = process.env.TWILIO_AUTH_TOKEN
@@ -20,11 +21,40 @@ export async function sendWhatsappMessage(input: {
     throw new Error('Corpo vazio: a Twilio não enviaria mensagem.')
   }
 
+  const conversationSid = input.conversationSid?.trim()
+  if (conversationSid?.startsWith('CH')) {
+    const conversation = await fetch(
+      `https://conversations.twilio.com/v1/Conversations/${conversationSid}/Messages`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString('base64')}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({ Body: body }),
+      }
+    )
+    const detail = await conversation.text()
+    if (!conversation.ok) {
+      throw new Error(`Twilio Conversations recusou (${conversation.status}): ${detail.slice(0, 240)}`)
+    }
+    try {
+      const parsed = JSON.parse(detail) as { sid?: string }
+      return { sid: parsed.sid ?? '', status: 'sent' }
+    } catch {
+      return { sid: '', status: 'sent' }
+    }
+  }
+
   const fields = new URLSearchParams({
     From: from,
     To: to,
     Body: body,
   })
+  const webhook = process.env.TWILIO_WEBHOOK_URL?.trim()
+  if (webhook) {
+    fields.set('StatusCallback', webhook.replace(/\/whatsapp\/?$/, '/status'))
+  }
   const service = process.env.TWILIO_MESSAGING_SERVICE_SID?.trim()
   if (service) {
     fields.delete('From')

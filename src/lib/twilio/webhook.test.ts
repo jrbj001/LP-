@@ -87,12 +87,12 @@ describe('handleTwilioWhatsappWebhook', () => {
     })
     expect(result.status).toBe(200)
     expect(result.contentType).toBe('text/xml')
-    expect(result.body).toContain('<Body>')
+    expect(result.body).toContain('<Message>')
     expect(result.body).toContain('Colmeia')
     expect(result.body).toContain('Banco de Ativos')
     expect(result.body).toContain('O que você quer ver primeiro?')
-    expect(result.body).toContain('to="whatsapp:+5511999999999"')
-    expect(result.body).toContain('from="whatsapp:+15553533015"')
+    expect(result.body).not.toContain(' from=')
+    expect(result.body).not.toContain(' to=')
     expect(result.body).not.toMatch(/<Response><\/Response>/)
     expect(sendWhatsappTyping).toHaveBeenCalledWith('SMtestoi001')
     expect(sendWhatsappMessage).toHaveBeenCalledTimes(1)
@@ -107,7 +107,7 @@ describe('handleTwilioWhatsappWebhook', () => {
       params,
       signature: sign(params),
     })
-    expect(result.body).toContain('<Body>')
+    expect(result.body).toContain('<Message>')
     expect(result.body).toContain('Colmeia')
   })
 
@@ -125,6 +125,6 @@ describe('handleTwilioWhatsappWebhook', () => {
     })
     expect(handleWhatsappInbound).toHaveBeenCalledTimes(1)
     expect(result.body).toContain('3.541 roteiros')
-    expect(result.body).toContain('<Body>')
+    expect(result.body).toContain('<Message>')
   })
 })

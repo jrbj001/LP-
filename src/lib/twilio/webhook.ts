@@ -10,23 +10,26 @@ export type TwilioWebhookResult = {
   contentType: string
 }
 
-function xml(body?: string, addresses?: { to: string; from: string }): TwilioWebhookResult {
-  return { status: 200, body: renderTwiml(body, addresses), contentType: 'text/xml' }
+function xml(body?: string): TwilioWebhookResult {
+  return { status: 200, body: renderTwiml(body), contentType: 'text/xml' }
 }
 
 function json(status: number, payload: Record<string, unknown>): TwilioWebhookResult {
   return { status, body: JSON.stringify(payload), contentType: 'application/json' }
 }
 
-async function deliverReply(input: { to: string; from: string; body: string }): Promise<TwilioWebhookResult> {
+async function deliverReply(input: {
+  to: string
+  from: string
+  body: string
+  conversationSid?: string
+}): Promise<TwilioWebhookResult> {
   try {
     await sendWhatsappMessage(input)
   } catch (error) {
     console.error('[twilio/whatsapp] send', error)
   }
-  // Nunca devolver Response vazio depois do oi: a Twilio trata isso como “não responder”
-  // e o indicador de digitação some sem texto.
-  return xml(input.body, { to: input.to, from: input.from })
+  return xml(input.body)
 }
 
 export async function handleTwilioWhatsappWebhook(input: {
@@ -53,11 +56,17 @@ export async function handleTwilioWhatsappWebhook(input: {
   }
 
   const messageSid = input.params.MessageSid?.trim() || input.params.SmsSid?.trim()
+  const conversationSid = input.params.ConversationSid?.trim()
   await sendWhatsappTyping(messageSid)
 
   const welcome = orientationWelcome(to, body)
   if (welcome) {
-    return deliverReply({ to: from, from: welcome.from, body: welcome.reply })
+    return deliverReply({
+      to: from,
+      from: welcome.from,
+      body: welcome.reply,
+      conversationSid,
+    })
   }
 
   try {
@@ -73,7 +82,7 @@ export async function handleTwilioWhatsappWebhook(input: {
       console.error('[twilio/whatsapp]', result.error)
     }
     if (!result.reply) return xml()
-    return deliverReply({ to: from, from: to, body: result.reply })
+    return deliverReply({ to: from, from: to, body: result.reply, conversationSid })
   } catch (error) {
     console.error('[twilio/whatsapp]', error)
     return xml()
