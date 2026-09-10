@@ -7,6 +7,7 @@ describe('primeira mensagem do Copiloto', () => {
     expect(isOrientationAsk('ajuda')).toBe(true)
     expect(isOrientationAsk('o que você faz?')).toBe(true)
     expect(isOrientationAsk('quantos roteiros existem no Colmeia?')).toBe(false)
+    expect(isOrientationAsk('Oi')).toBe(true)
   })
 
   it('explica o que a Be180 pode fazer e traz exemplos', () => {

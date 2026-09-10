@@ -53,5 +53,8 @@ export async function runAndPersistTurn(input: {
   }
 
   const updated = await appendCopilotMessages(clientId, thread.id, [userMessage, assistantMessage])
-  return updated ?? thread
+  if (!updated) {
+    throw new Error('Não foi possível gravar a conversa do copiloto.')
+  }
+  return updated
 }
