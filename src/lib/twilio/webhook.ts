@@ -1,4 +1,4 @@
-import { orientationWelcome } from './quick-reply'
+import { handleWhatsappInbound } from './inbound'
 import { shouldSkipTwilioSignature, verifyTwilioSignature } from './signature'
 import { renderTwiml } from './twiml'
 
@@ -8,14 +8,15 @@ export type TwilioWebhookResult = {
   contentType: string
 }
 
-function xml(body?: string): TwilioWebhookResult {
-  return { status: 200, body: renderTwiml(body), contentType: 'text/xml' }
+function xml(): TwilioWebhookResult {
+  return { status: 200, body: renderTwiml(), contentType: 'text/xml' }
 }
 
 function json(status: number, payload: Record<string, unknown>): TwilioWebhookResult {
   return { status, body: JSON.stringify(payload), contentType: 'application/json' }
 }
 
+/** Mesmo fluxo da primeira versão que entregava: Copiloto → API Messages → TwiML vazio. */
 export async function handleTwilioWhatsappWebhook(input: {
   url: string
   params: Record<string, string>
@@ -39,25 +40,7 @@ export async function handleTwilioWhatsappWebhook(input: {
     return json(400, { ok: false, error: 'From/To ausentes.' })
   }
 
-  const welcome = orientationWelcome(to, body)
-  if (welcome) {
-    try {
-      const { persistWhatsappWelcome } = await import('./persist-welcome')
-      await persistWhatsappWelcome({
-        from,
-        to,
-        body,
-        reply: welcome.reply,
-        profileName: input.params.ProfileName?.trim(),
-      })
-    } catch (error) {
-      console.error('[twilio/whatsapp] persist', error)
-    }
-    return xml(welcome.reply)
-  }
-
   try {
-    const { handleWhatsappInbound } = await import('./inbound')
     const result = await handleWhatsappInbound({
       from,
       to,

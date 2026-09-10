@@ -3,7 +3,6 @@ import 'server-only'
 import { isBacklogEnabled } from '@/lib/backlog/access'
 import { runAndPersistTurn } from '@/lib/backlog/copilot-turn'
 import { createCopilotThread, findCopilotThreadByExternalId } from '@/lib/backlog/store'
-import { getBacklogBoards } from '@/lib/backlog/boards'
 import { getClient } from '@/lib/client/registry'
 import { routeWhatsappSender } from './routing'
 import { sendWhatsappMessage } from './send'
@@ -29,15 +28,11 @@ export async function handleWhatsappInbound(input: {
     return { ok: false, error: 'Workspace Cadence indisponível para este sender.' }
   }
 
-  const boards = getBacklogBoards(client.slug)
-  const boardId = boards.some(board => board.id === route.boardId) ? route.boardId : boards[0]?.id
-  if (!boardId) return { ok: false, error: 'Workspace sem board para o WhatsApp.' }
-
   const existing = await findCopilotThreadByExternalId(client.slug, input.from)
   const thread =
     existing ??
     (await createCopilotThread(client.slug, {
-      boardId,
+      boardId: route.boardId,
       channel: 'whatsapp',
       externalId: input.from,
       title: input.profileName
