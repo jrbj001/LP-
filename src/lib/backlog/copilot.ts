@@ -21,9 +21,9 @@ import {
   type GithubRef,
   type StoryDraft,
 } from './types'
-import { isChitChat } from '@/lib/twilio/format'
 import { BE180_WHATSAPP_BOARD_IDS, getBacklogBoards } from './boards'
 import { getBacklogSnapshot } from './store'
+import { triageClarify, triageCopilotAsk, wantsStoryNow } from './triage'
 import {
   firstTurnFooter,
   firstTurnWelcome,
@@ -208,12 +208,6 @@ function boardMemoryBrief(
     .join('\n')
 }
 
-function wantsStoryNow(message: string): boolean {
-  return /user story|rascunho completo da user story|escreva a user story|escreva uma user story|gerar rascunho|aplicar no board/i.test(
-    message
-  )
-}
-
 const FLOW_FOLLOW_UPS = [
   'Quem dispara e quem aprova neste fluxo?',
   'O que acontece quando a regra de negócio falha?',
@@ -329,9 +323,19 @@ export async function runCopilotTurn(input: {
   const prompt = systemPrompt(clientId, clientName, clientSector, thread.channel)
 
   const firstTurn = !thread.messages.some(item => item.role === 'assistant')
-  if (isOrientationAsk(message)) {
+  const triage = triageCopilotAsk({ message, channel: thread.channel })
+  if (isOrientationAsk(message) || triage.intent === 'orient') {
     return {
       reply: firstTurnWelcome(clientId, clientName),
+      diagram: welcomeDiagram(clientName),
+      flowNotes: [],
+      followUps: welcomeFollowUps(clientId),
+      sources: [],
+    }
+  }
+  if (triage.intent === 'unclear' && thread.channel === 'whatsapp') {
+    return {
+      reply: triageClarify(clientId),
       diagram: welcomeDiagram(clientName),
       flowNotes: [],
       followUps: welcomeFollowUps(clientId),
@@ -343,33 +347,34 @@ export async function runCopilotTurn(input: {
   const askForStory = wantsStoryNow(message)
   const previousNotes = lastFlowNotes(thread.messages)
   const be180Whatsapp = clientId === 'be180-ooh' && (thread.channel === 'whatsapp' || thread.boardId === 'cadence')
-  const chitChat = isChitChat(message)
+  const needGithub = triage.tools.includes('github')
+  const needSql = triage.tools.includes('sql')
+  const needWorkspace = triage.tools.includes('workspace')
   const emptyGithub = { repos: [] as string[], snippets: [], activity: [], notes: [] }
+  const emptyWorkspace = {
+    meetings: [],
+    documents: [],
+    catalog: { meetings: [] as string[], documents: [] as string[] },
+  }
   const [bundle, snapshot, sqlEvidence, workspace] = await Promise.all([
-    chitChat
-      ? Promise.resolve(emptyGithub)
-      : gatherGithubContextForQuery(
+    needGithub
+      ? gatherGithubContextForQuery(
           { clientId, boardId: thread.boardId, query: queryParts.join(' ') },
           repos,
           be180Whatsapp ? { allRepos: true } : undefined
-        ),
+        )
+      : Promise.resolve(emptyGithub),
     getBacklogSnapshot(clientId),
-    chitChat
-      ? Promise.resolve(null)
-      : gatherCopilotSqlContext({
+    needSql
+      ? gatherCopilotSqlContext({
           clientId,
           boardId: thread.boardId,
           message,
           recentContext: `${previousNotes.join('; ')}\n${historyBrief(thread.messages)}`,
           channel: thread.channel,
-        }),
-    chitChat
-      ? Promise.resolve({
-          meetings: [],
-          documents: [],
-          catalog: { meetings: [] as string[], documents: [] as string[] },
         })
-      : gatherWorkspaceContext(clientId, queryParts.join(' ')),
+      : Promise.resolve(null),
+    needWorkspace ? gatherWorkspaceContext(clientId, queryParts.join(' ')) : Promise.resolve(emptyWorkspace),
     seedCadenceClient(clientId),
   ])
   const summary = await getCadenceSummary(clientId)

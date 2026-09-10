@@ -41,6 +41,7 @@ export async function handleWhatsappInbound(input: {
 
   await sendWhatsappTyping(input.messageSid)
 
+  // Mesmo Copilot do portal: triagem escolhe a faixa, runAndPersistTurn não muda o contrato.
   const persist = async () => {
     const existing = await findCopilotThreadByExternalId(client.slug, input.from)
     const thread =
