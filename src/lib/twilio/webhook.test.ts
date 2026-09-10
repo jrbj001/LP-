@@ -62,7 +62,7 @@ describe('handleTwilioWhatsappWebhook', () => {
     expect(sendWhatsappMessage).not.toHaveBeenCalled()
   })
 
-  it('no oi devolve o menu no TwiML e não chama a API de Messages', async () => {
+  it('no oi envia o menu pela API e devolve TwiML vazio', async () => {
     const params = inbound()
     const result = await handleTwilioWhatsappWebhook({
       url: URL,
@@ -70,10 +70,12 @@ describe('handleTwilioWhatsappWebhook', () => {
       signature: sign(params),
     })
     expect(result.status).toBe(200)
-    expect(result.body).toContain('<Message>')
-    expect(result.body).toContain('Colmeia')
-    expect(result.body).not.toContain(' from=')
-    expect(result.body).not.toContain(' to=')
-    expect(sendWhatsappMessage).not.toHaveBeenCalled()
+    expect(result.body).toBe('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
+    expect(sendWhatsappMessage).toHaveBeenCalledTimes(1)
+    expect(sendWhatsappMessage).toHaveBeenCalledWith({
+      to: 'whatsapp:+5511999999999',
+      from: 'whatsapp:+15553533015',
+      body: expect.stringContaining('Colmeia'),
+    })
   })
 })
