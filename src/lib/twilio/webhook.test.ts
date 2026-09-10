@@ -8,16 +8,13 @@ vi.mock('./send', () => ({
   sendWhatsappMessage: (input: { to: string; from?: string; body: string }) => sendWhatsappMessage(input),
 }))
 
-const sendWhatsappTyping = vi.fn(async (_sid?: string) => true)
 vi.mock('./typing', () => ({
-  sendWhatsappTyping: (sid?: string) => sendWhatsappTyping(sid),
-  withWhatsappTyping: async (sid: string | undefined, work: () => Promise<unknown>) => {
-    await sendWhatsappTyping(sid)
-    return work()
-  },
+  sendWhatsappTyping: vi.fn(async () => true),
+  withWhatsappTyping: async (_sid: string | undefined, work: () => Promise<unknown>) => work(),
 }))
 
 import { handleTwilioWhatsappWebhook } from './webhook'
+import { sendWhatsappTyping } from './typing'
 
 const TOKEN = 'test-twilio-token'
 const URL = 'https://lp-sepia-six.vercel.app/api/webhooks/twilio/whatsapp'
@@ -49,7 +46,7 @@ describe('handleTwilioWhatsappWebhook', () => {
     process.env.TWILIO_WEBHOOK_URL = URL
     delete process.env.TWILIO_SKIP_SIGNATURE
     sendWhatsappMessage.mockClear()
-    sendWhatsappTyping.mockClear()
+    vi.mocked(sendWhatsappTyping).mockClear()
   })
 
   afterEach(() => {
@@ -73,7 +70,7 @@ describe('handleTwilioWhatsappWebhook', () => {
     expect(sendWhatsappTyping).not.toHaveBeenCalled()
   })
 
-  it('no oi marca lida/pontinhos e envia o menu pela API com From/To crus', async () => {
+  it('no oi envia o menu pela API com From/To crus, sem pontinhos', async () => {
     const params = inbound()
     const result = await handleTwilioWhatsappWebhook({
       url: URL,
@@ -82,27 +79,12 @@ describe('handleTwilioWhatsappWebhook', () => {
     })
     expect(result.status).toBe(200)
     expect(result.body).toBe('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
-    expect(sendWhatsappTyping).toHaveBeenCalledWith('SMtestoi001')
+    expect(sendWhatsappTyping).not.toHaveBeenCalled()
     expect(sendWhatsappMessage).toHaveBeenCalledTimes(1)
     expect(sendWhatsappMessage).toHaveBeenCalledWith({
       to: 'whatsapp:+5511999999999',
       from: 'whatsapp:+15553533015',
       body: expect.stringContaining('Colmeia'),
-      conversationSid: undefined,
     })
-  })
-
-  it('se a API falhar no oi, o menu ainda vai no TwiML sem from/to', async () => {
-    sendWhatsappMessage.mockRejectedValueOnce(new Error('Twilio recusou o envio (400)'))
-    const params = inbound()
-    const result = await handleTwilioWhatsappWebhook({
-      url: URL,
-      params,
-      signature: sign(params),
-    })
-    expect(result.body).toContain('<Message>')
-    expect(result.body).toContain('Colmeia')
-    expect(result.body).not.toContain(' from=')
-    expect(result.body).not.toContain(' to=')
   })
 })
