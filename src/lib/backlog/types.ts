@@ -16,7 +16,7 @@ export interface GithubRef {
   repo: string
   path?: string
   pr?: number
-  kind?: 'git' | 'sql'
+  kind?: 'git' | 'sql' | 'workspace'
 }
 
 export interface BacklogDiagramNode {

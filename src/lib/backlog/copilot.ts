@@ -1,4 +1,6 @@
 import { formatCopilotSqlContext, gatherCopilotSqlContext } from '@/lib/cadence/copilot-sql-context'
+import { gatherWorkspaceContext } from '@/lib/cadence/workspace-gather'
+import { formatWorkspaceContextForPrompt } from '@/lib/cadence/workspace-context'
 import { formatCadenceSummaryForPrompt, getCadenceSummary, type CadenceSummary } from '@/lib/cadence/summary'
 import { seedCadenceClient } from '@/lib/cadence/seed'
 import { CADENCE_SCHEMA } from '@/lib/cadence/schema'
@@ -60,7 +62,7 @@ ${voice}
 Um agente de dados já pode ter consultado Cadence, Colmeia ou Banco de Ativos neste turno. Use esses números em linguagem natural. Sem evidência, não invente volumes.
 
 Como trabalhar:
-1. Se a pergunta pede entendimento de fluxo, enriqueça com código no GitHub, cards do board, documentos e conversa. Acumule fatos em "flowNotes".
+1. Se a pergunta pede entendimento de fluxo, enriqueça com código no GitHub, cards do board, reuniões, documentos do workspace e conversa. Acumule fatos em "flowNotes".
 2. Se a pergunta pede volume, ranking ou status e houver evidência, responda com o número falado e o produto (Colmeia, Banco de Ativos, Cadence). Sem evidência, diga que não achou o dado agora — não invente e não mande o usuário para outra tela.
 3. A user story só vem quando o PM pedir ou o fluxo já estiver claro o bastante. storyDraft fica null enquanto faltar persona, valor ou aceite.
 
@@ -69,7 +71,7 @@ Regras:
 - SEMPRE devolva um "diagram" do fluxo ou do recorte em discussão. O desenho é obrigatório em toda resposta (fica no workspace; no WhatsApp só a reply aparece).
 - Deixe "storyDraft" como null enquanto faltar fluxo, persona, valor ou aceite verificável. Faça 1 a 3 perguntas objetivas quando estiver no modo de story.
 - Proponha "storyDraft" somente quando (a) o PM pedir explicitamente a user story / rascunho, ou (b) o fluxo da empresa já estiver claro o bastante para uma story útil. Se já existir rascunho, refine-o — não recomece do zero.
-- Use GitHub, cards do board, documentos do workspace, o resumo Cadence e a evidência do agente de dados. Cite arquivos reais só no canal web. Não invente números de produção.
+- Use GitHub, cards do board, reuniões e documentos do workspace Cadence e a evidência do agente de dados. Cite o título da reunião ou do documento em linguagem natural. Cite arquivos reais só no canal web. Não invente números de produção.
 - Critérios de aceite devem ser verificáveis (Dado/Quando/Então ou afirmações checáveis).
 - Nunca invente nomes de arquivos ou endpoints que não estejam no contexto; se for hipótese, deixe claro no texto.
 - "followUps" são próximas perguntas úteis, em linguagem natural. Não sugira "aplicar no board" — isso é um botão na interface.
@@ -289,7 +291,8 @@ function sourcesFromContext(
   bundle: GithubContextBundle,
   summary: CadenceSummary,
   reply: string,
-  evidence?: CopilotSqlEvidence | null
+  evidence?: CopilotSqlEvidence | null,
+  workspaceTitles: string[] = []
 ): GithubRef[] {
   const cited = bundle.snippets.filter(s => reply.includes(s.path) || reply.includes(s.path.split('/').pop() ?? ''))
   const chosen = cited.length > 0 ? cited : bundle.snippets.slice(0, 4)
@@ -299,7 +302,11 @@ function sourcesFromContext(
     : summary.available
       ? [{ repo: 'cadence', path: 'resumo agregado', kind: 'sql' as const }]
       : []
-  return [...git, ...queried]
+  const workspace = workspaceTitles
+    .filter(title => reply.toLowerCase().includes(title.toLowerCase().slice(0, 24)))
+    .slice(0, 4)
+    .map(title => ({ repo: 'cadence', path: title, kind: 'workspace' as const }))
+  return [...git, ...queried, ...workspace]
 }
 
 export async function runCopilotTurn(input: {
@@ -320,7 +327,7 @@ export async function runCopilotTurn(input: {
   const be180Whatsapp = clientId === 'be180-ooh' && (thread.channel === 'whatsapp' || thread.boardId === 'cadence')
   const chitChat = isChitChat(message)
   const emptyGithub = { repos: [] as string[], snippets: [], activity: [], notes: [] }
-  const [bundle, snapshot, sqlEvidence] = await Promise.all([
+  const [bundle, snapshot, sqlEvidence, workspace] = await Promise.all([
     chitChat
       ? Promise.resolve(emptyGithub)
       : gatherGithubContextForQuery(
@@ -338,6 +345,13 @@ export async function runCopilotTurn(input: {
           recentContext: `${previousNotes.join('; ')}\n${historyBrief(thread.messages)}`,
           channel: thread.channel,
         }),
+    chitChat
+      ? Promise.resolve({
+          meetings: [],
+          documents: [],
+          catalog: { meetings: [] as string[], documents: [] as string[] },
+        })
+      : gatherWorkspaceContext(clientId, queryParts.join(' ')),
     seedCadenceClient(clientId),
   ])
   const summary = await getCadenceSummary(clientId)
@@ -359,6 +373,7 @@ export async function runCopilotTurn(input: {
     `Rascunho atual (refine só se for escrever storyDraft):\n${lastStoryDraftBrief(thread.messages)}`,
     `Modelagem do workspace Cadence (não é produção):\n${CADENCE_SCHEMA}`,
     formatCadenceSummaryForPrompt(summary),
+    formatWorkspaceContextForPrompt(workspace),
     `Evidência do agente de dados (use estes números; não invente outros):\n${formatCopilotSqlContext(sqlEvidence)}`,
     `Contexto do código (GitHub):\n${formatGithubContextForPrompt(bundle)}`,
     `Pergunta atual do PM:\n${message}`,
@@ -401,7 +416,10 @@ export async function runCopilotTurn(input: {
     storyDraft,
     flowNotes: mergeFlowNotes(previousNotes, asStringArray(parsed.flowNotes)),
     followUps: withFlowFollowUps(asStringArray(parsed.followUps)),
-    sources: sourcesFromContext(bundle, summary, reply, sqlEvidence),
+    sources: sourcesFromContext(bundle, summary, reply, sqlEvidence, [
+      ...workspace.catalog.meetings,
+      ...workspace.catalog.documents,
+    ]),
     sqlEvidence: sqlEvidence ?? undefined,
   }
 }

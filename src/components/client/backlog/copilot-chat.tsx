@@ -272,8 +272,8 @@ export function CopilotChat({
                 Pergunte sobre o fluxo
               </h3>
               <p className="text-[13px] text-neutral-500 mt-2 leading-relaxed">
-                Código no GitHub, schemas, documentos do portal, backlog e consultas ao banco quando
-                a pergunta pede números.
+                Código no GitHub, reuniões, documentos do workspace, backlog e consultas ao banco
+                quando a pergunta pede números.
               </p>
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
                 {starters.map(starter => (
@@ -541,13 +541,17 @@ function MessageBubble({
         {message.sources && message.sources.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {message.sources.map((source, index) => {
-              if (source.kind === 'sql') {
+              if (source.kind === 'sql' || source.kind === 'workspace') {
                 return (
                   <span
                     key={`${source.repo}-${source.path}-${index}`}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-teal-200 bg-teal-50 px-2.5 py-1 text-[10px] font-mono text-teal-800"
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-mono ${
+                      source.kind === 'workspace'
+                        ? 'border-sky-200 bg-sky-50 text-sky-800'
+                        : 'border-teal-200 bg-teal-50 text-teal-800'
+                    }`}
                   >
-                    SQL · {source.path ?? source.repo}
+                    {source.kind === 'workspace' ? 'Workspace' : 'SQL'} · {source.path ?? source.repo}
                   </span>
                 )
               }

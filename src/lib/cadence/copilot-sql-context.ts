@@ -73,7 +73,7 @@ export async function gatherCopilotSqlContext(input: {
               id: 'cadence',
               name: 'Workspace Cadence',
               kind: 'postgresql',
-              hint: 'cards, PRs, reuniões e documentos do workspace — não é o banco de produção',
+              hint: 'workspace Cadence: cards, PRs, reuniões (cadence_meetings.summary) e documentos (cadence_documents)',
               tables: 'cadence_cards, cadence_delivery_prs, cadence_delivery_commits, cadence_meetings, cadence_documents',
             },
           ]
@@ -99,7 +99,10 @@ export async function gatherCopilotSqlContext(input: {
         `Você é o agente de dados do Copilot. Decide se precisa executar uma consulta neste turno.
 
 Consulte quando a pergunta pedir fatos, contagens, listas, status, divergências, exemplos reais
-de roteiros, inventário, exibidores, cards, entregas ou reuniões.
+de roteiros, inventário, exibidores, cards, entregas, reuniões ou documentos.
+
+Se a pergunta for sobre reunião, ata, briefing, documento ou portal, use a fonte cadence
+(cadence_meetings e cadence_documents).
 
 No WhatsApp, consulte sempre que a resposta puder trazer um número, lista ou status real.
 
@@ -107,7 +110,7 @@ NÃO consulte quando for saudação, opinião, desenho de fluxo, redação de us
 ou quando o contexto recente já tiver a resposta.
 
 Fontes:
-- cadence: só o workspace (backlog/PRs/reuniões). Nunca use para dados operacionais de produção.
+- cadence: workspace Be180 (cards, PRs, reuniões com summary, documentos). Nunca use para volumes de produção do Colmeia/Ativos.
 - Banco de Ativos: inventário, pontos, exibidores, media kit, cadastro de ativos.
 - Colmeia SQL Server: roteiros, campanhas, usuários, operação do planejador.
 
