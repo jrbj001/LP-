@@ -71,6 +71,7 @@ export function CopilotChat({
   const [thread, setThread] = useState<CopilotThread | null>(null)
   const [activeBoardId, setActiveBoardId] = useState<BacklogBoardId>(boardId)
   const [draftMessage, setDraftMessage] = useState('')
+  const [pendingUser, setPendingUser] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
   const [applyingId, setApplyingId] = useState<string | null>(null)
   const [appliedCards, setAppliedCards] = useState<Record<string, string>>({})
@@ -105,6 +106,7 @@ export function CopilotChat({
     const text = message.trim()
     if (!text || sending) return
     setSending(true)
+    setPendingUser(text)
     setError(null)
     setDraftMessage('')
     try {
@@ -125,10 +127,12 @@ export function CopilotChat({
         throw new Error(data?.error || 'Falha ao falar com o copiloto.')
       }
       setThread(data.thread as CopilotThread)
+      setPendingUser(null)
       void loadThreads()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro ao falar com o copiloto.')
       setDraftMessage(text)
+      setPendingUser(null)
     } finally {
       setSending(false)
     }
@@ -173,6 +177,7 @@ export function CopilotChat({
     setThread(null)
     setError(null)
     setDraftMessage('')
+    setPendingUser(null)
   }
 
   const messages = thread?.messages ?? []
@@ -267,8 +272,8 @@ export function CopilotChat({
                 Pergunte sobre o fluxo
               </h3>
               <p className="text-[13px] text-neutral-500 mt-2 leading-relaxed">
-                Código no GitHub, schemas, documentos do portal e backlog. Volumes de produção ficam
-                em Consultar.
+                Código no GitHub, schemas, documentos do portal, backlog e consultas ao banco quando
+                a pergunta pede números.
               </p>
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
                 {starters.map(starter => (
@@ -297,10 +302,25 @@ export function CopilotChat({
             />
           ))}
 
+          {pendingUser && (
+            <div className="flex justify-end">
+              <div className="max-w-2xl rounded-2xl rounded-br-md bg-neutral-900 text-white px-4 py-3">
+                <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{pendingUser}</p>
+              </div>
+            </div>
+          )}
+
           {sending && (
-            <div className="flex items-center gap-2 text-[12px] text-neutral-400">
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              Lendo o repositório, o fluxo e o banco quando necessário…
+            <div className="flex gap-3">
+              <div
+                className="w-8 h-8 rounded-xl shrink-0 flex items-center justify-center"
+                style={{ backgroundColor: `${accent}14` }}
+              >
+                <Sparkles className="w-4 h-4" strokeWidth={1.8} style={{ color: accent }} />
+              </div>
+              <div className="rounded-2xl rounded-tl-md border border-black/[0.06] bg-[#fafaf8] px-4 py-3.5">
+                <ThinkingDots accent={accent} />
+              </div>
             </div>
           )}
         </div>
@@ -373,6 +393,24 @@ export function CopilotChat({
           </button>
         </form>
       </div>
+    </div>
+  )
+}
+
+function ThinkingDots({ accent }: { accent: string }) {
+  return (
+    <div className="flex items-center gap-1.5 h-4" aria-live="polite" aria-label="Pensando">
+      {[0, 1, 2].map(index => (
+        <span
+          key={index}
+          className="w-1.5 h-1.5 rounded-full animate-bounce"
+          style={{
+            backgroundColor: accent,
+            animationDelay: `${index * 160}ms`,
+            animationDuration: '900ms',
+          }}
+        />
+      ))}
     </div>
   )
 }
