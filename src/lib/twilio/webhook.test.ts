@@ -90,4 +90,18 @@ describe('handleTwilioWhatsappWebhook', () => {
       body: expect.stringContaining('Colmeia'),
     })
   })
+
+  it('se a API falhar no oi, o menu ainda vai no TwiML sem from/to', async () => {
+    sendWhatsappMessage.mockRejectedValueOnce(new Error('Twilio recusou o envio (400)'))
+    const params = inbound()
+    const result = await handleTwilioWhatsappWebhook({
+      url: URL,
+      params,
+      signature: sign(params),
+    })
+    expect(result.body).toContain('<Message>')
+    expect(result.body).toContain('Colmeia')
+    expect(result.body).not.toContain(' from=')
+    expect(result.body).not.toContain(' to=')
+  })
 })
