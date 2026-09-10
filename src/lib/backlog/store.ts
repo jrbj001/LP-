@@ -60,7 +60,11 @@ export async function readBacklogStore(clientId: string): Promise<BacklogStorePa
   }
 }
 
-export async function writeBacklogStore(clientId: string, payload: BacklogStorePayload): Promise<void> {
+export async function writeBacklogStore(
+  clientId: string,
+  payload: BacklogStorePayload,
+  options: { syncCards?: boolean } = {}
+): Promise<void> {
   const next = { ...payload, updatedAt: new Date().toISOString(), version: BACKLOG_STORE_VERSION }
   memory.set(clientId, next)
   try {
@@ -69,6 +73,7 @@ export async function writeBacklogStore(clientId: string, payload: BacklogStoreP
   } catch (e) {
     console.warn('[backlog/store] persistência em disco indisponível:', e)
   }
+  if (options.syncCards === false) return
   void syncCadenceCards(clientId, mergeCards(next))
 }
 
@@ -254,7 +259,7 @@ export async function createCopilotThread(
   }
   store.threads ??= {}
   store.threads[thread.id] = thread
-  await writeBacklogStore(clientId, store)
+  await writeBacklogStore(clientId, store, { syncCards: false })
   return thread
 }
 
@@ -275,7 +280,7 @@ export async function appendCopilotMessages(
     thread.title = threadTitleFrom(firstUser.content)
   }
 
-  await writeBacklogStore(clientId, store)
+  await writeBacklogStore(clientId, store, { syncCards: false })
   return thread
 }
 
@@ -292,7 +297,7 @@ export async function markMessageApplied(
   if (!message) return null
   message.appliedCardId = cardId
   thread.updatedAt = new Date().toISOString()
-  await writeBacklogStore(clientId, store)
+  await writeBacklogStore(clientId, store, { syncCards: false })
   return thread
 }
 

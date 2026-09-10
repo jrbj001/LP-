@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { routeWhatsappSender } from './routing'
 import { formatWhatsappReply, isChitChat } from './format'
 import { verifyTwilioSignature } from './signature'
+import { renderTwiml } from './twiml'
+import { firstTurnWelcome } from '@/lib/backlog/welcome'
 
 describe('routeWhatsappSender', () => {
   it('manda Pixelpulselab.dev para o workspace Be180', () => {
@@ -25,6 +27,7 @@ describe('isChitChat', () => {
     expect(isChitChat('Olá!')).toBe(true)
     expect(isChitChat('bom dia')).toBe(true)
     expect(isChitChat('tudo bem?')).toBe(true)
+    expect(isChitChat('Oi, tudo bem?')).toBe(true)
   })
 
   it('não trata pergunta de negócio como saudação', () => {
@@ -44,6 +47,21 @@ describe('formatWhatsappReply', () => {
     expect(out).toContain('Olhei agora.')
     expect(out.toLowerCase()).not.toContain('select')
     expect(out.toLowerCase()).not.toMatch(/^fonte:/m)
+  })
+})
+
+describe('renderTwiml', () => {
+  it('devolve o menu do oi dentro do Message', () => {
+    const xml = renderTwiml(firstTurnWelcome('be180-ooh', 'Be180 OOH'))
+    expect(xml).toContain('<Response>')
+    expect(xml).toContain('<Message>')
+    expect(xml).toContain('Colmeia')
+    expect(xml).toContain('Banco de Ativos')
+  })
+
+  it('escapa XML e aceita resposta vazia', () => {
+    expect(renderTwiml()).toBe('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
+    expect(renderTwiml('preço < 10 & ok')).toContain('preço &lt; 10 &amp; ok')
   })
 })
 
