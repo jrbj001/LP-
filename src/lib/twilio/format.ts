@@ -1,7 +1,7 @@
 const WHATSAPP_LIMIT = 1500
 
 const CHITCHAT =
-  /^(oi+|ol[áa]|hey|e a[ií]|eai|opa|fala|bom dia|boa tarde|boa noite|obrigad[oa]|valeu|ok+|beleza|tudo bem\??|td bem\??|como vai\??)[\s!.?]*$/i
+  /^(oi+|ol[áa]|hey|e a[ií]|eai|opa|fala|bom dia|boa tarde|boa noite|obrigad[oa]|valeu|ok+|beleza|tudo bem\??|td bem\??|como vai\??)([\s,!.]+(tudo bem|td bem|como vai|beleza|e a[ií]|eai)\??)?[\s!.?]*$/i
 
 /** Saudação curta — não dispara consulta nem GitHub. */
 export function isChitChat(message: string): boolean {

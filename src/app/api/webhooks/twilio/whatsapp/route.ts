@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 import { handleWhatsappInbound } from '@/lib/twilio/inbound'
 import { shouldSkipTwilioSignature, verifyTwilioSignature } from '@/lib/twilio/signature'
+import { renderTwiml } from '@/lib/twilio/twiml'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
-function twiml(): NextResponse {
-  return new NextResponse('<Response></Response>', {
+function twiml(body?: string): NextResponse {
+  return new NextResponse(renderTwiml(body), {
     status: 200,
     headers: { 'Content-Type': 'text/xml' },
   })
@@ -44,9 +45,9 @@ export async function POST(request: Request) {
     if (!result.ok) {
       console.error('[twilio/whatsapp]', result.error)
     }
+    return twiml(result.reply)
   } catch (error) {
     console.error('[twilio/whatsapp]', error)
+    return twiml()
   }
-
-  return twiml()
 }

@@ -7,8 +7,11 @@ import { createCopilotThread, findCopilotThreadByExternalId } from '@/lib/backlo
 import { getBacklogBoards } from '@/lib/backlog/boards'
 import { getClient } from '@/lib/client/registry'
 import { routeWhatsappSender } from './routing'
-import { sendWhatsappMessage } from './send'
 import { sendWhatsappTyping } from './typing'
+
+export type WhatsappInboundResult =
+  | { ok: true; clientSlug: string; reply: string }
+  | { ok: false; error: string; reply?: string }
 
 export async function handleWhatsappInbound(input: {
   from: string
@@ -16,7 +19,7 @@ export async function handleWhatsappInbound(input: {
   body: string
   profileName?: string
   messageSid?: string
-}): Promise<{ ok: true; clientSlug: string } | { ok: false; error: string }> {
+}): Promise<WhatsappInboundResult> {
   const message = input.body.trim()
   if (!message) return { ok: false, error: 'Mensagem vazia.' }
 
@@ -34,33 +37,19 @@ export async function handleWhatsappInbound(input: {
 
   await sendWhatsappTyping(input.messageSid)
 
-  if (isOrientationAsk(message)) {
-    try {
-      await sendWhatsappMessage({
-        to: input.from,
-        from: input.to,
-        body: firstTurnWelcome(client.slug, client.name),
-      })
-    } catch (error) {
-      console.error('[twilio/whatsapp] send welcome', error)
-      return { ok: false, error: error instanceof Error ? error.message : 'Falha ao enviar o menu.' }
-    }
-  }
-
-  const existing = await findCopilotThreadByExternalId(client.slug, input.from)
-  const thread =
-    existing ??
-    (await createCopilotThread(client.slug, {
-      boardId,
-      channel: 'whatsapp',
-      externalId: input.from,
-      title: input.profileName
-        ? `WhatsApp · ${client.name} · ${input.profileName}`
-        : `WhatsApp · ${client.name} · ${input.from}`,
-    }))
-
-  try {
-    const updated = await runAndPersistTurn({
+  const persist = async () => {
+    const existing = await findCopilotThreadByExternalId(client.slug, input.from)
+    const thread =
+      existing ??
+      (await createCopilotThread(client.slug, {
+        boardId,
+        channel: 'whatsapp',
+        externalId: input.from,
+        title: input.profileName
+          ? `WhatsApp · ${client.name} · ${input.profileName}`
+          : `WhatsApp · ${client.name} · ${input.from}`,
+      }))
+    return runAndPersistTurn({
       clientId: client.slug,
       clientName: client.name,
       clientSector: client.sector,
@@ -68,29 +57,35 @@ export async function handleWhatsappInbound(input: {
       message,
       repos: client.delivery?.repos ?? [],
     })
-    if (isOrientationAsk(message)) {
-      return { ok: true, clientSlug: client.slug }
-    }
+  }
+
+  if (isOrientationAsk(message)) {
+    const reply = firstTurnWelcome(client.slug, client.name)
+    await Promise.race([
+      persist().catch(error => {
+        console.error('[twilio/whatsapp] persist welcome', error)
+      }),
+      new Promise<void>(resolve => setTimeout(resolve, 2500)),
+    ])
+    return { ok: true, clientSlug: client.slug, reply }
+  }
+
+  try {
+    const updated = await persist()
     const reply = [...updated.messages].reverse().find(item => item.role === 'assistant')?.content
     if (!reply) {
-      await sendWhatsappMessage({
-        to: input.from,
-        from: input.to,
-        body: 'Não consegui montar a resposta agora. Pode repetir em uma frase?',
-      })
-      return { ok: false, error: 'O copiloto não devolveu texto.' }
+      return {
+        ok: false,
+        error: 'O copiloto não devolveu texto.',
+        reply: 'Não consegui montar a resposta agora. Pode repetir em uma frase?',
+      }
     }
-
-    await sendWhatsappMessage({ to: input.from, from: input.to, body: reply })
-    return { ok: true, clientSlug: client.slug }
+    return { ok: true, clientSlug: client.slug, reply }
   } catch (error) {
-    if (!isOrientationAsk(message)) {
-      await sendWhatsappMessage({
-        to: input.from,
-        from: input.to,
-        body: 'Tive um problema para olhar isso agora. Pode tentar de novo em instantes?',
-      }).catch(() => undefined)
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'Falha no copiloto.',
+      reply: 'Tive um problema para olhar isso agora. Pode tentar de novo em instantes?',
     }
-    return { ok: false, error: error instanceof Error ? error.message : 'Falha no copiloto.' }
   }
 }
