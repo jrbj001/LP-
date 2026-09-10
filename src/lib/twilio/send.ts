@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { formatWhatsappReply } from './format'
+import { normalizeSender } from './routing'
 
 export async function sendWhatsappMessage(input: {
   to: string
@@ -9,7 +10,8 @@ export async function sendWhatsappMessage(input: {
 }): Promise<void> {
   const sid = process.env.TWILIO_ACCOUNT_SID
   const token = process.env.TWILIO_AUTH_TOKEN
-  const from = input.from || process.env.TWILIO_WHATSAPP_FROM
+  const from = normalizeSender(input.from || process.env.TWILIO_WHATSAPP_FROM || '')
+  const to = normalizeSender(input.to)
   if (!sid || !token || !from) {
     throw new Error('Twilio não configurado (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_FROM).')
   }
@@ -22,7 +24,7 @@ export async function sendWhatsappMessage(input: {
     },
     body: new URLSearchParams({
       From: from,
-      To: input.to,
+      To: to,
       Body: formatWhatsappReply(input.body),
     }),
   })

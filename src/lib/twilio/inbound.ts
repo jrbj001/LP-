@@ -35,6 +35,10 @@ export async function handleWhatsappInbound(input: {
   const boardId = boards.some(board => board.id === route.boardId) ? route.boardId : boards[0]?.id
   if (!boardId) return { ok: false, error: 'Workspace sem board para o WhatsApp.' }
 
+  if (isOrientationAsk(message)) {
+    return { ok: true, clientSlug: client.slug, reply: firstTurnWelcome(client.slug, client.name) }
+  }
+
   await sendWhatsappTyping(input.messageSid)
 
   const persist = async () => {
@@ -57,17 +61,6 @@ export async function handleWhatsappInbound(input: {
       message,
       repos: client.delivery?.repos ?? [],
     })
-  }
-
-  if (isOrientationAsk(message)) {
-    const reply = firstTurnWelcome(client.slug, client.name)
-    await Promise.race([
-      persist().catch(error => {
-        console.error('[twilio/whatsapp] persist welcome', error)
-      }),
-      new Promise<void>(resolve => setTimeout(resolve, 2500)),
-    ])
-    return { ok: true, clientSlug: client.slug, reply }
   }
 
   try {

@@ -12,7 +12,7 @@ const DEFAULT_ROUTES: WhatsappRoute[] = [
   { from: 'whatsapp:+17752275705', clientSlug: 'likeme', boardId: 'likeme-app' },
 ]
 
-function normalizeSender(value: string): string {
+export function normalizeSender(value: string): string {
   const trimmed = value.trim().toLowerCase()
   if (trimmed.startsWith('whatsapp:')) return trimmed
   const digits = trimmed.replace(/[^\d+]/g, '')

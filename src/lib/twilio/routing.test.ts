@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { routeWhatsappSender } from './routing'
 import { formatWhatsappReply, isChitChat } from './format'
 import { verifyTwilioSignature } from './signature'
+import { orientationWelcome } from './quick-reply'
 import { renderTwiml } from './twiml'
 import { firstTurnWelcome } from '@/lib/backlog/welcome'
 
@@ -47,6 +48,15 @@ describe('formatWhatsappReply', () => {
     expect(out).toContain('Olhei agora.')
     expect(out.toLowerCase()).not.toContain('select')
     expect(out.toLowerCase()).not.toMatch(/^fonte:/m)
+  })
+})
+
+describe('orientationWelcome', () => {
+  it('monta o menu da Be180 sem passar pelo Copilot', () => {
+    const welcome = orientationWelcome('whatsapp:+15553533015', 'oi')
+    expect(welcome?.clientSlug).toBe('be180-ooh')
+    expect(welcome?.reply).toContain('Colmeia')
+    expect(orientationWelcome('whatsapp:+15553533015', 'quantos roteiros?')).toBeNull()
   })
 })
 
