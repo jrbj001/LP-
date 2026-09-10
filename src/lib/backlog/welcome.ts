@@ -89,17 +89,17 @@ export function welcomeFollowUps(clientId: string): string[] {
 
 export function welcomeDiagram(clientName: string): BacklogDiagram {
   return {
-    title: `O que o Copiloto da ${clientName} pode fazer`,
+    title: `Arquitetura Cadence · ${clientName}`,
     nodes: [
-      { id: 'pessoa', label: 'Você', kind: 'actor' },
-      { id: 'copiloto', label: 'Copiloto', detail: 'Conversa em português', kind: 'process' },
-      { id: 'fatos', label: 'Números e atas', kind: 'system' },
-      { id: 'fluxo', label: 'Código e produto', kind: 'system' },
+      { id: 'pessoa', label: 'Você', detail: 'Linguagem natural', kind: 'actor' },
+      { id: 'copiloto', label: 'Copiloto', detail: 'Única voz em português', kind: 'process' },
+      { id: 'agentes', label: 'Agentes internos', detail: 'Dados, código e workspace', kind: 'system' },
+      { id: 'fontes', label: 'Fontes de fato', detail: 'Colmeia, Ativos, Neon, GitHub', kind: 'output' },
     ],
     edges: [
       { from: 'pessoa', to: 'copiloto', label: 'pergunta' },
-      { from: 'copiloto', to: 'fatos', label: 'consulta' },
-      { from: 'copiloto', to: 'fluxo', label: 'lê' },
+      { from: 'copiloto', to: 'agentes', label: 'consulta' },
+      { from: 'agentes', to: 'fontes', label: 'lê' },
     ],
   }
 }
