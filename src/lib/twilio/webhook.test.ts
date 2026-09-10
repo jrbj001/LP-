@@ -8,13 +8,7 @@ vi.mock('./send', () => ({
   sendWhatsappMessage: (input: { to: string; from?: string; body: string }) => sendWhatsappMessage(input),
 }))
 
-vi.mock('./typing', () => ({
-  sendWhatsappTyping: vi.fn(async () => true),
-  withWhatsappTyping: async (_sid: string | undefined, work: () => Promise<unknown>) => work(),
-}))
-
 import { handleTwilioWhatsappWebhook } from './webhook'
-import { sendWhatsappTyping } from './typing'
 
 const TOKEN = 'test-twilio-token'
 const URL = 'https://lp-sepia-six.vercel.app/api/webhooks/twilio/whatsapp'
@@ -46,7 +40,6 @@ describe('handleTwilioWhatsappWebhook', () => {
     process.env.TWILIO_WEBHOOK_URL = URL
     delete process.env.TWILIO_SKIP_SIGNATURE
     sendWhatsappMessage.mockClear()
-    vi.mocked(sendWhatsappTyping).mockClear()
   })
 
   afterEach(() => {
@@ -67,10 +60,9 @@ describe('handleTwilioWhatsappWebhook', () => {
     })
     expect(result.status).toBe(403)
     expect(sendWhatsappMessage).not.toHaveBeenCalled()
-    expect(sendWhatsappTyping).not.toHaveBeenCalled()
   })
 
-  it('no oi envia o menu pela API com From/To crus, sem pontinhos', async () => {
+  it('no oi devolve o menu no TwiML e não chama a API de Messages', async () => {
     const params = inbound()
     const result = await handleTwilioWhatsappWebhook({
       url: URL,
@@ -78,13 +70,10 @@ describe('handleTwilioWhatsappWebhook', () => {
       signature: sign(params),
     })
     expect(result.status).toBe(200)
-    expect(result.body).toBe('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
-    expect(sendWhatsappTyping).not.toHaveBeenCalled()
-    expect(sendWhatsappMessage).toHaveBeenCalledTimes(1)
-    expect(sendWhatsappMessage).toHaveBeenCalledWith({
-      to: 'whatsapp:+5511999999999',
-      from: 'whatsapp:+15553533015',
-      body: expect.stringContaining('Colmeia'),
-    })
+    expect(result.body).toContain('<Message>')
+    expect(result.body).toContain('Colmeia')
+    expect(result.body).not.toContain(' from=')
+    expect(result.body).not.toContain(' to=')
+    expect(sendWhatsappMessage).not.toHaveBeenCalled()
   })
 })
