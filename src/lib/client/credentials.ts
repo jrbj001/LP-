@@ -4,6 +4,7 @@ import type { ClientSession } from './session'
 const DEV_PASSWORDS: Record<string, string> = {
   likeme: 'likeme2026',
   'be180-ooh': 'be180ooh2026',
+  pixelpulselab: 'pixel2026',
 }
 
 type Credential = { slug: string; password: string }

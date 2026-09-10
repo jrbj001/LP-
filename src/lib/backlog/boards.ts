@@ -63,8 +63,20 @@ const LIKEME_BOARDS: BacklogBoard[] = [
   },
 ]
 
+const CADENCE_BOARDS: BacklogBoard[] = [
+  {
+    id: 'cadence',
+    title: 'Cadence',
+    description: 'Canal WhatsApp e copiloto interno da PixelPulseLab.',
+    productLabel: 'Cadence · PixelPulseLab',
+    projectIds: ['cadence-platform'],
+    repository: 'jrbj001/LP-',
+  },
+]
+
 export function getBacklogBoards(clientId: string): BacklogBoard[] {
   if (clientId === 'be180-ooh') return BE180_BOARDS
   if (clientId === 'likeme') return LIKEME_BOARDS
+  if (clientId === 'pixelpulselab') return CADENCE_BOARDS
   return []
 }

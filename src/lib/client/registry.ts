@@ -1,8 +1,9 @@
 import { be180Ooh } from '@/components/client/tenants/be180-ooh'
 import { likeMe } from '@/components/client/tenants/likeme'
+import { pixelPulseLab } from '@/components/client/tenants/pixelpulselab'
 import type { ClientWorkspace } from '@/lib/client/types'
 
-const CLIENTS: ClientWorkspace[] = [be180Ooh, likeMe]
+const CLIENTS: ClientWorkspace[] = [be180Ooh, likeMe, pixelPulseLab]
 
 export function listClients(): ClientWorkspace[] {
   return CLIENTS
