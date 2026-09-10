@@ -31,7 +31,9 @@ export async function handleWhatsappInbound(input: {
       boardId: route.boardId,
       channel: 'whatsapp',
       externalId: input.from,
-      title: input.profileName ? `WhatsApp · ${input.profileName}` : `WhatsApp · ${input.from}`,
+      title: input.profileName
+        ? `WhatsApp · ${client.name} · ${input.profileName}`
+        : `WhatsApp · ${client.name} · ${input.from}`,
     }))
 
   const updated = await runAndPersistTurn({

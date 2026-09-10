@@ -34,7 +34,18 @@ const BE180_BOARDS: BacklogBoard[] = [
     repository: 'jrbj001/image_brand_processing',
     repositories: ['Mavimarmara/digital-branding'],
   },
+  {
+    id: 'cadence',
+    title: 'Cadence · WhatsApp',
+    description: 'Canal WhatsApp Pixelpulselab.dev ligado a Colmeia, Banco de Ativos e Teste de Visibilidade.',
+    productLabel: 'Cadence · WhatsApp',
+    projectIds: ['colmeia-meus-roteiros', 'banco-de-ativos', 'image-brand-processing'],
+    repository: 'jrbj001/colmeia---meusroteirosdefault',
+    repositories: ['jrbj001/image_brand_processing', 'Mavimarmara/digital-branding'],
+  },
 ]
+
+export const BE180_WHATSAPP_BOARD_IDS: BacklogBoard['id'][] = ['colmeia', 'banco-ativos', 'visibilidade']
 
 const LIKEME_BOARDS: BacklogBoard[] = [
   {

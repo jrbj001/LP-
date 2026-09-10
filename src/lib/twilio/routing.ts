@@ -7,7 +7,7 @@ export interface WhatsappRoute {
 }
 
 const DEFAULT_ROUTES: WhatsappRoute[] = [
-  { from: 'whatsapp:+15553533015', clientSlug: 'pixelpulselab', boardId: 'cadence' },
+  { from: 'whatsapp:+15553533015', clientSlug: 'be180-ooh', boardId: 'cadence' },
   { from: 'whatsapp:+15553668393', clientSlug: 'likeme', boardId: 'likeme-app' },
   { from: 'whatsapp:+17752275705', clientSlug: 'likeme', boardId: 'likeme-app' },
 ]

@@ -37,4 +37,17 @@ describe('resolveReposForBoard', () => {
       'colmeia---meusroteirosdefault',
     ])
   })
+
+  it('no Cadence WhatsApp da Be180 junta Colmeia e Teste de Visibilidade', () => {
+    const be180: RepoConfig[] = [
+      { owner: 'jrbj001', repo: 'colmeia---meusroteirosdefault', label: 'Colmeia · Meus Roteiros' },
+      { owner: 'jrbj001', repo: 'image_brand_processing', label: 'Teste de Visibilidade · Backend' },
+      { owner: 'Mavimarmara', repo: 'digital-branding', label: 'Teste de Visibilidade · Frontend' },
+    ]
+    expect(resolveReposForBoard('be180-ooh', 'cadence', be180).map(r => r.repo)).toEqual([
+      'colmeia---meusroteirosdefault',
+      'image_brand_processing',
+      'digital-branding',
+    ])
+  })
 })

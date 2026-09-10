@@ -4,13 +4,13 @@ import { formatWhatsappReply } from './format'
 import { verifyTwilioSignature } from './signature'
 
 describe('routeWhatsappSender', () => {
-  it('manda Pixelpulselab.dev para o Cadence interno', () => {
+  it('manda Pixelpulselab.dev para o workspace Be180', () => {
     expect(routeWhatsappSender('whatsapp:+15553533015')).toEqual({
       from: 'whatsapp:+15553533015',
-      clientSlug: 'pixelpulselab',
+      clientSlug: 'be180-ooh',
       boardId: 'cadence',
     })
-    expect(routeWhatsappSender('+15553533015')?.clientSlug).toBe('pixelpulselab')
+    expect(routeWhatsappSender('+15553533015')?.clientSlug).toBe('be180-ooh')
   })
 
   it('mantém os senders Like:Me no tenant likeme', () => {
