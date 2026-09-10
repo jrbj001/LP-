@@ -1,5 +1,4 @@
 import { orientationWelcome } from './quick-reply'
-import { persistWhatsappWelcome } from './persist-welcome'
 import { sendWhatsappMessage } from './send'
 import { shouldSkipTwilioSignature, verifyTwilioSignature } from './signature'
 import { sendWhatsappTyping, withWhatsappTyping } from './typing'
@@ -43,17 +42,24 @@ export async function handleTwilioWhatsappWebhook(input: {
   }
 
   const messageSid = input.params.MessageSid?.trim() || input.params.SmsSid?.trim()
+  const conversationSid = input.params.ConversationSid?.trim()
   await sendWhatsappTyping(messageSid)
 
   const welcome = orientationWelcome(to, body)
   if (welcome) {
     try {
-      await sendWhatsappMessage({ to: from, from: to, body: welcome.reply })
+      await sendWhatsappMessage({
+        to: from,
+        from: to,
+        body: welcome.reply,
+        conversationSid,
+      })
     } catch (error) {
       console.error('[twilio/whatsapp] send', error)
       return xml(welcome.reply)
     }
     try {
+      const { persistWhatsappWelcome } = await import('./persist-welcome')
       await persistWhatsappWelcome({
         from,
         to,
@@ -75,6 +81,7 @@ export async function handleTwilioWhatsappWebhook(input: {
         to,
         body,
         profileName: input.params.ProfileName?.trim(),
+        conversationSid,
       })
     )
     if (!result.ok) {

@@ -35,7 +35,7 @@ describe('sendWhatsappMessage', () => {
         from: 'whatsapp:+15553533015',
         body: 'Oi — menu Colmeia',
       })
-    ).resolves.toBeUndefined()
+    ).resolves.toMatchObject({ sid: 'SM123', status: 'queued' })
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
@@ -44,6 +44,33 @@ describe('sendWhatsappMessage', () => {
     expect(posted.get('From')).toBe('whatsapp:+15553533015')
     expect(posted.get('To')).toBe('whatsapp:+5511999999999')
     expect(posted.get('Body')).toContain('Colmeia')
+    if (process.env.TWILIO_WEBHOOK_URL) {
+      expect(posted.get('StatusCallback')).toContain('/status')
+    }
+  })
+
+  it('com ConversationSid manda pela API de Conversations', async () => {
+    process.env.TWILIO_ACCOUNT_SID = 'ACtest'
+    process.env.TWILIO_AUTH_TOKEN = 'token'
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ sid: 'IMconv' }), { status: 201 })
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(
+      sendWhatsappMessage({
+        to: 'whatsapp:+5511999999999',
+        from: 'whatsapp:+15553533015',
+        body: 'Oi — menu Colmeia',
+        conversationSid: 'CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      })
+    ).resolves.toMatchObject({ sid: 'IMconv', status: 'sent' })
+
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
+    expect(url).toContain('/Conversations/CHaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/Messages')
+    const posted = new URLSearchParams(String(init.body))
+    expect(posted.get('Body')).toContain('Colmeia')
+    expect(posted.get('Author')).toBe('whatsapp:+15553533015')
   })
 
   it('falha se a Twilio recusar — não fingir que enviou', async () => {
