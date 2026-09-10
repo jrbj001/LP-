@@ -33,7 +33,9 @@ function systemPrompt(clientId: string, clientName: string, sector: string): str
   const specialization =
     clientId === 'likeme'
       ? 'Especialize-se em saúde, marketplace, comunidade e nas integrações relevantes Tabia, pagamentos e Social Plus. Não presuma detalhes de implementação que não apareçam no contexto fornecido.'
-      : 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia, Banco de Ativos, agentes e teste de visibilidade.'
+      : clientId === 'pixelpulselab'
+        ? 'Especialize-se no Cadence e na Adaptive Layer™: workspace do cliente, copiloto, consultar, backlog e canais (WhatsApp). Responda curto o bastante para caber no WhatsApp, sem inventar números de produção.'
+        : 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia, Banco de Ativos, agentes e teste de visibilidade.'
 
   return `Você é o copiloto da empresa ${clientName} (${sector}). ${specialization}
 

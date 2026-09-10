@@ -10,6 +10,7 @@ export type BacklogBoardId =
   | 'likeme-landing'
   | 'likeme-app'
   | 'likeme-backend'
+  | 'cadence'
 
 export interface GithubRef {
   repo: string
@@ -127,6 +128,8 @@ export interface CopilotThread {
   title: string
   boardId: BacklogBoardId
   cardId?: string
+  channel?: 'web' | 'whatsapp'
+  externalId?: string
   messages: CopilotMessage[]
   createdAt: string
   updatedAt: string

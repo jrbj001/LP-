@@ -215,9 +215,26 @@ export async function getCopilotThread(
   return thread
 }
 
+export async function findCopilotThreadByExternalId(
+  clientId: string,
+  externalId: string
+): Promise<CopilotThread | null> {
+  const store = await readBacklogStore(clientId)
+  const match = Object.values(store.threads ?? {}).find(
+    thread => thread.externalId === externalId
+  )
+  return match ?? null
+}
+
 export async function createCopilotThread(
   clientId: string,
-  input: { boardId: BacklogBoardId; cardId?: string; title?: string }
+  input: {
+    boardId: BacklogBoardId
+    cardId?: string
+    title?: string
+    channel?: CopilotThread['channel']
+    externalId?: string
+  }
 ): Promise<CopilotThread> {
   if (!getBacklogBoards(clientId).some(board => board.id === input.boardId)) {
     throw new Error('Board inválido para este cliente.')
@@ -229,6 +246,8 @@ export async function createCopilotThread(
     title: input.title ? threadTitleFrom(input.title) : 'Nova conversa',
     boardId: input.boardId,
     cardId: input.cardId,
+    channel: input.channel,
+    externalId: input.externalId,
     messages: [],
     createdAt: ts,
     updatedAt: ts,
