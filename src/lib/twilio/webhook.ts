@@ -1,7 +1,6 @@
 import { orientationWelcome } from './quick-reply'
 import { sendWhatsappMessage } from './send'
 import { shouldSkipTwilioSignature, verifyTwilioSignature } from './signature'
-import { sendWhatsappTyping, withWhatsappTyping } from './typing'
 import { renderTwiml } from './twiml'
 
 export type TwilioWebhookResult = {
@@ -10,8 +9,8 @@ export type TwilioWebhookResult = {
   contentType: string
 }
 
-function xml(body?: string): TwilioWebhookResult {
-  return { status: 200, body: renderTwiml(body), contentType: 'text/xml' }
+function xml(): TwilioWebhookResult {
+  return { status: 200, body: renderTwiml(), contentType: 'text/xml' }
 }
 
 function json(status: number, payload: Record<string, unknown>): TwilioWebhookResult {
@@ -41,22 +40,12 @@ export async function handleTwilioWhatsappWebhook(input: {
     return json(400, { ok: false, error: 'From/To ausentes.' })
   }
 
-  const messageSid = input.params.MessageSid?.trim() || input.params.SmsSid?.trim()
-  const conversationSid = input.params.ConversationSid?.trim()
-  await sendWhatsappTyping(messageSid)
-
   const welcome = orientationWelcome(to, body)
   if (welcome) {
     try {
-      await sendWhatsappMessage({
-        to: from,
-        from: to,
-        body: welcome.reply,
-        conversationSid,
-      })
+      await sendWhatsappMessage({ to: from, from: to, body: welcome.reply })
     } catch (error) {
       console.error('[twilio/whatsapp] send', error)
-      return xml(welcome.reply)
     }
     try {
       const { persistWhatsappWelcome } = await import('./persist-welcome')
@@ -75,15 +64,12 @@ export async function handleTwilioWhatsappWebhook(input: {
 
   try {
     const { handleWhatsappInbound } = await import('./inbound')
-    const result = await withWhatsappTyping(messageSid, () =>
-      handleWhatsappInbound({
-        from,
-        to,
-        body,
-        profileName: input.params.ProfileName?.trim(),
-        conversationSid,
-      })
-    )
+    const result = await handleWhatsappInbound({
+      from,
+      to,
+      body,
+      profileName: input.params.ProfileName?.trim(),
+    })
     if (!result.ok) {
       console.error('[twilio/whatsapp]', result.error)
     }
