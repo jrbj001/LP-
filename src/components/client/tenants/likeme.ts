@@ -17,7 +17,7 @@ export const likeMe: ClientWorkspace = {
   sector: 'Saúde · Marketplace · Comunidade',
   tagline:
     'Workspace operacional — app, landing, backend, reuniões e documentos do engajamento Like:Me com a PixelPulseLab.',
-  status: 'pilot',
+  status: 'active',
   accent: '#be123c',
   contacts: [
     { name: 'José Roberto', role: 'Principal Engineer · PixelPulseLab', email: 'hello@pixelpulselab.dev' },

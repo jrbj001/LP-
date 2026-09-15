@@ -78,6 +78,11 @@ export interface ClientWorkspace {
   tagline: string
   status: ClientStatus
   accent: string
+  /**
+   * Destino após o login, no lugar do workspace Cadence.
+   * O card do portal continua em `/client/{slug}` (senha como os demais).
+   */
+  entryPath?: string
   contacts: ClientContact[]
   stats: { label: string; value: string }[]
   /** Legado — clientes maduros usam `projects` no lugar. */

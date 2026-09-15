@@ -17,6 +17,7 @@ export default async function ClientWorkspaceLayout({ children, params }: Props)
   if (!session || !canAccessClient(session, client.slug)) {
     redirect(`/${locale}/client/${client.slug}/login`)
   }
+  if (client.entryPath) redirect(`/${locale}${client.entryPath}`)
 
   return <ClientShell client={client}>{children}</ClientShell>
 }

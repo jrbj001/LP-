@@ -8,10 +8,12 @@ export function ClientLoginForm({
   locale,
   slug,
   accent,
+  nextHref,
 }: {
   locale: string
   slug: string
   accent: string
+  nextHref?: string
 }) {
   const router = useRouter()
   const [password, setPassword] = useState('')
@@ -33,7 +35,7 @@ export function ClientLoginForm({
         setError(result.error || 'Senha inválida.')
         return
       }
-      router.push(`/${locale}/client/${slug}`)
+      router.push(nextHref || `/${locale}/client/${slug}`)
       router.refresh()
     } catch {
       setError('Não foi possível conectar. Tente novamente.')

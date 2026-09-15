@@ -11,7 +11,9 @@ type Props = {
 }
 
 export function generateStaticParams() {
-  return listClients().map(c => ({ clientId: c.slug }))
+  return listClients()
+    .filter(c => !c.entryPath)
+    .map(c => ({ clientId: c.slug }))
 }
 
 export default async function ClientWorkspacePage({ params }: Props) {
