@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { ClientLoginForm } from '@/components/client/client-login-form'
 import { canAccessClient, getClientSession } from '@/lib/client/auth'
-import { getClient } from '@/lib/client/registry'
+import { getClient, getClientEntryHref } from '@/lib/client/registry'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,9 +14,10 @@ export default async function ClientLoginPage({ params }: Props) {
   const client = getClient(clientId)
   if (!client) redirect(`/${locale}/client`)
 
+  const nextHref = getClientEntryHref(locale, client)
   const session = await getClientSession()
   if (session && canAccessClient(session, client.slug)) {
-    redirect(`/${locale}/client/${client.slug}`)
+    redirect(nextHref)
   }
 
   return (
@@ -35,6 +36,7 @@ export default async function ClientLoginPage({ params }: Props) {
           locale={locale}
           slug={client.slug}
           accent={client.accent}
+          nextHref={nextHref}
         />
       </div>
     </main>

@@ -5,17 +5,12 @@ const DEV_PASSWORDS: Record<string, string> = {
   likeme: 'likeme2026',
   'be180-ooh': 'be180ooh2026',
   pixelpulselab: 'pixel2026',
+  orfeu: 'orfeu2026',
 }
 
 type Credential = { slug: string; password: string }
 
-function configuredPasswords(): Credential[] {
-  const raw = process.env.CLIENT_ACCESS
-  if (!raw) {
-    if (process.env.NODE_ENV === 'production') return []
-    return Object.entries(DEV_PASSWORDS).map(([slug, password]) => ({ slug, password }))
-  }
-
+function parseConfiguredPasswords(raw: string): Credential[] {
   try {
     const parsed = JSON.parse(raw) as Array<{ slug?: string; password?: string }>
     return parsed
@@ -27,6 +22,18 @@ function configuredPasswords(): Credential[] {
   } catch {
     throw new Error('CLIENT_ACCESS deve ser um JSON válido')
   }
+}
+
+function developmentPasswords(): Credential[] {
+  return Object.entries(DEV_PASSWORDS).map(([slug, password]) => ({ slug, password }))
+}
+
+function configuredPasswords(): Credential[] {
+  const raw = process.env.CLIENT_ACCESS
+  const fromEnv = raw ? parseConfiguredPasswords(raw) : []
+  if (process.env.NODE_ENV === 'production') return fromEnv
+  const envSlugs = new Set(fromEnv.map(item => getClient(item.slug)?.slug ?? item.slug))
+  return [...fromEnv, ...developmentPasswords().filter(item => !envSlugs.has(item.slug))]
 }
 
 export function authenticateClient(slug: string, password: string): Omit<ClientSession, 'exp'> | null {

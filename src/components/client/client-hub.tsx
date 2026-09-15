@@ -9,6 +9,11 @@ const STATUS_LABEL: Record<ClientWorkspace['status'], string> = {
   active: 'Ativo',
 }
 
+const STATUS_DOT: Record<ClientWorkspace['status'], string> = {
+  pilot: '#e11d48',
+  active: '#10b981',
+}
+
 export function ClientHub({ clients }: { clients: ClientWorkspace[] }) {
   const locale = useLocale()
 
@@ -49,7 +54,7 @@ export function ClientHub({ clients }: { clients: ClientWorkspace[] }) {
                 <div className="flex items-center gap-3 mb-2">
                   <span
                     className="w-2 h-2 rounded-full shrink-0"
-                    style={{ backgroundColor: client.accent }}
+                    style={{ backgroundColor: STATUS_DOT[client.status] }}
                   />
                   <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">
                     {STATUS_LABEL[client.status]} · {client.sector}

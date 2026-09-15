@@ -20,6 +20,19 @@ describe('authenticateClient', () => {
     expect(authenticateClient('likeme', 'segredo-be180')).toBeNull()
     expect(authenticateClient('be180-ooh', 'errada')).toBeNull()
   })
+
+  it('autentica Café Orfeu com a senha do workspace', () => {
+    process.env.CLIENT_ACCESS = JSON.stringify([{ slug: 'orfeu', password: 'segredo-orfeu' }])
+    expect(authenticateClient('orfeu', 'segredo-orfeu')?.name).toBe('Café Orfeu')
+    expect(authenticateClient('orfeu', 'errada')).toBeNull()
+  })
+
+  it('completa slugs ausentes do CLIENT_ACCESS em desenvolvimento', () => {
+    process.env.CLIENT_ACCESS = JSON.stringify([{ slug: 'likeme', password: 'segredo-like' }])
+    expect(authenticateClient('orfeu', 'orfeu2026')?.slug).toBe('orfeu')
+    expect(authenticateClient('likeme', 'likeme2026')).toBeNull()
+    expect(authenticateClient('likeme', 'segredo-like')?.slug).toBe('likeme')
+  })
 })
 
 describe('client session token', () => {
