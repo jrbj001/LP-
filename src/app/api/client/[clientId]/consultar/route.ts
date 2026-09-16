@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server'
 import { runNaturalLanguageQuery } from '@/lib/cadence/nl-sql'
 import { seedCadenceClient } from '@/lib/cadence/seed'
+import { requireClientSession } from '@/lib/client/auth'
 import { getClient } from '@/lib/client/registry'
-import {
-  DataSourceAdminConfigurationError,
-  isDataSourceAdminRequest,
-} from '@/lib/data-sources/auth'
 import { runExternalNaturalLanguageQuery } from '@/lib/data-sources/nl-sql'
 import { seedEnvDataSources } from '@/lib/data-sources/seed'
 
@@ -20,6 +17,8 @@ export async function POST(
   if (!client) {
     return NextResponse.json({ ok: false, error: 'Cliente não encontrado' }, { status: 404 })
   }
+  const session = await requireClientSession(client.slug)
+  if (session instanceof NextResponse) return session
 
   let body: { question?: string; sourceId?: string }
   try {
@@ -37,22 +36,6 @@ export async function POST(
   if (sourceId) {
     if (sourceId.length > 128) {
       return NextResponse.json({ ok: false, error: 'Fonte de dados inválida.' }, { status: 400 })
-    }
-    try {
-      if (!isDataSourceAdminRequest(req)) {
-        return NextResponse.json(
-          { ok: false, error: 'Credencial administrativa inválida.' },
-          { status: 401 }
-        )
-      }
-    } catch (error) {
-      if (error instanceof DataSourceAdminConfigurationError) {
-        return NextResponse.json(
-          { ok: false, error: 'Autenticação de fontes externas não configurada.' },
-          { status: 500 }
-        )
-      }
-      throw error
     }
   }
 

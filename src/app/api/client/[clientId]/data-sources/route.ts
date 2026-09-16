@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server'
+import { requireClientSession } from '@/lib/client/auth'
 import { getClient } from '@/lib/client/registry'
-import {
-  DataSourceAdminConfigurationError,
-  isDataSourceAdminRequest,
-} from '@/lib/data-sources/auth'
 import {
   DataSourceEncryptionConfigurationError,
   encryptDataSourceConfig,
@@ -27,31 +24,10 @@ function sourceView(source: DataSourceMetadata) {
   }
 }
 
-function authorize(request: Request): NextResponse | null {
-  try {
-    if (isDataSourceAdminRequest(request)) return null
-    return NextResponse.json(
-      { ok: false, error: 'Credencial administrativa inválida.' },
-      { status: 401 }
-    )
-  } catch (error) {
-    if (error instanceof DataSourceAdminConfigurationError) {
-      return NextResponse.json(
-        { ok: false, error: 'Autenticação administrativa não configurada.' },
-        { status: 500 }
-      )
-    }
-    throw error
-  }
-}
-
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ clientId: string }> }
 ) {
-  const unauthorized = authorize(request)
-  if (unauthorized) return unauthorized
-
   const { clientId } = await params
   const client = getClient(clientId)
   if (!client) {
@@ -60,6 +36,8 @@ export async function GET(
       { status: 404 }
     )
   }
+  const session = await requireClientSession(client.slug)
+  if (session instanceof NextResponse) return session
 
   try {
     try {
@@ -81,9 +59,6 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ clientId: string }> }
 ) {
-  const unauthorized = authorize(request)
-  if (unauthorized) return unauthorized
-
   const { clientId } = await params
   const client = getClient(clientId)
   if (!client) {
@@ -92,6 +67,8 @@ export async function POST(
       { status: 404 }
     )
   }
+  const session = await requireClientSession(client.slug)
+  if (session instanceof NextResponse) return session
 
   let body: unknown
   try {
