@@ -195,7 +195,7 @@ export function resolveReposForBoard(
     return all.filter(
       r =>
         r.repo.includes('image_brand') ||
-        r.repo.includes('digital-branding') ||
+        r.repo.includes('visibilidade-front') ||
         /visibil/i.test(r.label)
     )
   }

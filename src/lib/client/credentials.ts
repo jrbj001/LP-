@@ -4,7 +4,9 @@ import type { ClientSession } from './session'
 const DEV_PASSWORDS: Record<string, string> = {
   likeme: 'likeme2026',
   'be180-ooh': 'be180ooh2026',
+  cadence: 'cadence2026',
   pixelpulselab: 'pixel2026',
+  'adaptive-layer': 'adaptive2026',
   orfeu: 'orfeu2026',
 }
 
@@ -39,7 +41,10 @@ function configuredPasswords(): Credential[] {
 export function authenticateClient(slug: string, password: string): Omit<ClientSession, 'exp'> | null {
   const client = getClient(slug)
   if (!client || !password) return null
-  const expected = configuredPasswords().find(item => getClient(item.slug)?.slug === client.slug)
+  const credentials = configuredPasswords()
+  const expected =
+    credentials.find(item => item.slug === slug) ??
+    credentials.find(item => getClient(item.slug)?.slug === client.slug)
   if (!expected || expected.password !== password) return null
   return { slug: client.slug, name: client.name }
 }

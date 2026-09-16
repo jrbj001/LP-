@@ -6,7 +6,7 @@ import { LIKEME_MEETINGS } from '@/components/client/tenants/likeme-meetings'
  * conectada aos repositórios de landing, app frontend e backend.
  *
  * Repos:
- * - https://github.com/jrbj001/LP-LikeMe
+ * - https://github.com/PixelPulseLab/LP-LikeMe
  * - https://github.com/PixelPulseLab/likeme-front-end
  * - https://github.com/PixelPulseLab/likeme-back-end
  */
@@ -46,7 +46,7 @@ export const likeMe: ClientWorkspace = {
       updatedAt: '12/08/2026',
       tags: ['Landing', 'Vite', 'SendGrid', 'Vercel'],
       boardIds: ['likeme-landing'],
-      href: 'https://github.com/jrbj001/LP-LikeMe',
+      href: 'https://github.com/PixelPulseLab/LP-LikeMe',
     },
     {
       id: 'likeme-front-end',
@@ -93,7 +93,7 @@ export const likeMe: ClientWorkspace = {
   delivery: {
     repos: [
       {
-        owner: 'jrbj001',
+        owner: 'PixelPulseLab',
         repo: 'LP-LikeMe',
         label: 'Landing Page · Like:Me',
         products: [
@@ -234,7 +234,7 @@ export const likeMe: ClientWorkspace = {
         'Código-fonte da landing Like:Me (Vite, Vercel, newsletter SendGrid). Fonte das entregas de landing.',
       updatedAt: '12/08/2026',
       status: 'available',
-      href: 'https://github.com/jrbj001/LP-LikeMe',
+      href: 'https://github.com/PixelPulseLab/LP-LikeMe',
       external: true,
     },
     {

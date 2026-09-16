@@ -129,7 +129,7 @@ export const be180Ooh: ClientWorkspace = {
   delivery: {
     repos: [
       {
-        owner: 'jrbj001',
+        owner: 'PixelPulseLab',
         repo: 'colmeia---meusroteirosdefault',
         label: 'Colmeia · Meus Roteiros',
         products: [
@@ -141,13 +141,13 @@ export const be180Ooh: ClientWorkspace = {
         ],
       },
       {
-        owner: 'jrbj001',
+        owner: 'PixelPulseLab',
         repo: 'image_brand_processing',
         label: 'Teste de Visibilidade · Backend',
       },
       {
-        owner: 'Mavimarmara',
-        repo: 'digital-branding',
+        owner: 'PixelPulseLab',
+        repo: 'visibilidade-front',
         label: 'Teste de Visibilidade · Frontend',
       },
     ],

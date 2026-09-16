@@ -83,6 +83,8 @@ export interface ClientWorkspace {
    * O card do portal continua em `/client/{slug}` (senha como os demais).
    */
   entryPath?: string
+  /** Slugs antigos que resolvem para este workspace. */
+  aliases?: string[]
   contacts: ClientContact[]
   stats: { label: string; value: string }[]
   /** Legado — clientes maduros usam `projects` no lugar. */

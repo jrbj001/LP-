@@ -11,6 +11,7 @@ export type BacklogBoardId =
   | 'likeme-app'
   | 'likeme-backend'
   | 'cadence'
+  | 'adaptive-layer'
 
 export interface GithubRef {
   repo: string

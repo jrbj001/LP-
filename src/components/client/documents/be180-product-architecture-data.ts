@@ -109,7 +109,7 @@ export const PORTFOLIO: PortfolioProduct[] = [
     state: 'Em produção',
     outcome:
       'Planejar, simular, analisar e operar campanhas OOH a partir de briefing, inventário, metodologia e resultados.',
-    repositories: ['jrbj001/colmeia---meusroteirosdefault'],
+    repositories: ['PixelPulseLab/colmeia---meusroteirosdefault'],
     evidence: 'confirmado',
     capabilities: [
       'Meus Roteiros e wizard de criação',
@@ -126,7 +126,7 @@ export const PORTFOLIO: PortfolioProduct[] = [
     state: 'Em produção · evolução prioritária',
     outcome:
       'Manter a identidade, localização, classificação e ciclo de aprovação dos ativos usados pelo planejamento.',
-    repositories: ['jrbj001/colmeia---meusroteirosdefault'],
+    repositories: ['PixelPulseLab/colmeia---meusroteirosdefault'],
     evidence: 'confirmado',
     capabilities: [
       'Dashboard, mapa e busca geoespacial',
@@ -144,8 +144,8 @@ export const PORTFOLIO: PortfolioProduct[] = [
     outcome:
       'Avaliar peças criativas contra critérios de visibilidade OOH — cor, contraste, tipografia, branding e CTA — com score, recomendações e mockups.',
     repositories: [
-      'Mavimarmara/digital-branding',
-      'jrbj001/image_brand_processing',
+      'PixelPulseLab/visibilidade-front',
+      'PixelPulseLab/image_brand_processing',
     ],
     evidence: 'confirmado',
     capabilities: [
@@ -516,19 +516,19 @@ export const AS_IS_ARCHITECTURE = {
 
 export const REPOSITORY_MAP = [
   {
-    name: 'jrbj001/colmeia---meusroteirosdefault',
+    name: 'PixelPulseLab/colmeia---meusroteirosdefault',
     domain: 'Colmeia + Banco de Ativos',
     responsibility: 'SPA e backend Node serverless de planejamento, mapas, resultados, exibidor e administração.',
     evidence: 'confirmado' as const,
   },
   {
-    name: 'Mavimarmara/digital-branding',
+    name: 'PixelPulseLab/visibilidade-front',
     domain: 'Teste de Visibilidade · frontend',
     responsibility: 'Experiência de entrada e visualização do teste de marca.',
     evidence: 'observado' as const,
   },
   {
-    name: 'jrbj001/image_brand_processing',
+    name: 'PixelPulseLab/image_brand_processing',
     domain: 'Teste de Visibilidade · backend',
     responsibility: 'Pipeline e serviços de processamento de imagem e marca.',
     evidence: 'confirmado' as const,

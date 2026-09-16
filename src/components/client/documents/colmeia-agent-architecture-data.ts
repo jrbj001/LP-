@@ -10,8 +10,8 @@ export const COLMEIA_AGENT_ARCHITECTURE_META = {
   sources: [
     'Miro · Arquitetura Tech — Agentes & Colmeia',
     'Reunião 04/08/2026 · Planejamento do Roadmap do Colmeia',
-    'Repos GitHub · jrbj001/colmeia---meusroteirosdefault (produto Banco de Ativos)',
-    'Repos GitHub · jrbj001/image_brand_processing',
+    'Repos GitHub · PixelPulseLab/colmeia---meusroteirosdefault (produto Banco de Ativos)',
+    'Repos GitHub · PixelPulseLab/image_brand_processing',
     'Adaptive Layer™ · PixelPulseLab',
   ],
 }
@@ -454,13 +454,13 @@ export const AS_IS = {
   subtitle: 'O que os repos e a sessão 04/08 mostram antes da Layer',
   repos: [
     {
-      name: 'jrbj001/colmeia---meusroteirosdefault',
+      name: 'PixelPulseLab/colmeia---meusroteirosdefault',
       label: 'Colmeia · Meus Roteiros',
       note:
         'Repo principal de produto. Entregas de Banco de Ativos são classificadas no relatório por regex em branch/título (mesmo repositório, produto separado).',
     },
     {
-      name: 'jrbj001/image_brand_processing',
+      name: 'PixelPulseLab/image_brand_processing',
       label: 'Image Brand Processing',
       note: 'Pipeline de imagem/marca conectado ao ecossistema — satélite do Colmeia, sem subproduto configurado.',
     },

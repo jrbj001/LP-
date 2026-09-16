@@ -3,7 +3,7 @@ import { resolveReposForBoard } from './github-context'
 import type { RepoConfig } from '@/lib/delivery/types'
 
 const repos: RepoConfig[] = [
-  { owner: 'jrbj001', repo: 'LP-LikeMe', label: 'Landing' },
+  { owner: 'PixelPulseLab', repo: 'LP-LikeMe', label: 'Landing' },
   { owner: 'PixelPulseLab', repo: 'likeme-front-end', label: 'App' },
   { owner: 'PixelPulseLab', repo: 'likeme-back-end', label: 'API' },
 ]
@@ -21,14 +21,14 @@ describe('resolveReposForBoard', () => {
   it('sintetiza o repo do board quando ele não está no delivery', () => {
     const selected = resolveReposForBoard('be180-ooh', 'visibilidade', [])
     expect(selected).toEqual([
-      { owner: 'jrbj001', repo: 'image_brand_processing', label: 'Teste de Visibilidade' },
-      { owner: 'Mavimarmara', repo: 'digital-branding', label: 'Teste de Visibilidade' },
+      { owner: 'PixelPulseLab', repo: 'image_brand_processing', label: 'Teste de Visibilidade' },
+      { owner: 'PixelPulseLab', repo: 'visibilidade-front', label: 'Teste de Visibilidade' },
     ])
   })
 
   it('resolve Colmeia e Banco de Ativos no repositório canônico', () => {
     const be180: RepoConfig[] = [
-      { owner: 'jrbj001', repo: 'colmeia---meusroteirosdefault', label: 'Colmeia · Meus Roteiros' },
+      { owner: 'PixelPulseLab', repo: 'colmeia---meusroteirosdefault', label: 'Colmeia · Meus Roteiros' },
     ]
     expect(resolveReposForBoard('be180-ooh', 'colmeia', be180).map(r => r.repo)).toEqual([
       'colmeia---meusroteirosdefault',
@@ -40,14 +40,14 @@ describe('resolveReposForBoard', () => {
 
   it('no Cadence WhatsApp da Be180 junta Colmeia e Teste de Visibilidade', () => {
     const be180: RepoConfig[] = [
-      { owner: 'jrbj001', repo: 'colmeia---meusroteirosdefault', label: 'Colmeia · Meus Roteiros' },
-      { owner: 'jrbj001', repo: 'image_brand_processing', label: 'Teste de Visibilidade · Backend' },
-      { owner: 'Mavimarmara', repo: 'digital-branding', label: 'Teste de Visibilidade · Frontend' },
+      { owner: 'PixelPulseLab', repo: 'colmeia---meusroteirosdefault', label: 'Colmeia · Meus Roteiros' },
+      { owner: 'PixelPulseLab', repo: 'image_brand_processing', label: 'Teste de Visibilidade · Backend' },
+      { owner: 'PixelPulseLab', repo: 'visibilidade-front', label: 'Teste de Visibilidade · Frontend' },
     ]
     expect(resolveReposForBoard('be180-ooh', 'cadence', be180).map(r => r.repo)).toEqual([
       'colmeia---meusroteirosdefault',
       'image_brand_processing',
-      'digital-branding',
+      'visibilidade-front',
     ])
   })
 })

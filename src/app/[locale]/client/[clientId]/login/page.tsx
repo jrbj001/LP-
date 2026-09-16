@@ -13,6 +13,7 @@ export default async function ClientLoginPage({ params }: Props) {
   const { locale, clientId } = await params
   const client = getClient(clientId)
   if (!client) redirect(`/${locale}/client`)
+  if (clientId !== client.slug) redirect(`/${locale}/client/${client.slug}/login`)
 
   const nextHref = getClientEntryHref(locale, client)
   const session = await getClientSession()
