@@ -43,7 +43,16 @@ function preferredSourceHint(boardId: string, channel?: string): string {
   if (boardId === 'colmeia' || boardId === 'agentes' || boardId === 'visibilidade') {
     return 'O board atual é Colmeia: prefira o SQL Server do Colmeia para roteiros, usuários, campanhas e operação.'
   }
+  if (boardId.startsWith('likeme')) {
+    return 'O workspace Like:Me: prefira o PostgreSQL do Supabase para usuários, comunidade, marketplace, conteúdo e assinaturas.'
+  }
   return 'Escolha a fonte pelo assunto da pergunta, não pelo nome do board se o assunto for outro.'
+}
+
+function externalSourceHint(name: string, kind: string): string {
+  if (/like:?me|supabase/i.test(name)) return 'produção Like:Me (Supabase PostgreSQL)'
+  if (kind === 'sqlserver') return 'produção Colmeia (Azure SQL)'
+  return 'produção Banco de Ativos (Azure PostgreSQL)'
 }
 
 export async function gatherCopilotSqlContext(input: {
@@ -54,7 +63,7 @@ export async function gatherCopilotSqlContext(input: {
   channel?: string
 }): Promise<CopilotSqlEvidence | null> {
   try {
-    if (input.clientId === 'be180-ooh') {
+    if (input.clientId === 'be180-ooh' || input.clientId === 'likeme') {
       try {
         await seedEnvDataSources(input.clientId)
       } catch (error) {
@@ -65,7 +74,10 @@ export async function gatherCopilotSqlContext(input: {
       }
     }
 
-    const external = input.clientId === 'be180-ooh' ? await listDataSources(input.clientId) : []
+    const external =
+      input.clientId === 'be180-ooh' || input.clientId === 'likeme'
+        ? await listDataSources(input.clientId)
+        : []
     const sources = [
       ...(hasCadenceDatabase()
         ? [
@@ -84,10 +96,7 @@ export async function gatherCopilotSqlContext(input: {
           id: source.id,
           name: source.name,
           kind: source.kind,
-          hint:
-            source.kind === 'sqlserver'
-              ? 'produção Colmeia (Azure SQL)'
-              : 'produção Banco de Ativos (Azure PostgreSQL)',
+          hint: externalSourceHint(source.name, source.kind),
           tables: catalogBrief(source.catalog.entries),
         })),
     ]
@@ -110,9 +119,10 @@ NÃO consulte quando for saudação, opinião, desenho de fluxo, redação de us
 ou quando o contexto recente já tiver a resposta.
 
 Fontes:
-- cadence: workspace Be180 (cards, PRs, reuniões com summary, documentos). Nunca use para volumes de produção do Colmeia/Ativos.
+- cadence: workspace Cadence (cards, PRs, reuniões com summary, documentos). Nunca use para volumes de produção do cliente.
 - Banco de Ativos: inventário, pontos, exibidores, media kit, cadastro de ativos.
 - Colmeia SQL Server: roteiros, campanhas, usuários, operação do planejador.
+- Like:Me Supabase: usuários, comunidade, marketplace, conteúdo, assinaturas e demais tabelas do produto.
 
 ${preferredSourceHint(input.boardId, input.channel)}
 sourceId deve ser exatamente um dos ids listados, ou vazio se shouldQuery for false.

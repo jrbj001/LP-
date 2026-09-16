@@ -10,6 +10,7 @@ export {
   discoverPostgresCatalog,
   testPostgresConnection,
 } from './postgresql'
+export { likemeSupabasePostgresConfigFromEnv, supabaseProjectRef } from './likeme-supabase'
 export { seedEnvDataSources } from './seed'
 export {
   createDataSource,
