@@ -44,9 +44,8 @@ type DataSourceSummary = {
   name: string
   kind: 'postgresql' | 'sqlserver'
   tableCount: number
+  enabled: boolean
 }
-
-const ADMIN_KEY_STORAGE = 'cadence.data-source-admin-key'
 
 function cellValue(value: unknown): string {
   if (value == null) return '—'
@@ -73,18 +72,17 @@ export function ConsultarWorkspace({
     clientId === 'be180-ooh' ? BE180_EXAMPLES : clientId === 'likeme' ? LIKEME_EXAMPLES : DEFAULT_EXAMPLES
 
   useEffect(() => {
-    const adminKey = window.sessionStorage.getItem(ADMIN_KEY_STORAGE)
-    if (!adminKey) return
     void fetch(`/api/client/${clientId}/data-sources`, {
       cache: 'no-store',
-      headers: { 'x-data-source-admin-key': adminKey },
     })
       .then(async response => {
         const data = (await response.json()) as {
           ok?: boolean
           sources?: DataSourceSummary[]
         }
-        if (response.ok && data.ok) setExternalSources(data.sources ?? [])
+        if (response.ok && data.ok) {
+          setExternalSources((data.sources ?? []).filter(source => source.enabled))
+        }
       })
       .catch(() => undefined)
   }, [clientId])
@@ -95,13 +93,9 @@ export function ConsultarWorkspace({
     setLoading(true)
     setError(null)
     try {
-      const adminKey = window.sessionStorage.getItem(ADMIN_KEY_STORAGE)
       const res = await fetch(`/api/client/${clientId}/consultar`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(sourceId && adminKey ? { 'x-data-source-admin-key': adminKey } : {}),
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: trimmed, sourceId: sourceId || undefined }),
       })
       const data = (await res.json()) as { ok: boolean; error?: string } & Partial<QueryPayload>
@@ -173,7 +167,7 @@ export function ConsultarWorkspace({
           </select>
           {externalSources.length === 0 && (
             <span className="text-[10px] text-neutral-400">
-              Cadastre e desbloqueie uma fonte externa para selecioná-la.
+              Cadastre ou ative uma fonte externa para selecioná-la.
             </span>
           )}
         </div>

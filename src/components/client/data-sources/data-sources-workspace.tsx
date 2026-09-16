@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { CheckCircle2, Database, Loader2, PlugZap, RefreshCw, Trash2 } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { CheckCircle2, Database, Loader2, PlugZap, Power, RefreshCw, Trash2 } from 'lucide-react'
 
 type DataSourceSummary = {
   id: string
@@ -10,6 +10,7 @@ type DataSourceSummary = {
   schemas: string[]
   tableCount: number
   enabled: boolean
+  managed: boolean
   lastTestedAt?: string | null
 }
 
@@ -37,8 +38,6 @@ const EMPTY_FORM: FormState = {
   schemas: '',
 }
 
-const ADMIN_KEY_STORAGE = 'cadence.data-source-admin-key'
-
 export function DataSourcesWorkspace({
   clientId,
   accent,
@@ -47,8 +46,6 @@ export function DataSourcesWorkspace({
   accent: string
 }) {
   const base = `/api/client/${encodeURIComponent(clientId)}/data-sources`
-  const [adminKey, setAdminKey] = useState('')
-  const [unlocked, setUnlocked] = useState(false)
   const [sources, setSources] = useState<DataSourceSummary[]>([])
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [loading, setLoading] = useState(false)
@@ -56,36 +53,30 @@ export function DataSourcesWorkspace({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
-  useEffect(() => {
-    const saved = window.sessionStorage.getItem(ADMIN_KEY_STORAGE)
-    if (saved) setAdminKey(saved)
-  }, [])
-
-  async function loadSources(key = adminKey) {
-    if (!key.trim()) return
+  const loadSources = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
       const response = await fetch(base, {
         cache: 'no-store',
-        headers: { 'x-data-source-admin-key': key.trim() },
       })
       const data = (await response.json()) as {
         ok?: boolean
         sources?: DataSourceSummary[]
         error?: string
       }
-      if (!response.ok || !data.ok) throw new Error(data.error || 'Acesso não autorizado.')
-      window.sessionStorage.setItem(ADMIN_KEY_STORAGE, key.trim())
-      setUnlocked(true)
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Não foi possível carregar as fontes.')
       setSources(data.sources ?? [])
     } catch (caught) {
-      setUnlocked(false)
       setError(caught instanceof Error ? caught.message : 'Não foi possível carregar as fontes.')
     } finally {
       setLoading(false)
     }
-  }
+  }, [base])
+
+  useEffect(() => {
+    void loadSources()
+  }, [loadSources])
 
   async function createSource() {
     setLoading(true)
@@ -96,7 +87,6 @@ export function DataSourcesWorkspace({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-data-source-admin-key': adminKey.trim(),
         },
         body: JSON.stringify({
           name: form.name,
@@ -133,14 +123,23 @@ export function DataSourcesWorkspace({
     }
   }
 
-  async function sourceAction(sourceId: string, method: 'POST' | 'DELETE') {
+  async function sourceAction(
+    sourceId: string,
+    method: 'POST' | 'PATCH' | 'DELETE',
+    enabled?: boolean
+  ) {
     setActionId(sourceId)
     setError(null)
     setSuccess(null)
     try {
       const response = await fetch(`${base}/${encodeURIComponent(sourceId)}`, {
         method,
-        headers: { 'x-data-source-admin-key': adminKey.trim() },
+        ...(method === 'PATCH'
+          ? {
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ enabled }),
+            }
+          : {}),
       })
       const data = (await response.json()) as {
         ok?: boolean
@@ -153,57 +152,17 @@ export function DataSourcesWorkspace({
         setSuccess('Fonte removida.')
       } else if (data.source) {
         setSources(current => current.map(source => (source.id === sourceId ? data.source! : source)))
-        setSuccess(`Conexão validada. ${data.source.tableCount} tabelas encontradas.`)
+        setSuccess(
+          method === 'PATCH'
+            ? `Fonte ${data.source.enabled ? 'ativada' : 'desativada'}.`
+            : `Conexão validada. ${data.source.tableCount} tabelas encontradas.`
+        )
       }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Operação não concluída.')
     } finally {
       setActionId(null)
     }
-  }
-
-  if (!unlocked) {
-    return (
-      <section className="max-w-xl rounded-2xl border border-black/[0.06] bg-white p-5">
-        <div className="flex items-center gap-3">
-          <div className="rounded-xl bg-amber-50 p-2.5 text-amber-700">
-            <Database className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-[14px] font-semibold text-neutral-900">Área administrativa</h2>
-            <p className="mt-0.5 text-[12px] text-neutral-500">
-              Informe a chave configurada em <code>DATA_SOURCE_ADMIN_SECRET</code>.
-            </p>
-          </div>
-        </div>
-        <form
-          className="mt-5 flex gap-2"
-          onSubmit={event => {
-            event.preventDefault()
-            void loadSources()
-          }}
-        >
-          <input
-            type="password"
-            value={adminKey}
-            onChange={event => setAdminKey(event.target.value)}
-            placeholder="Chave administrativa"
-            autoComplete="off"
-            className="h-11 flex-1 rounded-xl border border-black/[0.08] px-3.5 text-[13px] outline-none focus:border-neutral-400"
-          />
-          <button
-            type="submit"
-            disabled={loading || !adminKey.trim()}
-            className="inline-flex h-11 items-center gap-2 rounded-xl px-4 text-[12px] font-semibold text-white disabled:opacity-50"
-            style={{ backgroundColor: accent }}
-          >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlugZap className="h-4 w-4" />}
-            Acessar
-          </button>
-        </form>
-        {error && <ErrorMessage text={error} />}
-      </section>
-    )
   }
 
   return (
@@ -234,16 +193,31 @@ export function DataSourcesWorkspace({
             </div>
           )}
           {sources.map(source => (
-            <article key={source.id} className="rounded-xl border border-black/[0.07] bg-[#fbfbfa] p-4">
+            <article
+              key={source.id}
+              className={`rounded-xl border border-black/[0.07] p-4 ${
+                source.enabled ? 'bg-[#fbfbfa]' : 'bg-neutral-50 opacity-75'
+              }`}
+            >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-teal-600" />
+                    {source.enabled ? (
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-teal-600" />
+                    ) : (
+                      <Power className="h-4 w-4 shrink-0 text-neutral-400" />
+                    )}
                     <h3 className="truncate text-[13px] font-semibold text-neutral-900">{source.name}</h3>
                   </div>
-                  <p className="mt-1.5 font-mono text-[10px] text-neutral-500">
-                    {source.kind === 'sqlserver' ? 'SQL Server' : 'PostgreSQL'}
-                  </p>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5 text-[10px]">
+                    <span className="font-mono text-neutral-500">
+                      {source.kind === 'sqlserver' ? 'SQL Server' : 'PostgreSQL'}
+                    </span>
+                    <span className={source.enabled ? 'text-teal-700' : 'text-neutral-400'}>
+                      {source.enabled ? 'Conectada' : 'Desativada'}
+                    </span>
+                    {source.managed && <span className="text-indigo-600">Automática</span>}
+                  </div>
                   <p className="mt-2 text-[11px] text-neutral-500">
                     {source.tableCount} tabelas · schemas{' '}
                     {source.schemas.length > 0 ? source.schemas.join(', ') : 'todos os não-sistema'}
@@ -265,13 +239,28 @@ export function DataSourcesWorkspace({
                   </button>
                   <button
                     type="button"
-                    onClick={() => void sourceAction(source.id, 'DELETE')}
+                    onClick={() => void sourceAction(source.id, 'PATCH', !source.enabled)}
                     disabled={actionId === source.id}
-                    className="rounded-lg border border-rose-100 p-2 text-rose-500 hover:border-rose-300 disabled:opacity-50"
-                    aria-label="Remover fonte"
+                    className={`rounded-lg border p-2 disabled:opacity-50 ${
+                      source.enabled
+                        ? 'border-amber-100 text-amber-600 hover:border-amber-300'
+                        : 'border-teal-100 text-teal-600 hover:border-teal-300'
+                    }`}
+                    aria-label={source.enabled ? 'Desativar fonte' : 'Ativar fonte'}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Power className="h-3.5 w-3.5" />
                   </button>
+                  {!source.managed && (
+                    <button
+                      type="button"
+                      onClick={() => void sourceAction(source.id, 'DELETE')}
+                      disabled={actionId === source.id}
+                      className="rounded-lg border border-rose-100 p-2 text-rose-500 hover:border-rose-300 disabled:opacity-50"
+                      aria-label="Remover fonte"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
             </article>

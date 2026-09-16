@@ -2,6 +2,7 @@ import 'server-only'
 
 import { randomUUID } from 'node:crypto'
 import { getDb } from '@/lib/postgres'
+import { seededDataSourceEnabled } from './lifecycle'
 import type {
   DataSourceCatalog,
   DataSourceMetadata,
@@ -91,6 +92,7 @@ function toStored(row: DataSourceRow): StoredDataSource {
     kind: row.kind,
     encryptedConfig: row.encrypted_config,
     enabled: row.enabled,
+    managed: Boolean(row.seed_key),
     catalog: parseCatalog(row.catalog),
     lastTestedAt: row.last_tested_at ? iso(row.last_tested_at) : null,
     createdAt: iso(row.created_at),
@@ -151,6 +153,7 @@ export async function upsertSeededDataSource(params: {
     where client_id = ${params.clientId} and seed_key = ${params.seedKey}
     limit 1
   `
+  const enabled = seededDataSourceEnabled(existing[0])
   const rows = existing[0]
     ? await sql<DataSourceRow[]>`
         update data_sources
@@ -160,7 +163,7 @@ export async function upsertSeededDataSource(params: {
             catalog = ${catalog}::jsonb,
             last_tested_at = now(),
             updated_at = now(),
-            enabled = true
+            enabled = ${enabled}
         where client_id = ${params.clientId} and seed_key = ${params.seedKey}
         returning *
       `
@@ -171,7 +174,7 @@ export async function upsertSeededDataSource(params: {
         )
         values (
           ${randomUUID()}, ${params.clientId}, ${params.name}, ${params.kind},
-          ${params.encryptedConfig}, true, ${catalog}::jsonb,
+          ${params.encryptedConfig}, ${enabled}, ${catalog}::jsonb,
           now(), now(), now(), ${params.seedKey}
         )
         returning *
@@ -217,6 +220,23 @@ export async function updateDataSourceCatalog(
     update data_sources
     set catalog = ${serializedCatalog}::jsonb,
         last_tested_at = now(),
+        updated_at = now()
+    where client_id = ${clientId} and id = ${sourceId}
+    returning *
+  `
+  return rows[0] ? toDataSourceMetadata(toStored(rows[0])) : null
+}
+
+export async function updateDataSourceEnabled(
+  clientId: string,
+  sourceId: string,
+  enabled: boolean
+): Promise<DataSourceMetadata | null> {
+  await ensureDataSourcesTable()
+  const sql = getDb()
+  const rows = await sql<DataSourceRow[]>`
+    update data_sources
+    set enabled = ${enabled},
         updated_at = now()
     where client_id = ${clientId} and id = ${sourceId}
     returning *

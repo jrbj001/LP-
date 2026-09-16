@@ -42,6 +42,7 @@ export interface DataSourceMetadata {
   name: string
   kind: DataSourceKind
   enabled: boolean
+  managed: boolean
   catalog: DataSourceCatalog
   lastTestedAt: string | null
   createdAt: string
