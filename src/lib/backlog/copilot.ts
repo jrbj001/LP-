@@ -52,8 +52,10 @@ function systemPrompt(
   const specialization =
     clientId === 'likeme'
       ? 'Especialize-se em saúde, marketplace, comunidade e nas integrações relevantes Tabia, pagamentos e Social Plus. Não presuma detalhes de implementação que não apareçam no contexto fornecido.'
-      : clientId === 'pixelpulselab'
-        ? 'Especialize-se no Cadence e na Adaptive Layer™: workspace do cliente, copiloto, consultar, backlog e canais (WhatsApp). Responda curto o bastante para caber no WhatsApp.'
+      : clientId === 'cadence' || clientId === 'pixelpulselab'
+        ? 'Especialize-se no Cadence: workspace, copiloto, consultar, backlog e canais (WhatsApp). Responda curto o bastante para caber no WhatsApp.'
+        : clientId === 'adaptive-layer'
+          ? 'Especialize-se na Adaptive Layer™: sistema operacional de IA, agentes, governança, assessment Adaptive Enterprise™ e rollout em clientes.'
         : clientId === 'be180-ooh'
           ? 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia · Meus Roteiros, Banco de Ativos e Teste de Visibilidade. WhatsApp e web são o mesmo Copiloto: só você fala com a pessoa. Se a pergunta for de um produto, foque nele; se for transversal, compare os três. Quando houver números reais, comece por eles em linguagem falada.'
           : 'Especialize-se no domínio de mídia exterior (OOH) e nos produtos Colmeia, Banco de Ativos, agentes e teste de visibilidade.'

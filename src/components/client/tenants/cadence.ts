@@ -1,12 +1,13 @@
 import type { ClientWorkspace } from '@/lib/client/types'
 
-export const pixelPulseLab: ClientWorkspace = {
-  id: 'pixelpulselab',
-  slug: 'pixelpulselab',
-  name: 'PixelPulseLab',
-  sector: 'Adaptive Layer™ · Cadence',
+export const cadence: ClientWorkspace = {
+  id: 'cadence',
+  slug: 'cadence',
+  aliases: ['pixelpulselab'],
+  name: 'Cadence',
+  sector: 'Agent-ready Delivery™',
   tagline:
-    'Canal interno Cadence — WhatsApp Business Pixelpulselab.dev e copiloto da operação PixelPulseLab.',
+    'Workspace de product management — copiloto, backlog, consultar e canal WhatsApp Pixelpulselab.dev.',
   status: 'active',
   accent: '#0f766e',
   contacts: [{ name: 'José Roberto', role: 'Principal Engineer', email: 'hello@pixelpulselab.dev' }],
@@ -23,7 +24,7 @@ export const pixelPulseLab: ClientWorkspace = {
       status: 'active',
       owner: 'PixelPulseLab',
       priority: 'Alta',
-      updatedAt: '09/09/2026',
+      updatedAt: '15/09/2026',
       tags: ['Cadence', 'WhatsApp', 'Twilio'],
       boardIds: ['cadence'],
       href: 'https://github.com/jrbj001/LP-',
@@ -31,7 +32,7 @@ export const pixelPulseLab: ClientWorkspace = {
   ],
   docs: {
     eyebrow: 'Cadence',
-    title: 'PixelPulseLab',
+    title: 'Cadence',
     titleAccent: 'interno',
     categories: [],
     supportEmail: 'hello@pixelpulselab.dev',
@@ -41,8 +42,8 @@ export const pixelPulseLab: ClientWorkspace = {
       {
         owner: 'jrbj001',
         repo: 'LP-',
-        label: 'Cadence · Adaptive Layer™',
-        products: [{ label: 'Cadence', pattern: 'cadence|adaptive.?layer|copilot' }],
+        label: 'Cadence',
+        products: [{ label: 'Cadence', pattern: 'cadence|copilot' }],
       },
     ],
   },

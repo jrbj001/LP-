@@ -129,7 +129,7 @@ export function buildSeedCards(clientId: string): BacklogCard[] {
     title: 'Integrar teste de visibilidade ao fluxo operacional do Colmeia',
     level: 'raw',
     context:
-      'Repos: jrbj001/image_brand_processing (backend) e Mavimarmara/digital-branding (frontend).',
+      'Repos: PixelPulseLab/image_brand_processing (backend) e PixelPulseLab/visibilidade-front (frontend).',
     priority: 'Média',
     source: { kind: 'manual', ref: 'visibilidade-seed' },
     createdAt: ts,

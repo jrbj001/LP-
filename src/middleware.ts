@@ -1,7 +1,7 @@
 import createMiddleware from 'next-intl/middleware'
 import { NextResponse, type NextRequest } from 'next/server'
 import { routing } from './i18n/routing'
-import { CLIENT_SESSION_COOKIE, verifyClientSessionToken } from './lib/client/session'
+import { canAccessClient, CLIENT_SESSION_COOKIE, verifyClientSessionToken } from './lib/client/session'
 
 const intlMiddleware = createMiddleware(routing)
 
@@ -15,7 +15,7 @@ export default async function middleware(request: NextRequest) {
         const session = await verifyClientSessionToken(
           request.cookies.get(CLIENT_SESSION_COOKIE)?.value
         )
-        if (!session || session.slug !== clientId) {
+        if (!session || !canAccessClient(session, clientId)) {
           return NextResponse.json(
             { ok: false, error: 'Faça login para continuar.' },
             { status: 401 }

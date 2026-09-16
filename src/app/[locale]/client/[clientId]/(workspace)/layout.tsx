@@ -12,6 +12,7 @@ export default async function ClientWorkspaceLayout({ children, params }: Props)
   const { locale, clientId } = await params
   const client = getClient(clientId)
   if (!client) notFound()
+  if (clientId !== client.slug) redirect(`/${locale}/client/${client.slug}`)
 
   const session = await getClientSession()
   if (!session || !canAccessClient(session, client.slug)) {

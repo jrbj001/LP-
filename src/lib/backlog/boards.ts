@@ -7,7 +7,7 @@ const BE180_BOARDS: BacklogBoard[] = [
     description: 'Planner, metodologia, resultados e jornada do roteiro OOH.',
     productLabel: 'Colmeia · Meus Roteiros',
     projectIds: ['colmeia-meus-roteiros', 'metodologia-cobertura-frequencia', 'tendencias-transporte-publico', 'ux-redesign-onboarding'],
-    repository: 'jrbj001/colmeia---meusroteirosdefault',
+    repository: 'PixelPulseLab/colmeia---meusroteirosdefault',
   },
   {
     id: 'banco-ativos',
@@ -15,7 +15,7 @@ const BE180_BOARDS: BacklogBoard[] = [
     description: 'Inventário, exibidores, media kit, cadastros e funil de aprovação.',
     productLabel: 'Banco de Ativos',
     projectIds: ['banco-de-ativos'],
-    repository: 'jrbj001/colmeia---meusroteirosdefault',
+    repository: 'PixelPulseLab/colmeia---meusroteirosdefault',
   },
   {
     id: 'agentes',
@@ -23,7 +23,7 @@ const BE180_BOARDS: BacklogBoard[] = [
     description: 'Copiloto, agentes da jornada e contratos da Adaptive Layer™.',
     productLabel: 'Agentes · Adaptive Layer™',
     projectIds: ['colmeia-ai-mvp', 'agentes'],
-    repository: 'jrbj001/colmeia---meusroteirosdefault',
+    repository: 'PixelPulseLab/colmeia---meusroteirosdefault',
   },
   {
     id: 'visibilidade',
@@ -31,8 +31,8 @@ const BE180_BOARDS: BacklogBoard[] = [
     description: 'Frontend e backend do teste de visibilidade / image brand processing.',
     productLabel: 'Teste de Visibilidade',
     projectIds: ['image-brand-processing'],
-    repository: 'jrbj001/image_brand_processing',
-    repositories: ['Mavimarmara/digital-branding'],
+    repository: 'PixelPulseLab/image_brand_processing',
+    repositories: ['PixelPulseLab/visibilidade-front'],
   },
   {
     id: 'cadence',
@@ -40,8 +40,8 @@ const BE180_BOARDS: BacklogBoard[] = [
     description: 'Canal WhatsApp Pixelpulselab.dev ligado a Colmeia, Banco de Ativos e Teste de Visibilidade.',
     productLabel: 'Cadence · WhatsApp',
     projectIds: ['colmeia-meus-roteiros', 'banco-de-ativos', 'image-brand-processing'],
-    repository: 'jrbj001/colmeia---meusroteirosdefault',
-    repositories: ['jrbj001/image_brand_processing', 'Mavimarmara/digital-branding'],
+    repository: 'PixelPulseLab/colmeia---meusroteirosdefault',
+    repositories: ['PixelPulseLab/image_brand_processing', 'PixelPulseLab/visibilidade-front'],
   },
 ]
 
@@ -54,7 +54,7 @@ const LIKEME_BOARDS: BacklogBoard[] = [
     description: 'Landing pública, aquisição, cadastro e comunicação inicial.',
     productLabel: 'Landing · Like:Me',
     projectIds: ['likeme-landing', 'likeme-newsletter'],
-    repository: 'jrbj001/LP-LikeMe',
+    repository: 'PixelPulseLab/LP-LikeMe',
   },
   {
     id: 'likeme-app',
@@ -78,9 +78,20 @@ const CADENCE_BOARDS: BacklogBoard[] = [
   {
     id: 'cadence',
     title: 'Cadence',
-    description: 'Canal WhatsApp e copiloto interno da PixelPulseLab.',
-    productLabel: 'Cadence · PixelPulseLab',
+    description: 'Canal WhatsApp e copiloto interno do Cadence.',
+    productLabel: 'Cadence',
     projectIds: ['cadence-platform'],
+    repository: 'jrbj001/LP-',
+  },
+]
+
+const ADAPTIVE_LAYER_BOARDS: BacklogBoard[] = [
+  {
+    id: 'adaptive-layer',
+    title: 'Adaptive Layer™',
+    description: 'OS de IA, assessment Adaptive Enterprise™ e rollout em clientes.',
+    productLabel: 'Adaptive Layer™',
+    projectIds: ['adaptive-layer-os', 'adaptive-layer-devs', 'adaptive-enterprise-assessment'],
     repository: 'jrbj001/LP-',
   },
 ]
@@ -88,6 +99,7 @@ const CADENCE_BOARDS: BacklogBoard[] = [
 export function getBacklogBoards(clientId: string): BacklogBoard[] {
   if (clientId === 'be180-ooh') return BE180_BOARDS
   if (clientId === 'likeme') return LIKEME_BOARDS
-  if (clientId === 'pixelpulselab') return CADENCE_BOARDS
+  if (clientId === 'cadence' || clientId === 'pixelpulselab') return CADENCE_BOARDS
+  if (clientId === 'adaptive-layer') return ADAPTIVE_LAYER_BOARDS
   return []
 }

@@ -1,3 +1,5 @@
+import { getClient } from './registry'
+
 export interface ClientSession {
   slug: string
   name: string
@@ -81,5 +83,8 @@ export async function verifyClientSessionToken(
 }
 
 export function canAccessClient(session: ClientSession, slug: string): boolean {
-  return session.slug === slug
+  if (session.slug === slug) return true
+  const sessionClient = getClient(session.slug)
+  const requested = getClient(slug)
+  return Boolean(sessionClient && requested && sessionClient.slug === requested.slug)
 }

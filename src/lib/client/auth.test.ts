@@ -33,6 +33,14 @@ describe('authenticateClient', () => {
     expect(authenticateClient('likeme', 'likeme2026')).toBeNull()
     expect(authenticateClient('likeme', 'segredo-like')?.slug).toBe('likeme')
   })
+
+  it('autentica Cadence e Adaptive Layer™ como produtos distintos', () => {
+    delete process.env.CLIENT_ACCESS
+    expect(authenticateClient('cadence', 'cadence2026')?.name).toBe('Cadence')
+    expect(authenticateClient('adaptive-layer', 'adaptive2026')?.name).toBe('Adaptive Layer™')
+    expect(authenticateClient('pixelpulselab', 'pixel2026')?.slug).toBe('cadence')
+    expect(authenticateClient('cadence', 'adaptive2026')).toBeNull()
+  })
 })
 
 describe('client session token', () => {

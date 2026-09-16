@@ -4,7 +4,9 @@ import { routeWhatsappSender } from './routing'
 const CLIENT_NAMES: Record<string, string> = {
   'be180-ooh': 'Be180 OOH',
   likeme: 'Like:Me',
-  pixelpulselab: 'PixelPulseLab',
+  cadence: 'Cadence',
+  pixelpulselab: 'Cadence',
+  'adaptive-layer': 'Adaptive Layer™',
 }
 
 /** Menu do oi — sem Copilot, banco, GitHub ou persistência. */
