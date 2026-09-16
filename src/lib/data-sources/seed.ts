@@ -1,11 +1,31 @@
 import 'server-only'
 
 import { encryptDataSourceConfig } from './crypto'
+import { likemeSupabasePostgresConfigFromEnv } from './likeme-supabase'
 import { testPostgresConnection } from './postgresql'
 import { testSqlServerConnection } from './sqlserver'
 import { upsertSeededDataSource } from './store'
 
 export async function seedEnvDataSources(clientId: string): Promise<void> {
+  if (clientId === 'likeme') {
+    const config = likemeSupabasePostgresConfigFromEnv()
+    if (!config) return
+    try {
+      const catalog = await testPostgresConnection(config)
+      await upsertSeededDataSource({
+        clientId,
+        seedKey: 'likeme-supabase-pg',
+        name: 'Like:Me · Supabase',
+        kind: 'postgresql',
+        encryptedConfig: encryptDataSourceConfig(config),
+        catalog,
+      })
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Falha no Supabase Like:Me')
+    }
+    return
+  }
+
   if (clientId !== 'be180-ooh') return
 
   const errors: string[] = []

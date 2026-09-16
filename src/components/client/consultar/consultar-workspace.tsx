@@ -27,6 +27,12 @@ const DEFAULT_EXAMPLES = [
   'Quais reuniões aconteceram em agosto?',
 ]
 
+const LIKEME_EXAMPLES = [
+  'Quantos usuários existem hoje no produto?',
+  'Quais são as tabelas principais do Supabase Like:Me?',
+  'Quantos registros recentes aparecem no marketplace ou na comunidade?',
+]
+
 const BE180_EXAMPLES = [
   'Quantos pontos ativos existem hoje no Banco de Ativos?',
   'Qual o exibidor com o maior número de pontos ativos?',
@@ -63,7 +69,8 @@ export function ConsultarWorkspace({
   const [result, setResult] = useState<QueryPayload | null>(null)
   const [sourceId, setSourceId] = useState('')
   const [externalSources, setExternalSources] = useState<DataSourceSummary[]>([])
-  const examples = clientId === 'be180-ooh' ? BE180_EXAMPLES : DEFAULT_EXAMPLES
+  const examples =
+    clientId === 'be180-ooh' ? BE180_EXAMPLES : clientId === 'likeme' ? LIKEME_EXAMPLES : DEFAULT_EXAMPLES
 
   useEffect(() => {
     const adminKey = window.sessionStorage.getItem(ADMIN_KEY_STORAGE)
