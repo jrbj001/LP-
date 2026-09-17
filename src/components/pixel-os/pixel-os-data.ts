@@ -9,6 +9,16 @@ export const ENTERPRISE_SYSTEMS = [
   'Documents',
 ]
 
+export const FRAGMENTED_SYSTEMS = [
+  'GitHub',
+  'CRM',
+  'ERP',
+  'Meetings',
+  'Documents',
+  'Databases',
+  'People',
+]
+
 export const ADAPTIVE_CAPABILITIES = [
   'Context',
   'Memory',

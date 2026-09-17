@@ -8,6 +8,7 @@ import {
   CadenceTask,
   ContextFlywheel,
   EnterpriseContextGraph,
+  FragmentedEnterprise,
   InfrastructureMap,
   ModelSwitcher,
   ProductArchitecture,
@@ -89,7 +90,7 @@ export function PixelOSHome({ locale }: { locale: string }) {
               </h2>
             </FadeIn>
             <div className="mt-20">
-              <InfrastructureMap fragmented />
+              <FragmentedEnterprise />
             </div>
             <div className="grid gap-12 py-24 md:grid-cols-2 md:py-32">
               <p className="max-w-md text-xl leading-relaxed text-white/42">
