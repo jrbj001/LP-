@@ -11,6 +11,7 @@ import {
   CONTEXT_PATH,
   ENTERPRISE_SYSTEMS,
   FLYWHEEL,
+  FRAGMENTED_SYSTEMS,
   GOVERNANCE_STEPS,
   MODELS,
 } from './pixel-os-data'
@@ -67,17 +68,13 @@ function TechnicalLabel({
   )
 }
 
-export function InfrastructureMap({ fragmented = false }: { fragmented?: boolean }) {
+export function InfrastructureMap() {
   const reduceMotion = useReducedMotion()
   return (
     <div
       className="relative mx-auto w-full max-w-[1080px] overflow-hidden border-y border-white/10 py-10 md:py-14"
       role="img"
-      aria-label={
-        fragmented
-          ? 'AI models see disconnected fragments of enterprise systems.'
-          : 'AI models converge through Pixel into a shared enterprise context connected to company systems.'
-      }
+      aria-label="AI models converge through Pixel into a shared enterprise context connected to company systems."
     >
       <div className="hidden md:grid grid-cols-[1fr_150px_1fr] items-center gap-8">
         <div className="space-y-4">
@@ -87,7 +84,7 @@ export function InfrastructureMap({ fragmented = false }: { fragmented?: boolean
               key={model}
               className="flex items-center gap-3"
               initial={{ opacity: 0, x: -18 }}
-              whileInView={{ opacity: fragmented ? 0.45 + index * 0.07 : 1, x: fragmented ? index * 9 : 0 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.65, delay: index * 0.06, ease }}
             >
@@ -100,7 +97,7 @@ export function InfrastructureMap({ fragmented = false }: { fragmented?: boolean
         <motion.div
           className="relative z-10 flex aspect-square items-center justify-center border border-emerald-300/35 bg-neutral-950"
           initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: fragmented ? 0.32 : 1, scale: 1 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease }}
         >
@@ -109,7 +106,7 @@ export function InfrastructureMap({ fragmented = false }: { fragmented?: boolean
             <span className="block font-mono text-[8px] uppercase tracking-[0.24em] text-emerald-300/70">Context layer</span>
             <span className="mt-2 block text-2xl font-semibold tracking-[-0.04em]">PIXEL</span>
           </div>
-          {!reduceMotion && !fragmented && (
+          {!reduceMotion && (
             <motion.span
               className="absolute inset-0 border border-emerald-300/20"
               animate={{ scale: [1, 1.16], opacity: [0.45, 0] }}
@@ -125,7 +122,7 @@ export function InfrastructureMap({ fragmented = false }: { fragmented?: boolean
               key={system}
               className="flex items-center gap-3"
               initial={{ opacity: 0, x: 18 }}
-              whileInView={{ opacity: fragmented ? 0.35 + index * 0.08 : 1, x: fragmented ? (index % 2 ? 16 : -4) : 0 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.65, delay: index * 0.05, ease }}
             >
@@ -150,6 +147,117 @@ export function InfrastructureMap({ fragmented = false }: { fragmented?: boolean
           {ENTERPRISE_SYSTEMS.map((system) => <TechnicalLabel key={system}>{system}</TechnicalLabel>)}
         </div>
         <p className="mt-4 font-mono text-[9px] uppercase tracking-[0.18em] text-white/30">Enterprise</p>
+      </div>
+    </div>
+  )
+}
+
+const FRAGMENT_LAYOUT = [
+  { left: 7, top: 9, rotate: -2.5 },
+  { left: 39, top: 26, rotate: 1.5 },
+  { left: 68, top: 6, rotate: -1 },
+  { left: 88, top: 41, rotate: 2.5 },
+  { left: 14, top: 52, rotate: 1 },
+  { left: 47, top: 74, rotate: -2 },
+  { left: 76, top: 63, rotate: 1.5 },
+]
+
+export function FragmentedEnterprise() {
+  const reduceMotion = useReducedMotion()
+
+  return (
+    <div aria-describedby="fragmented-enterprise-description">
+      <p id="fragmented-enterprise-description" className="sr-only">
+        Enterprise systems such as GitHub, CRM, ERP, meetings, documents, databases and people sit as disconnected
+        islands. Each AI model reaches only a fragment, and none of them share a representation of the organization.
+      </p>
+
+      <div className="hidden md:block">
+        <div className="flex items-start justify-between border-b border-white/10 pb-5">
+          {MODELS.map((model) => (
+            <span key={model} className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/55">
+              {model}
+            </span>
+          ))}
+        </div>
+
+        <div className="relative h-[440px]">
+          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
+            <defs>
+              <linearGradient id="fragment-sightline" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.38)" />
+                <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+              </linearGradient>
+            </defs>
+            {MODELS.map((model, index) => {
+              const x = 4 + index * 23
+              return (
+                <motion.line
+                  key={model}
+                  x1={x}
+                  y1="0"
+                  x2={x + (index % 2 ? 4 : -3)}
+                  y2={26 + index * 5}
+                  stroke="url(#fragment-sightline)"
+                  strokeWidth="1"
+                  strokeDasharray="3 5"
+                  vectorEffect="non-scaling-stroke"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: index * 0.1, ease }}
+                />
+              )
+            })}
+          </svg>
+
+          {FRAGMENTED_SYSTEMS.map((system, index) => {
+            const fragment = FRAGMENT_LAYOUT[index]
+            return (
+              <motion.div
+                key={system}
+                className="absolute"
+                style={{ left: `${fragment.left}%`, top: `${fragment.top}%`, rotate: `${fragment.rotate}deg` }}
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.7, delay: index * 0.07, ease }}
+              >
+                <motion.div
+                  animate={reduceMotion ? undefined : { y: [0, index % 2 ? -6 : 6, 0] }}
+                  transition={
+                    reduceMotion ? undefined : { duration: 7 + index * 0.7, repeat: Infinity, ease: 'easeInOut' }
+                  }
+                >
+                  <span className="mb-2 block h-3 w-px bg-white/25" aria-hidden />
+                  <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-white/78">
+                    {system}
+                  </span>
+                  <span className="mt-2 block w-16 border-b border-dashed border-white/22" aria-hidden />
+                </motion.div>
+              </motion.div>
+            )
+          })}
+        </div>
+      </div>
+
+      <div className="md:hidden">
+        <div className="flex flex-wrap gap-x-4 gap-y-2 border-b border-white/10 pb-5">
+          {MODELS.map((model) => (
+            <span key={model} className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">
+              {model}
+            </span>
+          ))}
+        </div>
+        <div className="space-y-7 pt-9">
+          {FRAGMENTED_SYSTEMS.map((system, index) => (
+            <div key={system} style={{ marginLeft: `${(index % 3) * 22}%` }}>
+              <span className="mb-2 block h-3 w-px bg-white/25" aria-hidden />
+              <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-white/78">{system}</span>
+              <span className="mt-2 block w-12 border-b border-dashed border-white/22" aria-hidden />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
