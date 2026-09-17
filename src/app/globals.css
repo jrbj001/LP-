@@ -193,3 +193,54 @@ body:has(.alquimia-scope) {
   background-color: #f7f5ed;
   color: #071217;
 }
+
+/* ─── Pixel · AI Operating System ─── */
+.pixel-os-scope {
+  --pixel-os-ink: #080808;
+  --pixel-os-paper: #f4f4f1;
+  --pixel-os-signal: #6ee7b7;
+  background: var(--pixel-os-ink);
+  color: #f5f5f5;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.pixel-os-scope ::selection {
+  background: rgba(110, 231, 183, 0.28);
+  color: inherit;
+}
+.pixel-os-scope ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+}
+body:has(.pixel-os-scope) {
+  background-color: var(--pixel-os-ink);
+  color: #f5f5f5;
+}
+.pixel-os-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+.pixel-os-grid-light {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(to bottom, transparent 15%, black 70%);
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .pixel-os-scope *,
+  .pixel-os-scope *::before,
+  .pixel-os-scope *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

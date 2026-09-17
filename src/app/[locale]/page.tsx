@@ -1,37 +1,72 @@
-import { Nav } from '@/components/nav'
-import { Hero } from '@/components/hero'
-import { WhatWeBuild } from '@/components/what-we-build'
-import { Thesis } from '@/components/thesis'
-import { HowItWorks } from '@/components/how-it-works'
-import { Enterprise } from '@/components/enterprise'
-import { Platforms } from '@/components/platforms'
-import { Ventures } from '@/components/ventures'
-import { AdaptiveCore } from '@/components/adaptive-core'
-import { WhyPixelPulse } from '@/components/why-pixelpulse'
-import { Principles } from '@/components/principles'
-import { TechStack } from '@/components/tech-stack'
-import { FinalCTA } from '@/components/final-cta'
-import { Footer } from '@/components/footer'
+import type { Metadata } from 'next'
+import Script from 'next/script'
+import { PixelOSHome } from '@/components/pixel-os/pixel-os-home'
 
-export default function Page() {
+export const metadata: Metadata = {
+  metadataBase: new URL('https://pixelpulselab.dev'),
+  title: 'Pixel — The AI Operating System for the Enterprise',
+  description:
+    'Pixel gives AI models and agents the context, memory, permissions and tools they need to understand and operate your enterprise.',
+  alternates: {
+    canonical: '/',
+    languages: {
+      'pt-BR': '/pt',
+      en: '/en',
+      'zh-CN': '/zh',
+    },
+  },
+  openGraph: {
+    type: 'website',
+    url: '/',
+    siteName: 'PixelPulseLab.dev',
+    title: 'The AI Operating System for the Enterprise.',
+    description: 'Any model. One enterprise context.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'The AI Operating System for the Enterprise.',
+    description: 'Any model. One enterprise context.',
+  },
+}
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://pixelpulselab.dev/#organization',
+      name: 'PixelPulseLab',
+      url: 'https://pixelpulselab.dev',
+      email: 'ze@pixelpulselab.dev',
+    },
+    {
+      '@type': 'SoftwareApplication',
+      '@id': 'https://pixelpulselab.dev/#pixel',
+      name: 'Pixel',
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      description:
+        'The AI Operating System for the Enterprise. Pixel gives AI models and agents shared enterprise context, memory, identity, permissions, policies and tools.',
+      creator: { '@id': 'https://pixelpulselab.dev/#organization' },
+    },
+  ],
+}
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+
   return (
-    <div className="lp-scope min-h-screen bg-[#fbfbfa] text-neutral-900">
-      <Nav />
-      <main>
-        <Hero />
-        <WhatWeBuild />
-        <Thesis />
-        <HowItWorks />
-        <Enterprise />
-        <Platforms />
-        <Ventures />
-        <AdaptiveCore />
-        <WhyPixelPulse />
-        <Principles />
-        <TechStack />
-        <FinalCTA />
-      </main>
-      <Footer />
-    </div>
+    <>
+      <Script
+        id="pixel-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <PixelOSHome locale={locale} />
+    </>
   )
 }
