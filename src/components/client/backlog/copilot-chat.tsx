@@ -8,9 +8,11 @@ import {
   FileCode2,
   Loader2,
   MessageSquarePlus,
+  Mic,
   PanelLeft,
   Send,
   Sparkles,
+  Square,
   UserRound,
 } from 'lucide-react'
 import {
@@ -21,6 +23,7 @@ import {
   type CopilotThread,
   type CopilotThreadSummary,
 } from '@/lib/backlog/types'
+import { useSpeechDictation } from '@/hooks/use-speech-dictation'
 import { BacklogDiagramView } from './backlog-diagram'
 
 const GENERATE_STORY_PROMPT =
@@ -72,6 +75,7 @@ export function CopilotChat({
   const [historyOpen, setHistoryOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const draftMessageRef = useRef('')
 
   // O histórico só abre sozinho quando sobra largura depois da navegação do workspace.
   useEffect(() => {
@@ -79,11 +83,18 @@ export function CopilotChat({
   }, [])
 
   useEffect(() => {
+    draftMessageRef.current = draftMessage
     const field = inputRef.current
     if (!field) return
     field.style.height = 'auto'
     field.style.height = `${Math.min(field.scrollHeight, 200)}px`
   }, [draftMessage])
+
+  const dictation = useSpeechDictation({
+    enabled: !sending,
+    onDraft: setDraftMessage,
+    onError: setError,
+  })
 
   const loadThreads = useCallback(async () => {
     try {
@@ -112,6 +123,7 @@ export function CopilotChat({
   async function send(message: string) {
     const text = message.trim()
     if (!text || sending) return
+    dictation.stop()
     setSending(true)
     setPendingUser(text)
     setError(null)
@@ -388,7 +400,11 @@ export function CopilotChat({
 
         <div className="px-4 pb-5 pt-1 sm:px-6">
           <form
-            className="mx-auto flex w-full max-w-3xl items-end gap-2 rounded-3xl border border-black/[0.1] bg-white px-3 py-2 shadow-sm focus-within:border-neutral-400"
+            className={`mx-auto flex w-full max-w-3xl items-end gap-2 rounded-3xl border bg-white px-3 py-2 shadow-sm ${
+              dictation.listening
+                ? 'border-rose-300 focus-within:border-rose-400'
+                : 'border-black/[0.1] focus-within:border-neutral-400'
+            }`}
             onSubmit={e => {
               e.preventDefault()
               void send(draftMessage)
@@ -405,9 +421,37 @@ export function CopilotChat({
                 }
               }}
               rows={1}
-              placeholder="Pergunte sobre o fluxo, o código, um documento ou o que precisa virar story…"
+              placeholder={
+                dictation.listening
+                  ? 'Ouvindo… fale a pergunta'
+                  : 'Pergunte sobre o fluxo, o código, um documento ou o que precisa virar story…'
+              }
               className="max-h-[200px] flex-1 resize-none bg-transparent px-2 py-2.5 text-[14px] leading-relaxed outline-none placeholder:text-neutral-400"
             />
+            <button
+              type="button"
+              disabled={sending || (!dictation.supported && !dictation.listening)}
+              onClick={() => dictation.toggle(draftMessageRef.current)}
+              className={`mb-0.5 rounded-full p-2.5 ${
+                dictation.listening
+                  ? 'bg-rose-500 text-white'
+                  : 'text-neutral-500 hover:bg-black/[0.04] hover:text-neutral-800 disabled:opacity-40'
+              }`}
+              aria-label={dictation.listening ? 'Parar de ouvir' : 'Perguntar por voz'}
+              title={
+                dictation.supported
+                  ? dictation.listening
+                    ? 'Parar de ouvir'
+                    : 'Perguntar por voz'
+                  : 'Voz disponível no Chrome ou Edge'
+              }
+            >
+              {dictation.listening ? (
+                <Square className="h-3.5 w-3.5 fill-current" strokeWidth={1.8} />
+              ) : (
+                <Mic className="h-4 w-4" strokeWidth={1.8} />
+              )}
+            </button>
             <button
               type="submit"
               disabled={sending || !draftMessage.trim()}
@@ -423,7 +467,9 @@ export function CopilotChat({
             </button>
           </form>
           <p className="mx-auto mt-2 max-w-3xl text-center text-[10px] text-neutral-400">
-            O agente cruza código, bancos, reuniões e documentos. Enter envia, Shift+Enter quebra linha.
+            {dictation.listening
+              ? 'Ouvindo em português. Clique no quadrado para parar; o texto fica no composer para você enviar.'
+              : 'O agente cruza código, bancos, reuniões e documentos. Microfone dita, Enter envia, Shift+Enter quebra linha.'}
           </p>
         </div>
       </div>
