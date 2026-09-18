@@ -5,7 +5,6 @@ import { getBacklogCard } from '@/lib/backlog/store'
 import type { BacklogBoardId } from '@/lib/backlog/types'
 import { isBacklogEnabled } from '@/lib/backlog/access'
 import { getBacklogBoards } from '@/lib/backlog/boards'
-import { WorkspacePageHeader } from '@/components/client/workspace-page'
 import { CopilotChat } from '@/components/client/backlog/copilot-chat'
 
 export const dynamic = 'force-dynamic'
@@ -38,13 +37,7 @@ export default async function CopilotPage({ params, searchParams }: Props) {
   const base = `/${locale}/client/${client.slug}`
 
   return (
-    <div className="px-4 py-10 sm:px-6 sm:py-14 lg:px-8 xl:px-10 2xl:px-14">
-      <WorkspacePageHeader
-        eyebrow={`${client.name} · Workspace`}
-        title="Copilot"
-        description="Pergunte sobre fluxo, código, reuniões, documentos e dados de produção. O agente escolhe e cruza as fontes automaticamente."
-        backHref={base}
-      />
+    <div className="h-[calc(100dvh-3.5rem)] lg:h-[100dvh]">
       <CopilotChat
         clientId={client.slug}
         boards={boards}
