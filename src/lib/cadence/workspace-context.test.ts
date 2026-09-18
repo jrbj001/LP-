@@ -54,6 +54,20 @@ describe('workspace context Be180', () => {
     expect(pickedDocs[0].id).toBe('promo')
   })
 
+  it('recorta o trecho mais relevante em vez do início do conteúdo', () => {
+    const selected = selectWorkspaceMeetings(
+      [
+        {
+          ...meetings[0],
+          aiContext:
+            'Abertura e apresentações sem decisão.\n\nDiscussão administrativa geral.\n\nA promoção do inventário foi aprovada para sexta-feira.',
+        },
+      ],
+      'qual decisão sobre promoção do inventário?'
+    )
+    expect(selected[0].excerpt).toContain('promoção do inventário foi aprovada')
+  })
+
   it('mantém o catálogo inteiro no prompt', () => {
     const text = formatWorkspaceContextForPrompt({
       meetings: selectWorkspaceMeetings(meetings, 'reuniões'),

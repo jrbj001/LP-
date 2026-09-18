@@ -12,6 +12,7 @@ import {
   testPostgresConnection,
 } from './postgresql'
 import { assertExternalReadOnlySelect, isCatalogQuestion } from './query'
+import { applySourceTableSemantics, sourceSemanticHint } from './semantics'
 import {
   describeSqlServerTables,
   executeSqlServerReadOnly,
@@ -165,7 +166,12 @@ Retorne somente JSON: {"tables":["schema.tabela"]}.`,
     `Pergunta: ${input.question}\n\nCatálogo da fonte ${source.name}:\n${catalogText}`,
     { temperature: 0, maxTokens: 500, model: chatModel() }
   )
-  const entries = selectedEntries(choice, catalog.entries)
+  const entries = applySourceTableSemantics(
+    source.name,
+    input.question,
+    catalog.entries,
+    selectedEntries(choice, catalog.entries)
+  )
   if (entries.length === 0) {
     throw new Error('Não foi possível identificar tabelas relacionadas à pergunta.')
   }
@@ -188,6 +194,7 @@ Qualifique cada tabela com o schema.
 Não use escrita, DDL, comentários, múltiplos statements ou subconsultas em FROM/JOIN.
 ${dialect === 'sqlserver' ? 'Use SELECT TOP 100 ao listar registros.' : 'Use LIMIT 100 ao listar registros. Não use funções pg_*.'}
 Prefira agregações curtas.
+${sourceSemanticHint(source.name)}
 Sempre gere 3 próximas consultas úteis como perguntas executáveis e terminadas em "?".
 Retorne somente JSON:
 {"sql":"SELECT ...","explanation":"1 ou 2 frases","suggestions":["pergunta 1?","pergunta 2?","pergunta 3?"]}.`,

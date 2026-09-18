@@ -1,3 +1,5 @@
+import type { KnowledgeEvidence, KnowledgeSourceStatus } from '@/lib/knowledge/types'
+
 export type EnrichmentLevel = 'raw' | 'story' | 'spec'
 
 export type BacklogColumnId = 'requirement' | 'story' | 'ready' | 'dev' | 'done'
@@ -117,6 +119,10 @@ export interface CopilotMessage {
   flowNotes?: string[]
   /** Evidência consultada no Cadence para fundamentar este turno. */
   sqlEvidence?: CopilotSqlEvidence
+  /** Evidências normalizadas das fontes consultadas neste turno. */
+  researchEvidence?: KnowledgeEvidence[]
+  /** Diagnóstico por fonte, inclusive falhas parciais. */
+  sourceStatuses?: KnowledgeSourceStatus[]
   sources?: GithubRef[]
   followUps?: string[]
   /** Card criado/atualizado quando o PM aplica o rascunho. */

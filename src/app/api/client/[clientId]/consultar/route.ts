@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server'
-import { runNaturalLanguageQuery } from '@/lib/cadence/nl-sql'
-import { seedCadenceClient } from '@/lib/cadence/seed'
 import { requireClientSession } from '@/lib/client/auth'
 import { getClient } from '@/lib/client/registry'
-import { runExternalNaturalLanguageQuery } from '@/lib/data-sources/nl-sql'
-import { seedEnvDataSources } from '@/lib/data-sources/seed'
+import { answerKnowledgeQuestion } from '@/lib/knowledge/research'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,22 +37,26 @@ export async function POST(
   }
 
   try {
-    try {
-      await seedEnvDataSources(client.slug)
-    } catch (error) {
-      console.error('[client/consultar] seed', error)
-    }
-    if (sourceId) {
-      const result = await runExternalNaturalLanguageQuery({
-        clientId: client.slug,
-        sourceId,
-        question,
-      })
-      return NextResponse.json({ ok: true, ...result })
-    }
-    await seedCadenceClient(client.slug)
-    const result = await runNaturalLanguageQuery(client.slug, question)
-    return NextResponse.json({ ok: true, ...result })
+    const result = await answerKnowledgeQuestion({
+      clientId: client.slug,
+      question,
+      sourceId,
+    })
+    const primary = result.databases[0]
+    return NextResponse.json({
+      ok: true,
+      answer: result.answer,
+      suggestions: result.suggestions,
+      evidence: result.evidence,
+      statuses: result.statuses,
+      databases: result.databases,
+      sourceName: primary?.sourceName,
+      sql: primary?.sql ?? '',
+      explanation: primary?.explanation ?? '',
+      columns: primary?.columns ?? [],
+      rows: primary?.rows ?? [],
+      chart: primary?.chart ?? null,
+    })
   } catch (error) {
     console.error('[client/consultar]', error)
     return NextResponse.json(

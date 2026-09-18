@@ -42,7 +42,7 @@ export default async function CopilotPage({ params, searchParams }: Props) {
       <WorkspacePageHeader
         eyebrow={`${client.name} · Workspace`}
         title="Copilot"
-        description="Pergunte sobre fluxo, GitHub, documentos do portal e o que precisa virar trabalho no board. Fatos de produção ficam em Consultar."
+        description="Pergunte sobre fluxo, código, reuniões, documentos e dados de produção. O agente escolhe e cruza as fontes automaticamente."
         backHref={base}
       />
       <CopilotChat
