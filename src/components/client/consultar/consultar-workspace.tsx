@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { Database, Loader2, Search, Settings2 } from 'lucide-react'
+import { ExternalLink, Loader2, Search, Settings2 } from 'lucide-react'
 
 const ConsultarChart = dynamic(
   () => import('./consultar-chart').then(mod => mod.ConsultarChart),
@@ -19,6 +19,20 @@ interface QueryPayload {
   columns: string[]
   rows: Record<string, unknown>[]
   chart: { labelKey: string; valueKey: string } | null
+  evidence: {
+    id: string
+    kind: 'github' | 'database' | 'meeting' | 'document'
+    source: string
+    title: string
+    excerpt: string
+    href?: string
+  }[]
+  statuses: {
+    id: string
+    label: string
+    state: 'used' | 'empty' | 'unavailable' | 'error'
+    detail?: string
+  }[]
 }
 
 const DEFAULT_EXAMPLES = [
@@ -39,14 +53,6 @@ const BE180_EXAMPLES = [
   'Quais roteiros mais recentes aparecem no Colmeia?',
 ]
 
-type DataSourceSummary = {
-  id: string
-  name: string
-  kind: 'postgresql' | 'sqlserver'
-  tableCount: number
-  enabled: boolean
-}
-
 function cellValue(value: unknown): string {
   if (value == null) return '—'
   if (typeof value === 'object') return JSON.stringify(value)
@@ -66,26 +72,8 @@ export function ConsultarWorkspace({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<QueryPayload | null>(null)
-  const [sourceId, setSourceId] = useState('')
-  const [externalSources, setExternalSources] = useState<DataSourceSummary[]>([])
   const examples =
     clientId === 'be180-ooh' ? BE180_EXAMPLES : clientId === 'likeme' ? LIKEME_EXAMPLES : DEFAULT_EXAMPLES
-
-  useEffect(() => {
-    void fetch(`/api/client/${clientId}/data-sources`, {
-      cache: 'no-store',
-    })
-      .then(async response => {
-        const data = (await response.json()) as {
-          ok?: boolean
-          sources?: DataSourceSummary[]
-        }
-        if (response.ok && data.ok) {
-          setExternalSources((data.sources ?? []).filter(source => source.enabled))
-        }
-      })
-      .catch(() => undefined)
-  }, [clientId])
 
   async function run(nextQuestion: string) {
     const trimmed = nextQuestion.trim()
@@ -96,7 +84,7 @@ export function ConsultarWorkspace({
       const res = await fetch(`/api/client/${clientId}/consultar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: trimmed, sourceId: sourceId || undefined }),
+        body: JSON.stringify({ question: trimmed }),
       })
       const data = (await res.json()) as { ok: boolean; error?: string } & Partial<QueryPayload>
       if (!res.ok || !data.ok) {
@@ -111,6 +99,8 @@ export function ConsultarWorkspace({
         columns: data.columns ?? [],
         rows: data.rows ?? [],
         chart: data.chart ?? null,
+        evidence: data.evidence ?? [],
+        statuses: data.statuses ?? [],
       })
     } catch (err) {
       setResult(null)
@@ -148,29 +138,9 @@ export function ConsultarWorkspace({
             Gerenciar fontes
           </Link>
         </div>
-        <div className="mb-3 flex items-center gap-2">
-          <Database className="h-3.5 w-3.5 text-neutral-400" />
-          <select
-            value={sourceId}
-            onChange={event => {
-              setSourceId(event.target.value)
-              setResult(null)
-            }}
-            className="h-9 min-w-64 rounded-xl border border-black/[0.08] bg-white px-3 text-[11px] text-neutral-700 outline-none"
-          >
-            <option value="">Workspace Cadence</option>
-            {externalSources.map(source => (
-              <option key={source.id} value={source.id}>
-                {source.name} · {source.tableCount} tabelas · {source.kind === 'sqlserver' ? 'SQL Server' : 'PostgreSQL'}
-              </option>
-            ))}
-          </select>
-          {externalSources.length === 0 && (
-            <span className="text-[10px] text-neutral-400">
-              Cadastre ou ative uma fonte externa para selecioná-la.
-            </span>
-          )}
-        </div>
+        <p className="mb-3 text-[11px] text-neutral-500">
+          O agente escolhe e cruza automaticamente GitHub, bancos, reuniões e documentos.
+        </p>
         <div className="flex flex-col gap-3 sm:flex-row">
           <input
             value={question}
@@ -220,9 +190,65 @@ export function ConsultarWorkspace({
             <p className="mt-2 text-[15px] leading-relaxed text-neutral-800">
               {result.answer || result.explanation}
             </p>
+            {result.statuses.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {result.statuses.map(status => (
+                  <span
+                    key={status.id}
+                    title={status.detail}
+                    className={`rounded-full border px-2.5 py-1 text-[10px] ${
+                      status.state === 'used'
+                        ? 'border-teal-200 bg-teal-50 text-teal-800'
+                        : status.state === 'error' || status.state === 'unavailable'
+                          ? 'border-amber-200 bg-amber-50 text-amber-800'
+                          : 'border-neutral-200 bg-neutral-50 text-neutral-500'
+                    }`}
+                  >
+                    {status.label} · {status.state === 'used' ? 'consultado' : status.state === 'error' ? 'erro' : status.state === 'unavailable' ? 'indisponível' : 'sem resultado'}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="rounded-2xl border border-black/[0.06] bg-white px-5 py-4">
+          {result.evidence.length > 0 && (
+            <div className="rounded-2xl border border-black/[0.06] bg-white px-5 py-4">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
+                Referências
+              </p>
+              <div className="mt-3 divide-y divide-black/[0.06]">
+                {result.evidence.map((item, index) => (
+                  <div key={item.id} className="py-3 first:pt-0 last:pb-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="text-[12px] font-medium text-neutral-800">
+                        [{index + 1}] {item.title}
+                      </p>
+                      <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wider text-neutral-400">
+                        {item.kind}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-[10px] text-neutral-400">{item.source}</p>
+                    <p className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-neutral-600">
+                      {item.excerpt}
+                    </p>
+                    {item.href && (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-1.5 inline-flex items-center gap-1 text-[10px] text-teal-700 hover:underline"
+                      >
+                        Abrir fonte <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {result.sql && (
+            <div className="rounded-2xl border border-black/[0.06] bg-white px-5 py-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
               Como consultamos
             </p>
@@ -232,7 +258,8 @@ export function ConsultarWorkspace({
             <pre className="mt-3 overflow-x-auto rounded-xl bg-neutral-950 px-3 py-2.5 text-[11px] leading-relaxed text-teal-100">
               {result.sql}
             </pre>
-          </div>
+            </div>
+          )}
 
           {result.suggestions.length > 0 && (
             <div className="rounded-2xl border border-black/[0.06] bg-[#fbfbfa] px-5 py-4">
@@ -271,7 +298,8 @@ export function ConsultarWorkspace({
             </div>
           )}
 
-          <div className="overflow-hidden rounded-2xl border border-black/[0.06] bg-white">
+          {result.sql && (
+            <div className="overflow-hidden rounded-2xl border border-black/[0.06] bg-white">
             <div className="border-b border-black/[0.06] px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
               {result.rows.length} {result.rows.length === 1 ? 'linha' : 'linhas'}
             </div>
@@ -305,7 +333,8 @@ export function ConsultarWorkspace({
                 </table>
               </div>
             )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>

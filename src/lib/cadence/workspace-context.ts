@@ -78,6 +78,30 @@ function clip(text: string, max: number): string {
   return `${trimmed.slice(0, max - 1).trimEnd()}…`
 }
 
+function bestExcerpt(text: string, query: string, max: number): string {
+  const clean = text.trim()
+  if (!clean) return ''
+  const chunks = clean
+    .split(/\n{2,}|(?<=[.!?])\s+(?=[A-ZÀ-Ú0-9])/)
+    .map(chunk => chunk.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+  if (chunks.length === 0) return clip(clean, max)
+
+  const ranked = chunks
+    .map((chunk, index) => ({
+      chunk,
+      index,
+      score: scoreWorkspaceText(query, chunk),
+    }))
+    .sort((left, right) => right.score - left.score || left.index - right.index)
+  const selected = ranked
+    .slice(0, 4)
+    .sort((left, right) => left.index - right.index)
+    .map(item => item.chunk)
+    .join(' ')
+  return clip(selected || clean, max)
+}
+
 function meetingBoost(query: string): number {
   return /reuni[aã]o|ata|briefing|sincroniz|kick.?off|alinhamento/i.test(query) ? 4 : 0
 }
@@ -95,8 +119,9 @@ export function selectWorkspaceMeetings(
   return meetings
     .map(meeting => ({
       meeting,
-      score: scoreWorkspaceText(query, meetingHaystack(meeting)) + boost + 1,
+      score: scoreWorkspaceText(query, meetingHaystack(meeting)) + boost,
     }))
+    .filter(item => item.score > 0)
     .sort((left, right) => right.score - left.score || right.meeting.date.localeCompare(left.meeting.date))
     .slice(0, limit)
     .map(({ meeting }) => ({
@@ -104,7 +129,7 @@ export function selectWorkspaceMeetings(
       title: meeting.title,
       date: meeting.date,
       summary: meeting.summary?.trim() || 'Sem resumo cadastrado.',
-      excerpt: clip(meeting.aiContext || meeting.summary || '', 1600),
+      excerpt: bestExcerpt(meeting.aiContext || meeting.summary || '', query, 1600),
     }))
 }
 
@@ -117,8 +142,9 @@ export function selectPortalDocuments(
   return documents
     .map(document => ({
       document,
-      score: scoreWorkspaceText(query, portalHaystack(document)) + boost + 1,
+      score: scoreWorkspaceText(query, portalHaystack(document)) + boost,
     }))
+    .filter(item => item.score > 0)
     .sort((left, right) => right.score - left.score)
     .slice(0, limit)
     .map(({ document }) => ({
@@ -149,11 +175,12 @@ export function selectUploadedDocuments(
       title: document.title,
       kind: document.kind,
       description: document.fileName,
-      excerpt: clip(
+      excerpt: bestExcerpt(
         document.extraction?.text ||
           document.artifacts?.workPlan?.summary ||
           document.artifacts?.architecture?.overview ||
           '',
+        query,
         900
       ),
     }))

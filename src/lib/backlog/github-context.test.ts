@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolveReposForBoard } from './github-context'
+import { interleaveByRepo, resolveReposForBoard } from './github-context'
 import type { RepoConfig } from '@/lib/delivery/types'
 
 const repos: RepoConfig[] = [
@@ -49,5 +49,31 @@ describe('resolveReposForBoard', () => {
       'image_brand_processing',
       'visibilidade-front',
     ])
+  })
+})
+
+describe('interleaveByRepo', () => {
+  const snippet = (repo: string, path: string) => ({
+    repo,
+    path,
+    url: `https://github.com/${repo}/blob/HEAD/${path}`,
+    excerpt: '',
+  })
+
+  it('garante espaço para todos os repositórios dentro do limite', () => {
+    const merged = interleaveByRepo(
+      [
+        [snippet('a', 'a1'), snippet('a', 'a2'), snippet('a', 'a3')],
+        [snippet('b', 'b1'), snippet('b', 'b2')],
+        [snippet('c', 'c1')],
+      ],
+      4
+    )
+    expect(merged.map(item => item.path)).toEqual(['a1', 'b1', 'c1', 'a2'])
+  })
+
+  it('não quebra quando um repositório não devolve nada', () => {
+    const merged = interleaveByRepo([[], [snippet('b', 'b1')]], 5)
+    expect(merged.map(item => item.path)).toEqual(['b1'])
   })
 })

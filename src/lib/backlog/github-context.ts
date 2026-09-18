@@ -5,6 +5,7 @@ import type { BacklogBoardId, BacklogCard } from './types'
 
 const API = 'https://api.github.com'
 const CACHE_TTL_MS = 4 * 60 * 1000
+const MAX_REPOS = 6
 
 export type GithubGatherMode = 'quick' | 'spec'
 
@@ -230,7 +231,8 @@ async function readFileExcerpt(
   owner: string,
   repo: string,
   filePath: string,
-  excerptChars: number
+  excerptChars: number,
+  keywords: string[]
 ): Promise<string | null> {
   const encoded = filePath
     .split('/')
@@ -241,7 +243,17 @@ async function readFileExcerpt(
   )
   if (!res.ok) return null
   const text = decodeContent(res.data.content, res.data.encoding)
-  return text ? text.slice(0, excerptChars) : null
+  if (!text) return null
+  const normalized = text.toLowerCase()
+  const positions = keywords
+    .map(keyword => normalized.indexOf(keyword.toLowerCase()))
+    .filter(position => position >= 0)
+    .sort((left, right) => left - right)
+  if (positions.length === 0) return text.slice(0, excerptChars)
+  const center = positions[0]
+  const start = Math.max(0, center - Math.floor(excerptChars * 0.25))
+  const lineStart = text.lastIndexOf('\n', start)
+  return text.slice(lineStart >= 0 ? lineStart + 1 : start, start + excerptChars)
 }
 
 interface TreeItem {
@@ -333,12 +345,13 @@ async function collectRepoContext(
   query: string,
   keywords: string[],
   notes: string[],
-  mode: GithubGatherMode
+  mode: GithubGatherMode,
+  fileBudget: number
 ): Promise<{ snippets: CodeSnippet[]; activity: RepoActivity }> {
   const full = `${repo.owner}/${repo.repo}`
   const excerptChars = mode === 'spec' ? 6000 : 2500
   const pathLimit = mode === 'spec' ? 16 : 8
-  const fileLimit = mode === 'spec' ? 6 : 6
+  const fileLimit = Math.max(1, fileBudget)
 
   const meta = await ghJson<{ default_branch?: string; private?: boolean }>(
     `/repos/${repo.owner}/${repo.repo}`
@@ -371,11 +384,11 @@ async function collectRepoContext(
   const candidates = [...new Set([...fromSearch, ...fromTree])].slice(0, pathLimit)
 
   // Spec em dois passos: primeiro os paths candidatos; depois só esses arquivos, com trecho maior.
-  const pathsToRead = mode === 'spec' ? candidates.slice(0, fileLimit) : candidates.slice(0, 8)
+  const pathsToRead = candidates.slice(0, fileLimit)
 
   for (const path of pathsToRead) {
     if (snippets.some(s => s.path === path)) continue
-    const excerpt = await readFileExcerpt(repo.owner, repo.repo, path, excerptChars)
+    const excerpt = await readFileExcerpt(repo.owner, repo.repo, path, excerptChars, keywords)
     if (!excerpt) continue
     snippets.push({
       repo: full,
@@ -413,6 +426,20 @@ function readCache(key: string): GithubContextBundle | null {
   return entry.bundle
 }
 
+/** Alterna os trechos entre repositórios para que todos apareçam no contexto. */
+export function interleaveByRepo(groups: CodeSnippet[][], limit: number): CodeSnippet[] {
+  const out: CodeSnippet[] = []
+  const depth = Math.max(0, ...groups.map(group => group.length))
+  for (let index = 0; index < depth && out.length < limit; index += 1) {
+    for (const group of groups) {
+      if (out.length >= limit) break
+      const snippet = group[index]
+      if (snippet) out.push(snippet)
+    }
+  }
+  return out
+}
+
 /**
  * Monta contexto limitado do GitHub a partir de um texto livre (pergunta do PM,
  * título de card, etc). Falhas de token/rate não quebram o fluxo — retornam notes.
@@ -447,17 +474,28 @@ export async function gatherGithubContextForQuery(
     return bundle
   }
 
-  const snippets: CodeSnippet[] = []
-  const activity: RepoActivity[] = []
   const keywords = keywordsFromText(input.query)
   const query = keywords.slice(0, 4).join(' ') || input.query.split(/\s+/).slice(0, 3).join(' ')
 
-  for (const repo of selected.slice(0, 3)) {
-    const found = await collectRepoContext(repo, query, keywords, notes, mode)
-    snippets.push(...found.snippets)
-    activity.push(found.activity)
-    if (snippets.length >= (mode === 'spec' ? 8 : 8)) break
-  }
+  // Todo repositório do cliente é lido: o orçamento de arquivos é dividido entre eles
+  // para que nenhum fique de fora por causa de um limite global.
+  const targets = selected.slice(0, MAX_REPOS)
+  const totalBudget = mode === 'spec' ? 12 : 10
+  const perRepoBudget = Math.max(2, Math.ceil(totalBudget / targets.length))
+
+  const collected = await Promise.all(
+    targets.map(async repo => {
+      const repoNotes: string[] = []
+      const found = await collectRepoContext(repo, query, keywords, repoNotes, mode, perRepoBudget)
+      return { ...found, notes: repoNotes }
+    })
+  )
+  for (const item of collected) notes.push(...item.notes)
+  const activity = collected.map(item => item.activity)
+  const snippets = interleaveByRepo(
+    collected.map(item => item.snippets),
+    totalBudget
+  )
 
   if (snippets.length === 0 && notes.length === 0) {
     notes.push('Nenhum arquivo relevante encontrado; a IA usará só o texto do card.')
@@ -465,7 +503,7 @@ export async function gatherGithubContextForQuery(
 
   const bundle: GithubContextBundle = {
     repos: selected.map(r => `${r.owner}/${r.repo}`),
-    snippets: snippets.slice(0, 8),
+    snippets,
     activity,
     notes,
   }

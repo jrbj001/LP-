@@ -236,18 +236,10 @@ export function CopilotChat({
               {card.title}
             </span>
           ) : (
-            <select
-              value={activeBoardId}
-              disabled={Boolean(thread)}
-              onChange={e => setActiveBoardId(e.target.value as BacklogBoardId)}
-              className="rounded-full border border-black/[0.08] bg-white px-3 py-1.5 text-[12px] text-neutral-700 disabled:opacity-60"
-            >
-              {boards.map(b => (
-                <option key={b.id} value={b.id}>
-                  {b.title}
-                </option>
-              ))}
-            </select>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.08] bg-[#fafaf8] px-3 py-1.5 text-[11px] text-neutral-600">
+              <FileCode2 className="h-3.5 w-3.5" strokeWidth={1.8} />
+              Todos os repositórios
+            </span>
           )}
         </header>
 
@@ -264,8 +256,8 @@ export function CopilotChat({
                 Pergunte sobre o fluxo
               </h3>
               <p className="text-[13px] text-neutral-500 mt-2 leading-relaxed">
-                Código no GitHub, reuniões, documentos do workspace, backlog e consultas ao banco
-                quando a pergunta pede números.
+                O agente pesquisa todos os repositórios, reuniões, documentos, backlog e bancos
+                relevantes antes de responder.
               </p>
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
                 {starters.map(starter => (
@@ -529,7 +521,16 @@ function MessageBubble({
         {message.sources && message.sources.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {message.sources.map((source, index) => {
-              if (source.kind === 'sql') return null
+              if (source.kind === 'sql') {
+                return (
+                  <span
+                    key={`${source.repo}-${source.path}-${index}`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-teal-200 bg-teal-50 px-2.5 py-1 text-[10px] font-mono text-teal-800"
+                  >
+                    Banco · {source.repo}
+                  </span>
+                )
+              }
               if (source.kind === 'workspace') {
                 return (
                   <span

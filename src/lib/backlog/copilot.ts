@@ -1,15 +1,12 @@
-import { formatCopilotSqlContext, gatherCopilotSqlContext } from '@/lib/cadence/copilot-sql-context'
-import { gatherWorkspaceContext } from '@/lib/cadence/workspace-gather'
-import { formatWorkspaceContextForPrompt } from '@/lib/cadence/workspace-context'
 import { formatCadenceSummaryForPrompt, getCadenceSummary, type CadenceSummary } from '@/lib/cadence/summary'
 import { seedCadenceClient } from '@/lib/cadence/seed'
 import { CADENCE_SCHEMA } from '@/lib/cadence/schema'
 import type { RepoConfig } from '@/lib/delivery/types'
 import {
-  formatGithubContextForPrompt,
-  gatherGithubContextForQuery,
-  type GithubContextBundle,
-} from './github-context'
+  formatKnowledgeResearchForPrompt,
+  gatherKnowledgeResearch,
+} from '@/lib/knowledge/research'
+import type { KnowledgeResearch } from '@/lib/knowledge/types'
 import { asDiagram, asStringArray, callOpenAiJson } from './llm'
 import {
   type BacklogBoardId,
@@ -23,7 +20,7 @@ import {
 } from './types'
 import { BE180_WHATSAPP_BOARD_IDS, getBacklogBoards } from './boards'
 import { getBacklogSnapshot } from './store'
-import { triageCopilotAsk, wantsStoryNow } from './triage'
+import { wantsStoryNow } from './triage'
 import {
   firstTurnFooter,
   firstTurnWelcome,
@@ -40,6 +37,8 @@ export interface CopilotTurn {
   followUps: string[]
   sources: GithubRef[]
   sqlEvidence?: CopilotSqlEvidence
+  researchEvidence: KnowledgeResearch['evidence']
+  sourceStatuses: KnowledgeResearch['statuses']
 }
 
 function systemPrompt(
@@ -82,6 +81,8 @@ Regras:
 - Proponha "storyDraft" somente quando (a) o PM pedir explicitamente a user story / rascunho, ou (b) o fluxo da empresa já estiver claro o bastante para uma story útil. Se já existir rascunho, refine-o — não recomece do zero.
 - Use GitHub, cards do board, reuniões e documentos do workspace Cadence e a evidência do agente de dados. Cite o título da reunião ou do documento em linguagem natural. Cite arquivos reais só no canal web. Não invente números de produção. SQL, nome de tabela e endpoint nunca entram na "reply".
 - Critérios de aceite devem ser verificáveis (Dado/Quando/Então ou afirmações checáveis).
+- Quando a pesquisa trouxer a resposta, use os nomes concretos que aparecem nela (bibliotecas, serviços, tabelas, decisões) em vez de descrições genéricas como "métodos padrão" ou "boas práticas". Resposta vaga tendo evidência conta como erro.
+- Se a pesquisa não cobrir parte da pergunta, diga qual parte ficou sem evidência em vez de preencher com suposição plausível.
 - Nunca invente nomes de arquivos ou endpoints que não estejam no contexto; se for hipótese, deixe claro no texto.
 - "followUps" são próximas perguntas úteis, em linguagem natural. Não sugira "aplicar no board" — isso é um botão na interface.
 - "flowNotes": 3 a 8 fatos curtos sobre a empresa, mesclando o que já foi aprendido com o que este turno revelou.
@@ -290,26 +291,16 @@ function asStoryDraft(value: unknown, boardId: BacklogBoardId, clientId: string)
   }
 }
 
-function sourcesFromContext(
-  bundle: GithubContextBundle,
-  summary: CadenceSummary,
-  reply: string,
-  evidence?: CopilotSqlEvidence | null,
-  workspaceTitles: string[] = []
-): GithubRef[] {
-  const cited = bundle.snippets.filter(s => reply.includes(s.path) || reply.includes(s.path.split('/').pop() ?? ''))
-  const chosen = cited.length > 0 ? cited : bundle.snippets.slice(0, 4)
-  const git = chosen.slice(0, 6).map(s => ({ repo: s.repo, path: s.path, kind: 'git' as const }))
-  const queried = evidence
-    ? [{ repo: evidence.sourceName ?? 'consulta', path: evidence.question, kind: 'sql' as const }]
-    : summary.available
-      ? [{ repo: 'cadence', path: 'resumo agregado', kind: 'sql' as const }]
-      : []
-  const workspace = workspaceTitles
-    .filter(title => reply.toLowerCase().includes(title.toLowerCase().slice(0, 24)))
-    .slice(0, 4)
-    .map(title => ({ repo: 'cadence', path: title, kind: 'workspace' as const }))
-  return [...git, ...queried, ...workspace]
+function sourcesFromResearch(research: KnowledgeResearch, summary: CadenceSummary): GithubRef[] {
+  const sources = research.evidence.slice(0, 10).map(item => ({
+    repo: item.source,
+    path: item.title,
+    kind: item.kind === 'github' ? ('git' as const) : item.kind === 'database' ? ('sql' as const) : ('workspace' as const),
+  }))
+  if (sources.length === 0 && summary.available) {
+    sources.push({ repo: 'cadence', path: 'resumo agregado', kind: 'sql' })
+  }
+  return sources
 }
 
 function stripSchemaFromReply(text: string): string {
@@ -333,14 +324,15 @@ export async function runCopilotTurn(input: {
   const prompt = systemPrompt(clientId, clientName, clientSector, thread.channel)
 
   const firstTurn = !thread.messages.some(item => item.role === 'assistant')
-  const triage = triageCopilotAsk({ message, channel: thread.channel })
-  if (isOrientationAsk(message) || triage.intent === 'orient') {
+  if (isOrientationAsk(message)) {
     return {
       reply: firstTurnWelcome(clientId, clientName),
       diagram: welcomeDiagram(clientName),
       flowNotes: [],
       followUps: welcomeFollowUps(clientId),
       sources: [],
+      researchEvidence: [],
+      sourceStatuses: [],
     }
   }
 
@@ -348,37 +340,28 @@ export async function runCopilotTurn(input: {
   const askForStory = wantsStoryNow(message)
   const previousNotes = lastFlowNotes(thread.messages)
   const be180Whatsapp = clientId === 'be180-ooh' && (thread.channel === 'whatsapp' || thread.boardId === 'cadence')
-  const needGithub = triage.tools.includes('github')
-  const needSql = triage.tools.includes('sql')
-  const needWorkspace = triage.tools.includes('workspace')
-  const emptyGithub = { repos: [] as string[], snippets: [], activity: [], notes: [] }
-  const emptyWorkspace = {
-    meetings: [],
-    documents: [],
-    catalog: { meetings: [] as string[], documents: [] as string[] },
-  }
-  const [bundle, snapshot, sqlEvidence, workspace] = await Promise.all([
-    needGithub
-      ? gatherGithubContextForQuery(
-          { clientId, boardId: thread.boardId, query: queryParts.join(' ') },
-          repos,
-          be180Whatsapp ? { allRepos: true } : undefined
-        )
-      : Promise.resolve(emptyGithub),
+  const [research, snapshot] = await Promise.all([
+    gatherKnowledgeResearch({
+      clientId,
+      boardId: thread.boardId,
+      question: queryParts.join(' '),
+      recentContext: `${previousNotes.join('; ')}\n${historyBrief(thread.messages)}`,
+    }),
     getBacklogSnapshot(clientId),
-    needSql
-      ? gatherCopilotSqlContext({
-          clientId,
-          boardId: thread.boardId,
-          message,
-          recentContext: `${previousNotes.join('; ')}\n${historyBrief(thread.messages)}`,
-          channel: thread.channel,
-        })
-      : Promise.resolve(null),
-    needWorkspace ? gatherWorkspaceContext(clientId, queryParts.join(' ')) : Promise.resolve(emptyWorkspace),
     seedCadenceClient(clientId),
   ])
   const summary = await getCadenceSummary(clientId)
+  const firstDatabase = research.databases[0]
+  const sqlEvidence: CopilotSqlEvidence | null = firstDatabase
+    ? {
+        question: firstDatabase.question,
+        sql: firstDatabase.sql,
+        explanation: firstDatabase.explanation,
+        columns: firstDatabase.columns,
+        rows: firstDatabase.rows,
+        sourceName: firstDatabase.sourceName,
+      }
+    : null
 
   const productLine = be180Whatsapp
     ? 'Cadence · WhatsApp (Colmeia, Banco de Ativos e Teste de Visibilidade)'
@@ -397,9 +380,8 @@ export async function runCopilotTurn(input: {
     `Rascunho atual (refine só se for escrever storyDraft):\n${lastStoryDraftBrief(thread.messages)}`,
     `Modelagem do workspace Cadence (não é produção):\n${CADENCE_SCHEMA}`,
     formatCadenceSummaryForPrompt(summary),
-    formatWorkspaceContextForPrompt(workspace),
-    `Evidência do agente de dados (use estes números; não invente outros):\n${formatCopilotSqlContext(sqlEvidence)}`,
-    `Contexto do código (GitHub):\n${formatGithubContextForPrompt(bundle)}`,
+    `Pesquisa unificada (GitHub, bancos, reuniões e documentos):\n${formatKnowledgeResearchForPrompt(research)}`,
+    `Status das fontes:\n${research.statuses.map(status => `- ${status.label}: ${status.state}${status.detail ? ` — ${status.detail}` : ''}`).join('\n')}`,
     `Pergunta atual do PM:\n${message}`,
   ]
     .filter(Boolean)
@@ -444,10 +426,9 @@ export async function runCopilotTurn(input: {
     followUps: firstTurn
       ? welcomeFollowUps(clientId)
       : withFlowFollowUps(asStringArray(parsed.followUps)),
-    sources: sourcesFromContext(bundle, summary, reply, sqlEvidence, [
-      ...workspace.catalog.meetings,
-      ...workspace.catalog.documents,
-    ]),
+    sources: sourcesFromResearch(research, summary),
     sqlEvidence: sqlEvidence ?? undefined,
+    researchEvidence: research.evidence,
+    sourceStatuses: research.statuses,
   }
 }
