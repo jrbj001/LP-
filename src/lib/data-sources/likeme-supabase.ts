@@ -19,7 +19,26 @@ export function supabaseProjectRef(projectUrl: string): string | null {
   }
 }
 
-/** Conexão direta do Postgres Like:Me. Não reutiliza DATABASE_URL (Neon do Cadence). */
+/**
+ * Host do Supavisor (pooler). Aceita a connection string completa do painel do
+ * Supabase ou apenas `host:porta`.
+ */
+export function supabasePoolerTarget(
+  value?: string
+): { host: string; port: number } | null {
+  const raw = value?.trim()
+  if (!raw) return null
+  try {
+    const url = new URL(raw.includes('://') ? raw : `postgresql://${raw}`)
+    const host = url.hostname.toLowerCase()
+    if (!host.endsWith('.pooler.supabase.com')) return null
+    return { host, port: Number(url.port) || 5432 }
+  } catch {
+    return null
+  }
+}
+
+/** Conexão do Postgres Like:Me. Não reutiliza DATABASE_URL (Neon do Cadence). */
 export function likemeSupabasePostgresConfigFromEnv(
   env: Record<string, string | undefined> = process.env
 ): LikemeSupabasePostgresConfig | null {
@@ -29,6 +48,20 @@ export function likemeSupabasePostgresConfigFromEnv(
 
   const ref = supabaseProjectRef(projectUrl)
   if (!ref) return null
+
+  // `db.<ref>.supabase.co` só resolve em IPv6 e é inalcançável nas funções da
+  // Vercel; com o pooler configurado a conexão sai por IPv4.
+  const pooler = supabasePoolerTarget(env.SUPABASE_POOLER_URL)
+  if (pooler) {
+    return {
+      host: pooler.host,
+      port: pooler.port,
+      database: 'postgres',
+      username: `postgres.${ref}`,
+      password,
+      sslMode: 'require',
+    }
+  }
 
   return {
     host: `db.${ref}.supabase.co`,

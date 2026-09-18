@@ -51,6 +51,7 @@ export function DataSourcesWorkspace({
   const [loading, setLoading] = useState(false)
   const [actionId, setActionId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [seedError, setSeedError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
   const loadSources = useCallback(async () => {
@@ -63,10 +64,12 @@ export function DataSourcesWorkspace({
       const data = (await response.json()) as {
         ok?: boolean
         sources?: DataSourceSummary[]
+        seedError?: string | null
         error?: string
       }
       if (!response.ok || !data.ok) throw new Error(data.error || 'Não foi possível carregar as fontes.')
       setSources(data.sources ?? [])
+      setSeedError(data.seedError ?? null)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Não foi possível carregar as fontes.')
     } finally {
@@ -185,6 +188,12 @@ export function DataSourcesWorkspace({
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
+
+        {seedError && (
+          <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-[12px] text-amber-900">
+            Fontes automáticas indisponíveis: {seedError}
+          </p>
+        )}
 
         <div className="mt-5 space-y-3">
           {sources.length === 0 && (

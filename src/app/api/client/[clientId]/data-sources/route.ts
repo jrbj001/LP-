@@ -40,13 +40,19 @@ export async function GET(
   if (session instanceof NextResponse) return session
 
   try {
+    let seedError: string | null = null
     try {
       await seedEnvDataSources(client.slug)
     } catch (error) {
       console.error('[client/data-sources] seed', error)
+      seedError = error instanceof Error ? error.message : 'Falha ao conectar as fontes automáticas.'
     }
     const dataSources = await listDataSources(client.slug)
-    return NextResponse.json({ ok: true, sources: dataSources.map(sourceView) })
+    return NextResponse.json({
+      ok: true,
+      sources: dataSources.map(sourceView),
+      seedError,
+    })
   } catch {
     return NextResponse.json(
       { ok: false, error: 'Não foi possível listar as fontes de dados.' },
