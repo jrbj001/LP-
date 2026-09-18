@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { likemeSupabasePostgresConfigFromEnv, supabaseProjectRef } from './likeme-supabase'
+import {
+  likemeSupabasePostgresConfigFromEnv,
+  supabasePoolerTarget,
+  supabaseProjectRef,
+} from './likeme-supabase'
 
 describe('supabaseProjectRef', () => {
   it('extrai o ref do project URL de produção', () => {
@@ -39,5 +43,45 @@ describe('likemeSupabasePostgresConfigFromEnv', () => {
         SUPABASE_PROJECT_URL: 'https://hhmxhclwtfrkngpoaiiu.supabase.co',
       })
     ).toBeNull()
+  })
+
+  it('prefere o pooler e o usuário por tenant quando configurado', () => {
+    expect(
+      likemeSupabasePostgresConfigFromEnv({
+        SUPABASE_PROJECT_URL: 'https://hhmxhclwtfrkngpoaiiu.supabase.co',
+        SUPABASE_DB_PASSWORD: 'segredo',
+        SUPABASE_POOLER_URL:
+          'postgresql://postgres.hhmxhclwtfrkngpoaiiu:segredo@aws-1-us-east-1.pooler.supabase.com:5432/postgres',
+      })
+    ).toEqual({
+      host: 'aws-1-us-east-1.pooler.supabase.com',
+      port: 5432,
+      database: 'postgres',
+      username: 'postgres.hhmxhclwtfrkngpoaiiu',
+      password: 'segredo',
+      sslMode: 'require',
+    })
+  })
+})
+
+describe('supabasePoolerTarget', () => {
+  it('aceita apenas host e porta', () => {
+    expect(supabasePoolerTarget('aws-1-sa-east-1.pooler.supabase.com:6543')).toEqual({
+      host: 'aws-1-sa-east-1.pooler.supabase.com',
+      port: 6543,
+    })
+  })
+
+  it('usa 5432 quando a porta não vem na string', () => {
+    expect(supabasePoolerTarget('aws-1-sa-east-1.pooler.supabase.com')).toEqual({
+      host: 'aws-1-sa-east-1.pooler.supabase.com',
+      port: 5432,
+    })
+  })
+
+  it('ignora hosts que não são do pooler', () => {
+    expect(supabasePoolerTarget('db.hhmxhclwtfrkngpoaiiu.supabase.co')).toBeNull()
+    expect(supabasePoolerTarget('')).toBeNull()
+    expect(supabasePoolerTarget(undefined)).toBeNull()
   })
 })
