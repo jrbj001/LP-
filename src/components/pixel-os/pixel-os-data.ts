@@ -111,6 +111,34 @@ export const FLYWHEEL = [
   'Memory',
 ]
 
+export const CLIENTS = [
+  {
+    name: 'Fundamentos Tecnologia',
+    sector: 'Digital infrastructure',
+    work: 'AI datacenter and inference layer',
+  },
+  {
+    name: 'Be180',
+    sector: 'Out-of-home media',
+    work: 'Planning platform, asset bank and agents',
+  },
+  {
+    name: 'Like:Me',
+    sector: 'Consumer product',
+    work: 'Product engineering running on Cadence',
+  },
+  {
+    name: 'Café Orfeu',
+    sector: 'Specialty coffee',
+    work: 'Enterprise context assessment',
+  },
+  {
+    name: 'Banana Brasil',
+    sector: 'Food and retail',
+    work: 'Adaptive Layer over existing systems',
+  },
+]
+
 export const NAV_ITEMS = [
   { label: 'Adaptive', href: '/pixel' },
   { label: 'Cadence', href: '/cadence' },

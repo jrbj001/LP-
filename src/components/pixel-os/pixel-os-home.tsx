@@ -14,7 +14,7 @@ import {
   ProductArchitecture,
   RagComparison,
 } from './pixel-os-diagrams'
-import { ENTERPRISE_QUESTIONS } from './pixel-os-data'
+import { CLIENTS, ENTERPRISE_QUESTIONS } from './pixel-os-data'
 
 function SectionIndex({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
   return (
@@ -264,11 +264,52 @@ export function PixelOSHome({ locale }: { locale: string }) {
           </div>
         </section>
 
+        <section className="bg-[#f4f4f1] px-5 py-28 text-neutral-900 md:px-6 md:py-40" id="clients">
+          <div className="mx-auto max-w-[1200px]">
+            <SectionIndex>10 / In production</SectionIndex>
+            <div className="mt-7 grid gap-8 lg:grid-cols-[1.1fr_.9fr] lg:items-end">
+              <FadeIn>
+                <h2 className="text-[clamp(2.6rem,6vw,5.6rem)] font-semibold leading-[0.94] tracking-[-0.06em]">
+                  Running inside
+                  <span className="block text-neutral-400">real companies.</span>
+                </h2>
+              </FadeIn>
+              <p className="max-w-md text-lg leading-relaxed text-neutral-500">
+                Every engagement adds operational context: systems, decisions, people and the way each company
+                actually works.
+              </p>
+            </div>
+
+            <ul className="mt-20 border-t border-black/12 md:mt-28">
+              {CLIENTS.map((client, index) => (
+                <li key={client.name} className="group border-b border-black/12">
+                  <div className="grid gap-2 py-7 md:grid-cols-[2.5rem_1fr_auto] md:items-baseline md:gap-8 md:py-9">
+                    <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-neutral-400">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <div>
+                      <p className="text-[clamp(1.6rem,3.4vw,2.9rem)] font-semibold leading-none tracking-[-0.045em] transition-colors group-hover:text-emerald-900">
+                        {client.name}
+                      </p>
+                      <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-neutral-400">
+                        {client.sector}
+                      </p>
+                    </div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500 md:text-right">
+                      {client.work}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
         <section className="relative min-h-[100svh] overflow-hidden bg-[#edede9] px-5 py-28 text-neutral-950 md:px-6 md:py-40" id="vision">
           <div className="pixel-os-grid-light absolute inset-0" aria-hidden />
           <div className="relative mx-auto flex min-h-[75svh] max-w-[1200px] flex-col justify-between">
             <div>
-              <SectionIndex>10 / Vision</SectionIndex>
+              <SectionIndex>11 / Vision</SectionIndex>
               <FadeIn>
                 <h2 className="mt-10 max-w-6xl text-[clamp(3.4rem,9.5vw,9rem)] font-semibold uppercase leading-[0.85] tracking-[-0.07em]">
                   Every enterprise
