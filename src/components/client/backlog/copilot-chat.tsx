@@ -8,6 +8,7 @@ import {
   FileCode2,
   Loader2,
   MessageSquarePlus,
+  PanelLeft,
   Send,
   Sparkles,
   UserRound,
@@ -68,7 +69,21 @@ export function CopilotChat({
   const [applyingId, setApplyingId] = useState<string | null>(null)
   const [appliedCards, setAppliedCards] = useState<Record<string, string>>({})
   const [error, setError] = useState<string | null>(null)
+  const [historyOpen, setHistoryOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  // O histórico só abre sozinho quando sobra largura depois da navegação do workspace.
+  useEffect(() => {
+    setHistoryOpen(window.matchMedia('(min-width: 1280px)').matches)
+  }, [])
+
+  useEffect(() => {
+    const field = inputRef.current
+    if (!field) return
+    field.style.height = 'auto'
+    field.style.height = `${Math.min(field.scrollHeight, 200)}px`
+  }, [draftMessage])
 
   const loadThreads = useCallback(async () => {
     try {
@@ -177,9 +192,13 @@ export function CopilotChat({
 
   return (
     <div
-      className={`flex ${variant === 'modal' ? 'h-full' : 'h-[calc(100vh-13rem)] min-h-[32rem]'} overflow-hidden rounded-2xl border border-black/[0.07] bg-white`}
+      className={`flex h-full overflow-hidden bg-white ${
+        variant === 'modal' ? 'rounded-2xl border border-black/[0.07]' : ''
+      }`}
     >
-      <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-black/[0.06] bg-[#fafaf8]">
+      <aside
+        className={`${historyOpen ? 'flex w-64' : 'hidden'} shrink-0 flex-col border-r border-black/[0.06] bg-[#fafaf8]`}
+      >
         <div className="p-4 border-b border-black/[0.06]">
           <button
             type="button"
@@ -221,12 +240,27 @@ export function CopilotChat({
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="border-b border-black/[0.06] px-5 py-3.5 flex flex-wrap items-center gap-3 justify-between">
-          <div className="min-w-0">
-            <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-neutral-400">
-              Copilot
-            </p>
-            <h2 className="text-[15px] font-semibold text-neutral-900 truncate">
+        <header className="flex items-center gap-3 border-b border-black/[0.06] px-4 py-2.5">
+          <button
+            type="button"
+            onClick={() => setHistoryOpen(open => !open)}
+            aria-label={historyOpen ? 'Ocultar conversas' : 'Mostrar conversas'}
+            className="rounded-lg p-2 text-neutral-400 hover:bg-black/[0.04] hover:text-neutral-800"
+          >
+            <PanelLeft className="h-4 w-4" strokeWidth={1.8} />
+          </button>
+          {!historyOpen && (
+            <button
+              type="button"
+              onClick={newThread}
+              aria-label="Nova conversa"
+              className="rounded-lg p-2 text-neutral-400 hover:bg-black/[0.04] hover:text-neutral-800"
+            >
+              <MessageSquarePlus className="h-4 w-4" strokeWidth={1.8} />
+            </button>
+          )}
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-[14px] font-semibold text-neutral-900">
               {thread?.title ?? boardLabel}
             </h2>
           </div>
@@ -243,9 +277,16 @@ export function CopilotChat({
           )}
         </header>
 
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-6 space-y-6">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto">
+          <div
+            className={`mx-auto w-full max-w-3xl px-4 sm:px-6 ${
+              messages.length === 0 && !sending && !pendingUser
+                ? 'flex h-full flex-col justify-center'
+                : 'space-y-7 py-8'
+            }`}
+          >
           {messages.length === 0 && !sending && (
-            <div className="max-w-2xl mx-auto text-center py-8">
+            <div className="mx-auto max-w-2xl text-center">
               <div
                 className="w-11 h-11 rounded-2xl mx-auto flex items-center justify-center mb-4"
                 style={{ backgroundColor: `${accent}14` }}
@@ -288,8 +329,8 @@ export function CopilotChat({
 
           {pendingUser && (
             <div className="flex justify-end">
-              <div className="max-w-2xl rounded-2xl rounded-br-md bg-neutral-900 text-white px-4 py-3">
-                <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{pendingUser}</p>
+              <div className="max-w-[85%] rounded-3xl bg-neutral-900 px-4 py-3 text-white">
+                <p className="text-[14px] leading-relaxed whitespace-pre-wrap">{pendingUser}</p>
               </div>
             </div>
           )}
@@ -307,16 +348,19 @@ export function CopilotChat({
               </div>
             </div>
           )}
+          </div>
         </div>
 
         {error && (
-          <div className="mx-5 mb-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-2.5 text-[12px] text-rose-800">
-            {error}
+          <div className="mx-auto mb-3 w-full max-w-3xl px-4 sm:px-6">
+            <p className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2.5 text-[12px] text-rose-800">
+              {error}
+            </p>
           </div>
         )}
 
         {lastAssistant && !sending && (
-          <div className="px-5 pb-3 space-y-2">
+          <div className="mx-auto w-full max-w-3xl space-y-2 px-4 pb-3 sm:px-6">
             <StoryTurnCta
               lastAssistant={lastAssistant}
               appliedCardId={lastAssistant.appliedCardId ?? appliedCards[lastAssistant.id]}
@@ -342,40 +386,46 @@ export function CopilotChat({
           </div>
         )}
 
-        <form
-          className="border-t border-black/[0.06] px-5 py-4 flex items-end gap-3"
-          onSubmit={e => {
-            e.preventDefault()
-            void send(draftMessage)
-          }}
-        >
-          <textarea
-            value={draftMessage}
-            onChange={e => setDraftMessage(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                void send(draftMessage)
-              }
+        <div className="px-4 pb-5 pt-1 sm:px-6">
+          <form
+            className="mx-auto flex w-full max-w-3xl items-end gap-2 rounded-3xl border border-black/[0.1] bg-white px-3 py-2 shadow-sm focus-within:border-neutral-400"
+            onSubmit={e => {
+              e.preventDefault()
+              void send(draftMessage)
             }}
-            rows={2}
-            placeholder="Pergunte sobre o fluxo, o código, um documento ou o que precisa virar story…"
-            className="flex-1 resize-none rounded-xl border border-black/[0.08] px-3.5 py-2.5 text-[13px] leading-relaxed outline-none focus:border-neutral-400"
-          />
-          <button
-            type="submit"
-            disabled={sending || !draftMessage.trim()}
-            className="rounded-full text-white p-3 disabled:opacity-50"
-            style={{ backgroundColor: accent }}
-            aria-label="Enviar"
           >
-            {sending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" strokeWidth={1.8} />
-            )}
-          </button>
-        </form>
+            <textarea
+              ref={inputRef}
+              value={draftMessage}
+              onChange={e => setDraftMessage(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  void send(draftMessage)
+                }
+              }}
+              rows={1}
+              placeholder="Pergunte sobre o fluxo, o código, um documento ou o que precisa virar story…"
+              className="max-h-[200px] flex-1 resize-none bg-transparent px-2 py-2.5 text-[14px] leading-relaxed outline-none placeholder:text-neutral-400"
+            />
+            <button
+              type="submit"
+              disabled={sending || !draftMessage.trim()}
+              className="mb-0.5 rounded-full p-2.5 text-white disabled:opacity-40"
+              style={{ backgroundColor: accent }}
+              aria-label="Enviar"
+            >
+              {sending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" strokeWidth={1.8} />
+              )}
+            </button>
+          </form>
+          <p className="mx-auto mt-2 max-w-3xl text-center text-[10px] text-neutral-400">
+            O agente cruza código, bancos, reuniões e documentos. Enter envia, Shift+Enter quebra linha.
+          </p>
+        </div>
       </div>
     </div>
   )
@@ -480,8 +530,8 @@ function MessageBubble({
   if (message.role === 'user') {
     return (
       <div className="flex justify-end">
-        <div className="max-w-2xl rounded-2xl rounded-br-md bg-neutral-900 text-white px-4 py-3">
-          <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
+        <div className="max-w-[85%] rounded-3xl bg-neutral-900 px-4 py-3 text-white">
+          <p className="text-[14px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
         </div>
       </div>
     )
@@ -496,7 +546,7 @@ function MessageBubble({
         <Sparkles className="w-4 h-4" strokeWidth={1.8} style={{ color: accent }} />
       </div>
       <div className="min-w-0 flex-1 space-y-4">
-        <div className="rounded-2xl rounded-tl-md border border-black/[0.06] bg-[#fafaf8] px-4 py-3">
+        <div className="pt-1">
           <MarkdownLite text={message.content} />
         </div>
 
@@ -653,7 +703,7 @@ function MarkdownLite({ text }: { text: string }) {
           return (
             <ul key={blockIndex} className="space-y-1.5">
               {lines.map((line, index) => (
-                <li key={index} className="text-[13px] text-neutral-700 leading-relaxed pl-3.5 relative">
+                <li key={index} className="text-[14px] text-neutral-700 leading-relaxed pl-3.5 relative">
                   <span className="absolute left-0 top-[0.5em] w-1.5 h-1.5 rounded-full bg-neutral-300" />
                   <Inline text={line.replace(/^([-*•]|\d+[.)])\s+/, '')} />
                 </li>
@@ -662,7 +712,7 @@ function MarkdownLite({ text }: { text: string }) {
           )
         }
         return (
-          <p key={blockIndex} className="text-[13px] text-neutral-700 leading-relaxed">
+          <p key={blockIndex} className="text-[14px] text-neutral-700 leading-relaxed">
             <Inline text={block.replace(/^#{1,6}\s+/gm, '')} />
           </p>
         )
