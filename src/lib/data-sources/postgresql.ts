@@ -1,6 +1,7 @@
 import 'server-only'
 
 import postgres from 'postgres'
+import { columnKey, toDataSourceColumns } from './catalog-columns'
 import type {
   DataSourceCatalog,
   DataSourceCatalogEntry,
@@ -172,15 +173,104 @@ export async function describePostgresTables(
         and table_name = any(${tables})
       order by table_schema, table_name, ordinal_position
     `
-    return rows
-      .filter(row => allowed.has(`${row.table_schema}.${row.table_name}`))
-      .map(row => ({
+    const filtered = rows.filter(row => allowed.has(`${row.table_schema}.${row.table_name}`))
+
+    const primaryKeys = new Set<string>()
+    const foreignKeys: Array<readonly [string, string]> = []
+    const comments: Array<readonly [string, string]> = []
+
+    try {
+      const pkRows = await sql<
+        Array<{ table_schema: string; table_name: string; column_name: string }>
+      >`
+        select kcu.table_schema, kcu.table_name, kcu.column_name
+        from information_schema.table_constraints tc
+        join information_schema.key_column_usage kcu
+          on tc.constraint_schema = kcu.constraint_schema
+         and tc.constraint_name = kcu.constraint_name
+        where tc.constraint_type = 'PRIMARY KEY'
+          and kcu.table_schema = any(${schemas})
+          and kcu.table_name = any(${tables})
+      `
+      for (const row of pkRows) {
+        if (!allowed.has(`${row.table_schema}.${row.table_name}`)) continue
+        primaryKeys.add(columnKey(row.table_schema, row.table_name, row.column_name))
+      }
+
+      const fkRows = await sql<
+        Array<{
+          table_schema: string
+          table_name: string
+          column_name: string
+          referenced_schema: string
+          referenced_table: string
+          referenced_column: string
+        }>
+      >`
+        select
+          kcu.table_schema,
+          kcu.table_name,
+          kcu.column_name,
+          pk.table_schema as referenced_schema,
+          pk.table_name as referenced_table,
+          pk.column_name as referenced_column
+        from information_schema.referential_constraints rc
+        join information_schema.key_column_usage kcu
+          on rc.constraint_schema = kcu.constraint_schema
+         and rc.constraint_name = kcu.constraint_name
+        join information_schema.key_column_usage pk
+          on rc.unique_constraint_schema = pk.constraint_schema
+         and rc.unique_constraint_name = pk.constraint_name
+         and kcu.ordinal_position = pk.ordinal_position
+        where kcu.table_schema = any(${schemas})
+          and kcu.table_name = any(${tables})
+      `
+      for (const row of fkRows) {
+        if (!allowed.has(`${row.table_schema}.${row.table_name}`)) continue
+        foreignKeys.push([
+          columnKey(row.table_schema, row.table_name, row.column_name),
+          `${row.referenced_schema}.${row.referenced_table}.${row.referenced_column}`,
+        ])
+      }
+
+      const commentRows = await sql<
+        Array<{
+          table_schema: string
+          table_name: string
+          column_name: string
+          description: string | null
+        }>
+      >`
+        select n.nspname as table_schema, c.relname as table_name, a.attname as column_name, d.description
+        from pg_catalog.pg_description d
+        join pg_catalog.pg_class c on c.oid = d.objoid
+        join pg_catalog.pg_namespace n on n.oid = c.relnamespace
+        join pg_catalog.pg_attribute a on a.attrelid = c.oid and a.attnum = d.objsubid
+        where d.objsubid > 0
+          and n.nspname = any(${schemas})
+          and c.relname = any(${tables})
+      `
+      for (const row of commentRows) {
+        if (!row.description || !allowed.has(`${row.table_schema}.${row.table_name}`)) continue
+        comments.push([
+          columnKey(row.table_schema, row.table_name, row.column_name),
+          row.description,
+        ])
+      }
+    } catch (error) {
+      console.warn('[data-sources/postgres] metadados de pk/fk/comentário indisponíveis', error)
+    }
+
+    return toDataSourceColumns(
+      filtered.map(row => ({
         schema: row.table_schema,
         table: row.table_name,
         column: row.column_name,
         dataType: row.data_type,
         nullable: row.is_nullable === 'YES',
-      }))
+      })),
+      { primaryKeys, foreignKeys, comments }
+    )
   } catch (error) {
     throw new DataSourceConnectionError(describeConnectionError(error))
   } finally {

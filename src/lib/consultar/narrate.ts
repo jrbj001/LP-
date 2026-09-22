@@ -1,4 +1,8 @@
 import { callOpenAiText, chatModel } from '@/lib/backlog/llm'
+import {
+  formatCritiqueForPrompt,
+  type QueryCritique,
+} from '@/lib/knowledge/result-critic'
 
 const SAMPLE_ROWS = 24
 
@@ -53,24 +57,32 @@ export function narrateCatalogRows(
   ].join(' ')
 }
 
+function sourceClause(sourceName?: string): string {
+  return sourceName ? `Olhei em ${sourceName}` : 'Olhei no workspace'
+}
+
 export function fallbackAnswer(input: {
   question: string
   explanation: string
   columns: string[]
   rows: Record<string, unknown>[]
+  sourceName?: string
+  critic?: QueryCritique
 }): string {
+  const critique = input.critic ? ` ${formatCritiqueForPrompt(input.critic)}` : ''
   if (input.rows.length === 0) {
-    return `Não encontrei linhas para “${input.question}”.`
+    return `${sourceClause(input.sourceName)} e não encontrei linhas para “${input.question}”.${critique}`
   }
   if (input.rows.length === 1 && input.columns.length > 0) {
     const facts = input.columns
       .map(column => `${column}: ${cellText(input.rows[0][column]) || '—'}`)
       .join('; ')
-    return `Resultado: ${facts}.`
+    return `${sourceClause(input.sourceName)}: ${facts}.${critique}`
   }
-  return input.explanation
+  const body = input.explanation
     ? `${input.explanation} A consulta retornou ${input.rows.length} linhas.`
     : `A consulta retornou ${input.rows.length} linhas.`
+  return `${sourceClause(input.sourceName)}. ${body}${critique}`
 }
 
 export async function narrateQueryResult(input: {
@@ -80,21 +92,26 @@ export async function narrateQueryResult(input: {
   columns: string[]
   rows: Record<string, unknown>[]
   catalog?: boolean
+  critic?: QueryCritique
 }): Promise<string> {
   if (input.catalog) {
     return narrateCatalogRows(input.sourceName || 'banco', input.rows)
   }
 
   const sample = input.rows.slice(0, SAMPLE_ROWS)
+  const critique = input.critic ? formatCritiqueForPrompt(input.critic) : ''
   try {
     return await callOpenAiText(
       `Você responde perguntas de negócio em português do Brasil.
+Comece dizendo a fonte consultada e o recorte (filtro, período ou status), quando existir.
 Use somente os dados SQL fornecidos. Não invente números, nomes ou totais.
 Se a lista for uma amostra, diga quantas linhas existem no total.
+Se houver hipótese do crítico, não apresente o número como fato absoluto — deixe a ressalva explícita.
 Responda em 2 a 5 frases, direto ao ponto, sem markdown e sem repetir o SQL.`,
       `Pergunta: ${input.question}
 Fonte: ${input.sourceName || 'Workspace Cadence'}
 Notas da consulta: ${input.explanation}
+Auditoria do resultado: ${critique || 'sem alertas'}
 Colunas: ${input.columns.join(', ') || '(nenhuma)'}
 Total de linhas: ${input.rows.length}
 Amostra:

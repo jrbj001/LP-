@@ -2,6 +2,15 @@ import 'server-only'
 
 import { callOpenAiJson, chatModel } from '@/lib/backlog/llm'
 import { narrateQueryResult } from '@/lib/consultar/narrate'
+import { isKnowledgePipelineEnabled } from '@/lib/knowledge/flag'
+import {
+  mergeConferenceSuggestions,
+  PASSED_QUERY_CRITIQUE,
+  reviewQueryResult,
+  type QueryCritique,
+} from '@/lib/knowledge/result-critic'
+import { hashSql, logKnowledgeTrace } from '@/lib/knowledge/trace'
+import { executeSqlWithRepair, MAX_SQL_REPAIRS, sqlRepairContext } from '@/lib/data-sources/sql-repair'
 import { cadenceDb, hasCadenceDatabase } from './db'
 import { assertReadOnlySelect, inferChart } from './query'
 import { CADENCE_SCHEMA } from './schema'
@@ -14,6 +23,7 @@ export interface NlQueryResult {
   columns: string[]
   rows: Record<string, unknown>[]
   chart: { labelKey: string; valueKey: string } | null
+  critic: QueryCritique
 }
 
 export async function executeCadenceSelect(
@@ -76,10 +86,10 @@ export async function runNaturalLanguageQuery(
     throw new Error('DATABASE_URL não configurado — a consulta precisa do Neon.')
   }
 
+  const enhanced = isKnowledgePipelineEnabled(clientId)
+  const started = Date.now()
   const today = new Date().toISOString().slice(0, 10)
-  const draft = asSqlDraft(
-    await callOpenAiJson(
-      `Você traduz perguntas em português do Brasil para SQL PostgreSQL somente-leitura.
+  const systemPrompt = `Você traduz perguntas em português do Brasil para SQL PostgreSQL somente-leitura.
 Use APENAS as tabelas cadence_* abaixo. Sempre filtre client_id = $1 (único parâmetro).
 Não use INSERT/UPDATE/DELETE/DDL. Prefira agregações curtas. LIMIT 100 se listar linhas.
 Hoje é ${today}. Quando o usuário citar um mês sem ano, use o ano corrente.
@@ -91,26 +101,62 @@ Sempre sugira 3 próximas perguntas úteis em linguagem natural, relacionadas ao
 da pergunta atual. Cada sugestão deve ser uma consulta interrogativa executável nesta mesma interface e
 terminar com "?". "suggestions" deve ser um array de strings, nunca objetos e nunca instruções técnicas.
 Retorne somente JSON:
-{"sql":"SELECT ...","explanation":"1 ou 2 frases em português","suggestions":["pergunta 1","pergunta 2","pergunta 3"]}.`,
-      `Pergunta: ${question}\n\nSchema:\n${CADENCE_SCHEMA}`,
-      { temperature: 0.1, maxTokens: 800, model: chatModel() }
-    )
-  )
+{"sql":"SELECT ...","explanation":"1 ou 2 frases em português","suggestions":["pergunta 1","pergunta 2","pergunta 3"]}.`
+  const questionPrompt = `Pergunta: ${question}\n\nSchema:\n${CADENCE_SCHEMA}`
 
-  const executed = await executeCadenceSelect(clientId, draft.sql)
+  const executed = await executeSqlWithRepair({
+    generate: async repair =>
+      asSqlDraft(
+        await callOpenAiJson(
+          systemPrompt,
+          repair
+            ? `${questionPrompt}\n\n${sqlRepairContext(repair.sql, repair.error)}`
+            : questionPrompt,
+          { temperature: 0.1, maxTokens: 800, model: chatModel() }
+        )
+      ),
+    validateAndExecute: async draft => {
+      const result = await executeCadenceSelect(clientId, draft.sql)
+      return { sql: result.sql, result }
+    },
+    maxRepairs: enhanced ? MAX_SQL_REPAIRS : 0,
+  })
+
+  const critic = enhanced
+    ? await reviewQueryResult({
+        question,
+        sql: executed.sql,
+        columns: executed.result.columns,
+        rows: executed.result.rows,
+        sourceName: 'Workspace Cadence',
+      })
+    : PASSED_QUERY_CRITIQUE
+  logKnowledgeTrace({
+    stage: 'sql',
+    clientId,
+    sourceId: 'cadence',
+    sqlHash: hashSql(executed.sql),
+    ms: Date.now() - started,
+    repairCount: Math.max(0, executed.attempts - 1),
+    critic: critic.status,
+    ok: true,
+  })
 
   return {
     sql: executed.sql,
-    explanation: draft.explanation,
+    explanation: executed.draft.explanation,
     answer: await narrateQueryResult({
       question,
-      explanation: draft.explanation,
-      columns: executed.columns,
-      rows: executed.rows,
+      sourceName: 'Workspace Cadence',
+      explanation: executed.draft.explanation,
+      columns: executed.result.columns,
+      rows: executed.result.rows,
+      critic,
     }),
-    suggestions: draft.suggestions,
-    columns: executed.columns,
-    rows: executed.rows,
-    chart: inferChart(executed.rows),
+    suggestions: mergeConferenceSuggestions(executed.draft.suggestions, critic.conferenceQuestion),
+    columns: executed.result.columns,
+    rows: executed.result.rows,
+    chart: inferChart(executed.result.rows),
+    critic,
   }
 }

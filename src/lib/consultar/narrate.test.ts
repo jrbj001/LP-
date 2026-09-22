@@ -20,14 +20,39 @@ describe('narrateCatalogRows', () => {
 })
 
 describe('fallbackAnswer', () => {
-  it('descreve uma única linha', () => {
+  it('descreve uma única linha com a fonte', () => {
     expect(
       fallbackAnswer({
         question: 'qual o total?',
         explanation: 'soma',
         columns: ['total'],
         rows: [{ total: 12 }],
+        sourceName: 'Colmeia',
       })
-    ).toBe('Resultado: total: 12.')
+    ).toBe('Olhei em Colmeia: total: 12.')
+  })
+
+  it('explica vazio com hipótese de filtro', () => {
+    const answer = fallbackAnswer({
+      question: 'quantos ativos?',
+      explanation: 'filtro',
+      columns: [],
+      rows: [],
+      sourceName: 'Like:Me',
+      critic: {
+        status: 'flagged',
+        confidence: 'high',
+        issues: [
+          {
+            code: 'empty_with_filter',
+            message: 'A consulta não retornou linhas.',
+            hypothesis: 'O filtro pode ter zerado o resultado.',
+          },
+        ],
+        conferenceQuestion: null,
+      },
+    })
+    expect(answer).toContain('Olhei em Like:Me')
+    expect(answer).toContain('filtro pode ter zerado')
   })
 })

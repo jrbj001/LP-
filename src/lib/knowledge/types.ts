@@ -1,3 +1,6 @@
+import type { QuestionIntent } from './intent'
+import type { QueryCritique } from './result-critic'
+
 export type KnowledgeSourceKind = 'github' | 'database' | 'meeting' | 'document'
 
 export interface KnowledgeEvidence {
@@ -27,11 +30,13 @@ export interface KnowledgeDatabaseResult {
   columns: string[]
   rows: Record<string, unknown>[]
   chart: { labelKey: string; valueKey: string } | null
+  critic?: QueryCritique
 }
 
 export interface KnowledgeResearch {
   question: string
   searchQuery: string
+  intent: QuestionIntent
   evidence: KnowledgeEvidence[]
   databases: KnowledgeDatabaseResult[]
   statuses: KnowledgeSourceStatus[]

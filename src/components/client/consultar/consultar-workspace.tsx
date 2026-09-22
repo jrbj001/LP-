@@ -4,6 +4,7 @@ import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { ExternalLink, Loader2, Search, Settings2 } from 'lucide-react'
+import { SourceStatusChips } from '@/components/client/source-status-chips'
 
 const ConsultarChart = dynamic(
   () => import('./consultar-chart').then(mod => mod.ConsultarChart),
@@ -191,22 +192,8 @@ export function ConsultarWorkspace({
               {result.answer || result.explanation}
             </p>
             {result.statuses.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-1.5">
-                {result.statuses.map(status => (
-                  <span
-                    key={status.id}
-                    title={status.detail}
-                    className={`rounded-full border px-2.5 py-1 text-[10px] ${
-                      status.state === 'used'
-                        ? 'border-teal-200 bg-teal-50 text-teal-800'
-                        : status.state === 'error' || status.state === 'unavailable'
-                          ? 'border-amber-200 bg-amber-50 text-amber-800'
-                          : 'border-neutral-200 bg-neutral-50 text-neutral-500'
-                    }`}
-                  >
-                    {status.label} · {status.state === 'used' ? 'consultado' : status.state === 'error' ? 'erro' : status.state === 'unavailable' ? 'indisponível' : 'sem resultado'}
-                  </span>
-                ))}
+              <div className="mt-4">
+                <SourceStatusChips statuses={result.statuses} />
               </div>
             )}
           </div>

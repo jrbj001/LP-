@@ -51,6 +51,7 @@ export async function runAndPersistTurn(input: {
     sqlEvidence: turn.sqlEvidence,
     researchEvidence: turn.researchEvidence,
     sourceStatuses: turn.sourceStatuses,
+    clarification: turn.clarification,
     createdAt: new Date().toISOString(),
   }
 
