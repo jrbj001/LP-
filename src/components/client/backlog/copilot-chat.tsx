@@ -25,6 +25,7 @@ import {
 } from '@/lib/backlog/types'
 import { useSpeechDictation } from '@/hooks/use-speech-dictation'
 import { BacklogDiagramView } from './backlog-diagram'
+import { SourceStatusChips } from '@/components/client/source-status-chips'
 
 const GENERATE_STORY_PROMPT =
   'Com o fluxo da empresa que já aprendemos nesta conversa, escreva agora o rascunho completo da user story (persona, quero, para que e critérios de aceite testáveis) para eu aplicar no board.'
@@ -595,6 +596,10 @@ function MessageBubble({
         <div className="pt-1">
           <MarkdownLite text={message.content} />
         </div>
+
+        {message.sourceStatuses && message.sourceStatuses.length > 0 && (
+          <SourceStatusChips statuses={message.sourceStatuses} />
+        )}
 
         {message.diagram && <BacklogDiagramView diagram={message.diagram} compact />}
 

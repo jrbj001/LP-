@@ -9,6 +9,10 @@ import { getClient } from '@/lib/client/registry'
 import { runExternalNaturalLanguageQuery } from '@/lib/data-sources/nl-sql'
 import { seedEnvDataSources } from '@/lib/data-sources/seed'
 import { listDataSources } from '@/lib/data-sources/store'
+import { isKnowledgePipelineEnabled } from './flag'
+import { inferQuestionIntent, resolveQuestionIntent } from './intent'
+import { sanitizeSourceError } from './safe-status'
+import { logKnowledgeTrace } from './trace'
 import {
   finalizeKnowledgePlan,
   planKnowledgeResearch,
@@ -114,8 +118,20 @@ export async function gatherKnowledgeResearch(input: {
   recentContext?: string
   sourceId?: string
 }): Promise<KnowledgeResearch> {
+  const started = Date.now()
   const client = getClient(input.clientId)
   if (!client) throw new Error('Cliente não encontrado.')
+
+  const enhanced = isKnowledgePipelineEnabled(client.slug)
+  const intent = inferQuestionIntent({ clientId: client.slug, question: input.question })
+  const question = enhanced ? intent.rewrittenQuestion : input.question
+  logKnowledgeTrace({
+    stage: 'intent',
+    clientId: client.slug,
+    intent: intent.intent,
+    ok: true,
+    ms: Date.now() - started,
+  })
 
   const dbSources = await availableDatabaseSources(client.slug)
   const selectedSources = input.sourceId
@@ -129,20 +145,28 @@ export async function gatherKnowledgeResearch(input: {
   try {
     plan = input.sourceId
       ? {
-          searchQuery: input.question,
+          searchQuery: question,
           databaseSourceIds: [input.sourceId],
           reason: 'Fonte selecionada pelo usuário.',
         }
       : await planKnowledgeResearch({
-          question: input.question,
+          question,
           recentContext: input.recentContext,
           databaseSources: selectedSources,
         })
   } catch (error) {
     console.warn('[knowledge/research] planner', error)
-    plan = { searchQuery: input.question, databaseSourceIds: [], reason: 'Planejamento indisponível.' }
+    plan = { searchQuery: question, databaseSourceIds: [], reason: 'Planejamento indisponível.' }
   }
-  plan = finalizeKnowledgePlan(client.slug, input.question, plan, selectedSources)
+  plan = finalizeKnowledgePlan(client.slug, question, plan, selectedSources)
+  logKnowledgeTrace({
+    stage: 'plan',
+    clientId: client.slug,
+    intent: intent.intent,
+    sourceId: plan.databaseSourceIds[0],
+    ok: true,
+    ms: Date.now() - started,
+  })
 
   const searchAllKnowledge = !input.sourceId
   const githubPromise = searchAllKnowledge
@@ -170,13 +194,21 @@ export async function gatherKnowledgeResearch(input: {
     try {
       return {
         ok: true as const,
-        result: await runDatabase(client.slug, source.id, source.label, input.question),
+        result: await runDatabase(client.slug, source.id, source.label, question),
       }
     } catch (error) {
+      const errorCode = sanitizeSourceError(error)
+      logKnowledgeTrace({
+        stage: 'error',
+        clientId: client.slug,
+        sourceId,
+        ok: false,
+        errorCode,
+      })
       return {
         ok: false as const,
         source,
-        error: error instanceof Error ? error.message : 'Falha ao consultar a fonte.',
+        error: errorCode,
       }
     }
   })
@@ -233,7 +265,15 @@ export async function gatherKnowledgeResearch(input: {
     if (!source) continue
     statuses.push(
       outcome?.ok
-        ? { id: sourceId, label: source.label, state: 'used', detail: `${outcome.result.rows.length} linha(s)` }
+        ? {
+            id: sourceId,
+            label: source.label,
+            state: outcome.result.rows.length > 0 ? 'used' : 'empty',
+            detail:
+              outcome.result.rows.length > 0
+                ? `${outcome.result.rows.length} linha(s)`
+                : 'Nenhuma linha no recorte consultado.',
+          }
         : {
             id: sourceId,
             label: source.label,
@@ -243,7 +283,7 @@ export async function gatherKnowledgeResearch(input: {
     )
   }
 
-  return { question: input.question, searchQuery: plan.searchQuery, evidence, databases, statuses }
+  return { question, searchQuery: plan.searchQuery, intent, evidence, databases, statuses }
 }
 
 export function formatKnowledgeResearchForPrompt(research: KnowledgeResearch): string {
@@ -269,6 +309,31 @@ export async function answerKnowledgeQuestion(input: {
   question: string
   sourceId?: string
 }): Promise<KnowledgeAnswer> {
+  if (isKnowledgePipelineEnabled(input.clientId)) {
+    const resolved = resolveQuestionIntent({
+      clientId: input.clientId,
+      question: input.question,
+    })
+    if (resolved.clarification) {
+      logKnowledgeTrace({
+        stage: 'intent',
+        clientId: input.clientId,
+        intent: resolved.intent.intent,
+        ok: true,
+      })
+      return {
+        question: input.question,
+        searchQuery: input.question,
+        intent: resolved.intent,
+        evidence: [],
+        databases: [],
+        statuses: [],
+        answer: resolved.clarification.question,
+        suggestions: resolved.clarification.options,
+      }
+    }
+  }
+
   const research = await gatherKnowledgeResearch(input)
   const parsed = (await callOpenAiJson(
     `Você é o agente unificado do Cadence. Responda em português do Brasil, de forma natural,

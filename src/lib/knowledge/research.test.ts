@@ -100,7 +100,7 @@ describe('gatherKnowledgeResearch', () => {
       'database',
     ])
     expect(result.statuses).toContainEqual(
-      expect.objectContaining({ id: 'prod', state: 'error', detail: 'timeout de produção' })
+      expect.objectContaining({ id: 'prod', state: 'error', detail: 'timeout' })
     )
     expect(result.statuses).toContainEqual(
       expect.objectContaining({ id: 'cadence', state: 'used' })

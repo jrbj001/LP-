@@ -7,6 +7,12 @@ import {
   gatherKnowledgeResearch,
 } from '@/lib/knowledge/research'
 import type { KnowledgeResearch } from '@/lib/knowledge/types'
+import {
+  resolveQuestionIntent,
+  type QuestionClarification,
+} from '@/lib/knowledge/intent'
+import { isKnowledgePipelineEnabled } from '@/lib/knowledge/flag'
+import { formatCritiqueForPrompt } from '@/lib/knowledge/result-critic'
 import { asDiagram, asStringArray, callOpenAiJson } from './llm'
 import {
   type BacklogBoardId,
@@ -39,6 +45,7 @@ export interface CopilotTurn {
   sqlEvidence?: CopilotSqlEvidence
   researchEvidence: KnowledgeResearch['evidence']
   sourceStatuses: KnowledgeResearch['statuses']
+  clarification?: QuestionClarification
 }
 
 function systemPrompt(
@@ -71,7 +78,7 @@ Um agente de dados já pode ter consultado Cadence, Colmeia ou Banco de Ativos n
 
 Como trabalhar:
 1. Se a pergunta pede entendimento de fluxo, enriqueça com código no GitHub, cards do board, reuniões, documentos do workspace e conversa. Acumule fatos em "flowNotes".
-2. Se a pergunta pede volume, ranking ou status e houver evidência, responda com o número falado e o produto (Colmeia, Banco de Ativos, Cadence). Sem evidência, diga que não achou o dado agora — não invente e não mande o usuário para outra tela.
+2. Se a pergunta pede volume, ranking ou status e houver evidência, responda com o número falado, o produto (Colmeia, Banco de Ativos, Cadence) e o recorte (filtro ou período). Se a evidência trouxer hipótese (vazio por filtro, JOIN duplicado, teto de 100), não trate o número como fato absoluto. Sem evidência, diga que não achou o dado agora — não invente e não mande o usuário para outra tela.
 3. A user story só vem quando o PM pedir ou o fluxo já estiver claro o bastante. storyDraft fica null enquanto faltar persona, valor ou aceite.
 
 Regras:
@@ -171,6 +178,46 @@ function lastStoryDraftBrief(messages: CopilotMessage[]): string {
 function lastFlowNotes(messages: CopilotMessage[]): string[] {
   const last = [...messages].reverse().find(m => m.role === 'assistant' && (m.flowNotes?.length ?? 0) > 0)
   return last?.flowNotes ?? []
+}
+
+function pendingClarification(
+  messages: CopilotMessage[]
+): QuestionClarification | null {
+  const last = messages.at(-1)
+  return last?.role === 'assistant' ? last.clarification ?? null : null
+}
+
+function clarificationDiagram(
+  clientName: string,
+  clarification: QuestionClarification
+): BacklogDiagram {
+  return {
+    title: 'Definir antes de consultar',
+    nodes: [
+      {
+        id: 'pergunta',
+        label: 'Sua pergunta',
+        detail: clarification.originalQuestion.slice(0, 80),
+        kind: 'input',
+      },
+      {
+        id: 'definicao',
+        label: 'Definição necessária',
+        detail: clarification.question.slice(0, 90),
+        kind: 'process',
+      },
+      {
+        id: 'consulta',
+        label: `Consulta ${clientName}`,
+        detail: 'Executada somente após sua confirmação',
+        kind: 'system',
+      },
+    ],
+    edges: [
+      { from: 'pergunta', to: 'definicao', label: 'ambiguidade' },
+      { from: 'definicao', to: 'consulta', label: 'confirmar' },
+    ],
+  }
 }
 
 function mergeFlowNotes(previous: string[], next: string[]): string[] {
@@ -336,7 +383,32 @@ export async function runCopilotTurn(input: {
     }
   }
 
-  const queryParts = [message, card?.title ?? '', thread.title].filter(Boolean)
+  const resolvedIntent = isKnowledgePipelineEnabled(clientId)
+    ? resolveQuestionIntent({
+        clientId,
+        question: message,
+        pendingClarification: pendingClarification(thread.messages),
+      })
+    : {
+        intent: null,
+        researchQuestion: message,
+        clarification: null,
+      }
+  if (resolvedIntent.clarification) {
+    return {
+      reply: resolvedIntent.clarification.question,
+      diagram: clarificationDiagram(clientName, resolvedIntent.clarification),
+      flowNotes: lastFlowNotes(thread.messages),
+      followUps: resolvedIntent.clarification.options,
+      sources: [],
+      researchEvidence: [],
+      sourceStatuses: [],
+      clarification: resolvedIntent.clarification,
+    }
+  }
+
+  const effectiveQuestion = resolvedIntent.researchQuestion
+  const queryParts = [effectiveQuestion, card?.title ?? '', thread.title].filter(Boolean)
   const askForStory = wantsStoryNow(message)
   const previousNotes = lastFlowNotes(thread.messages)
   const be180Whatsapp = clientId === 'be180-ooh' && (thread.channel === 'whatsapp' || thread.boardId === 'cadence')
@@ -360,6 +432,9 @@ export async function runCopilotTurn(input: {
         columns: firstDatabase.columns,
         rows: firstDatabase.rows,
         sourceName: firstDatabase.sourceName,
+        criticNotes: firstDatabase.critic
+          ? formatCritiqueForPrompt(firstDatabase.critic)
+          : undefined,
       }
     : null
 
@@ -382,7 +457,8 @@ export async function runCopilotTurn(input: {
     formatCadenceSummaryForPrompt(summary),
     `Pesquisa unificada (GitHub, bancos, reuniões e documentos):\n${formatKnowledgeResearchForPrompt(research)}`,
     `Status das fontes:\n${research.statuses.map(status => `- ${status.label}: ${status.state}${status.detail ? ` — ${status.detail}` : ''}`).join('\n')}`,
-    `Pergunta atual do PM:\n${message}`,
+    `Mensagem atual do PM:\n${message}`,
+    `Pergunta interpretada para pesquisa:\n${effectiveQuestion}`,
   ]
     .filter(Boolean)
     .join('\n\n')

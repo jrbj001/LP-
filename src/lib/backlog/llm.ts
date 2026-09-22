@@ -11,6 +11,10 @@ export function chatModel(): string {
   return process.env.OPENAI_MODEL || 'gpt-4o-mini'
 }
 
+function samplingOptions(model: string, temperature: number): { temperature?: number } {
+  return model === 'gpt-6-astra' || model.startsWith('gpt-6-astra-') ? {} : { temperature }
+}
+
 function requireApiKey(): void {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error('OPENAI_API_KEY não configurada no ambiente.')
@@ -47,12 +51,13 @@ export async function callOpenAiJson(
 ): Promise<unknown> {
   requireApiKey()
   try {
+    const model = options?.model || codingModel()
     const result = await generateObject({
-      model: openai(options?.model || codingModel()),
+      model: openai(model),
       output: 'no-schema',
       system,
       prompt: user,
-      temperature: options?.temperature ?? 0.2,
+      ...samplingOptions(model, options?.temperature ?? 0.2),
       maxOutputTokens: options?.maxTokens ?? 2200,
     })
     if (result.object == null) {
@@ -71,11 +76,12 @@ export async function callOpenAiText(
 ): Promise<string> {
   requireApiKey()
   try {
+    const model = options?.model || chatModel()
     const result = await generateText({
-      model: openai(options?.model || chatModel()),
+      model: openai(model),
       system,
       prompt: user,
-      temperature: options?.temperature ?? 0.4,
+      ...samplingOptions(model, options?.temperature ?? 0.4),
       maxOutputTokens: options?.maxTokens ?? 900,
     })
     const text = result.text.trim()

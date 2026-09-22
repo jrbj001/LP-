@@ -3,6 +3,14 @@ import 'server-only'
 import { callOpenAiJson, chatModel } from '@/lib/backlog/llm'
 import { inferChart } from '@/lib/cadence/query'
 import { narrateQueryResult } from '@/lib/consultar/narrate'
+import { isKnowledgePipelineEnabled } from '@/lib/knowledge/flag'
+import {
+  mergeConferenceSuggestions,
+  PASSED_QUERY_CRITIQUE,
+  reviewQueryResult,
+  type QueryCritique,
+} from '@/lib/knowledge/result-critic'
+import { hashSql, logKnowledgeTrace } from '@/lib/knowledge/trace'
 import { decryptDataSourceConfig } from './crypto'
 import {
   describePostgresTables,
@@ -22,8 +30,10 @@ import {
   type SqlServerDataSourceConfig,
 } from './sqlserver'
 
+import { schemaForPrompt } from './schema-prompt'
+import { executeSqlWithRepair, MAX_SQL_REPAIRS, sqlRepairContext } from './sql-repair'
 import { getStoredDataSource } from './store'
-import type { DataSourceCatalogEntry, DataSourceColumn, PostgresDataSourceConfig } from './types'
+import type { DataSourceCatalogEntry, PostgresDataSourceConfig } from './types'
 
 export interface ExternalNlQueryResult {
   sourceName: string
@@ -34,6 +44,7 @@ export interface ExternalNlQueryResult {
   columns: string[]
   rows: Record<string, unknown>[]
   chart: { labelKey: string; valueKey: string } | null
+  critic: QueryCritique
 }
 
 function selectedEntries(value: unknown, catalog: DataSourceCatalogEntry[]): DataSourceCatalogEntry[] {
@@ -81,17 +92,6 @@ function sqlDraft(
             `Como os resultados desta consulta se distribuem por período?`,
           ],
   }
-}
-
-function schemaForPrompt(entries: DataSourceCatalogEntry[], columns: DataSourceColumn[]): string {
-  return entries
-    .map(entry => {
-      const fields = columns
-        .filter(column => column.schema === entry.schema && column.table === entry.table)
-        .map(column => `${column.column} ${column.dataType}${column.nullable ? '' : ' not null'}`)
-      return `${entry.schema}.${entry.table}(\n  ${fields.join(',\n  ')}\n)`
-    })
-    .join('\n\n')
 }
 
 function normalizeRows(rows: Record<string, unknown>[]): Record<string, unknown>[] {
@@ -152,6 +152,7 @@ export async function runExternalNaturalLanguageQuery(input: {
       columns,
       rows,
       chart: inferChart(rows),
+      critic: PASSED_QUERY_CRITIQUE,
     }
   }
 
@@ -166,12 +167,12 @@ Retorne somente JSON: {"tables":["schema.tabela"]}.`,
     `Pergunta: ${input.question}\n\nCatálogo da fonte ${source.name}:\n${catalogText}`,
     { temperature: 0, maxTokens: 500, model: chatModel() }
   )
-  const entries = applySourceTableSemantics(
-    source.name,
-    input.question,
-    catalog.entries,
-    selectedEntries(choice, catalog.entries)
-  )
+  const enhanced = isKnowledgePipelineEnabled(input.clientId)
+  const started = Date.now()
+  const selected = selectedEntries(choice, catalog.entries)
+  const entries = enhanced
+    ? applySourceTableSemantics(source.name, input.question, catalog.entries, selected)
+    : selected
   if (entries.length === 0) {
     throw new Error('Não foi possível identificar tabelas relacionadas à pergunta.')
   }
@@ -186,56 +187,91 @@ Retorne somente JSON: {"tables":["schema.tabela"]}.`,
           decryptDataSourceConfig<PostgresDataSourceConfig>(source.encryptedConfig),
           entries
         )
-  const draft = sqlDraft(
-    await callOpenAiJson(
-      `Você traduz perguntas em português do Brasil para um único SELECT ${engine} somente-leitura.
+  const authorizedSchema = schemaForPrompt(entries, columns)
+  const systemPrompt = `Você traduz perguntas em português do Brasil para um único SELECT ${engine} somente-leitura.
 Use somente as tabelas e colunas fornecidas, ou information_schema.tables / information_schema.columns / sys.tables quando a pergunta for sobre o catálogo.
+Respeite chaves primárias e estrangeiras indicadas no schema (pk / fk) ao juntar tabelas.
 Qualifique cada tabela com o schema.
 Não use escrita, DDL, comentários, múltiplos statements ou subconsultas em FROM/JOIN.
 ${dialect === 'sqlserver' ? 'Use SELECT TOP 100 ao listar registros.' : 'Use LIMIT 100 ao listar registros. Não use funções pg_*.'}
 Prefira agregações curtas.
-${sourceSemanticHint(source.name)}
+${enhanced ? sourceSemanticHint(source.name, input.question) : ''}
 Sempre gere 3 próximas consultas úteis como perguntas executáveis e terminadas em "?".
 Retorne somente JSON:
-{"sql":"SELECT ...","explanation":"1 ou 2 frases","suggestions":["pergunta 1?","pergunta 2?","pergunta 3?"]}.`,
-      `Hoje é ${new Date().toISOString().slice(0, 10)}.
+{"sql":"SELECT ...","explanation":"1 ou 2 frases","suggestions":["pergunta 1?","pergunta 2?","pergunta 3?"]}.`
+  const questionPrompt = `Hoje é ${new Date().toISOString().slice(0, 10)} (interprete datas no fuso America/Sao_Paulo).
 Fonte: ${source.name}
 Pergunta: ${input.question}
 
 Schema autorizado:
-${schemaForPrompt(entries, columns)}`,
-      { temperature: 0.1, maxTokens: 1000, model: chatModel() }
-    ),
-    source.name
-  )
+${authorizedSchema}`
 
-  const sql = assertExternalReadOnlySelect(draft.sql, entries, dialect)
-  const rows = normalizeRows(
-    dialect === 'sqlserver'
-      ? await executeSqlServerReadOnly(
-          decryptDataSourceConfig<SqlServerDataSourceConfig>(source.encryptedConfig),
-          sql
-        )
-      : await executePostgresReadOnly(
-          decryptDataSourceConfig<PostgresDataSourceConfig>(source.encryptedConfig),
-          sql
-        )
-  )
-  const resultColumns = rows[0] ? Object.keys(rows[0]) : []
+  const executed = await executeSqlWithRepair({
+    generate: async repair =>
+      sqlDraft(
+        await callOpenAiJson(
+          systemPrompt,
+          repair
+            ? `${questionPrompt}\n\n${sqlRepairContext(repair.sql, repair.error)}`
+            : questionPrompt,
+          { temperature: 0.1, maxTokens: 1000, model: chatModel() }
+        ),
+        source.name
+      ),
+    validateAndExecute: async draft => {
+      const sql = assertExternalReadOnlySelect(draft.sql, entries, dialect)
+      const result = normalizeRows(
+        dialect === 'sqlserver'
+          ? await executeSqlServerReadOnly(
+              decryptDataSourceConfig<SqlServerDataSourceConfig>(source.encryptedConfig),
+              sql
+            )
+          : await executePostgresReadOnly(
+              decryptDataSourceConfig<PostgresDataSourceConfig>(source.encryptedConfig),
+              sql
+            )
+      )
+      return { sql, result }
+    },
+    maxRepairs: enhanced ? MAX_SQL_REPAIRS : 0,
+  })
+
+  const resultColumns = executed.result[0] ? Object.keys(executed.result[0]) : []
+  const critic = enhanced
+    ? await reviewQueryResult({
+        question: input.question,
+        sql: executed.sql,
+        columns: resultColumns,
+        rows: executed.result,
+        sourceName: source.name,
+      })
+    : PASSED_QUERY_CRITIQUE
+  logKnowledgeTrace({
+    stage: 'sql',
+    clientId: input.clientId,
+    sourceId: input.sourceId,
+    sqlHash: hashSql(executed.sql),
+    ms: Date.now() - started,
+    repairCount: Math.max(0, executed.attempts - 1),
+    critic: critic.status,
+    ok: true,
+  })
   return {
     sourceName: source.name,
-    sql,
-    explanation: draft.explanation,
+    sql: executed.sql,
+    explanation: executed.draft.explanation,
     answer: await narrateQueryResult({
       question: input.question,
       sourceName: source.name,
-      explanation: draft.explanation,
+      explanation: executed.draft.explanation,
       columns: resultColumns,
-      rows,
+      rows: executed.result,
+      critic,
     }),
-    suggestions: draft.suggestions,
+    suggestions: mergeConferenceSuggestions(executed.draft.suggestions, critic.conferenceQuestion),
     columns: resultColumns,
-    rows,
-    chart: inferChart(rows),
+    rows: executed.result,
+    chart: inferChart(executed.result),
+    critic,
   }
 }

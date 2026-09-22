@@ -34,6 +34,9 @@ export interface DataSourceColumn {
   column: string
   dataType: string
   nullable: boolean
+  primaryKey?: boolean
+  foreignKey?: string | null
+  comment?: string | null
 }
 
 export interface DataSourceMetadata {

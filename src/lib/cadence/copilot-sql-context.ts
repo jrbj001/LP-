@@ -5,6 +5,7 @@ import type { CopilotSqlEvidence } from '@/lib/backlog/types'
 import { runExternalNaturalLanguageQuery } from '@/lib/data-sources/nl-sql'
 import { seedEnvDataSources } from '@/lib/data-sources/seed'
 import { listDataSources } from '@/lib/data-sources/store'
+import { formatCritiqueForPrompt } from '@/lib/knowledge/result-critic'
 import { hasCadenceDatabase } from './db'
 import { runNaturalLanguageQuery } from './nl-sql'
 
@@ -156,6 +157,7 @@ ${sources
         columns: result.columns,
         rows: result.rows.slice(0, 25),
         sourceName: chosen.name,
+        criticNotes: formatCritiqueForPrompt(result.critic),
       }
     }
 
@@ -171,6 +173,7 @@ ${sources
       columns: result.columns,
       rows: result.rows.slice(0, 25),
       sourceName: result.sourceName || chosen.name,
+      criticNotes: formatCritiqueForPrompt(result.critic),
     }
   } catch (error) {
     console.warn(
@@ -192,5 +195,8 @@ export function formatCopilotSqlContext(evidence: CopilotSqlEvidence | null): st
     `SQL executado (somente leitura): ${evidence.sql}`,
     `Resultado (${evidence.rows.length} linhas):`,
     JSON.stringify(evidence.rows, null, 2),
-  ].join('\n')
+    evidence.criticNotes ? `Auditoria do resultado: ${evidence.criticNotes}` : '',
+  ]
+    .filter(Boolean)
+    .join('\n')
 }

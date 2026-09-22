@@ -1,4 +1,5 @@
 import type { KnowledgeEvidence, KnowledgeSourceStatus } from '@/lib/knowledge/types'
+import type { QuestionClarification } from '@/lib/knowledge/intent'
 
 export type EnrichmentLevel = 'raw' | 'story' | 'spec'
 
@@ -107,6 +108,7 @@ export interface CopilotSqlEvidence {
   columns: string[]
   rows: Record<string, unknown>[]
   sourceName?: string
+  criticNotes?: string
 }
 
 export interface CopilotMessage {
@@ -125,6 +127,8 @@ export interface CopilotMessage {
   sourceStatuses?: KnowledgeSourceStatus[]
   sources?: GithubRef[]
   followUps?: string[]
+  /** Pergunta pendente que deve ser combinada com a próxima resposta da pessoa. */
+  clarification?: QuestionClarification
   /** Card criado/atualizado quando o PM aplica o rascunho. */
   appliedCardId?: string
   createdAt: string
