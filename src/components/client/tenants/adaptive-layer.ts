@@ -53,11 +53,39 @@ export const adaptiveLayer: ClientWorkspace = {
       boardIds: ['adaptive-layer'],
     },
   ],
+  documents: [
+    {
+      id: 'pixel-missions-architecture-roadmap',
+      title: 'Pixel — Missions Architecture & Execution Roadmap',
+      category: 'Product · Engineering · Roadmap',
+      description:
+        'Plano de execução do Mission Runtime com arquitetura, lifecycle, contratos e as 26 tasks de Marga, João e Pedro.',
+      updatedAt: '25/09/2026',
+      status: 'available',
+      href: '/missions-architecture-roadmap',
+      external: false,
+    },
+  ],
   docs: {
     eyebrow: 'Adaptive Layer™',
     title: 'Adaptive Layer™',
     titleAccent: 'produto',
-    categories: [],
+    categories: [
+      {
+        id: 'product-engineering-roadmap',
+        title: 'Product & Engineering Roadmap',
+        description:
+          'Arquitetura e plano de execução compartilhado para Missions, Runtime, Context Engine, Agents e Cadence.',
+        articles: [
+          'Mission Runtime — Phase 1',
+          'First End-to-End Mission',
+          'MARGA-01…07',
+          'JOAO-01…09',
+          'PEDRO-01…10',
+        ],
+        badge: '26 tasks',
+      },
+    ],
     supportEmail: 'hello@pixelpulselab.dev',
   },
   delivery: {
