@@ -7,42 +7,41 @@ import { PageShell, PageHeader, Reveal, Badge } from '@/components/adaptive/ui'
 import {
   PROPOSAL_META,
   RATE_BASIS,
-  SQUAD,
-  SQUAD_SUMMARY,
-  COMMERCIAL_MILESTONES,
-  COMMERCIAL_MODELS,
-  COMMERCIAL_DECISION,
-  COMMERCIAL_PRICING,
-  PROPOSAL_TOTALS,
-  PROPOSAL_OUTCOME,
+  READING,
+  WAY_OF_WORKING,
+  TECHNICAL_PATHS,
+  TECHNICAL_READING,
+  DELIVERIES,
+  DELIVERY_GROUPS,
+  COMPOSITIONS,
+  KNOWLEDGE_TRANSFER,
+  MATURITY,
+  EXPERIENCE,
+  REFERENCES_NOTE,
+  TEAM_NOTE,
   COMMERCIAL_TERMS,
-  OPERATING_MODEL,
   SCOPE,
-  DELIVERY_RISKS,
   ASSUMPTIONS,
+  NEXT_STEP,
+  RISK_LABEL,
+  ROLE_RATES,
+  deliveriesIn,
+  findDelivery,
   formatBRL,
+  type Delivery,
 } from '@/components/adaptive/proposal-data'
 import {
-  O2C_MVP_QUICK_WINS,
-  O2C_MVP_AGENTS,
-  O2C_OPERATIONAL_KPIS,
-  O2C_COMMERCIAL_KPIS,
-} from '@/components/adaptive/proposal-o2c'
-import { RoiSimulator } from '@/components/adaptive/roi-simulator'
-import {
-  Lock, Unlock, Users, Calculator, BookOpen, ExternalLink,
-  CheckCircle2, Info, Clock, Wallet, ShieldCheck, Target,
-  Milestone, ListChecks, GitPullRequest, AlertTriangle, Layers3, Scale,
-  TrendingUp, Bot, Zap, HandCoins,
+  Lock, Unlock, CheckCircle2, Info, Clock, Wallet, ShieldCheck, Target,
+  ListChecks, GitPullRequest, AlertTriangle, Layers3, BookOpen, ExternalLink,
+  Users, Database, GraduationCap, Waypoints,
 } from 'lucide-react'
 
 const STORAGE_KEY = 'orfeu-proposal-unlocked'
 
-const PHASE_STYLE: Record<string, { dot: string; badge: string; label: string }> = {
-  mobilization: { dot: 'bg-sky-500', badge: 'bg-sky-50 text-sky-700', label: 'Mobilização' },
-  'quick-win': { dot: 'bg-emerald-500', badge: 'bg-emerald-50 text-emerald-700', label: 'Quick win' },
-  layer: { dot: 'bg-neutral-900', badge: 'bg-neutral-100 text-neutral-700', label: 'Adaptive Layer™' },
-  delivery: { dot: 'bg-violet-500', badge: 'bg-violet-50 text-violet-700', label: 'Entrega-mãe' },
+const RISK_STYLE: Record<Delivery['risk'], string> = {
+  contido: 'bg-emerald-50 text-emerald-700',
+  moderado: 'bg-amber-50 text-amber-800',
+  alto: 'bg-rose-50 text-rose-700',
 }
 
 export function ProposalView() {
@@ -70,8 +69,6 @@ export function ProposalView() {
   return <ProposalContent />
 }
 
-/* ─── Gate de senha ──────────────────────────────────────────────────────── */
-
 function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
   const [value, setValue] = useState('')
   const [error, setError] = useState(false)
@@ -97,7 +94,7 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
               {PROPOSAL_META.title}
             </h1>
             <p className="text-[13px] text-neutral-500 mt-2 leading-relaxed">
-              Conteúdo confidencial do {PROPOSAL_META.client}. Digite a senha compartilhada
+              Conteúdo confidencial de {PROPOSAL_META.client}. Digite a senha compartilhada
               pela PixelPulseLab.
             </p>
             <form onSubmit={submit} className="mt-6">
@@ -131,370 +128,267 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-/* ─── Conteúdo da proposta ───────────────────────────────────────────────── */
-
 function ProposalContent() {
   const locale = useLocale()
+  const diagnosis = findDelivery('D0')
 
   return (
     <PageShell>
       <PageHeader
-        eyebrow={`Confidencial · ${PROPOSAL_META.client}`}
+        eyebrow={`Confidencial · ${PROPOSAL_META.client} · ${PROPOSAL_META.audience}`}
         title={PROPOSAL_META.title}
-        subtitle="Engagement mensal do squad dedicado, orientado a milestones e gates — com esforço e blended como base de planejamento e transparência, não como produto vendido."
+        subtitle={`${PROPOSAL_META.briefing}. Faixas indicativas por entrega, com premissas declaradas. O preço fecha quando o escopo da entrega for confirmado.`}
       />
 
-      {/* Resultado contratado */}
       <Reveal>
         <div className="rounded-2xl border border-emerald-900/10 bg-emerald-50/60 p-6 mb-5">
           <div className="flex items-start gap-3">
             <Target className="w-5 h-5 text-emerald-700 mt-0.5 flex-shrink-0" strokeWidth={1.75} />
             <div>
               <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-emerald-700/70">
-                Resultado contratado
+                {READING.eyebrow}
               </p>
-              <h2 className="text-[18px] font-semibold text-neutral-900 mt-1">{PROPOSAL_OUTCOME.scope}</h2>
-              <p className="text-[13px] text-neutral-600 leading-relaxed mt-2">{PROPOSAL_OUTCOME.outcome}</p>
-              <div className="flex flex-wrap gap-2 mt-4">
-                <Badge tone="green">{PROPOSAL_OUTCOME.milestoneCount} milestones</Badge>
-                <Badge tone="green">{PROPOSAL_OUTCOME.quickWinCount} quick wins OTD</Badge>
-                <Badge tone="green">{PROPOSAL_OUTCOME.aiOpportunityCount} oportunidades de IA</Badge>
-                <Badge tone="green">{PROPOSAL_OUTCOME.agentCount} agentes</Badge>
-              </div>
+              <h2 className="text-[18px] font-semibold text-neutral-900 mt-1">{READING.title}</h2>
+              <p className="text-[13px] text-neutral-600 leading-relaxed mt-2">{READING.narrative}</p>
             </div>
           </div>
         </div>
       </Reveal>
 
-      {/* Resumo financeiro hero */}
       <Reveal>
         <div className="rounded-2xl border border-black/[0.06] bg-neutral-900 text-white p-8 mb-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Wallet className="w-4 h-4 text-emerald-400" strokeWidth={1.75} />
                 <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40">
-                  Base fixa/mês
+                  Primeira entrega · {diagnosis.code}
                 </p>
               </div>
               <p className="text-[24px] font-semibold tracking-tight leading-none">
-                {formatBRL(COMMERCIAL_PRICING.monthlyBase.min)}–{formatBRL(COMMERCIAL_PRICING.monthlyBase.max)}
+                {formatBRL(diagnosis.investment.min)}–{formatBRL(diagnosis.investment.max)}
               </p>
-              <p className="text-[12px] text-white/50 mt-2">Garantida · squad e engenharia inclusos</p>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" strokeWidth={1.75} />
-                <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40">
-                  Parcela em risco/mês
-                </p>
-              </div>
-              <p className="text-[24px] font-semibold tracking-tight leading-none">
-                {formatBRL(COMMERCIAL_PRICING.monthlyAtRisk.min)}–{formatBRL(COMMERCIAL_PRICING.monthlyAtRisk.max)}
-              </p>
-              <p className="text-[12px] text-white/50 mt-2">
-                ~{Math.round(COMMERCIAL_PRICING.atRiskShare * 100)}% do fee · liberada por KPI no gate
-              </p>
+              <p className="text-[12px] text-white/50 mt-2">{diagnosis.window} · diagnóstico de viabilidade</p>
             </div>
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Clock className="w-4 h-4 text-emerald-400" strokeWidth={1.75} />
                 <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40">
-                  Horizonte
+                  Entregas cotadas
                 </p>
               </div>
-              <p className="text-[24px] font-semibold tracking-tight leading-none">{PROPOSAL_TOTALS.horizon}</p>
-              <p className="text-[12px] text-white/50 mt-2">
-                ~{SQUAD_SUMMARY.totalHoursMonth}h/mês de capacidade
-              </p>
+              <p className="text-[24px] font-semibold tracking-tight leading-none">{DELIVERIES.length}</p>
+              <p className="text-[12px] text-white/50 mt-2">Independentes · cada uma com aceite próprio</p>
             </div>
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Calculator className="w-4 h-4 text-emerald-400" strokeWidth={1.75} />
+                <ShieldCheck className="w-4 h-4 text-emerald-400" strokeWidth={1.75} />
                 <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40">
-                  Total líquido · 5% off
+                  Preço fechado
                 </p>
               </div>
-              <p className="text-[24px] font-semibold tracking-tight leading-none">
-                {formatBRL(PROPOSAL_TOTALS.investment.min)}–{formatBRL(PROPOSAL_TOTALS.investment.max)}
-              </p>
-              <p className="text-[12px] text-white/50 mt-2">
-                <span className="line-through">
-                  {formatBRL(COMMERCIAL_PRICING.totalList.min)}–{formatBRL(COMMERCIAL_PRICING.totalList.max)}
-                </span>
-                {' '}· economia de {formatBRL(COMMERCIAL_PRICING.totalDiscount.min)}–{formatBRL(COMMERCIAL_PRICING.totalDiscount.max)}
-              </p>
+              <p className="text-[24px] font-semibold tracking-tight leading-none">Por entrega</p>
+              <p className="text-[12px] text-white/50 mt-2">Depois do escopo confirmado em conjunto</p>
             </div>
           </div>
           <p className="text-[12px] text-white/40 leading-relaxed mt-6 pt-5 border-t border-white/[0.08]">
-            {PROPOSAL_TOTALS.note} {COMMERCIAL_PRICING.successFee.label} {PROPOSAL_META.validity}.
+            {PROPOSAL_META.validity}
           </p>
         </div>
       </Reveal>
 
-      {/* MVP Order-to-Cash: o que entra */}
       <Reveal>
-        <Section
-          title="MVP Order-to-Cash — o que entregamos"
-          subtitle="Escopo enxuto e real: a Adaptive Layer™ do ciclo financeiro, os quick wins de maior impacto e os agentes core"
-          icon={Zap}
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            <div className="rounded-2xl border border-black/[0.06] bg-white p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <Zap className="w-4 h-4 text-emerald-500" strokeWidth={1.75} />
-                <p className="text-[13px] font-semibold text-neutral-900">
-                  {O2C_MVP_QUICK_WINS.length} quick wins do ciclo financeiro
-                </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-12">
+          {READING.points.map(item => (
+            <div key={item.title} className="rounded-xl border border-black/[0.06] bg-white p-4">
+              <div className="flex items-center gap-2 mb-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" strokeWidth={1.75} />
+                <p className="text-[13px] font-semibold text-neutral-900">{item.title}</p>
               </div>
-              <ul className="space-y-2.5">
-                {O2C_MVP_QUICK_WINS.map(qw => (
-                  <li key={qw.id} className="flex gap-2 text-[12px] text-neutral-600 leading-relaxed">
-                    <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-emerald-500" strokeWidth={1.75} />
-                    <span>
-                      <span className="font-mono text-neutral-400">{qw.id}</span> · {qw.title}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-2xl border border-black/[0.06] bg-white p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <Bot className="w-4 h-4 text-violet-500" strokeWidth={1.75} />
-                <p className="text-[13px] font-semibold text-neutral-900">
-                  {O2C_MVP_AGENTS.length} agentes core sobre a Layer
-                </p>
-              </div>
-              <ul className="space-y-2.5">
-                {O2C_MVP_AGENTS.map(agent => (
-                  <li key={agent.id} className="flex gap-2 text-[12px] text-neutral-600 leading-relaxed">
-                    <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-violet-500" strokeWidth={1.75} />
-                    <span>
-                      <span className="font-medium text-neutral-900">{agent.name}</span> — {agent.role}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          <div className="mt-3">
-            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400 mb-2">
-              KPIs de negócio acompanhados
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {O2C_OPERATIONAL_KPIS.map(kpi => (
-                <div key={kpi.id} className="rounded-xl border border-black/[0.05] bg-[#fafaf8] px-4 py-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[12px] font-semibold text-neutral-900">{kpi.label}</span>
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-500">
-                      {kpi.direction}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-neutral-500 mt-1 leading-relaxed">{kpi.purpose}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Section>
-      </Reveal>
-
-      {/* ROI preditivo + simulador */}
-      <Reveal>
-        <Section
-          title="ROI preditivo"
-          subtitle="Estimativa (não garantia) do retorno do ciclo Order-to-Cash — ajuste as premissas e veja ROI e payback ao vivo"
-          icon={TrendingUp}
-        >
-          <RoiSimulator />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
-            {O2C_COMMERCIAL_KPIS.map(kpi => (
-              <div key={kpi.id} className="rounded-xl border border-emerald-900/10 bg-emerald-50/50 px-4 py-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[12px] font-semibold text-neutral-900">{kpi.label}</span>
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                    KPI de risco
-                  </span>
-                </div>
-                <p className="text-[11px] text-neutral-600 mt-1 leading-relaxed">{kpi.purpose}</p>
-                <p className="text-[11px] text-emerald-800/80 mt-1.5 font-medium">{kpi.target}</p>
-              </div>
-            ))}
-          </div>
-        </Section>
-      </Reveal>
-
-      {/* Decisão comercial + Modelo único */}
-      <Reveal>
-        <Section
-          title={COMMERCIAL_DECISION.title}
-          subtitle="Base fixa garantida + parcela em risco + bônus de sucesso — não venda de horas"
-          icon={Scale}
-        >
-          <p className="text-[13px] text-neutral-600 leading-relaxed mb-5 max-w-3xl">
-            {COMMERCIAL_DECISION.narrative}
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-            {COMMERCIAL_DECISION.why.map(item => (
-              <div key={item.title} className="rounded-xl border border-black/[0.06] bg-[#fafaf8] p-4">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" strokeWidth={1.75} />
-                  <p className="text-[13px] font-semibold text-neutral-900">{item.title}</p>
-                </div>
-                <p className="text-[12px] text-neutral-500 leading-relaxed">{item.detail}</p>
-              </div>
-            ))}
-          </div>
-          {COMMERCIAL_MODELS.map(model => (
-            <div
-              key={model.id}
-              className="rounded-2xl border border-emerald-900/15 bg-emerald-50/50 p-6"
-            >
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                  {model.badge}
-                </span>
-              </div>
-              <h3 className="text-[16px] font-semibold text-neutral-900">{model.title}</h3>
-              <p className="text-[13px] font-medium text-neutral-700 mt-1">{model.headline}</p>
-              <p className="text-[12px] text-neutral-500 leading-relaxed mt-3 max-w-3xl">{model.summary}</p>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
-                {model.points.map(point => (
-                  <li key={point} className="flex gap-2 text-[12px] text-neutral-600 leading-relaxed">
-                    <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-emerald-500" strokeWidth={1.75} />
-                    {point}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5 pt-4 border-t border-black/[0.06] flex flex-wrap items-baseline gap-x-6 gap-y-1">
-                <p className="text-[16px] font-semibold text-neutral-900">{model.monthly}</p>
-                <p className="text-[12px] text-neutral-500">{model.total}</p>
-              </div>
-              <p className="text-[11px] text-neutral-400 mt-2 leading-relaxed">{model.footing}</p>
+              <p className="text-[12px] text-neutral-500 leading-relaxed">{item.detail}</p>
             </div>
           ))}
+        </div>
+      </Reveal>
+
+      <Reveal>
+        <Section
+          title="Como trabalhamos com escopo fechado"
+          subtitle="Uma entrega começa com o escopo escrito e termina no aceite. Não há alocação contínua."
+          icon={GitPullRequest}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {WAY_OF_WORKING.map(item => (
+              <div key={item.title} className="rounded-2xl border border-black/[0.06] bg-white p-5">
+                <p className="text-[13px] font-semibold text-neutral-900">{item.title}</p>
+                <p className="text-[12px] text-neutral-500 leading-relaxed mt-2">{item.detail}</p>
+              </div>
+            ))}
+          </div>
         </Section>
       </Reveal>
 
-      {/* Modelo de risco e bônus */}
       <Reveal>
         <Section
-          title="Modelo de risco e bônus"
-          subtitle="Como a mensalidade se divide entre base garantida, parcela em risco e bônus de sucesso"
-          icon={HandCoins}
+          title="Leitura preliminar · integração com o Protheus"
+          subtitle="Quatro caminhos. A recomendação aplicada ao ambiente da Orfeu sai do diagnóstico, não deste texto."
+          icon={Waypoints}
+        >
+          <div className="flex flex-col gap-3">
+            {TECHNICAL_PATHS.map(path => (
+              <div key={path.id} className="rounded-2xl border border-black/[0.06] bg-white p-6">
+                <h3 className="text-[15px] font-semibold text-neutral-900">{path.title}</h3>
+                <p className="text-[13px] text-neutral-600 leading-relaxed mt-1.5">{path.summary}</p>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+                  <PathList label="A favor" items={path.pros} />
+                  <PathList label="Contra" items={path.cons} />
+                  <PathList label="Risco" items={path.risks} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="rounded-2xl border border-emerald-900/10 bg-emerald-50/60 p-5 mt-3">
+            <p className="text-[13px] font-semibold text-neutral-900">{TECHNICAL_READING.title}</p>
+            <p className="text-[12px] text-neutral-600 leading-relaxed mt-1.5">{TECHNICAL_READING.body}</p>
+          </div>
+        </Section>
+      </Reveal>
+
+      {DELIVERY_GROUPS.map(group => (
+        <Reveal key={group.id}>
+          <Section title={group.title} subtitle={group.subtitle} icon={group.id === 'habilitacao' ? GraduationCap : group.id === 'execucao' ? Database : ListChecks}>
+            <div className="flex flex-col gap-3">
+              {deliveriesIn(group.id).map(delivery => (
+                <DeliveryCard key={delivery.id} delivery={delivery} />
+              ))}
+            </div>
+          </Section>
+        </Reveal>
+      ))}
+
+      <Reveal>
+        <Section
+          title="Como as faixas se combinam"
+          subtitle="Soma indicativa de entregas independentes. Não é pacote e não tem desconto de volume."
+          icon={Layers3}
         >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-            <div className="rounded-2xl border border-black/[0.06] bg-white p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <Wallet className="w-4 h-4 text-neutral-500" strokeWidth={1.75} />
-                <p className="text-[13px] font-semibold text-neutral-900">Base fixa garantida</p>
-              </div>
-              <p className="text-[20px] font-semibold text-neutral-900 tracking-tight">
-                {formatBRL(COMMERCIAL_PRICING.monthlyBase.min)}–{formatBRL(COMMERCIAL_PRICING.monthlyBase.max)}
-                <span className="text-[12px] font-normal text-neutral-400">/mês</span>
-              </p>
-              <p className="text-[12px] text-neutral-500 leading-relaxed mt-2">
-                Cobre o squad enxuto por {COMMERCIAL_PRICING.months} meses. É o piso: paga independentemente
-                do bônus, começa mais baixo que a proposta anterior.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-amber-900/10 bg-amber-50/50 p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <ShieldCheck className="w-4 h-4 text-amber-600" strokeWidth={1.75} />
-                <p className="text-[13px] font-semibold text-neutral-900">
-                  Parcela em risco (~{Math.round(COMMERCIAL_PRICING.atRiskShare * 100)}%)
+            {COMPOSITIONS.map(composition => (
+              <div key={composition.id} className="rounded-2xl border border-black/[0.06] bg-white p-5">
+                <p className="text-[11px] font-mono text-neutral-400">{composition.codes.join(' + ')}</p>
+                <p className="text-[14px] font-semibold text-neutral-900 mt-1">{composition.title}</p>
+                <p className="text-[18px] font-semibold text-neutral-900 tracking-tight mt-3">
+                  {formatBRL(composition.investment.min)}–{formatBRL(composition.investment.max)}
                 </p>
+                <p className="text-[12px] text-neutral-500 leading-relaxed mt-2">{composition.note}</p>
               </div>
-              <p className="text-[20px] font-semibold text-neutral-900 tracking-tight">
-                {formatBRL(COMMERCIAL_PRICING.monthlyAtRisk.min)}–{formatBRL(COMMERCIAL_PRICING.monthlyAtRisk.max)}
-                <span className="text-[12px] font-normal text-neutral-400">/mês</span>
-              </p>
-              <p className="text-[12px] text-neutral-600 leading-relaxed mt-2">
-                Só é faturada quando os KPIs de baseline do gate são atingidos. KPIs abaixo da meta acionam
-                plano corretivo antes da liberação — nosso fee acompanha o resultado.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-emerald-900/10 bg-emerald-50/50 p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <HandCoins className="w-4 h-4 text-emerald-600" strokeWidth={1.75} />
-                <p className="text-[13px] font-semibold text-neutral-900">Bônus de sucesso</p>
-              </div>
-              <p className="text-[20px] font-semibold text-neutral-900 tracking-tight">
-                {Math.round(COMMERCIAL_PRICING.successFee.pctOfBenefit * 100)}%
-                <span className="text-[12px] font-normal text-neutral-400"> do benefício acima da meta</span>
-              </p>
-              <p className="text-[12px] text-neutral-600 leading-relaxed mt-2">
-                Sobre o benefício líquido verificado (receita incremental + economia de QLPs) acima da meta,
-                com teto de {formatBRL(COMMERCIAL_PRICING.successFee.capBRL)}. Apurado no M4.
-              </p>
-            </div>
+            ))}
           </div>
-          <div className="rounded-2xl border border-black/[0.06] bg-[#fafaf8] px-6 py-4 mt-3 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[12px] text-neutral-500 leading-relaxed max-w-2xl">
-              Com 5% de desconto, a soma de base + risco forma o fee líquido de{' '}
-              <span className="font-semibold text-neutral-900">
-                {formatBRL(COMMERCIAL_PRICING.monthlyFull.min)}–{formatBRL(COMMERCIAL_PRICING.monthlyFull.max)}/mês
-              </span>{' '}
-              — ainda abaixo dos ~R$ 120–130k/mês da proposta anterior, e diluído em {COMMERCIAL_PRICING.months} meses.
-            </p>
-            <p className="text-[13px] font-mono font-semibold text-neutral-900 whitespace-nowrap">
-              {formatBRL(COMMERCIAL_PRICING.totalFull.min)}–{formatBRL(COMMERCIAL_PRICING.totalFull.max)}
-            </p>
-          </div>
-          <p className="text-[11px] text-neutral-400 mt-2 text-right">
-            Valor de tabela: <span className="line-through">{formatBRL(COMMERCIAL_PRICING.totalList.min)}–{formatBRL(COMMERCIAL_PRICING.totalList.max)}</span>
-            {' '}· desconto de {formatBRL(COMMERCIAL_PRICING.totalDiscount.min)}–{formatBRL(COMMERCIAL_PRICING.totalDiscount.max)}
-          </p>
         </Section>
       </Reveal>
 
-      {/* Linha de execução */}
       <Reveal>
         <Section
-          title="Linha de execução e gates"
-          subtitle="Um milestone só libera o próximo quando suas evidências e critérios de aceite forem validados"
-          icon={Milestone}
+          title="Equipe por entrega"
+          subtitle={TEAM_NOTE}
+          icon={Users}
         >
-          <div className="relative">
-            <div className="absolute left-[15px] top-5 bottom-5 w-px bg-black/[0.08]" />
-            <div className="space-y-3">
-              {COMMERCIAL_MILESTONES.map(milestone => {
-                const style = PHASE_STYLE[milestone.type]
-                return (
-                  <div key={milestone.id} className="relative pl-11">
-                    <div className={`absolute left-2 top-5 w-4 h-4 rounded-full border-[3px] border-white ${style.dot}`} />
-                    <div className="rounded-xl border border-black/[0.06] bg-white px-5 py-4">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[11px] font-mono font-semibold text-neutral-400">{milestone.number}</span>
-                        <span className="text-[14px] font-semibold text-neutral-900">{milestone.title}</span>
-                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${style.badge}`}>
-                          {style.label}
-                        </span>
-                        <span className="ml-auto text-[11px] text-neutral-400">{milestone.window}</span>
-                      </div>
-                      <p className="text-[12px] text-neutral-500 leading-relaxed mt-2">{milestone.objective}</p>
-                    </div>
-                  </div>
-                )
-              })}
+          <div className="rounded-2xl border border-black/[0.06] bg-white overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[640px]">
+                <thead>
+                  <tr className="border-b border-black/[0.05] text-[11px] uppercase tracking-wider text-neutral-400">
+                    <th className="px-5 py-3 font-medium">Entrega</th>
+                    <th className="px-5 py-3 font-medium">Papel</th>
+                    <th className="px-5 py-3 font-medium">Senioridade</th>
+                    <th className="px-5 py-3 font-medium">Alocação</th>
+                    <th className="px-5 py-3 font-medium">Taxa</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {DELIVERIES.flatMap(delivery =>
+                    delivery.team.map((member, index) => (
+                      <tr key={`${delivery.id}-${member.role}`} className="border-b border-black/[0.04] last:border-0 align-top">
+                        <td className="px-5 py-3 text-[12px] font-mono text-neutral-400 whitespace-nowrap">
+                          {index === 0 ? `${delivery.code} · ${delivery.title}` : ''}
+                        </td>
+                        <td className="px-5 py-3 text-[13px] font-medium text-neutral-900">{member.role}</td>
+                        <td className="px-5 py-3 text-[12px] text-neutral-500 whitespace-nowrap">{member.seniority}</td>
+                        <td className="px-5 py-3 text-[12px] font-mono text-neutral-500">{member.hoursPerWeek}h/sem</td>
+                        <td className="px-5 py-3 text-[12px] font-mono text-neutral-500 whitespace-nowrap">
+                          R$ {ROLE_RATES[member.rateKey].rate.min}–{ROLE_RATES[member.rateKey].rate.max}/h
+                        </td>
+                      </tr>
+                    )),
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </Section>
       </Reveal>
 
-      {/* Base de preço — transparência */}
       <Reveal>
         <Section
-          title="Base de preço · transparência"
-          subtitle="Como o blended e o Guia de Valores 2026 sustentam a mensalidade — base de dimensionamento, não cobrança por hora"
+          title="Transferência de conhecimento"
+          subtitle="A entrega só está completa com estes artefatos. Não é uma apresentação no final."
+          icon={BookOpen}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {KNOWLEDGE_TRANSFER.map(item => (
+              <div key={item.title} className="rounded-2xl border border-black/[0.06] bg-white p-5">
+                <p className="text-[13px] font-semibold text-neutral-900">{item.title}</p>
+                <p className="text-[12px] text-neutral-500 leading-relaxed mt-2">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+      </Reveal>
+
+      <Reveal>
+        <Section title={MATURITY.title} icon={GraduationCap}>
+          <p className="text-[13px] text-neutral-600 leading-relaxed mb-4 max-w-3xl">{MATURITY.body}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+            {MATURITY.axes.map(item => (
+              <div key={item.axis} className="rounded-xl border border-black/[0.05] bg-[#fafaf8] px-4 py-3">
+                <p className="text-[12px] font-semibold text-neutral-900">{item.axis}</p>
+                <p className="text-[11px] text-neutral-500 mt-1 leading-relaxed">{item.question}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+      </Reveal>
+
+      <Reveal>
+        <Section
+          title="Experiência nas frentes pedidas"
+          subtitle={REFERENCES_NOTE}
+          icon={ShieldCheck}
+        >
+          <div className="flex flex-col gap-3">
+            {EXPERIENCE.map(item => (
+              <div key={item.title} className="rounded-2xl border border-black/[0.06] bg-white p-5">
+                <p className="text-[13px] font-semibold text-neutral-900">{item.title}</p>
+                <p className="text-[12px] text-neutral-500 leading-relaxed mt-2">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+      </Reveal>
+
+      <Reveal>
+        <Section
+          title="Base de preço"
+          subtitle="Como o Guia de Valores 2026 sustenta as faixas. A cobrança é por entrega."
           icon={BookOpen}
         >
           <div className="rounded-2xl border border-black/[0.06] bg-white p-6">
             <p className="text-[13px] text-neutral-600 leading-relaxed mb-5">{RATE_BASIS.note}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-5">
-              {RATE_BASIS.references.map(r => (
-                <div key={r.category} className="flex items-baseline justify-between gap-3 rounded-xl border border-black/[0.05] bg-[#fafaf8] px-4 py-3">
-                  <span className="text-[12px] text-neutral-600">{r.category}</span>
-                  <span className="text-[13px] font-semibold font-mono text-neutral-900 whitespace-nowrap">{r.range}</span>
+              {RATE_BASIS.references.map(reference => (
+                <div key={reference.category} className="flex items-baseline justify-between gap-3 rounded-xl border border-black/[0.05] bg-[#fafaf8] px-4 py-3">
+                  <span className="text-[12px] text-neutral-600">{reference.category}</span>
+                  <span className="text-[13px] font-semibold font-mono text-neutral-900 whitespace-nowrap">{reference.range}</span>
                 </div>
               ))}
             </div>
@@ -509,155 +403,8 @@ function ProposalContent() {
         </Section>
       </Reveal>
 
-      {/* Squad sugerido */}
       <Reveal>
-        <Section title="Squad sugerido" subtitle="Capacidade planejada do engagement — não é tabela de venda hora a hora" icon={Users}>
-          <div className="rounded-2xl border border-black/[0.06] bg-white overflow-hidden mb-3">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left min-w-[680px]">
-                <thead>
-                  <tr className="border-b border-black/[0.05] text-[11px] uppercase tracking-wider text-neutral-400">
-                    <th className="px-5 py-3 font-medium">Papel</th>
-                    <th className="px-5 py-3 font-medium">Dedicação</th>
-                    <th className="px-5 py-3 font-medium">Capacidade/mês</th>
-                    <th className="px-5 py-3 font-medium">Faixa (Guia)</th>
-                    <th className="px-5 py-3 font-medium">Foco</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {SQUAD.map(s => (
-                    <tr key={s.role} className="border-b border-black/[0.04] last:border-0 align-top">
-                      <td className="px-5 py-3.5 text-[13px] font-medium text-neutral-900 whitespace-nowrap">{s.role}</td>
-                      <td className="px-5 py-3.5 text-[12px] text-neutral-500 whitespace-nowrap">{s.dedication}</td>
-                      <td className="px-5 py-3.5 text-[13px] font-mono text-neutral-900">{s.hoursMonth}h</td>
-                      <td className="px-5 py-3.5 text-[12px] font-mono text-neutral-600 whitespace-nowrap">{s.rate}</td>
-                      <td className="px-5 py-3.5 text-[12px] text-neutral-500 leading-relaxed min-w-[220px]">{s.focus}</td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr className="border-t border-black/[0.06] bg-[#fafaf8]">
-                    <td className="px-5 py-3.5 text-[13px] font-semibold text-neutral-900">Total</td>
-                    <td className="px-5 py-3.5" />
-                    <td className="px-5 py-3.5 text-[13px] font-mono font-semibold text-neutral-900">
-                      {SQUAD_SUMMARY.totalHoursMonth}h
-                    </td>
-                    <td colSpan={2} className="px-5 py-3.5 text-[13px] font-semibold text-neutral-900">
-                      {formatBRL(SQUAD_SUMMARY.monthlyInvestment.min)}–{formatBRL(SQUAD_SUMMARY.monthlyInvestment.max)}/mês
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
-          <p className="text-[12px] text-neutral-400 leading-relaxed">
-            {SQUAD_SUMMARY.guidePackage}. {SQUAD_SUMMARY.management}
-          </p>
-          <div className="mt-5">
-            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400 mb-2">
-              Atuação principal por milestone
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {COMMERCIAL_MILESTONES.map(milestone => (
-                <div key={milestone.id} className="rounded-xl border border-black/[0.05] bg-[#fafaf8] px-4 py-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-[12px] font-semibold text-neutral-900">
-                      {milestone.number} · {milestone.title}
-                    </span>
-                    <span className="text-[11px] font-mono text-neutral-400">{milestone.capacityShare}%</span>
-                  </div>
-                  <p className="text-[11px] text-neutral-500 mt-1.5 leading-relaxed">
-                    {milestone.squadRoles.join(' · ')}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Section>
-      </Reveal>
-
-      {/* Milestones detalhados */}
-      <Reveal>
-        <Section
-          title="Milestones, aceite e investimento"
-          subtitle="Capacidade alocada (%) e esforço indicativo para planejamento — o faturamento segue o engagement mensal"
-          icon={ListChecks}
-        >
-          <div className="flex flex-col gap-3">
-            {COMMERCIAL_MILESTONES.map(milestone => {
-              const style = PHASE_STYLE[milestone.type]
-              return (
-                <div key={milestone.id} className="rounded-2xl border border-black/[0.06] bg-white p-6">
-                  <div className="flex flex-wrap items-center gap-2 mb-3">
-                    <span className={`w-2.5 h-2.5 rounded-full ${style.dot}`} />
-                    <span className="text-[11px] font-mono font-semibold text-neutral-400">{milestone.number}</span>
-                    <p className="text-[14px] font-semibold text-neutral-900">{milestone.title}</p>
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${style.badge}`}>
-                      {style.label}
-                    </span>
-                    <span className="text-[11px] text-neutral-400">{milestone.window}</span>
-                    <div className="ml-auto flex flex-wrap items-center gap-3 text-[12px] font-mono">
-                      <span className="text-neutral-500">{milestone.capacityShare}% da capacidade</span>
-                      <span className="text-neutral-400" title="Esforço indicativo de planejamento">
-                        ~{milestone.capacityHours}h planejadas
-                      </span>
-                      <span className="font-semibold text-neutral-900 whitespace-nowrap">
-                        {formatBRL(milestone.investment.min)}–{formatBRL(milestone.investment.max)}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-[13px] text-neutral-600 leading-relaxed mb-5">{milestone.objective}</p>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                    <MilestoneList title="Entregáveis" items={milestone.deliverables} tone="neutral" />
-                    <MilestoneList title="Critérios de aceite" items={milestone.acceptanceCriteria} tone="green" />
-                    <MilestoneList title="Dependências" items={milestone.dependencies} tone="amber" />
-                    <div>
-                      <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-neutral-400 mb-2">
-                        Responsáveis e evidências
-                      </p>
-                      <p className="text-[12px] text-neutral-600 leading-relaxed">
-                        <span className="font-medium text-neutral-900">Orfeu:</span> {milestone.orfeuOwners.join(' · ')}
-                      </p>
-                      <p className="text-[12px] text-neutral-600 leading-relaxed mt-1">
-                        <span className="font-medium text-neutral-900">Pixel:</span> {milestone.pixelOwners.join(' · ')}
-                      </p>
-                      <p className="text-[12px] text-neutral-500 leading-relaxed mt-2">
-                        {milestone.evidence.join(' · ')}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="rounded-xl bg-neutral-900 text-white px-4 py-3 mt-5 flex items-start gap-2">
-                    <GitPullRequest className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" strokeWidth={1.75} />
-                    <p className="text-[12px] leading-relaxed">{milestone.gate}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          <div className="rounded-2xl border border-black/[0.06] bg-[#fafaf8] px-6 py-4 mt-3 flex flex-wrap items-baseline justify-between gap-3">
-            <div>
-              <p className="text-[13px] font-semibold text-neutral-900">Total do engagement</p>
-              <p className="text-[11px] text-neutral-400 mt-0.5">
-                Capacidade planejada ~{PROPOSAL_TOTALS.hours.max.toLocaleString('pt-BR')}h · não é soma de faturas por milestone
-              </p>
-            </div>
-            <div className="flex items-center gap-4 text-[13px] font-mono">
-              <span className="font-semibold text-neutral-900">
-                {formatBRL(PROPOSAL_TOTALS.investment.min)}–{formatBRL(PROPOSAL_TOTALS.investment.max)}
-              </span>
-            </div>
-          </div>
-        </Section>
-      </Reveal>
-
-      {/* Modelo comercial */}
-      <Reveal>
-        <Section
-          title="Modelo comercial"
-          subtitle="Um contrato, duas leituras — outcome-first (A) e capacidade/transparência (B)"
-          icon={ShieldCheck}
-        >
+        <Section title="Condições comerciais" icon={Wallet}>
           <div className="rounded-2xl border border-black/[0.06] bg-white divide-y divide-black/[0.04]">
             {COMMERCIAL_TERMS.map(row => (
               <div key={row.label} className="flex flex-wrap items-baseline justify-between gap-2 px-5 py-3.5">
@@ -669,115 +416,113 @@ function ProposalContent() {
         </Section>
       </Reveal>
 
-      {/* Modelo operacional */}
       <Reveal>
-        <Section
-          title="Modelo de trabalho"
-          subtitle="Ritmo de execução, decisão e aceite para manter todos os milestones no caminho crítico"
-          icon={GitPullRequest}
-        >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {OPERATING_MODEL.map(item => (
-              <div key={item.cadence} className="rounded-2xl border border-black/[0.06] bg-white p-5">
-                <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-emerald-700">{item.cadence}</p>
-                <p className="text-[14px] font-semibold text-neutral-900 mt-1">{item.ritual}</p>
-                <p className="text-[12px] text-neutral-500 leading-relaxed mt-2">{item.output}</p>
-              </div>
-            ))}
-          </div>
-          <div className="rounded-2xl border border-emerald-900/10 bg-emerald-50/60 p-5 mt-3">
-            <p className="text-[13px] font-semibold text-neutral-900">Regra do gate mensal</p>
-            <p className="text-[12px] text-neutral-600 leading-relaxed mt-1.5">
-              A Pixel apresenta as evidências do ciclo. A Orfeu valida em até 5 dias úteis. O aceite libera a
-              fatura; uma pendência objetiva recebe plano corretivo, owner e nova data acordada sem ocultar o
-              impacto no milestone seguinte.
-            </p>
+        <Section title="Fronteiras do escopo" icon={Layers3}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <ScopeCard title="Entra quando a entrega é contratada" items={SCOPE.included} tone="green" />
+            <ScopeCard title="Fora desta contratação" items={SCOPE.excluded} tone="neutral" />
           </div>
         </Section>
       </Reveal>
 
-      {/* Escopo */}
       <Reveal>
-        <Section title="Fronteiras do escopo" subtitle="O que o preço-base cobre e o que permanece como evolução" icon={Layers3}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-            <ScopeCard title="Incluído" items={SCOPE.included} tone="green" />
-            <ScopeCard title="Fora do escopo" items={SCOPE.excluded} tone="neutral" />
-            <ScopeCard title="Opções futuras" items={SCOPE.future} tone="violet" />
-          </div>
-        </Section>
-      </Reveal>
-
-      {/* Riscos */}
-      <Reveal>
-        <Section
-          title="Riscos e contrapartidas"
-          subtitle="Dependências que precisam de owner para proteger prazo, qualidade e aceite"
-          icon={AlertTriangle}
-        >
-          <div className="rounded-2xl border border-black/[0.06] bg-white overflow-hidden">
-            {DELIVERY_RISKS.map((item, index) => (
-              <div
-                key={item.risk}
-                className={`p-5 grid grid-cols-1 lg:grid-cols-[1fr_1.4fr_0.6fr] gap-2 lg:gap-5 ${
-                  index < DELIVERY_RISKS.length - 1 ? 'border-b border-black/[0.05]' : ''
-                }`}
-              >
-                <p className="text-[13px] font-medium text-neutral-900">{item.risk}</p>
-                <p className="text-[12px] text-neutral-500 leading-relaxed">{item.mitigation}</p>
-                <p className="text-[11px] text-neutral-400 lg:text-right">{item.owner}</p>
-              </div>
-            ))}
-          </div>
-        </Section>
-      </Reveal>
-
-      {/* Premissas */}
-      <Reveal>
-        <Section title="Premissas" subtitle="O que sustenta os números desta proposta" icon={Info}>
+        <Section title="Premissas" subtitle="O que sustenta as faixas desta proposta" icon={Info}>
           <div className="rounded-2xl border border-black/[0.06] bg-white p-5">
             <ul className="space-y-2.5">
-              {ASSUMPTIONS.map(a => (
-                <li key={a} className="flex gap-2.5 text-[13px] text-neutral-600 leading-relaxed">
+              {ASSUMPTIONS.map(assumption => (
+                <li key={assumption} className="flex gap-2.5 text-[13px] text-neutral-600 leading-relaxed">
                   <span className="text-neutral-300 mt-0.5">·</span>
-                  {a}
+                  {assumption}
                 </li>
               ))}
             </ul>
           </div>
           <div className="flex flex-wrap items-center gap-2 mt-4">
             <Badge tone="muted">Gerada em {PROPOSAL_META.date}</Badge>
-            <Badge tone="muted">Escopo-base sujeito aos gates e premissas acima</Badge>
+            <Badge tone="muted">{PROPOSAL_META.briefing}</Badge>
           </div>
         </Section>
+      </Reveal>
+
+      <Reveal>
+        <div className="rounded-2xl border border-black/[0.06] bg-neutral-900 text-white p-6 mb-12">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" strokeWidth={1.75} />
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/40">Próximo passo</p>
+              <h2 className="text-[18px] font-semibold mt-1">{NEXT_STEP.title}</h2>
+              <p className="text-[13px] text-white/70 leading-relaxed mt-2">{NEXT_STEP.body}</p>
+            </div>
+          </div>
+        </div>
       </Reveal>
     </PageShell>
   )
 }
 
-function MilestoneList({
-  title,
-  items,
-  tone,
-}: {
-  title: string
-  items: string[]
-  tone: 'neutral' | 'green' | 'amber'
-}) {
-  const iconTone = {
-    neutral: 'text-neutral-300',
-    green: 'text-emerald-500',
-    amber: 'text-amber-500',
-  }[tone]
+function DeliveryCard({ delivery }: { delivery: Delivery }) {
+  return (
+    <div className="rounded-2xl border border-black/[0.06] bg-white p-6">
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <span className="text-[11px] font-mono font-semibold text-neutral-400">{delivery.code}</span>
+        <p className="text-[15px] font-semibold text-neutral-900">{delivery.title}</p>
+        {delivery.recommended && (
+          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+            Começar por aqui
+          </span>
+        )}
+        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${RISK_STYLE[delivery.risk]}`}>
+          {RISK_LABEL[delivery.risk]}
+        </span>
+        <span className="ml-auto text-[12px] text-neutral-400">{delivery.window}</span>
+      </div>
+      <p className="text-[13px] text-neutral-600 leading-relaxed">{delivery.summary}</p>
+      <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1 mt-4">
+        <p className="text-[18px] font-semibold text-neutral-900 tracking-tight">
+          {formatBRL(delivery.investment.min)}–{formatBRL(delivery.investment.max)}
+        </p>
+        <p className="text-[12px] font-mono text-neutral-400">
+          {delivery.weeklyHours}h/semana · {delivery.hours.min === delivery.hours.max ? delivery.hours.min : `${delivery.hours.min}–${delivery.hours.max}`}h · média R$ {delivery.blendedRate.min}–{delivery.blendedRate.max}/h
+        </p>
+        {delivery.dependsOn && (
+          <p className="text-[12px] text-neutral-400">Depende de {delivery.dependsOn}</p>
+        )}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
+        <BulletList title="Entregáveis" items={delivery.deliverables} />
+        <BulletList title="Critério de aceite" items={delivery.acceptance} />
+        <BulletList title="Premissas" items={delivery.assumptions} />
+      </div>
+      <p className="text-[12px] text-neutral-500 leading-relaxed mt-4 pt-4 border-t border-black/[0.05]">
+        <span className="font-medium text-neutral-900">Garantia.</span> {delivery.warranty}
+      </p>
+    </div>
+  )
+}
 
+function BulletList({ title, items }: { title: string; items: string[] }) {
   return (
     <div>
       <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-neutral-400 mb-2">{title}</p>
       <ul className="space-y-1.5">
         {items.map(item => (
           <li key={item} className="flex gap-2 text-[12px] text-neutral-600 leading-relaxed">
-            <CheckCircle2 className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${iconTone}`} strokeWidth={1.75} />
+            <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-neutral-300" strokeWidth={1.75} />
             {item}
           </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function PathList({ label, items }: { label: string; items: string[] }) {
+  return (
+    <div>
+      <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-neutral-400 mb-2">{label}</p>
+      <ul className="space-y-1.5">
+        {items.map(item => (
+          <li key={item} className="text-[12px] text-neutral-600 leading-relaxed">{item}</li>
         ))}
       </ul>
     </div>
@@ -791,12 +536,11 @@ function ScopeCard({
 }: {
   title: string
   items: string[]
-  tone: 'green' | 'neutral' | 'violet'
+  tone: 'green' | 'neutral'
 }) {
   const styles = {
-    green: 'bg-emerald-50/60 border-emerald-900/10 text-emerald-700',
-    neutral: 'bg-white border-black/[0.06] text-neutral-500',
-    violet: 'bg-violet-50/60 border-violet-900/10 text-violet-700',
+    green: 'bg-emerald-50/60 border-emerald-900/10',
+    neutral: 'bg-white border-black/[0.06]',
   }[tone]
 
   return (
@@ -804,8 +548,8 @@ function ScopeCard({
       <p className="text-[12px] font-semibold text-neutral-900 mb-3">{title}</p>
       <ul className="space-y-2">
         {items.map(item => (
-          <li key={item} className="flex gap-2 text-[12px] leading-relaxed">
-            <span className="mt-0.5">·</span>
+          <li key={item} className="flex gap-2 text-[12px] text-neutral-600 leading-relaxed">
+            <span className="mt-0.5 text-neutral-300">·</span>
             {item}
           </li>
         ))}
@@ -827,8 +571,8 @@ function Section({
 }) {
   return (
     <div className="mb-12">
-      <div className="flex items-center gap-2 mb-5">
-        {Icon && <Icon className="w-4 h-4 text-neutral-400" strokeWidth={1.75} />}
+      <div className="flex items-start gap-2 mb-5">
+        {Icon && <Icon className="w-4 h-4 text-neutral-400 mt-1" strokeWidth={1.75} />}
         <div>
           <h2 className="text-[18px] font-semibold text-neutral-900">{title}</h2>
           {subtitle && <p className="text-[13px] text-neutral-500 mt-0.5">{subtitle}</p>}
