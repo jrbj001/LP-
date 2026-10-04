@@ -1,7 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { CheckCircle2, Database, Loader2, PlugZap, Power, RefreshCw, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { CheckCircle2, Loader2, Network, PlugZap, Power, RefreshCw, Trash2 } from 'lucide-react'
 
 type DataSourceSummary = {
   id: string
@@ -41,9 +42,11 @@ const EMPTY_FORM: FormState = {
 export function DataSourcesWorkspace({
   clientId,
   accent,
+  modelagemHref,
 }: {
   clientId: string
   accent: string
+  modelagemHref?: string
 }) {
   const base = `/api/client/${encodeURIComponent(clientId)}/data-sources`
   const [sources, setSources] = useState<DataSourceSummary[]>([])
@@ -233,6 +236,16 @@ export function DataSourcesWorkspace({
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-1">
+                  {modelagemHref && source.enabled && (
+                    <Link
+                      href={`${modelagemHref}?source=${encodeURIComponent(source.id)}`}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-black/[0.07] px-2.5 py-2 text-[11px] text-neutral-600 hover:border-neutral-300"
+                      aria-label="Ver modelagem de dados"
+                    >
+                      <Network className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Modelagem</span>
+                    </Link>
+                  )}
                   <button
                     type="button"
                     onClick={() => void sourceAction(source.id, 'POST')}

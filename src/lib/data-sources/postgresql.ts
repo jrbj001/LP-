@@ -21,7 +21,7 @@ export class DataSourceConnectionError extends Error {
   }
 }
 
-function describeConnectionError(error: unknown): string {
+export function describeConnectionError(error: unknown): string {
   const raw = error instanceof Error ? error.message : String(error)
   const text = raw.toLowerCase()
   if (text.includes('password authentication failed') || text.includes('28p01')) {
@@ -65,7 +65,7 @@ function relationType(
   return 'table'
 }
 
-function postgresClient(config: PostgresDataSourceConfig) {
+export function postgresClient(config: PostgresDataSourceConfig) {
   return postgres({
     host: config.host.replace(/^https?:\/\//, ''),
     port: config.port,

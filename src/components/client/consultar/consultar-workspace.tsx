@@ -64,12 +64,14 @@ export function ConsultarWorkspace({
   clientId,
   accent,
   sourcesHref,
+  initialQuestion = '',
 }: {
   clientId: string
   accent: string
   sourcesHref: string
+  initialQuestion?: string
 }) {
-  const [question, setQuestion] = useState('')
+  const [question, setQuestion] = useState(initialQuestion)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<QueryPayload | null>(null)

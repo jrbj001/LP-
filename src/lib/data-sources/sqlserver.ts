@@ -18,7 +18,7 @@ export interface SqlServerDataSourceConfig {
   encrypt?: boolean
 }
 
-function poolConfig(config: SqlServerDataSourceConfig): sql.config {
+export function poolConfig(config: SqlServerDataSourceConfig): sql.config {
   return {
     server: config.server,
     port: config.port ?? 1433,
