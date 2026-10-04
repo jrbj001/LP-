@@ -10,6 +10,7 @@ import {
   testPostgresConnection,
 } from '@/lib/data-sources/postgresql'
 import { isDataSourceRemovable } from '@/lib/data-sources/lifecycle'
+import { deleteDataModel } from '@/lib/data-sources/model/store'
 import { testSqlServerConnection, type SqlServerDataSourceConfig } from '@/lib/data-sources/sqlserver'
 import type { PostgresDataSourceConfig } from '@/lib/data-sources/types'
 import {
@@ -72,6 +73,9 @@ export async function DELETE(
         { status: 404 }
       )
     }
+    await deleteDataModel(client.slug, sourceId).catch(error => {
+      console.warn('[client/data-sources] modelagem não removida', error)
+    })
     return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json(

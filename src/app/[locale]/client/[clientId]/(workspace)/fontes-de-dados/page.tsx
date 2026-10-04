@@ -22,7 +22,11 @@ export default async function DataSourcesPage({ params }: Props) {
         description="Cadastre as conexões PostgreSQL e SQL Server que o Consultar usa para fatos da operação."
         backHref={`/${locale}/client/${client.slug}`}
       />
-      <DataSourcesWorkspace clientId={client.slug} accent={client.accent} />
+      <DataSourcesWorkspace
+        clientId={client.slug}
+        accent={client.accent}
+        modelagemHref={`/${locale}/client/${client.slug}/consultar/modelagem`}
+      />
     </div>
   )
 }
