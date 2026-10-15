@@ -12,7 +12,6 @@ const MISSION_COLOR = ['#be123c', '#b45309', '#047857', '#1d4ed8']
 const MILESTONE_COLOR: Record<RoadmapMilestone['kind'], string> = {
   start: '#18181b',
   release: '#be123c',
-  pause: '#a1a1aa',
   pilot: '#047857',
 }
 
@@ -55,9 +54,6 @@ export function Glp1RoadmapDiagram() {
     sprints.push(LEFT + (day / totalDays) * plotW)
   }
 
-  const pause = ROADMAP.milestones.find(milestone => milestone.kind === 'pause')
-  const pauseEnd = '2027-01-03'
-
   return (
     <div className="overflow-x-auto rounded-2xl border border-black/[0.08] bg-white">
       <svg
@@ -74,17 +70,6 @@ export function Glp1RoadmapDiagram() {
         <text x={LEFT} y={40} fill="#71717a" fontSize={10}>
           Barras são janelas de calendário. O número é o esforço em dias de desenvolvimento.
         </text>
-
-        {pause && (
-          <rect
-            x={x(pause.date)}
-            y={TOP - 6}
-            width={x(pauseEnd) - x(pause.date)}
-            height={rowsBottom - TOP + 6}
-            fill="#f4f4f5"
-            opacity={0.9}
-          />
-        )}
 
         {sprints.map((sx, index) => (
           <line key={`sprint-${index}`} x1={sx} y1={TOP - 6} x2={sx} y2={rowsBottom} stroke="#ececef" strokeWidth={1} />
