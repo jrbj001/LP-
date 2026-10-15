@@ -31,7 +31,7 @@ export const likeMe: ClientWorkspace = {
   stats: [
     { label: 'Repos', value: '3' },
     { label: 'Reuniões', value: String(LIKEME_MEETINGS.length) },
-    { label: 'Documentos', value: '10' },
+    { label: 'Documentos', value: '11' },
   ],
   projects: [
     {
@@ -160,6 +160,17 @@ export const likeMe: ClientWorkspace = {
   },
   meetings: LIKEME_MEETINGS,
   documents: [
+    {
+      id: 'likeme-plano-glp1-dr-matheus',
+      title: 'Plano de trabalho — Flagship GLP-1 Dr. Matheus',
+      category: 'Produto · Jornada · Engenharia',
+      description:
+        'Jornada vetorial de 15 etapas, leitura do app e do backend atuais, e a Missão 1 para abrir no backlog: entrar no app e pagar.',
+      updatedAt: '15/10/2026',
+      status: 'available',
+      href: '/plano-glp1',
+      external: false,
+    },
     {
       id: 'likeme-evolucao-gama-fund',
       title: 'Like:Me × Gama Fund — Evolução AI-native',
