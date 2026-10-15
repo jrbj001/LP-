@@ -567,7 +567,7 @@ export function findMissionTask(taskId: string): { mission: Mission; task: Missi
 export interface RoadmapMilestone {
   date: string
   label: string
-  kind: 'start' | 'release' | 'pause' | 'pilot'
+  kind: 'start' | 'release' | 'pilot'
 }
 
 export const ROADMAP = {
