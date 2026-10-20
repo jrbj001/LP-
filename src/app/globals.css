@@ -36,6 +36,29 @@ body:has(.lp-scope) {
   color: #171717;
 }
 
+body:has(.iris-scope) {
+  background-color: #f2eee7;
+  color: #1d2421;
+}
+
+.iris-scope {
+  --iris-bg: #f2eee7;
+  --iris-card: #fbfaf7;
+  --iris-ink: #1d2421;
+  --iris-muted: #6c736e;
+  --iris-line: rgba(29, 36, 33, 0.1);
+  --iris-accent: #3d6656;
+  --iris-accent-soft: rgba(61, 102, 86, 0.1);
+  --iris-wood: #b88c5f;
+  background-color: var(--iris-bg);
+  color: var(--iris-ink);
+}
+
+.iris-scope ::selection {
+  background: var(--iris-accent-soft);
+  color: var(--iris-ink);
+}
+
 ::selection {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
