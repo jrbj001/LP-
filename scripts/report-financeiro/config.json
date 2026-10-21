@@ -1,0 +1,115 @@
+{
+  "client": "Be180 · Like:me · Colmeia",
+  "vendor": "PixelPulseLab",
+  "period": { "since": "2026-01-01", "until": "2026-09-30", "label": "Janeiro a Setembro de 2026" },
+  "reposRoot": "..",
+  "rates": { "min": 180, "mid": 210, "max": 240 },
+  "monthlyTaxDiscount": 9000,
+  "payments": [
+    { "month": "2026-01", "date": "05/01/2026", "channel": "SISPAG Fornecedores", "parts": [42230, 10411, 12600] },
+    { "month": "2026-02", "date": "06/02/2026", "channel": "SISPAG Fornecedores", "parts": [43000, 23000] },
+    { "month": "2026-03", "date": "20/03/2026", "channel": "SISPAG Fornecedores", "parts": [23000, 47000] },
+    { "month": "2026-04", "date": "20/04/2026", "channel": "SISPAG Fornecedores", "parts": [23000, 47000] },
+    { "month": "2026-05", "date": "20/05/2026", "channel": "Pagamentos a Fornecedores", "parts": [23000, 47000, 10000] },
+    { "month": "2026-06", "date": "19/06/2026", "channel": "PIX", "parts": [23000, 47000, 10000] },
+    { "month": "2026-07", "date": "20/07/2026", "channel": "PIX", "parts": [23000, 47000, 10000] },
+    { "month": "2026-08", "date": "20/08/2026", "channel": "PIX", "parts": [23000, 47000, 10000] },
+    { "month": "2026-09", "date": "21/09/2026", "channel": "PIX", "parts": [10000, 47000, 23000] }
+  ],
+  "projects": [
+    { "id": "likeme", "label": "Like:me", "color": "#5eead4", "description": "App, landing e API da plataforma de saúde e bem-estar (comunidade, marketplace, assinaturas, eventos, pagamentos)." },
+    { "id": "colmeia", "label": "Colmeia + Banco de Ativos", "color": "#7dd3fc", "description": "Meus Roteiros (planejamento OOH), roteiro simulado, P1A, resultados e Banco de Ativos (inventário, exibidores, enriquecimento)." },
+    { "id": "visibilidade", "label": "Teste de Visibilidade", "color": "#fcd34d", "description": "Image brand processing: processamento de imagem e medição de visibilidade de marca em mídia." },
+    { "id": "suporte", "label": "Back-end e Suporte", "color": "#f9a8d4", "description": "Processos de back-end (pagamentos, reconciliação, e-mail, notificações, jobs, infra) e suporte ao usuário (Cadence, copiloto, WhatsApp, área do cliente)." }
+  ],
+  "repos": [
+    { "name": "likeme-back-end", "project": "likeme", "label": "Like:me · API" },
+    { "name": "likeme-front-end", "project": "likeme", "label": "Like:me · App" },
+    { "name": "LP-LikeMe", "project": "likeme", "label": "Like:me · Landing" },
+    { "name": "colmeia---meusroteirosdefault", "project": "colmeia", "label": "Colmeia · Meus Roteiros + Banco de Ativos" },
+    { "name": "image_brand_processing", "project": "visibilidade", "label": "Teste de Visibilidade" },
+    {
+      "name": "LP-",
+      "project": "suporte",
+      "label": "Plataforma do cliente (Cadence, copiloto, WhatsApp)",
+      "includePaths": [
+        "src/components/client/",
+        "src/components/cadence/",
+        "src/lib/backlog/",
+        "src/lib/twilio/",
+        "src/lib/data-sources/",
+        "src/lib/delivery/",
+        "src/lib/cadence/",
+        "src/lib/knowledge/",
+        "src/lib/client/",
+        "src/lib/consultar/",
+        "src/lib/documents/",
+        "src/lib/plans/",
+        "src/lib/jira/",
+        "src/app/[locale]/client/",
+        "src/app/[locale]/cadence/",
+        "src/app/api/client/",
+        "src/app/api/webhooks/"
+      ],
+      "share": 0.7
+    }
+  ],
+  "supportPattern": "(hotfix|reconcil|webhook|sendgrid|twilio|whatsapp|deploy|health-?check|sentry|backup|infra|suporte|support)",
+  "authors": [
+    { "id": "jose", "name": "Jose Roberto", "role": "Head de Tecnologia · Arquiteto de Soluções e IA", "aliases": ["Jose Roberto", "jrbj001", "Jose Roberto Baptista junior"] },
+    { "id": "eduarda", "name": "Eduarda Weber", "role": "Engenheira Full-stack Sênior (Like:me)", "aliases": ["Eduarda Weber", "Duda Weber"] },
+    { "id": "henrique", "name": "Henrique Margarido", "role": "Engenheiro de Dados e Back-end", "aliases": ["Henrique Margarido", "hmdata001"] },
+    { "id": "agent", "name": "Agentes de IA (Cursor)", "role": "Agentes autônomos de código", "aliases": ["Cursor Agent"], "automation": true }
+  ],
+  "externalProfessionals": [
+    {
+      "id": "alex",
+      "name": "Alex",
+      "company": "NTT Data",
+      "role": "Arquiteto e Consultor Sênior (dados, cloud e governança)",
+      "hoursPerMonth": 32,
+      "projectSplit": { "colmeia": 0.6, "likeme": 0.2, "suporte": 0.2 },
+      "from": "2026-01"
+    }
+  ],
+  "stakeholders": [
+    {
+      "name": "Fabrício Guimarães",
+      "org": "Like:Me",
+      "role": "Stakeholder",
+      "note": "Acompanha priorização, validação de layout e aceitação das entregas, nos ritos de produto da Like:Me e nas frentes Be180 em que é chamado. Não compõe o esforço remunerado nem o banco de horas."
+    }
+  ],
+  "capacity": [
+    { "id": "jose", "from": "2026-01", "hoursPerMonth": 180, "note": "Tempo integral. O git registra a fração que vira commit; arquitetura, cliente e IA ocupam o resto da jornada." },
+    { "id": "eduarda", "from": "2026-01", "until": "2026-07", "hoursPerMonth": 180, "note": "Tempo integral até julho, quando a atividade no git é diária." },
+    { "id": "eduarda", "from": "2026-08", "hoursPerMonth": 90, "note": "A partir de agosto o git cai para um dia no mês. Mantida dedicação parcial de handoff e suporte." },
+    { "id": "henrique", "from": "2026-06", "hoursPerMonth": 160, "note": "Entra em junho, no ritmo dos commits de dados e backend." }
+  ],
+  "unversionedHoursPerMonth": 80,
+  "unversionedToSupport": 0.55,
+  "unversionedNote": "Ritos, suporte ao usuário, especificação e QA que não geram commit nos repositórios medidos. 55% vão para Back-end e Suporte; o restante segue o mix de código do mês.",
+  "manualEffort": [
+    {
+      "id": "migracao-backend",
+      "label": "Migração para o novo backend",
+      "project": "suporte",
+      "months": ["2026-06", "2026-07"],
+      "hours": 40,
+      "note": "Workspace Be180 registra 80h de infraestrutura entre 07/06 e 07/07, sem commits de produto. Rateadas nos dois meses."
+    }
+  ],
+  "effortModel": {
+    "sessionGapMinutes": 120,
+    "warmupMinutes": 45,
+    "maxHoursPerDay": 10,
+    "offGitOverhead": 0.2,
+    "ignoreFilePatterns": ["package-lock\\.json$", "yarn\\.lock$", "pnpm-lock\\.yaml$", "\\.(png|jpe?g|gif|webp|svg|ico|pdf|mp4|mov|woff2?|ttf|zip|xlsx?|csv|docx?)$", "(^|/)dist/", "(^|/)build/", "\\.min\\.(js|css)$", "\\.snap$"],
+    "maxLinesPerFile": 1500
+  },
+  "roi": {
+    "traditionalLocPerHour": 18,
+    "traditionalLocPerHourNote": "Benchmark conservador de mercado para código entregue, revisado e testado (10 a 25 linhas por hora em times tradicionais, sem IA).",
+    "conservativeMultiplierCap": 3.5
+  }
+}
