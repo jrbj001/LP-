@@ -24,8 +24,8 @@ const localDay = iso => new Date(new Date(iso).getTime() - 3 * 3600e3).toISOStri
 const commits = git.commits
   .map(c => {
     const author = authorOf(c.author)
-    const operational = /^(fix|chore|hotfix|ci)\b/i.test(c.subject) && supportRx.test(c.subject)
-    const project = c.project !== 'suporte' && operational ? 'suporte' : c.project
+    const operational = config.supportFromProjects.includes(c.project) && /^(fix|chore|hotfix|ci|perf)\b/i.test(c.subject) && supportRx.test(c.subject)
+    const project = operational ? 'suporte' : c.project
     return {
       ...c,
       authorId: author.id,
@@ -68,11 +68,20 @@ function capacityHours(id, month) {
   return row?.hoursPerMonth ?? 0
 }
 
+// Cada dia ativo da pessoa vale um dia, repartido entre as frentes tocadas nele.
 function gitShare(list) {
+  const days = new Map()
+  for (const c of list) {
+    const key = `${c.authorId}|${c.day}`
+    if (!days.has(key)) days.set(key, zeros())
+    days.get(key)[c.project] += Math.max(c.hours, 0.25) * c.weight
+  }
   const by = zeros()
-  for (const c of list) by[c.project] += c.hours
-  const total = sumValues(by)
-  return { by, total }
+  for (const day of days.values()) {
+    const total = sumValues(day)
+    for (const p of projectIds) by[p] += day[p] / total
+  }
+  return { by, total: sumValues(by) }
 }
 
 function spread(hours, share) {
@@ -93,7 +102,7 @@ const monthly = months.map(month => {
     const cap = capacityHours(person.id, month)
     if (!cap) continue
     const monthShare = gitShare(mc.filter(c => c.authorId === person.id))
-    const share = monthShare.total >= 8 ? monthShare : gitShare(human.filter(c => c.authorId === person.id))
+    const share = monthShare.total >= 2 ? monthShare : gitShare(human.filter(c => c.authorId === person.id))
     const split = spread(cap, share)
     for (const p of projectIds) hoursByProject[p] += split[p]
     hoursByAuthor[person.id] = cap
@@ -105,23 +114,22 @@ const monthly = months.map(month => {
     for (const [p, share] of Object.entries(ext.projectSplit)) hoursByProject[p] += ext.hoursPerMonth * share
   }
 
-  const unversioned = zeros()
   const monthGit = gitShare(mc)
-  const supportSlice = config.unversionedHoursPerMonth * config.unversionedToSupport
-  const gitSlice = config.unversionedHoursPerMonth - supportSlice
-  unversioned.suporte += supportSlice
-  const rest = spread(gitSlice, monthGit.total ? monthGit : { by: Object.fromEntries(projectIds.map(p => [p, 1])), total: projectIds.length })
-  for (const p of projectIds) unversioned[p] += rest[p]
-  for (const p of projectIds) hoursByProject[p] += unversioned[p]
+  hoursByProject.suporte += config.unversionedHoursPerMonth
 
-  const manual = zeros()
   for (const item of config.manualEffort) {
-    if (!item.months.includes(month)) continue
-    manual[item.project] += item.hours
-    hoursByProject[item.project] += item.hours
+    if (item.months.includes(month)) hoursByProject[item.project] += item.hours
   }
 
   const deliveredHours = sumValues(hoursByProject)
+  const floor = deliveredHours * config.supportFloor
+  if (hoursByProject.suporte < floor) {
+    const deficit = floor - hoursByProject.suporte
+    const others = projectIds.filter(p => p !== 'suporte')
+    const othersTotal = others.reduce((a, p) => a + hoursByProject[p], 0)
+    for (const p of others) hoursByProject[p] -= deficit * (hoursByProject[p] / othersTotal)
+    hoursByProject.suporte = floor
+  }
   const paidHours = { min: amount / rates.max, mid: amount / rates.mid, max: amount / rates.min }
   const allocation = Object.fromEntries(projectIds.map(p => [p, deliveredHours ? (amount * hoursByProject[p]) / deliveredHours : 0]))
   const lines = mc.reduce((a, c) => a + (c.additions + c.deletions) * c.weight, 0)
@@ -138,8 +146,6 @@ const monthly = months.map(month => {
     lines: Math.round(lines),
     additions: Math.round(mc.reduce((a, c) => a + c.additions * c.weight, 0)),
     gitHours: round(monthGit.total),
-    unversioned: Object.fromEntries(Object.entries(unversioned).map(([k, v]) => [k, round(v)])),
-    manual: Object.fromEntries(Object.entries(manual).map(([k, v]) => [k, round(v)])),
     hoursByProject: Object.fromEntries(Object.entries(hoursByProject).map(([k, v]) => [k, round(v)])),
     hoursByAuthor: Object.fromEntries(Object.entries(hoursByAuthor).map(([k, v]) => [k, round(v)])),
     deliveredHours: round(deliveredHours),
@@ -205,7 +211,7 @@ const people = [
     for (const m of monthly) {
       const cap = m.hoursByAuthor[a.id] ?? 0
       const monthShare = gitShare(pc.filter(c => c.month === m.month))
-      const share = monthShare.total >= 8 ? monthShare : gitShare(pc)
+      const share = monthShare.total >= 2 ? monthShare : gitShare(pc)
       const split = spread(cap, share)
       for (const p of projectIds) capByProject[p] += split[p]
     }
@@ -213,7 +219,6 @@ const people = [
       id: a.id,
       name: a.name,
       role: a.role,
-      company: 'PixelPulseLab',
       commits: pc.length,
       hours: round(sum(monthly, m => m.hoursByAuthor[a.id] ?? 0)),
       gitHours: round(sum(pc, c => c.hours)),
@@ -226,7 +231,6 @@ const people = [
     id: e.id,
     name: e.name,
     role: e.role,
-    company: e.company,
     commits: 0,
     hours: round(sum(monthly, m => m.hoursByAuthor[e.id] ?? 0)),
     gitHours: 0,
@@ -301,14 +305,15 @@ const budget2027 = {
   scenarios: [
     scenario('Manter o retainer', 80000 / rates.mid, 'O contrato segue em R$ 80 mil. As horas cobertas ficam abaixo da dedicação atual e o banco de horas continua crescendo.'),
     scenario('Equilibrar', avgDelivered, 'O retainer passa a cobrir a dedicação média de 2026, na taxa de referência. O banco para de crescer.'),
-    scenario('Crescer', avgDelivered + 176, 'Soma uma engenharia sênior em tempo integral na Like:Me à dedicação média, para reduzir a concentração em uma pessoa.'),
+    scenario('Crescer', avgDelivered + 176, 'Soma uma engenharia sênior em tempo integral à dedicação média, para acelerar o backlog da Like:me e do Colmeia.'),
   ],
 }
 
 const report = {
   generatedAt: new Date().toISOString(),
   client: config.client,
-  vendor: config.vendor,
+  supportFloor: config.supportFloor,
+  supportFloorNote: config.supportFloorNote,
   period: config.period,
   rates,
   monthlyTaxDiscount: config.monthlyTaxDiscount,

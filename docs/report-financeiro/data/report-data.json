@@ -1,7 +1,8 @@
 {
-  "generatedAt": "2026-10-21T17:25:26.962Z",
+  "generatedAt": "2026-10-21T18:24:06.934Z",
   "client": "Be180 · Like:me · Colmeia",
-  "vendor": "PixelPulseLab",
+  "supportFloor": 0.2,
+  "supportFloorNote": "Pelo menos 20% das horas de cada mês vão para entendimentos e suporte à operação e ao cliente do Colmeia e do Banco de Ativos, conforme registrado no Minday.",
   "period": {
     "since": "2026-01-01",
     "until": "2026-09-30",
@@ -18,51 +19,46 @@
     "warmupMinutes": 45,
     "maxHoursPerDay": 10,
     "unversionedHoursPerMonth": 80,
-    "unversionedNote": "Ritos, suporte ao usuário, especificação e QA que não geram commit nos repositórios medidos. 55% vão para Back-end e Suporte; o restante segue o mix de código do mês.",
+    "unversionedNote": "Ritos, entendimentos e suporte à operação e ao cliente que não geram código. Entram integralmente em Back-end e Suporte à Operação.",
     "capacity": [
       {
         "id": "jose",
         "from": "2026-01",
-        "hoursPerMonth": 180,
-        "note": "Tempo integral. O git registra a fração que vira commit; arquitetura, cliente e IA ocupam o resto da jornada."
+        "hoursPerMonth": 180
       },
       {
         "id": "eduarda",
         "from": "2026-01",
         "until": "2026-07",
-        "hoursPerMonth": 180,
-        "note": "Tempo integral até julho, quando a atividade no git é diária."
+        "hoursPerMonth": 180
       },
       {
         "id": "eduarda",
         "from": "2026-08",
-        "hoursPerMonth": 90,
-        "note": "A partir de agosto o git cai para um dia no mês. Mantida dedicação parcial de handoff e suporte."
+        "hoursPerMonth": 90
       },
       {
         "id": "henrique",
         "from": "2026-06",
-        "hoursPerMonth": 160,
-        "note": "Entra em junho, no ritmo dos commits de dados e backend."
+        "hoursPerMonth": 160
       }
     ],
     "manualEffort": [
       {
         "id": "migracao-backend",
-        "label": "Migração para o novo backend",
+        "label": "Migração para o novo back-end do Colmeia",
         "project": "suporte",
         "months": [
           "2026-06",
           "2026-07"
         ],
         "hours": 40,
-        "note": "Workspace Be180 registra 80h de infraestrutura entre 07/06 e 07/07, sem commits de produto. Rateadas nos dois meses."
+        "note": "80 h de infraestrutura entre 07/06 e 07/07, sem commits de produto. Rateadas nos dois meses."
       }
     ]
   },
   "roiConfig": {
     "traditionalLocPerHour": 18,
-    "traditionalLocPerHourNote": "Benchmark conservador de mercado para código entregue, revisado e testado (10 a 25 linhas por hora em times tradicionais, sem IA).",
     "conservativeMultiplierCap": 3.5
   },
   "stakeholders": [
@@ -70,7 +66,7 @@
       "name": "Fabrício Guimarães",
       "org": "Like:Me",
       "role": "Stakeholder",
-      "note": "Acompanha priorização, validação de layout e aceitação das entregas, nos ritos de produto da Like:Me e nas frentes Be180 em que é chamado. Não compõe o esforço remunerado nem o banco de horas."
+      "note": "Acompanha priorização, validação de layout e aceite das entregas. Não compõe o esforço remunerado nem o banco de horas."
     }
   ],
   "repoStatus": [
@@ -105,18 +101,18 @@
       "merges": 2
     },
     {
-      "repo": "LP-",
+      "repo": "visibilidade-front",
       "found": true,
-      "commits": 58,
+      "commits": 56,
       "merges": 0
     }
   ],
   "totals": {
     "paid": 671241,
     "netEstimate": 590241,
-    "commits": 1505,
+    "commits": 1503,
     "prs": 115,
-    "lines": 509379,
+    "lines": 500023,
     "deliveredHours": 4788,
     "paidHours": {
       "min": 2796.7,
@@ -150,24 +146,12 @@
       "automationCommits": 0,
       "lines": 82721,
       "additions": 53484,
-      "gitHours": 58.5,
-      "unversioned": {
-        "likeme": 28.9,
-        "colmeia": 7.1,
-        "visibilidade": 0,
-        "suporte": 44.1
-      },
-      "manual": {
-        "likeme": 0,
-        "colmeia": 0,
-        "visibilidade": 0,
-        "suporte": 0
-      },
+      "gitHours": 18,
       "hoursByProject": {
-        "likeme": 214.9,
-        "colmeia": 206.3,
+        "likeme": 182.5,
+        "colmeia": 195.1,
         "visibilidade": 0,
-        "suporte": 50.9
+        "suporte": 94.4
       },
       "hoursByAuthor": {
         "jose": 180,
@@ -186,16 +170,16 @@
         "at180": 109.6
       },
       "allocation": {
-        "likeme": 29700,
-        "colmeia": 28511,
+        "likeme": 25230,
+        "colmeia": 26963,
         "visibilidade": 0,
-        "suporte": 7030
+        "suporte": 13048
       },
       "allocationPct": {
-        "likeme": 45.5,
-        "colmeia": 43.7,
+        "likeme": 38.7,
+        "colmeia": 41.3,
         "visibilidade": 0,
-        "suporte": 10.8
+        "suporte": 20
       },
       "deliveredValueMid": 99120,
       "bankAccumulated": {
@@ -214,28 +198,16 @@
       ],
       "amount": 66000,
       "netEstimate": 57000,
-      "commits": 153,
+      "commits": 168,
       "automationCommits": 0,
-      "lines": 39530,
-      "additions": 26116,
-      "gitHours": 52,
-      "unversioned": {
-        "likeme": 26.5,
-        "colmeia": 7.3,
-        "visibilidade": 0,
-        "suporte": 46.1
-      },
-      "manual": {
-        "likeme": 0,
-        "colmeia": 0,
-        "visibilidade": 0,
-        "suporte": 0
-      },
+      "lines": 44098,
+      "additions": 28708,
+      "gitHours": 20,
       "hoursByProject": {
-        "likeme": 209.4,
-        "colmeia": 173.9,
-        "visibilidade": 0,
-        "suporte": 88.7
+        "likeme": 159.4,
+        "colmeia": 176.3,
+        "visibilidade": 27,
+        "suporte": 109.3
       },
       "hoursByAuthor": {
         "jose": 180,
@@ -254,16 +226,16 @@
         "at180": 105.3
       },
       "allocation": {
-        "likeme": 29287,
-        "colmeia": 24316,
-        "visibilidade": 0,
-        "suporte": 12397
+        "likeme": 22285,
+        "colmeia": 24651,
+        "visibilidade": 3779,
+        "suporte": 15285
       },
       "allocationPct": {
-        "likeme": 44.4,
-        "colmeia": 36.8,
-        "visibilidade": 0,
-        "suporte": 18.8
+        "likeme": 33.8,
+        "colmeia": 37.3,
+        "visibilidade": 5.7,
+        "suporte": 23.2
       },
       "deliveredValueMid": 99120,
       "bankAccumulated": {
@@ -282,28 +254,16 @@
       ],
       "amount": 70000,
       "netEstimate": 61000,
-      "commits": 319,
+      "commits": 334,
       "automationCommits": 0,
-      "lines": 61134,
-      "additions": 39989,
-      "gitHours": 109.1,
-      "unversioned": {
-        "likeme": 30,
-        "colmeia": 5.8,
-        "visibilidade": 0,
-        "suporte": 44.3
-      },
-      "manual": {
-        "likeme": 0,
-        "colmeia": 0,
-        "visibilidade": 0,
-        "suporte": 0
-      },
+      "lines": 62639,
+      "additions": 41192,
+      "gitHours": 34,
       "hoursByProject": {
-        "likeme": 214.7,
-        "colmeia": 205,
-        "visibilidade": 0,
-        "suporte": 52.3
+        "likeme": 161.5,
+        "colmeia": 187.5,
+        "visibilidade": 24.9,
+        "suporte": 98.1
       },
       "hoursByAuthor": {
         "jose": 180,
@@ -322,16 +282,16 @@
         "at180": 83.1
       },
       "allocation": {
-        "likeme": 31846,
-        "colmeia": 30396,
-        "visibilidade": 0,
-        "suporte": 7758
+        "likeme": 23955,
+        "colmeia": 27802,
+        "visibilidade": 3689,
+        "suporte": 14554
       },
       "allocationPct": {
-        "likeme": 45.5,
-        "colmeia": 43.4,
-        "visibilidade": 0,
-        "suporte": 11.1
+        "likeme": 34.2,
+        "colmeia": 39.7,
+        "visibilidade": 5.3,
+        "suporte": 20.8
       },
       "deliveredValueMid": 99120,
       "bankAccumulated": {
@@ -350,28 +310,16 @@
       ],
       "amount": 70000,
       "netEstimate": 61000,
-      "commits": 108,
+      "commits": 110,
       "automationCommits": 0,
-      "lines": 34615,
-      "additions": 28112,
-      "gitHours": 49.9,
-      "unversioned": {
-        "likeme": 31.8,
-        "colmeia": 1.6,
-        "visibilidade": 1.9,
-        "suporte": 44.7
-      },
-      "manual": {
-        "likeme": 0,
-        "colmeia": 0,
-        "visibilidade": 0,
-        "suporte": 0
-      },
+      "lines": 34633,
+      "additions": 28115,
+      "gitHours": 24,
       "hoursByProject": {
-        "likeme": 223.9,
-        "colmeia": 143.7,
-        "visibilidade": 20.5,
-        "suporte": 83.8
+        "likeme": 173.3,
+        "colmeia": 124.6,
+        "visibilidade": 79.8,
+        "suporte": 94.4
       },
       "hoursByAuthor": {
         "jose": 180,
@@ -390,16 +338,16 @@
         "at180": 83.1
       },
       "allocation": {
-        "likeme": 33210,
-        "colmeia": 21318,
-        "visibilidade": 3037,
-        "suporte": 12435
+        "likeme": 25695,
+        "colmeia": 18473,
+        "visibilidade": 11832,
+        "suporte": 14000
       },
       "allocationPct": {
-        "likeme": 47.4,
-        "colmeia": 30.5,
-        "visibilidade": 4.3,
-        "suporte": 17.8
+        "likeme": 36.7,
+        "colmeia": 26.4,
+        "visibilidade": 16.9,
+        "suporte": 20
       },
       "deliveredValueMid": 99120,
       "bankAccumulated": {
@@ -419,28 +367,16 @@
       ],
       "amount": 80000,
       "netEstimate": 71000,
-      "commits": 221,
+      "commits": 222,
       "automationCommits": 0,
-      "lines": 64607,
-      "additions": 52585,
-      "gitHours": 104.8,
-      "unversioned": {
-        "likeme": 26.3,
-        "colmeia": 4.6,
-        "visibilidade": 3.3,
-        "suporte": 45.9
-      },
-      "manual": {
-        "likeme": 0,
-        "colmeia": 0,
-        "visibilidade": 0,
-        "suporte": 0
-      },
+      "lines": 64852,
+      "additions": 52803,
+      "gitHours": 33,
       "hoursByProject": {
-        "likeme": 241.7,
-        "colmeia": 103.5,
-        "visibilidade": 60,
-        "suporte": 66.8
+        "likeme": 237.9,
+        "colmeia": 95.5,
+        "visibilidade": 44.1,
+        "suporte": 94.4
       },
       "hoursByAuthor": {
         "jose": 180,
@@ -459,16 +395,16 @@
         "at180": 27.6
       },
       "allocation": {
-        "likeme": 40961,
-        "colmeia": 17549,
-        "visibilidade": 10171,
-        "suporte": 11319
+        "likeme": 40328,
+        "colmeia": 16192,
+        "visibilidade": 7480,
+        "suporte": 16000
       },
       "allocationPct": {
-        "likeme": 51.2,
-        "colmeia": 21.9,
-        "visibilidade": 12.7,
-        "suporte": 14.1
+        "likeme": 50.4,
+        "colmeia": 20.2,
+        "visibilidade": 9.4,
+        "suporte": 20
       },
       "deliveredValueMid": 99120,
       "bankAccumulated": {
@@ -492,24 +428,12 @@
       "automationCommits": 0,
       "lines": 106330,
       "additions": 86274,
-      "gitHours": 89.8,
-      "unversioned": {
-        "likeme": 29,
-        "colmeia": 6,
-        "visibilidade": 0,
-        "suporte": 44.9
-      },
-      "manual": {
-        "likeme": 0,
-        "colmeia": 0,
-        "visibilidade": 0,
-        "suporte": 40
-      },
+      "gitHours": 35,
       "hoursByProject": {
-        "likeme": 348.8,
-        "colmeia": 207,
+        "likeme": 326.4,
+        "colmeia": 196.5,
         "visibilidade": 0,
-        "suporte": 116.3
+        "suporte": 149.1
       },
       "hoursByAuthor": {
         "jose": 180,
@@ -529,16 +453,16 @@
         "at180": 227.6
       },
       "allocation": {
-        "likeme": 41519,
-        "colmeia": 24641,
+        "likeme": 38858,
+        "colmeia": 23398,
         "visibilidade": 0,
-        "suporte": 13840
+        "suporte": 17744
       },
       "allocationPct": {
-        "likeme": 51.9,
-        "colmeia": 30.8,
+        "likeme": 48.6,
+        "colmeia": 29.2,
         "visibilidade": 0,
-        "suporte": 17.3
+        "suporte": 22.2
       },
       "deliveredValueMid": 141120,
       "bankAccumulated": {
@@ -558,28 +482,16 @@
       ],
       "amount": 80000,
       "netEstimate": 71000,
-      "commits": 134,
+      "commits": 142,
       "automationCommits": 13,
-      "lines": 44937,
-      "additions": 37130,
-      "gitHours": 64.2,
-      "unversioned": {
-        "likeme": 22.9,
-        "colmeia": 6.4,
-        "visibilidade": 4,
-        "suporte": 46.7
-      },
-      "manual": {
-        "likeme": 0,
-        "colmeia": 0,
-        "visibilidade": 0,
-        "suporte": 40
-      },
+      "lines": 54036,
+      "additions": 44861,
+      "gitHours": 32,
       "hoursByProject": {
-        "likeme": 302.4,
-        "colmeia": 180.2,
-        "visibilidade": 41.2,
-        "suporte": 148.2
+        "likeme": 281.9,
+        "colmeia": 180.6,
+        "visibilidade": 75,
+        "suporte": 134.4
       },
       "hoursByAuthor": {
         "jose": 180,
@@ -599,16 +511,16 @@
         "at180": 227.6
       },
       "allocation": {
-        "likeme": 36000,
-        "colmeia": 21451,
-        "visibilidade": 4905,
-        "suporte": 17644
+        "likeme": 33565,
+        "colmeia": 21505,
+        "visibilidade": 8930,
+        "suporte": 16000
       },
       "allocationPct": {
-        "likeme": 45,
-        "colmeia": 26.8,
-        "visibilidade": 6.1,
-        "suporte": 22.1
+        "likeme": 42,
+        "colmeia": 26.9,
+        "visibilidade": 11.2,
+        "suporte": 20
       },
       "deliveredValueMid": 141120,
       "bankAccumulated": {
@@ -628,28 +540,16 @@
       ],
       "amount": 80000,
       "netEstimate": 71000,
-      "commits": 30,
+      "commits": 21,
       "automationCommits": 0,
-      "lines": 28058,
-      "additions": 26066,
-      "gitHours": 17.2,
-      "unversioned": {
-        "likeme": 0,
-        "colmeia": 18.3,
-        "visibilidade": 4.6,
-        "suporte": 57.2
-      },
-      "manual": {
-        "likeme": 0,
-        "colmeia": 0,
-        "visibilidade": 0,
-        "suporte": 0
-      },
+      "lines": 15703,
+      "additions": 14169,
+      "gitHours": 11,
       "hoursByProject": {
-        "likeme": 174.3,
-        "colmeia": 191.7,
-        "visibilidade": 16.3,
-        "suporte": 159.7
+        "likeme": 6.1,
+        "colmeia": 313.3,
+        "visibilidade": 114.2,
+        "suporte": 108.4
       },
       "hoursByAuthor": {
         "jose": 180,
@@ -669,16 +569,16 @@
         "at180": 97.6
       },
       "allocation": {
-        "likeme": 25725,
-        "colmeia": 28294,
-        "visibilidade": 2409,
-        "suporte": 23572
+        "likeme": 899,
+        "colmeia": 46244,
+        "visibilidade": 16857,
+        "suporte": 16000
       },
       "allocationPct": {
-        "likeme": 32.2,
-        "colmeia": 35.4,
-        "visibilidade": 3,
-        "suporte": 29.5
+        "likeme": 1.1,
+        "colmeia": 57.8,
+        "visibilidade": 21.1,
+        "suporte": 20
       },
       "deliveredValueMid": 113820,
       "bankAccumulated": {
@@ -698,28 +598,16 @@
       ],
       "amount": 80000,
       "netEstimate": 71000,
-      "commits": 85,
+      "commits": 51,
       "automationCommits": 0,
-      "lines": 47447,
-      "additions": 42956,
-      "gitHours": 39.7,
-      "unversioned": {
-        "likeme": 0,
-        "colmeia": 23.9,
-        "visibilidade": 1.6,
-        "suporte": 54.4
-      },
-      "manual": {
-        "likeme": 0,
-        "colmeia": 0,
-        "visibilidade": 0,
-        "suporte": 0
-      },
+      "lines": 35011,
+      "additions": 32142,
+      "gitHours": 18,
       "hoursByProject": {
-        "likeme": 92.5,
-        "colmeia": 302.1,
-        "visibilidade": 14.4,
-        "suporte": 133
+        "likeme": 81.7,
+        "colmeia": 329.6,
+        "visibilidade": 22.3,
+        "suporte": 108.4
       },
       "hoursByAuthor": {
         "jose": 180,
@@ -739,16 +627,16 @@
         "at180": 97.6
       },
       "allocation": {
-        "likeme": 13657,
-        "colmeia": 44595,
-        "visibilidade": 2119,
-        "suporte": 19629
+        "likeme": 12060,
+        "colmeia": 48655,
+        "visibilidade": 3285,
+        "suporte": 16000
       },
       "allocationPct": {
-        "likeme": 17.1,
-        "colmeia": 55.7,
-        "visibilidade": 2.6,
-        "suporte": 24.5
+        "likeme": 15.1,
+        "colmeia": 60.8,
+        "visibilidade": 4.1,
+        "suporte": 20
       },
       "deliveredValueMid": 113820,
       "bankAccumulated": {
@@ -763,34 +651,34 @@
       "id": "likeme",
       "label": "Like:me",
       "color": "#5eead4",
-      "description": "App, landing e API da plataforma de saúde e bem-estar (comunidade, marketplace, assinaturas, eventos, pagamentos).",
-      "commits": 1153,
-      "hours": 2022.6,
-      "allocation": 281905,
-      "pct": 42.2,
-      "lines": 321539,
+      "description": "App, landing e API da plataforma de saúde e bem-estar: comunidade, marketplace, assinaturas, eventos e pagamentos.",
+      "commits": 1181,
+      "hours": 1610.7,
+      "allocation": 222875,
+      "pct": 33.6,
+      "lines": 324977,
       "repos": [
         "Like:me · API",
         "Like:me · App",
         "Like:me · Landing"
       ],
       "authorShare": {
-        "eduarda": 93.6,
-        "jose": 2,
-        "henrique": 4.4
+        "eduarda": 93.3,
+        "jose": 1.9,
+        "henrique": 4.8
       },
-      "busFactorRisk": 93.6,
+      "busFactorRisk": 93.3,
       "topAuthor": "eduarda",
       "hoursByMonth": {
-        "2026-01": 214.9,
-        "2026-02": 209.4,
-        "2026-03": 214.7,
-        "2026-04": 223.9,
-        "2026-05": 241.7,
-        "2026-06": 348.8,
-        "2026-07": 302.4,
-        "2026-08": 174.3,
-        "2026-09": 92.5
+        "2026-01": 182.5,
+        "2026-02": 159.4,
+        "2026-03": 161.5,
+        "2026-04": 173.3,
+        "2026-05": 237.9,
+        "2026-06": 326.4,
+        "2026-07": 281.9,
+        "2026-08": 6.1,
+        "2026-09": 81.7
       }
     },
     {
@@ -798,96 +686,92 @@
       "label": "Colmeia + Banco de Ativos",
       "color": "#7dd3fc",
       "description": "Meus Roteiros (planejamento OOH), roteiro simulado, P1A, resultados e Banco de Ativos (inventário, exibidores, enriquecimento).",
-      "commits": 215,
-      "hours": 1713.4,
-      "allocation": 241071,
-      "pct": 35.8,
-      "lines": 143639,
+      "commits": 214,
+      "hours": 1799,
+      "allocation": 253883,
+      "pct": 37.6,
+      "lines": 142472,
       "repos": [
         "Colmeia · Meus Roteiros + Banco de Ativos"
       ],
       "authorShare": {
-        "jose": 87.1,
-        "henrique": 12.9
+        "jose": 87,
+        "henrique": 13
       },
-      "busFactorRisk": 87.1,
+      "busFactorRisk": 87,
       "topAuthor": "jose",
       "hoursByMonth": {
-        "2026-01": 206.3,
-        "2026-02": 173.9,
-        "2026-03": 205,
-        "2026-04": 143.7,
-        "2026-05": 103.5,
-        "2026-06": 207,
-        "2026-07": 180.2,
-        "2026-08": 191.7,
-        "2026-09": 302.1
+        "2026-01": 195.1,
+        "2026-02": 176.3,
+        "2026-03": 187.5,
+        "2026-04": 124.6,
+        "2026-05": 95.5,
+        "2026-06": 196.5,
+        "2026-07": 180.6,
+        "2026-08": 313.3,
+        "2026-09": 329.6
       }
     },
     {
       "id": "visibilidade",
       "label": "Teste de Visibilidade",
       "color": "#fcd34d",
-      "description": "Image brand processing: processamento de imagem e medição de visibilidade de marca em mídia.",
-      "commits": 39,
-      "hours": 152.4,
-      "allocation": 22641,
-      "pct": 3.2,
-      "lines": 9065,
+      "description": "Front-end da campanha e motor de processamento de imagem que mede a visibilidade da marca na mídia.",
+      "commits": 95,
+      "hours": 387.3,
+      "allocation": 55852,
+      "pct": 8.1,
+      "lines": 30264,
       "repos": [
-        "Teste de Visibilidade"
+        "Teste de Visibilidade · Processamento",
+        "Teste de Visibilidade · Front-end"
       ],
       "authorShare": {
-        "jose": 66.5,
-        "eduarda": 33.5
+        "eduarda": 65.6,
+        "jose": 34.4
       },
-      "busFactorRisk": 66.5,
-      "topAuthor": "jose",
+      "busFactorRisk": 65.6,
+      "topAuthor": "eduarda",
       "hoursByMonth": {
         "2026-01": 0,
-        "2026-02": 0,
-        "2026-03": 0,
-        "2026-04": 20.5,
-        "2026-05": 60,
+        "2026-02": 27,
+        "2026-03": 24.9,
+        "2026-04": 79.8,
+        "2026-05": 44.1,
         "2026-06": 0,
-        "2026-07": 41.2,
-        "2026-08": 16.3,
-        "2026-09": 14.4
+        "2026-07": 75,
+        "2026-08": 114.2,
+        "2026-09": 22.3
       }
     },
     {
       "id": "suporte",
-      "label": "Back-end e Suporte",
+      "label": "Back-end e Suporte à Operação",
       "color": "#f9a8d4",
-      "description": "Processos de back-end (pagamentos, reconciliação, e-mail, notificações, jobs, infra) e suporte ao usuário (Cadence, copiloto, WhatsApp, área do cliente).",
-      "commits": 98,
-      "hours": 899.7,
-      "allocation": 125624,
-      "pct": 18.8,
-      "lines": 35137,
+      "description": "Back-end, entendimentos e suporte à operação e ao cliente do Colmeia e do Banco de Ativos.",
+      "commits": 13,
+      "hours": 990.9,
+      "allocation": 138631,
+      "pct": 20.7,
+      "lines": 2310,
       "repos": [
-        "Like:me · API",
-        "Like:me · App",
-        "Colmeia · Meus Roteiros + Banco de Ativos",
-        "Plataforma do cliente (Cadence, copiloto, WhatsApp)"
+        "Colmeia · Meus Roteiros + Banco de Ativos"
       ],
       "authorShare": {
-        "eduarda": 26.8,
-        "jose": 67,
-        "henrique": 6.3
+        "jose": 100
       },
-      "busFactorRisk": 67,
+      "busFactorRisk": 100,
       "topAuthor": "jose",
       "hoursByMonth": {
-        "2026-01": 50.9,
-        "2026-02": 88.7,
-        "2026-03": 52.3,
-        "2026-04": 83.8,
-        "2026-05": 66.8,
-        "2026-06": 116.3,
-        "2026-07": 148.2,
-        "2026-08": 159.7,
-        "2026-09": 133
+        "2026-01": 94.4,
+        "2026-02": 109.3,
+        "2026-03": 98.1,
+        "2026-04": 94.4,
+        "2026-05": 94.4,
+        "2026-06": 149.1,
+        "2026-07": 134.4,
+        "2026-08": 108.4,
+        "2026-09": 108.4
       }
     }
   ],
@@ -895,17 +779,16 @@
     {
       "id": "jose",
       "name": "Jose Roberto",
-      "role": "Head de Tecnologia · Arquiteto de Soluções e IA",
-      "company": "PixelPulseLab",
-      "commits": 307,
+      "role": "Liderança técnica · arquitetura de soluções e IA",
+      "commits": 249,
       "hours": 1620,
-      "gitHours": 148.8,
-      "activeDays": 87,
+      "gitHours": 128.5,
+      "activeDays": 71,
       "projects": {
-        "likeme": 65.2,
-        "colmeia": 1190,
-        "visibilidade": 105.9,
-        "suporte": 259
+        "likeme": 90.8,
+        "colmeia": 1294.4,
+        "visibilidade": 176,
+        "suporte": 58.8
       },
       "hoursByMonth": {
         "2026-01": 180,
@@ -922,17 +805,16 @@
     {
       "id": "eduarda",
       "name": "Eduarda Weber",
-      "role": "Engenheira Full-stack Sênior (Like:me)",
-      "company": "PixelPulseLab",
-      "commits": 1110,
+      "role": "Engenharia full-stack sênior",
+      "commits": 1166,
       "hours": 1440,
-      "gitHours": 401,
-      "activeDays": 119,
+      "gitHours": 420.5,
+      "activeDays": 127,
       "projects": {
-        "likeme": 1375.9,
+        "likeme": 1218.2,
         "colmeia": 0,
-        "visibilidade": 31.1,
-        "suporte": 32.9
+        "visibilidade": 221.8,
+        "suporte": 0
       },
       "hoursByMonth": {
         "2026-01": 180,
@@ -949,17 +831,16 @@
     {
       "id": "henrique",
       "name": "Henrique Margarido",
-      "role": "Engenheiro de Dados e Back-end",
-      "company": "PixelPulseLab",
+      "role": "Engenharia de dados e back-end",
       "commits": 88,
       "hours": 640,
       "gitHours": 35.3,
       "activeDays": 27,
       "projects": {
-        "likeme": 328.6,
-        "colmeia": 269.7,
+        "likeme": 264.4,
+        "colmeia": 375.6,
         "visibilidade": 0,
-        "suporte": 41.7
+        "suporte": 0
       },
       "hoursByMonth": {
         "2026-01": 0,
@@ -976,8 +857,7 @@
     {
       "id": "alex",
       "name": "Alex",
-      "role": "Arquiteto e Consultor Sênior (dados, cloud e governança)",
-      "company": "NTT Data",
+      "role": "Arquitetura e consultoria sênior · dados, cloud e governança",
       "commits": 0,
       "hours": 288,
       "gitHours": 0,
@@ -1003,9 +883,9 @@
     }
   ],
   "roi": {
-    "totalAdditions": 392712,
-    "equivalentHoursRaw": 21817.3,
-    "rawMultiplier": 4.56,
+    "totalAdditions": 381748,
+    "equivalentHoursRaw": 21208.2,
+    "rawMultiplier": 4.43,
     "multiplier": 3.5,
     "equivalentHours": 16758,
     "valueGenerated": 3519180,
@@ -1024,10 +904,10 @@
       "months": [
         {
           "month": "2026-01",
-          "commits": 213,
-          "hours": 214.9,
+          "commits": 214,
+          "hours": 182.5,
           "feats": 65,
-          "fixes": 43,
+          "fixes": 44,
           "topScopes": [
             {
               "scope": "anamnesis",
@@ -1056,10 +936,10 @@
         },
         {
           "month": "2026-02",
-          "commits": 124,
-          "hours": 209.4,
+          "commits": 125,
+          "hours": 159.4,
           "feats": 44,
-          "fixes": 35,
+          "fixes": 36,
           "topScopes": [
             {
               "scope": "anamnesis",
@@ -1088,10 +968,10 @@
         },
         {
           "month": "2026-03",
-          "commits": 286,
-          "hours": 214.7,
+          "commits": 291,
+          "hours": 161.5,
           "feats": 84,
-          "fixes": 101,
+          "fixes": 102,
           "topScopes": [
             {
               "scope": "community",
@@ -1120,10 +1000,10 @@
         },
         {
           "month": "2026-04",
-          "commits": 97,
-          "hours": 223.9,
+          "commits": 99,
+          "hours": 173.3,
           "feats": 30,
-          "fixes": 48,
+          "fixes": 49,
           "topScopes": [
             {
               "scope": "auth",
@@ -1152,10 +1032,10 @@
         },
         {
           "month": "2026-05",
-          "commits": 161,
-          "hours": 241.7,
+          "commits": 174,
+          "hours": 237.9,
           "feats": 58,
-          "fixes": 77,
+          "fixes": 87,
           "topScopes": [
             {
               "scope": "community",
@@ -1163,15 +1043,15 @@
             },
             {
               "scope": "payment",
-              "n": 18
+              "n": 20
+            },
+            {
+              "scope": "i18n",
+              "n": 11
             },
             {
               "scope": "product",
               "n": 9
-            },
-            {
-              "scope": "i18n",
-              "n": 8
             }
           ],
           "prs": [
@@ -1209,10 +1089,10 @@
         },
         {
           "month": "2026-06",
-          "commits": 183,
-          "hours": 348.8,
+          "commits": 186,
+          "hours": 326.4,
           "feats": 37,
-          "fixes": 80,
+          "fixes": 82,
           "topScopes": [
             {
               "scope": "community",
@@ -1254,10 +1134,10 @@
         },
         {
           "month": "2026-07",
-          "commits": 89,
-          "hours": 302.4,
+          "commits": 92,
+          "hours": 281.9,
           "feats": 32,
-          "fixes": 33,
+          "fixes": 35,
           "topScopes": [
             {
               "scope": "event",
@@ -1312,7 +1192,7 @@
         {
           "month": "2026-08",
           "commits": 0,
-          "hours": 174.3,
+          "hours": 6.1,
           "feats": 0,
           "fixes": 0,
           "topScopes": [],
@@ -1322,7 +1202,7 @@
         {
           "month": "2026-09",
           "commits": 0,
-          "hours": 92.5,
+          "hours": 81.7,
           "feats": 0,
           "fixes": 0,
           "topScopes": [],
@@ -1339,7 +1219,7 @@
         {
           "month": "2026-01",
           "commits": 23,
-          "hours": 206.3,
+          "hours": 195.1,
           "feats": 7,
           "fixes": 6,
           "topScopes": [
@@ -1388,7 +1268,7 @@
         {
           "month": "2026-02",
           "commits": 19,
-          "hours": 173.9,
+          "hours": 176.3,
           "feats": 11,
           "fixes": 4,
           "topScopes": [
@@ -1424,8 +1304,8 @@
         },
         {
           "month": "2026-03",
-          "commits": 28,
-          "hours": 205,
+          "commits": 27,
+          "hours": 187.5,
           "feats": 15,
           "fixes": 10,
           "topScopes": [
@@ -1462,7 +1342,7 @@
         {
           "month": "2026-04",
           "commits": 3,
-          "hours": 143.7,
+          "hours": 124.6,
           "feats": 2,
           "fixes": 1,
           "topScopes": [
@@ -1485,7 +1365,7 @@
         {
           "month": "2026-05",
           "commits": 26,
-          "hours": 103.5,
+          "hours": 95.5,
           "feats": 13,
           "fixes": 12,
           "topScopes": [
@@ -1542,7 +1422,7 @@
         {
           "month": "2026-06",
           "commits": 30,
-          "hours": 207,
+          "hours": 196.5,
           "feats": 20,
           "fixes": 10,
           "topScopes": [
@@ -1599,7 +1479,7 @@
         {
           "month": "2026-07",
           "commits": 26,
-          "hours": 180.2,
+          "hours": 180.6,
           "feats": 11,
           "fixes": 14,
           "topScopes": [
@@ -1656,7 +1536,7 @@
         {
           "month": "2026-08",
           "commits": 13,
-          "hours": 191.7,
+          "hours": 313.3,
           "feats": 7,
           "fixes": 6,
           "topScopes": [
@@ -1713,7 +1593,7 @@
         {
           "month": "2026-09",
           "commits": 47,
-          "hours": 302.1,
+          "hours": 329.6,
           "feats": 28,
           "fixes": 14,
           "topScopes": [
@@ -1786,46 +1666,70 @@
         },
         {
           "month": "2026-02",
-          "commits": 0,
-          "hours": 0,
-          "feats": 0,
-          "fixes": 0,
-          "topScopes": [],
+          "commits": 15,
+          "hours": 27,
+          "feats": 6,
+          "fixes": 1,
+          "topScopes": [
+            {
+              "scope": "result",
+              "n": 6
+            },
+            {
+              "scope": "download",
+              "n": 5
+            }
+          ],
           "prs": [],
-          "samples": []
+          "samples": [
+            "feat(result): PerformanceScore layout Figma + detalhes",
+            "feat(result): SectionDivider em Insights e Mapa de calor",
+            "feat(result): PerformanceInsights layout Figma + colunas e espaçamento",
+            "feat(result): logo Be no ContactFooter, fundo Heatmap removido"
+          ]
         },
         {
           "month": "2026-03",
-          "commits": 0,
-          "hours": 0,
-          "feats": 0,
-          "fixes": 0,
+          "commits": 15,
+          "hours": 24.9,
+          "feats": 6,
+          "fixes": 5,
           "topScopes": [],
           "prs": [],
-          "samples": []
+          "samples": [
+            "feat: adicionar botão 'Baixar PDF' na tela de resultados",
+            "feat: baixar pacote zip com imagens e heatmaps",
+            "feat: adicionar votação like/dislike nos insights",
+            "feat: botão Download com loading e retry no ZIP"
+          ]
         },
         {
           "month": "2026-04",
-          "commits": 6,
-          "hours": 20.5,
-          "feats": 1,
+          "commits": 8,
+          "hours": 79.8,
+          "feats": 2,
           "fixes": 3,
           "topScopes": [],
           "prs": [],
           "samples": [
-            "feat: workers paralelos, legenda heatmap e catálogo de backgrounds"
+            "feat: workers paralelos, legenda heatmap e catálogo de backgrounds",
+            "feat: change label heatmap"
           ]
         },
         {
           "month": "2026-05",
-          "commits": 20,
-          "hours": 60,
-          "feats": 8,
+          "commits": 21,
+          "hours": 44.1,
+          "feats": 9,
           "fixes": 7,
           "topScopes": [
             {
               "scope": "insights",
               "n": 6
+            },
+            {
+              "scope": "mockups",
+              "n": 1
             },
             {
               "scope": "adapter",
@@ -1865,34 +1769,40 @@
         },
         {
           "month": "2026-07",
-          "commits": 8,
-          "hours": 41.2,
-          "feats": 2,
-          "fixes": 2,
+          "commits": 24,
+          "hours": 75,
+          "feats": 5,
+          "fixes": 7,
           "topScopes": [
             {
-              "scope": "campaigns",
-              "n": 1
-            },
-            {
               "scope": "campaign",
-              "n": 1
+              "n": 5
             },
             {
               "scope": "video",
+              "n": 2
+            },
+            {
+              "scope": "api",
+              "n": 1
+            },
+            {
+              "scope": "campaigns",
               "n": 1
             }
           ],
           "prs": [],
           "samples": [
+            "feat(campaign): integrar backend, resultado Figma e URLs compartilháveis.",
             "feat: desativa insights IA no upload (flag ENABLE_AI_INSIGHTS)",
-            "feat(video): gerar e persistir todas as distâncias diurnas."
+            "feat(video): gerar e persistir todas as distâncias diurnas.",
+            "feat(video): processar e exibir preview em 3M, 15M e 30M."
           ]
         },
         {
           "month": "2026-08",
-          "commits": 3,
-          "hours": 16.3,
+          "commits": 8,
+          "hours": 114.2,
           "feats": 0,
           "fixes": 1,
           "topScopes": [
@@ -1906,8 +1816,8 @@
         },
         {
           "month": "2026-09",
-          "commits": 2,
-          "hours": 14.4,
+          "commits": 4,
+          "hours": 22.3,
           "feats": 0,
           "fixes": 2,
           "topScopes": [
@@ -1923,25 +1833,25 @@
     },
     {
       "id": "suporte",
-      "label": "Back-end e Suporte",
+      "label": "Back-end e Suporte à Operação",
       "color": "#f9a8d4",
       "months": [
         {
           "month": "2026-01",
-          "commits": 1,
-          "hours": 50.9,
+          "commits": 0,
+          "hours": 94.4,
           "feats": 0,
-          "fixes": 1,
+          "fixes": 0,
           "topScopes": [],
           "prs": [],
           "samples": []
         },
         {
           "month": "2026-02",
-          "commits": 10,
-          "hours": 88.7,
+          "commits": 9,
+          "hours": 109.3,
           "feats": 0,
-          "fixes": 7,
+          "fixes": 6,
           "topScopes": [
             {
               "scope": "deploy",
@@ -1953,90 +1863,43 @@
         },
         {
           "month": "2026-03",
-          "commits": 5,
-          "hours": 52.3,
+          "commits": 1,
+          "hours": 98.1,
           "feats": 0,
-          "fixes": 1,
-          "topScopes": [
-            {
-              "scope": "deploy",
-              "n": 2
-            },
-            {
-              "scope": "prisma",
-              "n": 1
-            },
-            {
-              "scope": "migrations",
-              "n": 1
-            }
-          ],
+          "fixes": 0,
+          "topScopes": [],
           "prs": [],
           "samples": []
         },
         {
           "month": "2026-04",
-          "commits": 2,
-          "hours": 83.8,
+          "commits": 0,
+          "hours": 94.4,
           "feats": 0,
-          "fixes": 1,
-          "topScopes": [
-            {
-              "scope": "test",
-              "n": 1
-            }
-          ],
+          "fixes": 0,
+          "topScopes": [],
           "prs": [],
           "samples": []
         },
         {
           "month": "2026-05",
-          "commits": 14,
-          "hours": 66.8,
+          "commits": 1,
+          "hours": 94.4,
           "feats": 0,
-          "fixes": 10,
-          "topScopes": [
-            {
-              "scope": "reconciliation",
-              "n": 5
-            },
-            {
-              "scope": "i18n",
-              "n": 3
-            },
-            {
-              "scope": "payment",
-              "n": 2
-            },
-            {
-              "scope": "subscription",
-              "n": 1
-            }
-          ],
+          "fixes": 0,
+          "topScopes": [],
           "prs": [],
           "samples": []
         },
         {
           "month": "2026-06",
-          "commits": 5,
-          "hours": 116.3,
+          "commits": 2,
+          "hours": 149.1,
           "feats": 0,
-          "fixes": 4,
+          "fixes": 2,
           "topScopes": [
             {
-              "scope": "deploy",
-              "n": 1
-            },
-            {
-              "scope": "email",
-              "n": 1
-            },
-            {
               "scope": "admin-inventario",
-              "n": 1
-            },
-            {
-              "scope": "test",
               "n": 1
             }
           ],
@@ -2045,95 +1908,33 @@
         },
         {
           "month": "2026-07",
-          "commits": 11,
-          "hours": 148.2,
-          "feats": 5,
-          "fixes": 5,
-          "topScopes": [
-            {
-              "scope": "client",
-              "n": 7
-            },
-            {
-              "scope": "payment",
-              "n": 1
-            },
-            {
-              "scope": "email",
-              "n": 1
-            }
-          ],
+          "commits": 0,
+          "hours": 134.4,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
           "prs": [],
-          "samples": [
-            "feat(client): portal multi-cliente com piloto Be180 OOH, entregas ao vivo e PulseEffort",
-            "feat(client): relatório de entregas com metodologia LOC/h e esforço manual",
-            "feat(client): KPIs, gráficos, roadmap e análise OpenAI nas entregas",
-            "feat(client): dashboard entregas full-width, bug vs evolução e destaque na home"
-          ]
+          "samples": []
         },
         {
           "month": "2026-08",
-          "commits": 14,
-          "hours": 159.7,
-          "feats": 13,
-          "fixes": 1,
-          "topScopes": [
-            {
-              "scope": "be180",
-              "n": 5
-            },
-            {
-              "scope": "client",
-              "n": 3
-            },
-            {
-              "scope": "cadence",
-              "n": 2
-            },
-            {
-              "scope": "likeme",
-              "n": 2
-            }
-          ],
+          "commits": 0,
+          "hours": 108.4,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
           "prs": [],
-          "samples": [
-            "feat(cadence): aplica Cadence na área do cliente com boards e erros de GitHub claros",
-            "feat(likeme): estimar stories Jira APP sem sobrescrever o legado",
-            "feat(adaptive-layer): publicar a LP da Adaptive Layer™ no lugar do Pixel",
-            "feat(likeme): publicar no space a tese de evolução AI-native para o Gama Fund"
-          ]
+          "samples": []
         },
         {
           "month": "2026-09",
-          "commits": 36,
-          "hours": 133,
-          "feats": 19,
-          "fixes": 16,
-          "topScopes": [
-            {
-              "scope": "cadence",
-              "n": 24
-            },
-            {
-              "scope": "client",
-              "n": 4
-            },
-            {
-              "scope": "copilot",
-              "n": 3
-            },
-            {
-              "scope": "fontes",
-              "n": 1
-            }
-          ],
+          "commits": 0,
+          "hours": 108.4,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
           "prs": [],
-          "samples": [
-            "feat(copilot): layout full screen no estilo chat",
-            "feat(copilot): ditado por voz no composer",
-            "feat(copilot): interpreta a pergunta, consulta com schema rico e audita o resultado",
-            "feat(adaptive-layer): publica roadmap de Missions no workspace"
-          ]
+          "samples": []
         }
       ]
     }
@@ -2164,7 +1965,7 @@
         "monthlyAt180": 127440,
         "monthlyAt210": 148680,
         "monthlyAt240": 169920,
-        "note": "Soma uma engenharia sênior em tempo integral na Like:Me à dedicação média, para reduzir a concentração em uma pessoa."
+        "note": "Soma uma engenharia sênior em tempo integral à dedicação média, para acelerar o backlog da Like:me e do Colmeia."
       }
     ]
   }
