@@ -65,6 +65,17 @@ export const adaptiveLayer: ClientWorkspace = {
       href: '/missions-architecture-roadmap',
       external: false,
     },
+    {
+      id: 'missions-sdk-revetorizacao',
+      title: 'SDK de Missions e revetorização',
+      category: 'Product · Engineering · Plano de trabalho',
+      description:
+        'Três frentes: tipos e cliente de @pixelpulse/core (João), teste de integração e guia (Pedro), e embeddings/RAG/revetorização da Colmeia e do Banco de Ativos (Henrique).',
+      updatedAt: '23/10/2026',
+      status: 'available',
+      href: '/missions-sdk-revetorizacao',
+      external: false,
+    },
   ],
   docs: {
     eyebrow: 'Adaptive Layer™',
@@ -84,6 +95,14 @@ export const adaptiveLayer: ClientWorkspace = {
           'PEDRO-01…10',
         ],
         badge: '26 tasks',
+      },
+      {
+        id: 'missions-sdk-revetorizacao',
+        title: 'SDK de Missions & Revetorização',
+        description:
+          'Tipos e cliente de @pixelpulse/core, teste de integração e guia, embeddings/RAG e revetorização da Colmeia e do Banco de Ativos.',
+        articles: ['A1…A4 (João)', 'B1…B2 (Pedro)', 'C1…C5 (Henrique)'],
+        badge: '13 tasks',
       },
     ],
     supportEmail: 'hello@pixelpulselab.dev',
