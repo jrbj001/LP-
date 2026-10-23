@@ -1,0 +1,1972 @@
+{
+  "generatedAt": "2026-10-21T18:24:06.934Z",
+  "client": "Be180 · Like:me · Colmeia",
+  "supportFloor": 0.2,
+  "supportFloorNote": "Pelo menos 20% das horas de cada mês vão para entendimentos e suporte à operação e ao cliente do Colmeia e do Banco de Ativos, conforme registrado no Minday.",
+  "period": {
+    "since": "2026-01-01",
+    "until": "2026-09-30",
+    "label": "Janeiro a Setembro de 2026"
+  },
+  "rates": {
+    "min": 180,
+    "mid": 210,
+    "max": 240
+  },
+  "monthlyTaxDiscount": 9000,
+  "effortModel": {
+    "sessionGapMinutes": 120,
+    "warmupMinutes": 45,
+    "maxHoursPerDay": 10,
+    "unversionedHoursPerMonth": 80,
+    "unversionedNote": "Ritos, entendimentos e suporte à operação e ao cliente que não geram código. Entram integralmente em Back-end e Suporte à Operação.",
+    "capacity": [
+      {
+        "id": "jose",
+        "from": "2026-01",
+        "hoursPerMonth": 180
+      },
+      {
+        "id": "eduarda",
+        "from": "2026-01",
+        "until": "2026-07",
+        "hoursPerMonth": 180
+      },
+      {
+        "id": "eduarda",
+        "from": "2026-08",
+        "hoursPerMonth": 90
+      },
+      {
+        "id": "henrique",
+        "from": "2026-06",
+        "hoursPerMonth": 160
+      }
+    ],
+    "manualEffort": [
+      {
+        "id": "migracao-backend",
+        "label": "Migração para o novo back-end do Colmeia",
+        "project": "suporte",
+        "months": [
+          "2026-06",
+          "2026-07"
+        ],
+        "hours": 40,
+        "note": "80 h de infraestrutura entre 07/06 e 07/07, sem commits de produto. Rateadas nos dois meses."
+      }
+    ]
+  },
+  "roiConfig": {
+    "traditionalLocPerHour": 18,
+    "conservativeMultiplierCap": 3.5
+  },
+  "stakeholders": [
+    {
+      "name": "Fabrício Guimarães",
+      "org": "Like:Me",
+      "role": "Stakeholder",
+      "note": "Acompanha priorização, validação de layout e aceite das entregas. Não compõe o esforço remunerado nem o banco de horas."
+    }
+  ],
+  "repoStatus": [
+    {
+      "repo": "likeme-back-end",
+      "found": true,
+      "commits": 704,
+      "merges": 13
+    },
+    {
+      "repo": "likeme-front-end",
+      "found": true,
+      "commits": 435,
+      "merges": 0
+    },
+    {
+      "repo": "LP-LikeMe",
+      "found": true,
+      "commits": 55,
+      "merges": 5
+    },
+    {
+      "repo": "colmeia---meusroteirosdefault",
+      "found": true,
+      "commits": 227,
+      "merges": 95
+    },
+    {
+      "repo": "image_brand_processing",
+      "found": true,
+      "commits": 39,
+      "merges": 2
+    },
+    {
+      "repo": "visibilidade-front",
+      "found": true,
+      "commits": 56,
+      "merges": 0
+    }
+  ],
+  "totals": {
+    "paid": 671241,
+    "netEstimate": 590241,
+    "commits": 1503,
+    "prs": 115,
+    "lines": 500023,
+    "deliveredHours": 4788,
+    "paidHours": {
+      "min": 2796.7,
+      "mid": 3196.6,
+      "max": 3729
+    },
+    "bank": {
+      "at240": 1991.3,
+      "at210": 1591.4,
+      "at180": 1059.1
+    },
+    "bankValue": {
+      "at240": 477912,
+      "at210": 334194,
+      "at180": 190638
+    }
+  },
+  "monthly": [
+    {
+      "month": "2026-01",
+      "date": "05/01/2026",
+      "channel": "SISPAG Fornecedores",
+      "parts": [
+        42230,
+        10411,
+        12600
+      ],
+      "amount": 65241,
+      "netEstimate": 56241,
+      "commits": 237,
+      "automationCommits": 0,
+      "lines": 82721,
+      "additions": 53484,
+      "gitHours": 18,
+      "hoursByProject": {
+        "likeme": 182.5,
+        "colmeia": 195.1,
+        "visibilidade": 0,
+        "suporte": 94.4
+      },
+      "hoursByAuthor": {
+        "jose": 180,
+        "eduarda": 180,
+        "alex": 32
+      },
+      "deliveredHours": 472,
+      "paidHours": {
+        "min": 271.8,
+        "mid": 310.7,
+        "max": 362.5
+      },
+      "bank": {
+        "at240": 200.2,
+        "at210": 161.3,
+        "at180": 109.6
+      },
+      "allocation": {
+        "likeme": 25230,
+        "colmeia": 26963,
+        "visibilidade": 0,
+        "suporte": 13048
+      },
+      "allocationPct": {
+        "likeme": 38.7,
+        "colmeia": 41.3,
+        "visibilidade": 0,
+        "suporte": 20
+      },
+      "deliveredValueMid": 99120,
+      "bankAccumulated": {
+        "at240": 200.2,
+        "at210": 161.3,
+        "at180": 109.6
+      }
+    },
+    {
+      "month": "2026-02",
+      "date": "06/02/2026",
+      "channel": "SISPAG Fornecedores",
+      "parts": [
+        43000,
+        23000
+      ],
+      "amount": 66000,
+      "netEstimate": 57000,
+      "commits": 168,
+      "automationCommits": 0,
+      "lines": 44098,
+      "additions": 28708,
+      "gitHours": 20,
+      "hoursByProject": {
+        "likeme": 159.4,
+        "colmeia": 176.3,
+        "visibilidade": 27,
+        "suporte": 109.3
+      },
+      "hoursByAuthor": {
+        "jose": 180,
+        "eduarda": 180,
+        "alex": 32
+      },
+      "deliveredHours": 472,
+      "paidHours": {
+        "min": 275,
+        "mid": 314.3,
+        "max": 366.7
+      },
+      "bank": {
+        "at240": 197,
+        "at210": 157.7,
+        "at180": 105.3
+      },
+      "allocation": {
+        "likeme": 22285,
+        "colmeia": 24651,
+        "visibilidade": 3779,
+        "suporte": 15285
+      },
+      "allocationPct": {
+        "likeme": 33.8,
+        "colmeia": 37.3,
+        "visibilidade": 5.7,
+        "suporte": 23.2
+      },
+      "deliveredValueMid": 99120,
+      "bankAccumulated": {
+        "at240": 397.2,
+        "at210": 319,
+        "at180": 214.9
+      }
+    },
+    {
+      "month": "2026-03",
+      "date": "20/03/2026",
+      "channel": "SISPAG Fornecedores",
+      "parts": [
+        23000,
+        47000
+      ],
+      "amount": 70000,
+      "netEstimate": 61000,
+      "commits": 334,
+      "automationCommits": 0,
+      "lines": 62639,
+      "additions": 41192,
+      "gitHours": 34,
+      "hoursByProject": {
+        "likeme": 161.5,
+        "colmeia": 187.5,
+        "visibilidade": 24.9,
+        "suporte": 98.1
+      },
+      "hoursByAuthor": {
+        "jose": 180,
+        "eduarda": 180,
+        "alex": 32
+      },
+      "deliveredHours": 472,
+      "paidHours": {
+        "min": 291.7,
+        "mid": 333.3,
+        "max": 388.9
+      },
+      "bank": {
+        "at240": 180.3,
+        "at210": 138.7,
+        "at180": 83.1
+      },
+      "allocation": {
+        "likeme": 23955,
+        "colmeia": 27802,
+        "visibilidade": 3689,
+        "suporte": 14554
+      },
+      "allocationPct": {
+        "likeme": 34.2,
+        "colmeia": 39.7,
+        "visibilidade": 5.3,
+        "suporte": 20.8
+      },
+      "deliveredValueMid": 99120,
+      "bankAccumulated": {
+        "at240": 577.5,
+        "at210": 457.7,
+        "at180": 298
+      }
+    },
+    {
+      "month": "2026-04",
+      "date": "20/04/2026",
+      "channel": "SISPAG Fornecedores",
+      "parts": [
+        23000,
+        47000
+      ],
+      "amount": 70000,
+      "netEstimate": 61000,
+      "commits": 110,
+      "automationCommits": 0,
+      "lines": 34633,
+      "additions": 28115,
+      "gitHours": 24,
+      "hoursByProject": {
+        "likeme": 173.3,
+        "colmeia": 124.6,
+        "visibilidade": 79.8,
+        "suporte": 94.4
+      },
+      "hoursByAuthor": {
+        "jose": 180,
+        "eduarda": 180,
+        "alex": 32
+      },
+      "deliveredHours": 472,
+      "paidHours": {
+        "min": 291.7,
+        "mid": 333.3,
+        "max": 388.9
+      },
+      "bank": {
+        "at240": 180.3,
+        "at210": 138.7,
+        "at180": 83.1
+      },
+      "allocation": {
+        "likeme": 25695,
+        "colmeia": 18473,
+        "visibilidade": 11832,
+        "suporte": 14000
+      },
+      "allocationPct": {
+        "likeme": 36.7,
+        "colmeia": 26.4,
+        "visibilidade": 16.9,
+        "suporte": 20
+      },
+      "deliveredValueMid": 99120,
+      "bankAccumulated": {
+        "at240": 757.8,
+        "at210": 596.4,
+        "at180": 381.1
+      }
+    },
+    {
+      "month": "2026-05",
+      "date": "20/05/2026",
+      "channel": "Pagamentos a Fornecedores",
+      "parts": [
+        23000,
+        47000,
+        10000
+      ],
+      "amount": 80000,
+      "netEstimate": 71000,
+      "commits": 222,
+      "automationCommits": 0,
+      "lines": 64852,
+      "additions": 52803,
+      "gitHours": 33,
+      "hoursByProject": {
+        "likeme": 237.9,
+        "colmeia": 95.5,
+        "visibilidade": 44.1,
+        "suporte": 94.4
+      },
+      "hoursByAuthor": {
+        "jose": 180,
+        "eduarda": 180,
+        "alex": 32
+      },
+      "deliveredHours": 472,
+      "paidHours": {
+        "min": 333.3,
+        "mid": 381,
+        "max": 444.4
+      },
+      "bank": {
+        "at240": 138.7,
+        "at210": 91,
+        "at180": 27.6
+      },
+      "allocation": {
+        "likeme": 40328,
+        "colmeia": 16192,
+        "visibilidade": 7480,
+        "suporte": 16000
+      },
+      "allocationPct": {
+        "likeme": 50.4,
+        "colmeia": 20.2,
+        "visibilidade": 9.4,
+        "suporte": 20
+      },
+      "deliveredValueMid": 99120,
+      "bankAccumulated": {
+        "at240": 896.5,
+        "at210": 687.4,
+        "at180": 408.7
+      }
+    },
+    {
+      "month": "2026-06",
+      "date": "19/06/2026",
+      "channel": "PIX",
+      "parts": [
+        23000,
+        47000,
+        10000
+      ],
+      "amount": 80000,
+      "netEstimate": 71000,
+      "commits": 218,
+      "automationCommits": 0,
+      "lines": 106330,
+      "additions": 86274,
+      "gitHours": 35,
+      "hoursByProject": {
+        "likeme": 326.4,
+        "colmeia": 196.5,
+        "visibilidade": 0,
+        "suporte": 149.1
+      },
+      "hoursByAuthor": {
+        "jose": 180,
+        "eduarda": 180,
+        "henrique": 160,
+        "alex": 32
+      },
+      "deliveredHours": 672,
+      "paidHours": {
+        "min": 333.3,
+        "mid": 381,
+        "max": 444.4
+      },
+      "bank": {
+        "at240": 338.7,
+        "at210": 291,
+        "at180": 227.6
+      },
+      "allocation": {
+        "likeme": 38858,
+        "colmeia": 23398,
+        "visibilidade": 0,
+        "suporte": 17744
+      },
+      "allocationPct": {
+        "likeme": 48.6,
+        "colmeia": 29.2,
+        "visibilidade": 0,
+        "suporte": 22.2
+      },
+      "deliveredValueMid": 141120,
+      "bankAccumulated": {
+        "at240": 1235.2,
+        "at210": 978.4,
+        "at180": 636.3
+      }
+    },
+    {
+      "month": "2026-07",
+      "date": "20/07/2026",
+      "channel": "PIX",
+      "parts": [
+        23000,
+        47000,
+        10000
+      ],
+      "amount": 80000,
+      "netEstimate": 71000,
+      "commits": 142,
+      "automationCommits": 13,
+      "lines": 54036,
+      "additions": 44861,
+      "gitHours": 32,
+      "hoursByProject": {
+        "likeme": 281.9,
+        "colmeia": 180.6,
+        "visibilidade": 75,
+        "suporte": 134.4
+      },
+      "hoursByAuthor": {
+        "jose": 180,
+        "eduarda": 180,
+        "henrique": 160,
+        "alex": 32
+      },
+      "deliveredHours": 672,
+      "paidHours": {
+        "min": 333.3,
+        "mid": 381,
+        "max": 444.4
+      },
+      "bank": {
+        "at240": 338.7,
+        "at210": 291,
+        "at180": 227.6
+      },
+      "allocation": {
+        "likeme": 33565,
+        "colmeia": 21505,
+        "visibilidade": 8930,
+        "suporte": 16000
+      },
+      "allocationPct": {
+        "likeme": 42,
+        "colmeia": 26.9,
+        "visibilidade": 11.2,
+        "suporte": 20
+      },
+      "deliveredValueMid": 141120,
+      "bankAccumulated": {
+        "at240": 1573.9,
+        "at210": 1269.4,
+        "at180": 863.9
+      }
+    },
+    {
+      "month": "2026-08",
+      "date": "20/08/2026",
+      "channel": "PIX",
+      "parts": [
+        23000,
+        47000,
+        10000
+      ],
+      "amount": 80000,
+      "netEstimate": 71000,
+      "commits": 21,
+      "automationCommits": 0,
+      "lines": 15703,
+      "additions": 14169,
+      "gitHours": 11,
+      "hoursByProject": {
+        "likeme": 6.1,
+        "colmeia": 313.3,
+        "visibilidade": 114.2,
+        "suporte": 108.4
+      },
+      "hoursByAuthor": {
+        "jose": 180,
+        "eduarda": 90,
+        "henrique": 160,
+        "alex": 32
+      },
+      "deliveredHours": 542,
+      "paidHours": {
+        "min": 333.3,
+        "mid": 381,
+        "max": 444.4
+      },
+      "bank": {
+        "at240": 208.7,
+        "at210": 161,
+        "at180": 97.6
+      },
+      "allocation": {
+        "likeme": 899,
+        "colmeia": 46244,
+        "visibilidade": 16857,
+        "suporte": 16000
+      },
+      "allocationPct": {
+        "likeme": 1.1,
+        "colmeia": 57.8,
+        "visibilidade": 21.1,
+        "suporte": 20
+      },
+      "deliveredValueMid": 113820,
+      "bankAccumulated": {
+        "at240": 1782.6,
+        "at210": 1430.4,
+        "at180": 961.5
+      }
+    },
+    {
+      "month": "2026-09",
+      "date": "21/09/2026",
+      "channel": "PIX",
+      "parts": [
+        10000,
+        47000,
+        23000
+      ],
+      "amount": 80000,
+      "netEstimate": 71000,
+      "commits": 51,
+      "automationCommits": 0,
+      "lines": 35011,
+      "additions": 32142,
+      "gitHours": 18,
+      "hoursByProject": {
+        "likeme": 81.7,
+        "colmeia": 329.6,
+        "visibilidade": 22.3,
+        "suporte": 108.4
+      },
+      "hoursByAuthor": {
+        "jose": 180,
+        "eduarda": 90,
+        "henrique": 160,
+        "alex": 32
+      },
+      "deliveredHours": 542,
+      "paidHours": {
+        "min": 333.3,
+        "mid": 381,
+        "max": 444.4
+      },
+      "bank": {
+        "at240": 208.7,
+        "at210": 161,
+        "at180": 97.6
+      },
+      "allocation": {
+        "likeme": 12060,
+        "colmeia": 48655,
+        "visibilidade": 3285,
+        "suporte": 16000
+      },
+      "allocationPct": {
+        "likeme": 15.1,
+        "colmeia": 60.8,
+        "visibilidade": 4.1,
+        "suporte": 20
+      },
+      "deliveredValueMid": 113820,
+      "bankAccumulated": {
+        "at240": 1991.3,
+        "at210": 1591.4,
+        "at180": 1059.1
+      }
+    }
+  ],
+  "projects": [
+    {
+      "id": "likeme",
+      "label": "Like:me",
+      "color": "#5eead4",
+      "description": "App, landing e API da plataforma de saúde e bem-estar: comunidade, marketplace, assinaturas, eventos e pagamentos.",
+      "commits": 1181,
+      "hours": 1610.7,
+      "allocation": 222875,
+      "pct": 33.6,
+      "lines": 324977,
+      "repos": [
+        "Like:me · API",
+        "Like:me · App",
+        "Like:me · Landing"
+      ],
+      "authorShare": {
+        "eduarda": 93.3,
+        "jose": 1.9,
+        "henrique": 4.8
+      },
+      "busFactorRisk": 93.3,
+      "topAuthor": "eduarda",
+      "hoursByMonth": {
+        "2026-01": 182.5,
+        "2026-02": 159.4,
+        "2026-03": 161.5,
+        "2026-04": 173.3,
+        "2026-05": 237.9,
+        "2026-06": 326.4,
+        "2026-07": 281.9,
+        "2026-08": 6.1,
+        "2026-09": 81.7
+      }
+    },
+    {
+      "id": "colmeia",
+      "label": "Colmeia + Banco de Ativos",
+      "color": "#7dd3fc",
+      "description": "Meus Roteiros (planejamento OOH), roteiro simulado, P1A, resultados e Banco de Ativos (inventário, exibidores, enriquecimento).",
+      "commits": 214,
+      "hours": 1799,
+      "allocation": 253883,
+      "pct": 37.6,
+      "lines": 142472,
+      "repos": [
+        "Colmeia · Meus Roteiros + Banco de Ativos"
+      ],
+      "authorShare": {
+        "jose": 87,
+        "henrique": 13
+      },
+      "busFactorRisk": 87,
+      "topAuthor": "jose",
+      "hoursByMonth": {
+        "2026-01": 195.1,
+        "2026-02": 176.3,
+        "2026-03": 187.5,
+        "2026-04": 124.6,
+        "2026-05": 95.5,
+        "2026-06": 196.5,
+        "2026-07": 180.6,
+        "2026-08": 313.3,
+        "2026-09": 329.6
+      }
+    },
+    {
+      "id": "visibilidade",
+      "label": "Teste de Visibilidade",
+      "color": "#fcd34d",
+      "description": "Front-end da campanha e motor de processamento de imagem que mede a visibilidade da marca na mídia.",
+      "commits": 95,
+      "hours": 387.3,
+      "allocation": 55852,
+      "pct": 8.1,
+      "lines": 30264,
+      "repos": [
+        "Teste de Visibilidade · Processamento",
+        "Teste de Visibilidade · Front-end"
+      ],
+      "authorShare": {
+        "eduarda": 65.6,
+        "jose": 34.4
+      },
+      "busFactorRisk": 65.6,
+      "topAuthor": "eduarda",
+      "hoursByMonth": {
+        "2026-01": 0,
+        "2026-02": 27,
+        "2026-03": 24.9,
+        "2026-04": 79.8,
+        "2026-05": 44.1,
+        "2026-06": 0,
+        "2026-07": 75,
+        "2026-08": 114.2,
+        "2026-09": 22.3
+      }
+    },
+    {
+      "id": "suporte",
+      "label": "Back-end e Suporte à Operação",
+      "color": "#f9a8d4",
+      "description": "Back-end, entendimentos e suporte à operação e ao cliente do Colmeia e do Banco de Ativos.",
+      "commits": 13,
+      "hours": 990.9,
+      "allocation": 138631,
+      "pct": 20.7,
+      "lines": 2310,
+      "repos": [
+        "Colmeia · Meus Roteiros + Banco de Ativos"
+      ],
+      "authorShare": {
+        "jose": 100
+      },
+      "busFactorRisk": 100,
+      "topAuthor": "jose",
+      "hoursByMonth": {
+        "2026-01": 94.4,
+        "2026-02": 109.3,
+        "2026-03": 98.1,
+        "2026-04": 94.4,
+        "2026-05": 94.4,
+        "2026-06": 149.1,
+        "2026-07": 134.4,
+        "2026-08": 108.4,
+        "2026-09": 108.4
+      }
+    }
+  ],
+  "people": [
+    {
+      "id": "jose",
+      "name": "Jose Roberto",
+      "role": "Liderança técnica · arquitetura de soluções e IA",
+      "commits": 249,
+      "hours": 1620,
+      "gitHours": 128.5,
+      "activeDays": 71,
+      "projects": {
+        "likeme": 90.8,
+        "colmeia": 1294.4,
+        "visibilidade": 176,
+        "suporte": 58.8
+      },
+      "hoursByMonth": {
+        "2026-01": 180,
+        "2026-02": 180,
+        "2026-03": 180,
+        "2026-04": 180,
+        "2026-05": 180,
+        "2026-06": 180,
+        "2026-07": 180,
+        "2026-08": 180,
+        "2026-09": 180
+      }
+    },
+    {
+      "id": "eduarda",
+      "name": "Eduarda Weber",
+      "role": "Engenharia full-stack sênior",
+      "commits": 1166,
+      "hours": 1440,
+      "gitHours": 420.5,
+      "activeDays": 127,
+      "projects": {
+        "likeme": 1218.2,
+        "colmeia": 0,
+        "visibilidade": 221.8,
+        "suporte": 0
+      },
+      "hoursByMonth": {
+        "2026-01": 180,
+        "2026-02": 180,
+        "2026-03": 180,
+        "2026-04": 180,
+        "2026-05": 180,
+        "2026-06": 180,
+        "2026-07": 180,
+        "2026-08": 90,
+        "2026-09": 90
+      }
+    },
+    {
+      "id": "henrique",
+      "name": "Henrique Margarido",
+      "role": "Engenharia de dados e back-end",
+      "commits": 88,
+      "hours": 640,
+      "gitHours": 35.3,
+      "activeDays": 27,
+      "projects": {
+        "likeme": 264.4,
+        "colmeia": 375.6,
+        "visibilidade": 0,
+        "suporte": 0
+      },
+      "hoursByMonth": {
+        "2026-01": 0,
+        "2026-02": 0,
+        "2026-03": 0,
+        "2026-04": 0,
+        "2026-05": 0,
+        "2026-06": 160,
+        "2026-07": 160,
+        "2026-08": 160,
+        "2026-09": 160
+      }
+    },
+    {
+      "id": "alex",
+      "name": "Alex",
+      "role": "Arquitetura e consultoria sênior · dados, cloud e governança",
+      "commits": 0,
+      "hours": 288,
+      "gitHours": 0,
+      "activeDays": null,
+      "estimated": true,
+      "projects": {
+        "likeme": 57.6,
+        "colmeia": 172.8,
+        "visibilidade": 0,
+        "suporte": 57.6
+      },
+      "hoursByMonth": {
+        "2026-01": 32,
+        "2026-02": 32,
+        "2026-03": 32,
+        "2026-04": 32,
+        "2026-05": 32,
+        "2026-06": 32,
+        "2026-07": 32,
+        "2026-08": 32,
+        "2026-09": 32
+      }
+    }
+  ],
+  "roi": {
+    "totalAdditions": 381748,
+    "equivalentHoursRaw": 21208.2,
+    "rawMultiplier": 4.43,
+    "multiplier": 3.5,
+    "equivalentHours": 16758,
+    "valueGenerated": 3519180,
+    "valueDeliveredHours": 1005480,
+    "roiPct": 424.3,
+    "roiDeliveredPct": 49.8,
+    "automationCommits": 13,
+    "costPerDeliveredHour": 140.19,
+    "costPerEquivalentHour": 40.05
+  },
+  "roadmap": [
+    {
+      "id": "likeme",
+      "label": "Like:me",
+      "color": "#5eead4",
+      "months": [
+        {
+          "month": "2026-01",
+          "commits": 214,
+          "hours": 182.5,
+          "feats": 65,
+          "fixes": 44,
+          "topScopes": [
+            {
+              "scope": "anamnesis",
+              "n": 10
+            },
+            {
+              "scope": "tests",
+              "n": 10
+            },
+            {
+              "scope": "anamnese",
+              "n": 2
+            },
+            {
+              "scope": "env",
+              "n": 1
+            }
+          ],
+          "prs": [],
+          "samples": [
+            "feat: migração completa de textos hardcoded para i18n",
+            "feat: configura build e deploy para Google Play Console",
+            "feat: adiciona build local para Google Play sem EAS",
+            "feat: adiciona script para aplicar patch do keystore automaticamente"
+          ]
+        },
+        {
+          "month": "2026-02",
+          "commits": 125,
+          "hours": 159.4,
+          "feats": 44,
+          "fixes": 36,
+          "topScopes": [
+            {
+              "scope": "anamnesis",
+              "n": 14
+            },
+            {
+              "scope": "auth",
+              "n": 8
+            },
+            {
+              "scope": "chat",
+              "n": 5
+            },
+            {
+              "scope": "avatar",
+              "n": 4
+            }
+          ],
+          "prs": [],
+          "samples": [
+            "feat: add MessageBubble component, ChatDetailsScreen, and polish ChatScreen",
+            "feat: add block/unblock user and leave channel endpoints",
+            "feat: integrate block/unblock user and leave channel in chat",
+            "feat: add variant (light/dark) and disabled props to IconButton"
+          ]
+        },
+        {
+          "month": "2026-03",
+          "commits": 291,
+          "hours": 161.5,
+          "feats": 84,
+          "fixes": 102,
+          "topScopes": [
+            {
+              "scope": "community",
+              "n": 25
+            },
+            {
+              "scope": "landing",
+              "n": 22
+            },
+            {
+              "scope": "marketplace",
+              "n": 21
+            },
+            {
+              "scope": "chat",
+              "n": 13
+            }
+          ],
+          "prs": [],
+          "samples": [
+            "feat(product): incluir ads ativos na listagem de produtos",
+            "feat(home): assets MVP no Header, navegação inferior e Summary",
+            "feat(marketplace): StickyFilterCarouselRow, sort order e FilterPickerModal",
+            "feat(ui): FilterPickerModal com seções, rascunho e botão confirmar"
+          ]
+        },
+        {
+          "month": "2026-04",
+          "commits": 99,
+          "hours": 173.3,
+          "feats": 30,
+          "fixes": 49,
+          "topScopes": [
+            {
+              "scope": "auth",
+              "n": 12
+            },
+            {
+              "scope": "ios",
+              "n": 11
+            },
+            {
+              "scope": "marketplace",
+              "n": 10
+            },
+            {
+              "scope": "community",
+              "n": 9
+            }
+          ],
+          "prs": [],
+          "samples": [
+            "feat(community): termos do membro via API e CommunityMemberRepository",
+            "feat(community): termos na aba Acordos e hook useCommunity",
+            "feat(ios): export App Store/Ad Hoc, altool e diagnóstico de assinatura",
+            "feat(auth): alinhar elegibilidade de sessão e exclusão de conta"
+          ]
+        },
+        {
+          "month": "2026-05",
+          "commits": 174,
+          "hours": 237.9,
+          "feats": 58,
+          "fixes": 87,
+          "topScopes": [
+            {
+              "scope": "community",
+              "n": 22
+            },
+            {
+              "scope": "payment",
+              "n": 20
+            },
+            {
+              "scope": "i18n",
+              "n": 11
+            },
+            {
+              "scope": "product",
+              "n": 9
+            }
+          ],
+          "prs": [
+            {
+              "pr": 6,
+              "branch": "release/1.3.2"
+            },
+            {
+              "pr": 5,
+              "branch": "feat/performance"
+            },
+            {
+              "pr": 4,
+              "branch": "feat/fuzzy-search"
+            },
+            {
+              "pr": 5,
+              "branch": "fix/design-v2"
+            },
+            {
+              "pr": 4,
+              "branch": "fix/design-v2"
+            },
+            {
+              "pr": 3,
+              "branch": "mailchimp-integracao"
+            }
+          ],
+          "samples": [
+            "feat(profile): busca semântica e serviços adquiridos na listagem de assinaturas",
+            "feat(community): filtros de feed para programa e comunidade",
+            "feat(protocol): curso por posts da comunidade e correção de eventos live",
+            "feat(i18n): labels de erro de pagamento na conclusão do checkout."
+          ]
+        },
+        {
+          "month": "2026-06",
+          "commits": 186,
+          "hours": 326.4,
+          "feats": 37,
+          "fixes": 82,
+          "topScopes": [
+            {
+              "scope": "community",
+              "n": 51
+            },
+            {
+              "scope": "i18n",
+              "n": 12
+            },
+            {
+              "scope": "services",
+              "n": 11
+            },
+            {
+              "scope": "mailchimp",
+              "n": 6
+            }
+          ],
+          "prs": [
+            {
+              "pr": 8,
+              "branch": "fix/corrigir-testes"
+            },
+            {
+              "pr": 10,
+              "branch": "fix/forceexit-strict-reconciliation"
+            },
+            {
+              "pr": 7,
+              "branch": "fix/testes-unitarios"
+            }
+          ],
+          "samples": [
+            "feat(metrics): adiciona contagem de pedidos pagos no overview",
+            "feat(product): adiciona contatos por produto para PDP de serviço",
+            "feat(event): expõe banner de evento da comunidade na listagem (APP-344)",
+            "feat(share): expõe AASA e assetlinks para Universal/App Links (APP-332)"
+          ]
+        },
+        {
+          "month": "2026-07",
+          "commits": 92,
+          "hours": 281.9,
+          "feats": 32,
+          "fixes": 35,
+          "topScopes": [
+            {
+              "scope": "event",
+              "n": 12
+            },
+            {
+              "scope": "share",
+              "n": 7
+            },
+            {
+              "scope": "i18n",
+              "n": 7
+            },
+            {
+              "scope": "subscription",
+              "n": 7
+            }
+          ],
+          "prs": [
+            {
+              "pr": 19,
+              "branch": "cursor/bc-26629e83-f16b-4e9f-a433-78c0caa95a23-1ee1"
+            },
+            {
+              "pr": 17,
+              "branch": "cursor/critical-bug-management-2773"
+            },
+            {
+              "pr": 18,
+              "branch": "cursor/missing-test-coverage-d1b7"
+            },
+            {
+              "pr": 16,
+              "branch": "cursor/missing-test-coverage-9c99"
+            },
+            {
+              "pr": 14,
+              "branch": "cursor/missing-test-coverage-1ca8"
+            },
+            {
+              "pr": 13,
+              "branch": "cursor/critical-bug-management-e16f"
+            }
+          ],
+          "samples": [
+            "feat(notifications): janelas de preferredTime, listByUserIds e reagendar no save",
+            "feat(activities): centraliza histórico do usuário (APP-339)",
+            "feat: adiciona reativação de usuário e cálculo de lembretes",
+            "feat(whatsapp): envia notificações via Twilio com 3 templates aprovados"
+          ]
+        },
+        {
+          "month": "2026-08",
+          "commits": 0,
+          "hours": 6.1,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
+          "prs": [],
+          "samples": []
+        },
+        {
+          "month": "2026-09",
+          "commits": 0,
+          "hours": 81.7,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
+          "prs": [],
+          "samples": []
+        }
+      ]
+    },
+    {
+      "id": "colmeia",
+      "label": "Colmeia + Banco de Ativos",
+      "color": "#7dd3fc",
+      "months": [
+        {
+          "month": "2026-01",
+          "commits": 23,
+          "hours": 195.1,
+          "feats": 7,
+          "fixes": 6,
+          "topScopes": [
+            {
+              "scope": "ux",
+              "n": 7
+            },
+            {
+              "scope": "resultados",
+              "n": 3
+            },
+            {
+              "scope": "build",
+              "n": 2
+            },
+            {
+              "scope": "meus-roteiros",
+              "n": 1
+            }
+          ],
+          "prs": [
+            {
+              "pr": 27,
+              "branch": "ajustes-mensagens-telas"
+            },
+            {
+              "pr": 26,
+              "branch": "ajustes-mensagens-telas"
+            },
+            {
+              "pr": 25,
+              "branch": "ajustes-mensagens-telas"
+            },
+            {
+              "pr": 24,
+              "branch": "ajuste-loading-resultados"
+            }
+          ],
+          "samples": [
+            "feat(ux): simplifica mensagens de conclusão com modals amigáveis",
+            "feat(ux): adiciona coluna Total de Ativos na tabela de Roteiro Simulado",
+            "feat(ux): adiciona funcionalidade para criar novas marcas na Aba 1",
+            "feat(roteiro-simulado): campo visibilidade apenas para pontos estáticos"
+          ]
+        },
+        {
+          "month": "2026-02",
+          "commits": 19,
+          "hours": 176.3,
+          "feats": 11,
+          "fixes": 4,
+          "topScopes": [
+            {
+              "scope": "sql",
+              "n": 3
+            },
+            {
+              "scope": "aba1",
+              "n": 1
+            },
+            {
+              "scope": "investigacao",
+              "n": 1
+            },
+            {
+              "scope": "scripts",
+              "n": 1
+            }
+          ],
+          "prs": [
+            {
+              "pr": 28,
+              "branch": "incluir-registro-marca-agencia"
+            }
+          ],
+          "samples": [
+            "feat: fase 2 - consolidar 68 serverless functions em 10 routers",
+            "feat: adiciona busca de coordenadas por endereço (forward geocoding)",
+            "feat: importação de plano de mídia OOH via Excel no roteiro simulado",
+            "feat: implementa acesso multi-tenant para agências externas"
+          ]
+        },
+        {
+          "month": "2026-03",
+          "commits": 27,
+          "hours": 187.5,
+          "feats": 15,
+          "fixes": 10,
+          "topScopes": [
+            {
+              "scope": "banco-ativos",
+              "n": 12
+            },
+            {
+              "scope": "home-dashboard",
+              "n": 4
+            },
+            {
+              "scope": "mapa",
+              "n": 2
+            },
+            {
+              "scope": "criar-roteiro",
+              "n": 2
+            }
+          ],
+          "prs": [
+            {
+              "pr": 30,
+              "branch": "chore/ajustes-importacao-roteiro-simulado"
+            }
+          ],
+          "samples": [
+            "feat(importacao-ooh): completar flow A e persistir target na aba 2",
+            "feat(home-dashboard): adicionar mapa de calor geoespacial na Home",
+            "feat(home-dashboard): adicionar mapa de calor geoespacial na Home",
+            "feat(consulta-endereco): batching de lotes + loading detalhado com progresso real"
+          ]
+        },
+        {
+          "month": "2026-04",
+          "commits": 3,
+          "hours": 124.6,
+          "feats": 2,
+          "fixes": 1,
+          "topScopes": [
+            {
+              "scope": "exibidor",
+              "n": 3
+            }
+          ],
+          "prs": [
+            {
+              "pr": 31,
+              "branch": "feature/exibidores-cadastro-base-dados"
+            }
+          ],
+          "samples": [
+            "feat(exibidor): módulo completo de acesso externo para exibidores OOH",
+            "feat(exibidor): redesign minimal das telas + performance via lazy loading"
+          ]
+        },
+        {
+          "month": "2026-05",
+          "commits": 26,
+          "hours": 95.5,
+          "feats": 13,
+          "fixes": 12,
+          "topScopes": [
+            {
+              "scope": "p1a",
+              "n": 6
+            },
+            {
+              "scope": "exibidor",
+              "n": 2
+            },
+            {
+              "scope": "exibidores",
+              "n": 2
+            },
+            {
+              "scope": "midia-kit",
+              "n": 2
+            }
+          ],
+          "prs": [
+            {
+              "pr": 46,
+              "branch": "feat/atualizar-endpoint-databricks"
+            },
+            {
+              "pr": 45,
+              "branch": "feat/admin-editar-exibidores-gestao"
+            },
+            {
+              "pr": 44,
+              "branch": "fix/p1a-export-coluna-pacote-empilhados"
+            },
+            {
+              "pr": 43,
+              "branch": "feat/layout-gerenciar-usuarios"
+            },
+            {
+              "pr": 42,
+              "branch": "feat/usuario-rastreio-acesso"
+            },
+            {
+              "pr": 41,
+              "branch": "feat/export-coluna-pacote"
+            }
+          ],
+          "samples": [
+            "feat(usuarios): coluna Acessou + rastreio de primeiro/último login",
+            "feat(layout): grid usuários full-width, ordenação clicável e footer/separador consistentes",
+            "feat(exibidores): grid full-width, ordenação clicável, edição de dados e visual minimalista",
+            "feat: migrar processamento de roteiros do Databricks para Logic Apps BE180"
+          ]
+        },
+        {
+          "month": "2026-06",
+          "commits": 30,
+          "hours": 196.5,
+          "feats": 20,
+          "fixes": 10,
+          "topScopes": [
+            {
+              "scope": "indoor",
+              "n": 2
+            },
+            {
+              "scope": "admin-exibidor",
+              "n": 1
+            },
+            {
+              "scope": "admin-inventario",
+              "n": 1
+            },
+            {
+              "scope": "inventario-exibidor",
+              "n": 1
+            }
+          ],
+          "prs": [
+            {
+              "pr": 61,
+              "branch": "feat/bos-storage-resultados-indoor"
+            },
+            {
+              "pr": 60,
+              "branch": "fix/indoor"
+            },
+            {
+              "pr": 59,
+              "branch": "feat/finalizar-indoor"
+            },
+            {
+              "pr": 58,
+              "branch": "fix/correcoes-menu-lateral-esquerdo"
+            },
+            {
+              "pr": 57,
+              "branch": "fix/correcoes-menu-lateral-esquerdo"
+            },
+            {
+              "pr": 56,
+              "branch": "fix/admin-inventario-exibidores"
+            }
+          ],
+          "samples": [
+            "feat(docs): adiciona Mapa do produto e atualiza Design System e Sidebar",
+            "feat(indoor): atualiza estrutura para indoorEspecifico_dm e corrige bug de praça",
+            "feat(indoor): backfill planoMidia_pk após finalização do roteiro",
+            "feat(resultados): download Azure Blob + tabelas Indoor e Consolidado na Aba 6"
+          ]
+        },
+        {
+          "month": "2026-07",
+          "commits": 26,
+          "hours": 180.6,
+          "feats": 11,
+          "fixes": 14,
+          "topScopes": [
+            {
+              "scope": "admin",
+              "n": 3
+            },
+            {
+              "scope": "banco-ativos",
+              "n": 3
+            },
+            {
+              "scope": "indoor",
+              "n": 2
+            },
+            {
+              "scope": "admin-inventarios",
+              "n": 2
+            }
+          ],
+          "prs": [
+            {
+              "pr": 77,
+              "branch": "feat/atualizacao-menu"
+            },
+            {
+              "pr": 76,
+              "branch": "fix/ajuste-dashboard-exibidores"
+            },
+            {
+              "pr": 75,
+              "branch": "ajustes-hmdata"
+            },
+            {
+              "pr": 74,
+              "branch": "fix/visao-praca-planos-indoor"
+            },
+            {
+              "pr": 73,
+              "branch": "feat/indoor-no-target"
+            },
+            {
+              "pr": 72,
+              "branch": "fix/pracas-fora-padrao-ibge"
+            }
+          ],
+          "samples": [
+            "feat(criar-roteiro): exibir Indoor e Consolidado na perspectiva do target na Aba 06",
+            "feat: add multiselect filters for users, brands, agencies, and categories in \"Meus Roteiros\"",
+            "feat(menu): reorganizar sidebar conforme Figma e user story",
+            "feat(dev): login local sem Auth0 via VITE_DEV_SKIP_AUTH"
+          ]
+        },
+        {
+          "month": "2026-08",
+          "commits": 13,
+          "hours": 313.3,
+          "feats": 7,
+          "fixes": 6,
+          "topScopes": [
+            {
+              "scope": "inventarios",
+              "n": 3
+            },
+            {
+              "scope": "banco-ativos",
+              "n": 2
+            },
+            {
+              "scope": "exibidor",
+              "n": 2
+            },
+            {
+              "scope": "api",
+              "n": 1
+            }
+          ],
+          "prs": [
+            {
+              "pr": 88,
+              "branch": "input-de-dados-indoor-exibidor"
+            },
+            {
+              "pr": 87,
+              "branch": "fix/exportacao-excel-pontos"
+            },
+            {
+              "pr": 86,
+              "branch": "padronizacao-de-pracas"
+            },
+            {
+              "pr": 85,
+              "branch": "input-exibidor"
+            },
+            {
+              "pr": 84,
+              "branch": "feat/ajustes-finos-inventario-exibidores"
+            },
+            {
+              "pr": 83,
+              "branch": "20260818-hmdata-updates"
+            }
+          ],
+          "samples": [
+            "feat(inventarios): visão gerencial da fila e sugestão de de-para pelo catálogo",
+            "feat: add LinkTemplate component for downloading template files and PreviewRoteiroCompleto for displaying imported Excel data",
+            "feat: add indoor target results by environment endpoint and integrate with frontend",
+            "feat(exibidor): aceitar inventário indoor com promoção por ambiente"
+          ]
+        },
+        {
+          "month": "2026-09",
+          "commits": 47,
+          "hours": 329.6,
+          "feats": 28,
+          "fixes": 14,
+          "topScopes": [
+            {
+              "scope": "admin",
+              "n": 5
+            },
+            {
+              "scope": "mapa",
+              "n": 3
+            },
+            {
+              "scope": "banco-ativos",
+              "n": 3
+            },
+            {
+              "scope": "inventarios",
+              "n": 2
+            }
+          ],
+          "prs": [
+            {
+              "pr": 119,
+              "branch": "hmdata-20260930-revisao-aba-nova"
+            },
+            {
+              "pr": 118,
+              "branch": "hmdata-20260930-importacao-simulado"
+            },
+            {
+              "pr": 117,
+              "branch": "hmdata-20260929-prioridades-q4"
+            },
+            {
+              "pr": 116,
+              "branch": "fix/revisao-numeros"
+            },
+            {
+              "pr": 115,
+              "branch": "fix/revisao-numeros"
+            },
+            {
+              "pr": 114,
+              "branch": "hotfix/health-check-fmtmoeda"
+            }
+          ],
+          "samples": [
+            "feat: add indoor impact calculation and median suggestion for media plans",
+            "feat: implement planilha management and retrieval in import/export processes",
+            "feat: enhance plan import functionality to support new format without GROUP and indoor impact checks",
+            "feat: implement dynamic MOTOR_URL retrieval for remote processing in lab-motor and lab-processar"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "visibilidade",
+      "label": "Teste de Visibilidade",
+      "color": "#fcd34d",
+      "months": [
+        {
+          "month": "2026-01",
+          "commits": 0,
+          "hours": 0,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
+          "prs": [],
+          "samples": []
+        },
+        {
+          "month": "2026-02",
+          "commits": 15,
+          "hours": 27,
+          "feats": 6,
+          "fixes": 1,
+          "topScopes": [
+            {
+              "scope": "result",
+              "n": 6
+            },
+            {
+              "scope": "download",
+              "n": 5
+            }
+          ],
+          "prs": [],
+          "samples": [
+            "feat(result): PerformanceScore layout Figma + detalhes",
+            "feat(result): SectionDivider em Insights e Mapa de calor",
+            "feat(result): PerformanceInsights layout Figma + colunas e espaçamento",
+            "feat(result): logo Be no ContactFooter, fundo Heatmap removido"
+          ]
+        },
+        {
+          "month": "2026-03",
+          "commits": 15,
+          "hours": 24.9,
+          "feats": 6,
+          "fixes": 5,
+          "topScopes": [],
+          "prs": [],
+          "samples": [
+            "feat: adicionar botão 'Baixar PDF' na tela de resultados",
+            "feat: baixar pacote zip com imagens e heatmaps",
+            "feat: adicionar votação like/dislike nos insights",
+            "feat: botão Download com loading e retry no ZIP"
+          ]
+        },
+        {
+          "month": "2026-04",
+          "commits": 8,
+          "hours": 79.8,
+          "feats": 2,
+          "fixes": 3,
+          "topScopes": [],
+          "prs": [],
+          "samples": [
+            "feat: workers paralelos, legenda heatmap e catálogo de backgrounds",
+            "feat: change label heatmap"
+          ]
+        },
+        {
+          "month": "2026-05",
+          "commits": 21,
+          "hours": 44.1,
+          "feats": 9,
+          "fixes": 7,
+          "topScopes": [
+            {
+              "scope": "insights",
+              "n": 6
+            },
+            {
+              "scope": "mockups",
+              "n": 1
+            },
+            {
+              "scope": "adapter",
+              "n": 1
+            },
+            {
+              "scope": "video",
+              "n": 1
+            }
+          ],
+          "prs": [
+            {
+              "pr": 3,
+              "branch": "main"
+            },
+            {
+              "pr": 2,
+              "branch": "fix-mser-texture-noise"
+            }
+          ],
+          "samples": [
+            "feat: redesign QA page — tema claro, loading em etapas, ícones finos",
+            "feat(insights): etapa 2 — BE180Validator determinístico (CV)",
+            "feat(insights): etapa 3 — BE180SharpAgent (1 chamada GPT-5.1)",
+            "feat(insights): etapa 4 — scoring rule-based + integração no upload"
+          ]
+        },
+        {
+          "month": "2026-06",
+          "commits": 0,
+          "hours": 0,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
+          "prs": [],
+          "samples": []
+        },
+        {
+          "month": "2026-07",
+          "commits": 24,
+          "hours": 75,
+          "feats": 5,
+          "fixes": 7,
+          "topScopes": [
+            {
+              "scope": "campaign",
+              "n": 5
+            },
+            {
+              "scope": "video",
+              "n": 2
+            },
+            {
+              "scope": "api",
+              "n": 1
+            },
+            {
+              "scope": "campaigns",
+              "n": 1
+            }
+          ],
+          "prs": [],
+          "samples": [
+            "feat(campaign): integrar backend, resultado Figma e URLs compartilháveis.",
+            "feat: desativa insights IA no upload (flag ENABLE_AI_INSIGHTS)",
+            "feat(video): gerar e persistir todas as distâncias diurnas.",
+            "feat(video): processar e exibir preview em 3M, 15M e 30M."
+          ]
+        },
+        {
+          "month": "2026-08",
+          "commits": 8,
+          "hours": 114.2,
+          "feats": 0,
+          "fixes": 1,
+          "topScopes": [
+            {
+              "scope": "storage",
+              "n": 1
+            }
+          ],
+          "prs": [],
+          "samples": []
+        },
+        {
+          "month": "2026-09",
+          "commits": 4,
+          "hours": 22.3,
+          "feats": 0,
+          "fixes": 2,
+          "topScopes": [
+            {
+              "scope": "cloud-run",
+              "n": 2
+            }
+          ],
+          "prs": [],
+          "samples": []
+        }
+      ]
+    },
+    {
+      "id": "suporte",
+      "label": "Back-end e Suporte à Operação",
+      "color": "#f9a8d4",
+      "months": [
+        {
+          "month": "2026-01",
+          "commits": 0,
+          "hours": 94.4,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
+          "prs": [],
+          "samples": []
+        },
+        {
+          "month": "2026-02",
+          "commits": 9,
+          "hours": 109.3,
+          "feats": 0,
+          "fixes": 6,
+          "topScopes": [
+            {
+              "scope": "deploy",
+              "n": 6
+            }
+          ],
+          "prs": [],
+          "samples": []
+        },
+        {
+          "month": "2026-03",
+          "commits": 1,
+          "hours": 98.1,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
+          "prs": [],
+          "samples": []
+        },
+        {
+          "month": "2026-04",
+          "commits": 0,
+          "hours": 94.4,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
+          "prs": [],
+          "samples": []
+        },
+        {
+          "month": "2026-05",
+          "commits": 1,
+          "hours": 94.4,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
+          "prs": [],
+          "samples": []
+        },
+        {
+          "month": "2026-06",
+          "commits": 2,
+          "hours": 149.1,
+          "feats": 0,
+          "fixes": 2,
+          "topScopes": [
+            {
+              "scope": "admin-inventario",
+              "n": 1
+            }
+          ],
+          "prs": [],
+          "samples": []
+        },
+        {
+          "month": "2026-07",
+          "commits": 0,
+          "hours": 134.4,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
+          "prs": [],
+          "samples": []
+        },
+        {
+          "month": "2026-08",
+          "commits": 0,
+          "hours": 108.4,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
+          "prs": [],
+          "samples": []
+        },
+        {
+          "month": "2026-09",
+          "commits": 0,
+          "hours": 108.4,
+          "feats": 0,
+          "fixes": 0,
+          "topScopes": [],
+          "prs": [],
+          "samples": []
+        }
+      ]
+    }
+  ],
+  "budget2027": {
+    "avgDelivered": 532,
+    "avgRecent": 585.3,
+    "scenarios": [
+      {
+        "label": "Manter o retainer",
+        "monthlyHours": 381,
+        "monthlyAt180": 68571,
+        "monthlyAt210": 80000,
+        "monthlyAt240": 91429,
+        "note": "O contrato segue em R$ 80 mil. As horas cobertas ficam abaixo da dedicação atual e o banco de horas continua crescendo."
+      },
+      {
+        "label": "Equilibrar",
+        "monthlyHours": 532,
+        "monthlyAt180": 95760,
+        "monthlyAt210": 111720,
+        "monthlyAt240": 127680,
+        "note": "O retainer passa a cobrir a dedicação média de 2026, na taxa de referência. O banco para de crescer."
+      },
+      {
+        "label": "Crescer",
+        "monthlyHours": 708,
+        "monthlyAt180": 127440,
+        "monthlyAt210": 148680,
+        "monthlyAt240": 169920,
+        "note": "Soma uma engenharia sênior em tempo integral à dedicação média, para acelerar o backlog da Like:me e do Colmeia."
+      }
+    ]
+  }
+}

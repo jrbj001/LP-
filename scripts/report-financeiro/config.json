@@ -1,0 +1,89 @@
+{
+  "client": "Be180 · Like:me · Colmeia",
+  "period": { "since": "2026-01-01", "until": "2026-09-30", "label": "Janeiro a Setembro de 2026" },
+  "reposRoot": "..",
+  "rates": { "min": 180, "mid": 210, "max": 240 },
+  "monthlyTaxDiscount": 9000,
+  "payments": [
+    { "month": "2026-01", "date": "05/01/2026", "channel": "SISPAG Fornecedores", "parts": [42230, 10411, 12600] },
+    { "month": "2026-02", "date": "06/02/2026", "channel": "SISPAG Fornecedores", "parts": [43000, 23000] },
+    { "month": "2026-03", "date": "20/03/2026", "channel": "SISPAG Fornecedores", "parts": [23000, 47000] },
+    { "month": "2026-04", "date": "20/04/2026", "channel": "SISPAG Fornecedores", "parts": [23000, 47000] },
+    { "month": "2026-05", "date": "20/05/2026", "channel": "Pagamentos a Fornecedores", "parts": [23000, 47000, 10000] },
+    { "month": "2026-06", "date": "19/06/2026", "channel": "PIX", "parts": [23000, 47000, 10000] },
+    { "month": "2026-07", "date": "20/07/2026", "channel": "PIX", "parts": [23000, 47000, 10000] },
+    { "month": "2026-08", "date": "20/08/2026", "channel": "PIX", "parts": [23000, 47000, 10000] },
+    { "month": "2026-09", "date": "21/09/2026", "channel": "PIX", "parts": [10000, 47000, 23000] }
+  ],
+  "projects": [
+    { "id": "likeme", "label": "Like:me", "color": "#5eead4", "description": "App, landing e API da plataforma de saúde e bem-estar: comunidade, marketplace, assinaturas, eventos e pagamentos." },
+    { "id": "colmeia", "label": "Colmeia + Banco de Ativos", "color": "#7dd3fc", "description": "Meus Roteiros (planejamento OOH), roteiro simulado, P1A, resultados e Banco de Ativos (inventário, exibidores, enriquecimento)." },
+    { "id": "visibilidade", "label": "Teste de Visibilidade", "color": "#fcd34d", "description": "Front-end da campanha e motor de processamento de imagem que mede a visibilidade da marca na mídia." },
+    { "id": "suporte", "label": "Back-end e Suporte à Operação", "color": "#f9a8d4", "description": "Back-end, entendimentos e suporte à operação e ao cliente do Colmeia e do Banco de Ativos." }
+  ],
+  "repos": [
+    { "name": "likeme-back-end", "project": "likeme", "label": "Like:me · API" },
+    { "name": "likeme-front-end", "project": "likeme", "label": "Like:me · App" },
+    { "name": "LP-LikeMe", "project": "likeme", "label": "Like:me · Landing" },
+    { "name": "colmeia---meusroteirosdefault", "project": "colmeia", "label": "Colmeia · Meus Roteiros + Banco de Ativos" },
+    { "name": "image_brand_processing", "project": "visibilidade", "label": "Teste de Visibilidade · Processamento" },
+    { "name": "visibilidade-front", "project": "visibilidade", "label": "Teste de Visibilidade · Front-end" }
+  ],
+  "supportFromProjects": ["colmeia"],
+  "supportPattern": "(hotfix|reconcil|webhook|deploy|health-?check|backup|infra|suporte|support|perf|credencia|sync|sincroniza)",
+  "supportFloor": 0.2,
+  "supportFloorNote": "Pelo menos 20% das horas de cada mês vão para entendimentos e suporte à operação e ao cliente do Colmeia e do Banco de Ativos, conforme registrado no Minday.",
+  "authors": [
+    { "id": "jose", "name": "Jose Roberto", "role": "Liderança técnica · arquitetura de soluções e IA", "aliases": ["Jose Roberto", "jrbj001", "Jose Roberto Baptista junior"] },
+    { "id": "eduarda", "name": "Eduarda Weber", "role": "Engenharia full-stack sênior", "aliases": ["Eduarda Weber", "Duda Weber"] },
+    { "id": "henrique", "name": "Henrique Margarido", "role": "Engenharia de dados e back-end", "aliases": ["Henrique Margarido", "hmdata001"] },
+    { "id": "agent", "name": "Agentes de IA", "role": "Agentes autônomos de código", "aliases": ["Cursor Agent"], "automation": true }
+  ],
+  "externalProfessionals": [
+    {
+      "id": "alex",
+      "name": "Alex",
+      "role": "Arquitetura e consultoria sênior · dados, cloud e governança",
+      "hoursPerMonth": 32,
+      "projectSplit": { "colmeia": 0.6, "likeme": 0.2, "suporte": 0.2 },
+      "from": "2026-01"
+    }
+  ],
+  "stakeholders": [
+    {
+      "name": "Fabrício Guimarães",
+      "org": "Like:Me",
+      "role": "Stakeholder",
+      "note": "Acompanha priorização, validação de layout e aceite das entregas. Não compõe o esforço remunerado nem o banco de horas."
+    }
+  ],
+  "capacity": [
+    { "id": "jose", "from": "2026-01", "hoursPerMonth": 180 },
+    { "id": "eduarda", "from": "2026-01", "until": "2026-07", "hoursPerMonth": 180 },
+    { "id": "eduarda", "from": "2026-08", "hoursPerMonth": 90 },
+    { "id": "henrique", "from": "2026-06", "hoursPerMonth": 160 }
+  ],
+  "unversionedHoursPerMonth": 80,
+  "unversionedNote": "Ritos, entendimentos e suporte à operação e ao cliente que não geram código. Entram integralmente em Back-end e Suporte à Operação.",
+  "manualEffort": [
+    {
+      "id": "migracao-backend",
+      "label": "Migração para o novo back-end do Colmeia",
+      "project": "suporte",
+      "months": ["2026-06", "2026-07"],
+      "hours": 40,
+      "note": "80 h de infraestrutura entre 07/06 e 07/07, sem commits de produto. Rateadas nos dois meses."
+    }
+  ],
+  "effortModel": {
+    "sessionGapMinutes": 120,
+    "warmupMinutes": 45,
+    "maxHoursPerDay": 10,
+    "ignoreFilePatterns": ["package-lock\\.json$", "yarn\\.lock$", "pnpm-lock\\.yaml$", "\\.(png|jpe?g|gif|webp|svg|ico|pdf|mp4|mov|woff2?|ttf|zip|xlsx?|csv|docx?)$", "(^|/)dist/", "(^|/)build/", "\\.min\\.(js|css)$", "\\.snap$"],
+    "maxLinesPerFile": 1500
+  },
+  "roi": {
+    "traditionalLocPerHour": 18,
+    "conservativeMultiplierCap": 3.5
+  }
+}
