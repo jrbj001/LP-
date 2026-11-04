@@ -15,6 +15,7 @@
   "dependencies": {
     "@ai-sdk/openai": "^4.0.57",
     "@dagrejs/dagre": "^3.1.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@notionhq/client": "^5.23.1",
     "@vercel/blob": "^2.8.0",
     "@xyflow/react": "^12.11.2",
