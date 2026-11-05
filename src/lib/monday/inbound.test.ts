@@ -122,7 +122,7 @@ describe('entrada do Monday', () => {
           },
         ],
       })
-    ).toEqual({ name: 'Roteiro indoor', context: 'sem mídia\n\nponto & criativo' })
+    ).toEqual({ name: 'Roteiro indoor', context: 'sem mídia\n\nponto & criativo', assets: [] })
   })
 
   it('importa, enriquece e devolve; na repetição não grava de novo', async () => {

@@ -27,6 +27,7 @@ import {
   writeStoryBackToMonday,
   type Be180MondayConfig,
 } from '@/lib/monday/publish'
+import { readMondayAttachmentContext } from '@/lib/monday/attachments'
 import { verifyMondayAgentSignature } from '@/lib/monday/signature'
 import { BE180_MONDAY_CLIENT_ID } from '@/lib/monday/story'
 
@@ -170,9 +171,14 @@ async function enrichMondayItem(input: {
     if (details?.boardId && details.boardId !== input.config.boardId) return null
     if (details?.name) name = details.name
     if (details?.context) context = [details.context, context].filter(Boolean).join('\n\n')
+    if (details?.assets.length) {
+      const attachments = await readMondayAttachmentContext(input.config.token, details.assets)
+      if (attachments) context = [context, attachments].filter(Boolean).join('\n\n')
+    }
   } catch (error) {
     console.error('[monday/be180] leitura do item', error)
   }
+  context = context.slice(0, 24_000)
 
   const cadenceBoardId = cadenceBoardForMonday(process.env.BE180_MONDAY_CADENCE_BOARD)
   const boardLabel =

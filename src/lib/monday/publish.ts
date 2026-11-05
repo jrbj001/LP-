@@ -161,7 +161,12 @@ export async function fetchMondayItem(
         name
         column_values { id text type }
         board { id }
-        updates(limit: 5) { text_body body }
+        assets { id name public_url url file_extension }
+        updates(limit: 8) {
+          text_body
+          body
+          assets { id name public_url url file_extension }
+        }
       }
     }`,
     { ids: [itemId] },
