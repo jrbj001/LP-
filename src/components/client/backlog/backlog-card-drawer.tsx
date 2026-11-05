@@ -15,6 +15,7 @@ export function BacklogCardDrawer({
   onPatch,
   onEnrich,
   onOpenCopilot,
+  onPublishMonday,
 }: {
   card: BacklogCard
   columns: { id: BacklogColumnId; label: string }[]
@@ -25,6 +26,7 @@ export function BacklogCardDrawer({
   onPatch: (patch: CardPatch) => Promise<BacklogCard | null>
   onEnrich: (mode: 'story' | 'spec') => Promise<BacklogCard | null>
   onOpenCopilot: () => void
+  onPublishMonday?: () => Promise<BacklogCard | null>
 }) {
   const [title, setTitle] = useState(card.title)
   const [persona, setPersona] = useState(card.persona ?? '')
@@ -74,7 +76,7 @@ export function BacklogCardDrawer({
         <header className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-black/[0.06] px-5 py-4 flex items-start justify-between gap-3">
           <div>
             <p className="text-[10px] font-mono uppercase tracking-[0.12em] text-neutral-400">
-              {card.source.kind}
+              {card.source.kind === 'monday' ? 'Monday' : card.source.kind}
               {card.source.ref ? ` · ${card.source.ref}` : ''} · {card.level}
             </p>
             <h2 className="text-[16px] font-semibold text-neutral-900 mt-1 leading-snug">
@@ -128,7 +130,38 @@ export function BacklogCardDrawer({
               {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
               Enriquecer → Spec (agent-ready)
             </button>
+            {onPublishMonday && card.monday && (
+              <button
+                type="button"
+                disabled={busy || card.level === 'raw'}
+                onClick={() => void onPublishMonday()}
+                className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white text-neutral-800 text-[12px] font-medium px-3.5 py-2 disabled:opacity-50"
+              >
+                {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                Devolver ao Monday
+              </button>
+            )}
           </div>
+          {onPublishMonday && card.monday && (
+            <p className="text-[12px] leading-relaxed text-neutral-500">
+              {card.level === 'raw'
+                ? 'Este item veio do Monday. Ao enriquecer, a user story volta para ele.'
+                : 'Devolve a user story enriquecida ao item de origem no Monday.'}
+              {card.monday?.url && (
+                <>
+                  {' '}
+                  <a
+                    href={card.monday.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium text-neutral-800 underline underline-offset-2"
+                  >
+                    Abrir item
+                  </a>
+                </>
+              )}
+            </p>
+          )}
 
           <Field label="Coluna">
             <select

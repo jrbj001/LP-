@@ -124,6 +124,16 @@ export async function getBacklogCard(
   return snapshot.cards.find(c => c.id === cardId) ?? null
 }
 
+export async function findBacklogCardByMondayItem(
+  clientId: string,
+  itemId: string
+): Promise<BacklogCard | null> {
+  const snapshot = await getBacklogSnapshot(clientId)
+  return (
+    snapshot.cards.find(card => card.monday?.itemId === itemId || card.id === `monday-${itemId}`) ?? null
+  )
+}
+
 export async function upsertBacklogCard(clientId: string, card: BacklogCard): Promise<BacklogCard> {
   if (!getBacklogBoards(clientId).some(board => board.id === card.boardId)) {
     throw new Error('Board inválido para este cliente.')
