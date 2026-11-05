@@ -1,5 +1,6 @@
 import { getBacklogBoards } from '@/lib/backlog/boards'
 import type { BacklogBoardId, BacklogCard } from '@/lib/backlog/types'
+import { collectMondayAssets, type MondayAsset } from './attachments'
 import {
   BE180_MONDAY_CLIENT_ID,
   COLMEIA_AGENT_CHAT,
@@ -152,7 +153,7 @@ export function cardFromMondayItem(input: {
 
 export function readMondayItemDetails(
   data: unknown
-): { name: string; context: string; boardId?: string } | null {
+): { name: string; context: string; boardId?: string; assets: MondayAsset[] } | null {
   if (!data || typeof data !== 'object') return null
   const items = (data as { items?: unknown }).items
   const item = Array.isArray(items) ? items[0] : null
@@ -176,7 +177,8 @@ export function readMondayItemDetails(
     .filter((text, index, all) => all.indexOf(text) === index)
     .join('\n\n')
     .slice(0, 4000)
-  return boardId ? { name, context, boardId } : { name, context }
+  const assets = collectMondayAssets(item)
+  return boardId ? { name, context, boardId, assets } : { name, context, assets }
 }
 
 export async function runMondayRoundTrip(input: {
