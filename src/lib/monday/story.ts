@@ -2,14 +2,14 @@ import type { BacklogCard } from '@/lib/backlog/types'
 
 export const BE180_MONDAY_CLIENT_ID = 'be180-ooh'
 
-/** Board Colmeia da Be180, o primeiro do piloto. */
-export const BE180_COLMEIA_BOARD_ID = '18412647269'
+/** Quadro Monday do piloto: Chamados_Tech. */
+export const BE180_MONDAY_PILOT_BOARD_ID = '18413193469'
 
 /** Conta em be180-force.monday.com. */
 export const BE180_MONDAY_ACCOUNT_SLUG = 'be180-force'
 
 export const COLMEIA_AGENT_CHAT =
-  'Sou o Cadence no board Colmeia. Atribua uma tarefa a este agente, ou me mencione nela, que eu trago o item, escrevo a user story e devolvo no mesmo item.'
+  'Sou o Cadence no quadro Chamados_Tech. Atribua uma tarefa a este agente, ou me mencione nela, que eu trago o item, escrevo a user story e devolvo no mesmo item.'
 
 const ITEM_NAME_LIMIT = 255
 

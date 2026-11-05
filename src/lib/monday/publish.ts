@@ -2,7 +2,7 @@ import 'server-only'
 
 import type { BacklogCard } from '@/lib/backlog/types'
 import {
-  BE180_COLMEIA_BOARD_ID,
+  BE180_MONDAY_PILOT_BOARD_ID,
   BE180_MONDAY_ACCOUNT_SLUG,
   formatMondayStoryHtml,
   isStoryReadyForMonday,
@@ -30,7 +30,7 @@ export function readBe180MondayConfig(
   const token = (env.MONDAY_AGENT_API_TOKEN || env.MONDAY_API_TOKEN)?.trim()
   if (!token) return { ok: false, missing: ['MONDAY_AGENT_API_TOKEN'] }
 
-  const boardId = env.BE180_MONDAY_BOARD_ID?.trim() || BE180_COLMEIA_BOARD_ID
+  const boardId = env.BE180_MONDAY_BOARD_ID?.trim() || BE180_MONDAY_PILOT_BOARD_ID
   const slug = env.BE180_MONDAY_ACCOUNT_SLUG?.trim().toLowerCase()
   return {
     ok: true,
