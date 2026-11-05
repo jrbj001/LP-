@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { BANCO_DE_ATIVOS_SOURCE, COLMEIA_SOURCE } from '@/lib/mcp/be180-sources'
 import { encryptDataSourceConfig } from './crypto'
 import { likemeSupabasePostgresConfigFromEnv } from './likeme-supabase'
 import { testPostgresConnection } from './postgresql'
@@ -48,7 +49,7 @@ export async function seedEnvDataSources(clientId: string): Promise<void> {
       await upsertSeededDataSource({
         clientId,
         seedKey: 'be180-ativos-pg',
-        name: 'Banco de Ativos · PostgreSQL',
+        name: BANCO_DE_ATIVOS_SOURCE,
         kind: 'postgresql',
         encryptedConfig: encryptDataSourceConfig(config),
         catalog,
@@ -75,7 +76,7 @@ export async function seedEnvDataSources(clientId: string): Promise<void> {
       await upsertSeededDataSource({
         clientId,
         seedKey: 'be180-colmeia-sql',
-        name: 'Colmeia · SQL Server',
+        name: COLMEIA_SOURCE,
         kind: 'sqlserver',
         encryptedConfig: encryptDataSourceConfig(config),
         catalog,

@@ -45,6 +45,8 @@ export function BacklogWorkspace({
   const [creating, setCreating] = useState(false)
   const [copilotCard, setCopilotCard] = useState<BacklogCard | null>(null)
   const [copilotOpen, setCopilotOpen] = useState(false)
+  const [notice, setNotice] = useState<string | null>(null)
+  const mondayPilot = clientId === 'be180-ooh'
 
   const activeBoard = boards.find(b => b.id === activeBoardId) ?? boards[0]
   const boardCards = useMemo(
@@ -90,6 +92,7 @@ export function BacklogWorkspace({
   async function enrichCard(cardId: string, mode: 'story' | 'spec') {
     setBusy(true)
     setError(null)
+    setNotice(null)
     try {
       const res = await fetch(
         `/api/client/${encodeURIComponent(clientId)}/backlog/cards/${encodeURIComponent(cardId)}/enrich`,
@@ -106,10 +109,34 @@ export function BacklogWorkspace({
       const blocking = Array.isArray(notes)
         ? notes.filter((note: string) => /sem acesso|token recusado|GITHUB_PAT ausente|Contents: Read/i.test(note))
         : []
+      if (typeof data.mondayError === 'string' && data.mondayError) blocking.push(data.mondayError)
       if (blocking.length > 0) setError(blocking.join(' '))
+      else if (data.mondayReturned) setNotice('User story enriquecida e devolvida ao Monday.')
       return data.card as BacklogCard
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro ao enriquecer.')
+      return null
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function publishMonday(cardId: string) {
+    setBusy(true)
+    setError(null)
+    setNotice(null)
+    try {
+      const res = await fetch(
+        `/api/client/${encodeURIComponent(clientId)}/backlog/cards/${encodeURIComponent(cardId)}/monday`,
+        { method: 'POST' }
+      )
+      const data = await res.json()
+      if (data.card) upsertLocal(data.card)
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Falha ao devolver ao Monday.')
+      setNotice('User story devolvida ao Monday.')
+      return data.card as BacklogCard
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao publicar no Monday.')
       return null
     } finally {
       setBusy(false)
@@ -153,7 +180,9 @@ export function BacklogWorkspace({
           <p className="text-[13px] text-neutral-600 leading-relaxed max-w-4xl">
             {clientId === 'likeme'
               ? 'Os boards Like:Me começam com o contexto do produto: crie requisitos manualmente ou use o copiloto para gerar user stories e specs agent-ready com grounding no GitHub.'
-              : 'Use a IA para transformar requisitos em user stories e depois em specs agent-ready com contexto do GitHub. O enrichment sugere — o PM revisa antes de mover para desenvolvimento.'}
+              : clientId === 'be180-ooh'
+                ? 'No piloto, a tarefa nasce no board Colmeia da Monday. O agente Cadence traz o item para cá, enriquece a user story e devolve no mesmo item.'
+                : 'Use a IA para transformar requisitos em user stories e depois em specs agent-ready com contexto do GitHub. O enrichment sugere — o PM revisa antes de mover para desenvolvimento.'}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -234,6 +263,12 @@ export function BacklogWorkspace({
         </div>
       )}
 
+      {notice && (
+        <div className="rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-[13px] text-teal-900">
+          {notice}
+        </div>
+      )}
+
       {error && (
         <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-800">
           {error}
@@ -263,6 +298,7 @@ export function BacklogWorkspace({
             setCopilotCard(selected)
             setCopilotOpen(true)
           }}
+          onPublishMonday={mondayPilot ? () => publishMonday(selected.id) : undefined}
         />
       )}
 

@@ -43,10 +43,18 @@ export interface BacklogDiagram {
 }
 
 export interface BacklogCardSource {
-  kind: 'user-story' | 'gap' | 'milestone' | 'manual' | 'meeting' | 'document'
+  kind: 'user-story' | 'gap' | 'milestone' | 'manual' | 'meeting' | 'document' | 'monday'
   ref?: string
   /** ID canônico da reunião ou documento quando disponível. */
   entityId?: string
+}
+
+/** Item do Monday que originou o card. `syncedAt` marca a volta da story enriquecida. */
+export interface MondaySync {
+  itemId: string
+  boardId: string
+  url?: string
+  syncedAt?: string
 }
 
 export interface BacklogCard {
@@ -72,6 +80,8 @@ export interface BacklogCard {
   diagram?: BacklogDiagram
   phase?: string
   priority?: 'Alta' | 'Média' | 'Baixa'
+  /** Origem no Monday. Só o piloto Be180 preenche este campo. */
+  monday?: MondaySync
   source: BacklogCardSource
   updatedAt: string
   createdAt: string

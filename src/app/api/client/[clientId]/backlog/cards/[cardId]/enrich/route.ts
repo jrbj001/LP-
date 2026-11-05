@@ -8,8 +8,11 @@ import {
   enrichCardToStory,
   type EnrichMode,
 } from '@/lib/backlog/enrich'
+import { getBacklogBoards } from '@/lib/backlog/boards'
 import { getBacklogCard, upsertBacklogCard } from '@/lib/backlog/store'
 import { isBacklogEnabled } from '@/lib/backlog/access'
+import { writeStoryBackToMonday } from '@/lib/monday/publish'
+import { BE180_MONDAY_CLIENT_ID } from '@/lib/monday/story'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,12 +52,29 @@ export async function POST(
   try {
     if (mode === 'story') {
       const enrichment = await enrichCardToStory(clientContext, current, repos)
-      const card = await upsertBacklogCard(client.slug, applyStoryEnrichment(current, enrichment))
+      let card = await upsertBacklogCard(client.slug, applyStoryEnrichment(current, enrichment))
+      let mondayReturned = false
+      let mondayError: string | undefined
+      if (client.slug === BE180_MONDAY_CLIENT_ID && card.monday?.itemId) {
+        const boardLabel =
+          getBacklogBoards(client.slug).find(board => board.id === card.boardId)?.productLabel ??
+          card.boardId
+        try {
+          card = await upsertBacklogCard(client.slug, await writeStoryBackToMonday(card, boardLabel))
+          mondayReturned = true
+        } catch (error) {
+          console.error('[client/backlog/enrich] volta ao Monday', error)
+          mondayError =
+            error instanceof Error ? error.message : 'Não foi possível devolver a story ao Monday.'
+        }
+      }
       return NextResponse.json({
         ok: true,
         mode,
         model: codingModel(),
         card,
+        mondayReturned,
+        mondayError,
         githubNotes: card.githubNotes ?? [],
         generatedAt: new Date().toISOString(),
       })

@@ -85,12 +85,22 @@ export function BacklogCardDetail({
           <Badge>{card.level === 'spec' ? 'Agent-ready' : card.level}</Badge>
           {card.phase && <Badge>{card.phase}</Badge>}
           {card.priority && <Badge>{card.priority}</Badge>}
+          {card.monday?.url && (
+            <a
+              href={card.monday.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center rounded-full border border-black/[0.08] bg-white px-2.5 py-1 text-[11px] font-medium text-neutral-700 hover:border-neutral-300"
+            >
+              Monday
+            </a>
+          )}
         </div>
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-[-0.035em] text-neutral-900 max-w-5xl">
           {card.title}
         </h1>
         <p className="mt-3 text-[12px] font-mono text-neutral-400">
-          {card.source.kind}
+          {card.source.kind === 'monday' ? 'Monday' : card.source.kind}
           {card.source.ref ? ` · ${card.source.ref}` : ''} · atualizado{' '}
           {new Date(card.updatedAt).toLocaleDateString('pt-BR')}
         </p>
