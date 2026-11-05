@@ -131,6 +131,23 @@ export async function writeStoryBackToMonday(
   }
 }
 
+/** Resposta assíncrona de chat (até 7 dias), usando o conversationId do payload. */
+export async function sendCustomAgentMessage(
+  config: Be180MondayConfig,
+  conversationId: string,
+  message: string,
+  fetchImpl: typeof fetch = fetch
+): Promise<void> {
+  await mondayQuery(
+    config.token,
+    `mutation ($conversationId: String!, $message: String!) {
+      send_custom_agent_message(input: { conversation_id: $conversationId, message: $message }) { delivered }
+    }`,
+    { conversationId, message },
+    fetchImpl
+  )
+}
+
 export async function fetchMondayItem(
   config: Be180MondayConfig,
   itemId: string,

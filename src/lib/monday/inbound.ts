@@ -53,6 +53,9 @@ export interface MondayAgentEvent {
   boardId?: string
   updateId?: string
   updateBody?: string
+  /** Só em chat: token para responder depois com send_custom_agent_message. */
+  conversationId?: string
+  sessionId?: string
 }
 
 export function interpretMondayAgentEvent(body: unknown): MondayAgentEvent | null {
@@ -75,17 +78,27 @@ export function interpretMondayAgentEvent(body: unknown): MondayAgentEvent | nul
     boardId: asId(payload.boardId) || undefined,
     updateId: asId(payload.updateId) || undefined,
     updateBody: updateBody || undefined,
+    conversationId: typeof payload.conversationId === 'string' ? payload.conversationId : undefined,
+    sessionId: typeof record.sessionId === 'string' ? record.sessionId : undefined,
   }
 }
 
+/** Ack para assigned/mention: visível só via GraphQL, o corpo HTTP não é mostrado. */
 export function mondayAgentAck(stream: boolean): Response {
-  if (!stream) return Response.json({ message: '' })
-  return agentSse('data: [DONE]\n\n')
+  if (!stream) return Response.json({ success: true, message: '' })
+  return agentSse(sseEvent({ type: 'done', success: true }))
 }
 
+/** Resposta síncrona de chat, sem conversationId — o corpo HTTP é a mensagem. */
 export function mondayAgentChat(message: string, stream: boolean): Response {
-  if (!stream) return Response.json({ message })
-  return agentSse(`data: ${JSON.stringify({ type: 'text', content: message })}\n\ndata: [DONE]\n\n`)
+  if (!stream) return Response.json({ success: true, message })
+  return agentSse(sseEvent({ type: 'text', content: message }) + sseEvent({ type: 'done', success: true }))
+}
+
+/** Ack imediato de chat com conversationId — a resposta real vai depois via send_custom_agent_message. */
+export function mondayAgentConversationAck(stream: boolean): Response {
+  if (!stream) return Response.json({ ack: true })
+  return agentSse(sseEvent({ type: 'ack' }))
 }
 
 export function mondayWebhookAuthorized(header: string | null, secret: string | undefined): boolean {
@@ -195,6 +208,10 @@ function normalizeAgentTrigger(value: unknown): MondayAgentTrigger | null {
   if (value === 'mention' || value === 'mentioned') return 'mention'
   if (value === 'assigned' || value === 'assign') return 'assigned'
   return null
+}
+
+function sseEvent(data: unknown): string {
+  return `data: ${JSON.stringify(data)}\n\n`
 }
 
 function agentSse(body: string): Response {

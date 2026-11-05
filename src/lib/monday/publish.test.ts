@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('server-only', () => ({}))
 
 import type { BacklogCard } from '@/lib/backlog/types'
-import { publishStoryToMonday, readBe180MondayConfig } from './publish'
+import { publishStoryToMonday, readBe180MondayConfig, sendCustomAgentMessage } from './publish'
 
 function storyCard(overrides: Partial<BacklogCard> = {}): BacklogCard {
   return {
@@ -79,5 +79,13 @@ describe('volta da user story ao Monday', () => {
       Authorization: 'monday-token',
       'API-Version': 'dev',
     })
+  })
+
+  it('responde chat assíncrono com send_custom_agent_message', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(jsonResponse({ data: { send_custom_agent_message: { delivered: true } } }))
+    await sendCustomAgentMessage(config, 'conv-1', 'Sou o Cadence.', fetchMock)
+    const call = JSON.parse(String(fetchMock.mock.calls[0][1]?.body))
+    expect(call.query).toContain('send_custom_agent_message')
+    expect(call.variables).toEqual({ conversationId: 'conv-1', message: 'Sou o Cadence.' })
   })
 })

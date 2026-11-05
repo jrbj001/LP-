@@ -12,6 +12,7 @@ import {
   interpretMondayWebhook,
   mondayAgentAck,
   mondayAgentChat,
+  mondayAgentConversationAck,
   mondayWebhookAuthorized,
   readMondayItemDetails,
   runMondayRoundTrip,
@@ -22,6 +23,7 @@ import {
   fetchMondayItem,
   postMondayUpdate,
   readBe180MondayConfig,
+  sendCustomAgentMessage,
   writeStoryBackToMonday,
   type Be180MondayConfig,
 } from '@/lib/monday/publish'
@@ -95,11 +97,23 @@ function handleAgent(request: Request, rawBody: string, agent: MondayAgentEvent)
     return NextResponse.json({ ok: false, error: 'Assinatura do agente Monday inválida.' }, { status: 401 })
   }
 
-  if (agent.trigger === 'chat' || !agent.itemId) {
+  const configured = readBe180MondayConfig()
+
+  if (agent.trigger === 'chat') {
+    if (agent.conversationId && configured.ok) {
+      const conversationId = agent.conversationId
+      after(async () => {
+        await sendCustomAgentMessage(configured.config, conversationId, COLMEIA_AGENT_CHAT).catch(error =>
+          console.error('[monday/be180] resposta de chat', error)
+        )
+      })
+      return mondayAgentConversationAck(agent.stream)
+    }
     return mondayAgentChat(COLMEIA_AGENT_CHAT, agent.stream)
   }
 
-  const configured = readBe180MondayConfig()
+  if (!agent.itemId) return mondayAgentAck(agent.stream)
+
   if (!configured.ok) {
     return NextResponse.json(
       { ok: false, error: `Monday da Be180 sem configuração: ${configured.missing.join(', ')}.` },

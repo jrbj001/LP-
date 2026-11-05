@@ -66,10 +66,26 @@ describe('entrada do Monday', () => {
     expect(interpretMondayAgentEvent({ event: 'agent_triggered', triggerType: 'unknown' })).toBeNull()
   })
 
-  it('responde no chat com SSE', async () => {
+  it('responde no chat com SSE e termina com done/success', async () => {
     const response = mondayAgentChat('oi', true)
     expect(response.headers.get('content-type')).toContain('text/event-stream')
-    expect(await response.text()).toContain('"content":"oi"')
+    const text = await response.text()
+    expect(text).toContain('"content":"oi"')
+    expect(text).toContain('"type":"done","success":true')
+  })
+
+  it('lê o conversationId do chat e responde success/message quando não stream', () => {
+    expect(
+      interpretMondayAgentEvent({
+        event: 'agent_triggered',
+        triggerType: 'chat',
+        sessionId: 'sess-1',
+        payload: { text: 'oi', conversationId: 'conv-1' },
+      })
+    ).toMatchObject({ trigger: 'chat', conversationId: 'conv-1', sessionId: 'sess-1' })
+
+    const response = mondayAgentChat('oi', false)
+    expect(response.headers.get('content-type')).toContain('application/json')
   })
 
   it('autoriza o webhook nativo e exige o segredo quando ele existe', () => {
