@@ -36,7 +36,7 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 describe('volta da user story ao Monday', () => {
   it('aponta as variáveis que faltam', () => {
-    const result = readBe180MondayConfig({})
+    const result = readBe180MondayConfig({} as NodeJS.ProcessEnv)
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.missing).toEqual(['MONDAY_AGENT_API_TOKEN'])
   })

@@ -181,7 +181,7 @@ export function BacklogWorkspace({
             {clientId === 'likeme'
               ? 'Os boards Like:Me começam com o contexto do produto: crie requisitos manualmente ou use o copiloto para gerar user stories e specs agent-ready com grounding no GitHub.'
               : clientId === 'be180-ooh'
-                ? 'No piloto, a tarefa nasce no quadro Chamados_Tech da Monday. O agente Cadence traz o item para cá, enriquece a user story e devolve no mesmo item.'
+                ? 'No piloto, a tarefa nasce em qualquer quadro da Monday em que o Cadence tenha acesso. O agente traz o item para cá, enriquece a user story e devolve no mesmo item.'
                 : 'Use a IA para transformar requisitos em user stories e depois em specs agent-ready com contexto do GitHub. O enrichment sugere — o PM revisa antes de mover para desenvolvimento.'}
           </p>
         </div>

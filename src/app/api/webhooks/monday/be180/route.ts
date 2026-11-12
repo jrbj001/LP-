@@ -121,10 +121,6 @@ function handleAgent(request: Request, rawBody: string, agent: MondayAgentEvent)
       { status: 503 }
     )
   }
-  if (agent.boardId && agent.boardId !== configured.config.boardId) {
-    return mondayAgentAck(agent.stream)
-  }
-
   const itemId = agent.itemId
   after(async () => {
     try {
@@ -165,10 +161,11 @@ async function enrichMondayItem(input: {
   if (!client) throw new Error('Cliente Be180 não encontrado.')
 
   let name = input.item.name
+  let boardId = input.item.boardId
   let context = input.context?.trim() || ''
   try {
     const details = readMondayItemDetails(await fetchMondayItem(input.config, input.item.itemId))
-    if (details?.boardId && details.boardId !== input.config.boardId) return null
+    if (details?.boardId) boardId = details.boardId
     if (details?.name) name = details.name
     if (details?.context) context = [details.context, context].filter(Boolean).join('\n\n')
     if (details?.assets.length) {
@@ -189,7 +186,7 @@ async function enrichMondayItem(input: {
     existing,
     force: input.force,
     draft: cardFromMondayItem({
-      item: { ...input.item, name },
+      item: { ...input.item, boardId, name },
       context,
       cadenceBoardId,
       accountSlug: input.config.accountSlug,
