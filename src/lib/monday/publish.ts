@@ -4,6 +4,7 @@ import type { BacklogCard } from '@/lib/backlog/types'
 import {
   BE180_MONDAY_PILOT_BOARD_ID,
   BE180_MONDAY_ACCOUNT_SLUG,
+  formatMondayItemName,
   formatMondayStoryHtml,
   isStoryReadyForMonday,
   mondayItemUrl,
@@ -172,6 +173,66 @@ export async function fetchMondayItem(
     { ids: [itemId] },
     fetchImpl
   )
+}
+
+export async function createMondayItem(input: {
+  config: Be180MondayConfig
+  boardId: string
+  groupId: string
+  name: string
+  fetchImpl?: typeof fetch
+}): Promise<string> {
+  const data = await mondayQuery<{ create_item: { id: string } }>(
+    input.config.token,
+    `mutation ($boardId: ID!, $groupId: String!, $name: String!) {
+      create_item(board_id: $boardId, group_id: $groupId, item_name: $name) { id }
+    }`,
+    { boardId: input.boardId, groupId: input.groupId, name: formatMondayItemName(input.name) },
+    input.fetchImpl ?? fetch
+  )
+  return data.create_item.id
+}
+
+export async function createMondaySubitem(input: {
+  config: Be180MondayConfig
+  parentItemId: string
+  name: string
+  fetchImpl?: typeof fetch
+}): Promise<{ id: string; boardId: string }> {
+  const data = await mondayQuery<{ create_subitem: { id: string; board: { id: string } } }>(
+    input.config.token,
+    `mutation ($parentId: ID!, $name: String!) {
+      create_subitem(parent_item_id: $parentId, item_name: $name) { id board { id } }
+    }`,
+    { parentId: input.parentItemId, name: formatMondayItemName(input.name) },
+    input.fetchImpl ?? fetch
+  )
+  return { id: data.create_subitem.id, boardId: data.create_subitem.board.id }
+}
+
+/** Itens já existentes no grupo, por nome, com os subitens de cada um. */
+export async function listMondayGroupItems(input: {
+  config: Be180MondayConfig
+  boardId: string
+  groupId: string
+  fetchImpl?: typeof fetch
+}): Promise<{ id: string; name: string; subitems: { id: string; name: string }[] }[]> {
+  const data = await mondayQuery<{
+    boards: { groups: { items_page: { items: { id: string; name: string; subitems?: { id: string; name: string }[] }[] } }[] }[]
+  }>(
+    input.config.token,
+    `query ($boardId: ID!, $groupId: String!) {
+      boards(ids: [$boardId]) {
+        groups(ids: [$groupId]) {
+          items_page(limit: 200) { items { id name subitems { id name } } }
+        }
+      }
+    }`,
+    { boardId: input.boardId, groupId: input.groupId },
+    input.fetchImpl ?? fetch
+  )
+  const items = data.boards[0]?.groups[0]?.items_page.items ?? []
+  return items.map(item => ({ id: item.id, name: item.name, subitems: item.subitems ?? [] }))
 }
 
 async function mondayQuery<T>(
