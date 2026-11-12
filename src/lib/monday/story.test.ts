@@ -48,6 +48,29 @@ describe('user story para o Monday', () => {
     expect(html).not.toContain('<script>')
   })
 
+  it('mostra contexto, como testar e riscos só quando a story tem esses campos', () => {
+    const simples = formatMondayStoryHtml(storyCard(), 'Colmeia')
+    expect(simples).not.toContain('Como testar')
+    expect(simples).not.toContain('Contexto')
+
+    const detalhada = formatMondayStoryHtml(
+      storyCard({
+        context: 'Cuiabá tem 57 ativos.\n\nA GeoFusion tem 123.',
+        testPlan: ['GET /api/lab-indicadores?pk=1 devolve pontosPracaTotal_vl', '  '],
+        filesLikely: ['handlers/lab-indicadores.js'],
+        risks: ['Volume manual desatualizado'],
+        implementationNotes: 'Ler o volume\nantes do sorteio',
+      }),
+      'Colmeia'
+    )
+    expect(detalhada).toContain('<p>Cuiabá tem 57 ativos.</p><p>A GeoFusion tem 123.</p>')
+    expect(detalhada).toContain('<ol><li>GET /api/lab-indicadores?pk=1 devolve pontosPracaTotal_vl</li></ol>')
+    expect(detalhada).toContain('<p>Ler o volume<br>antes do sorteio</p>')
+    expect(detalhada).toContain('<li>handlers/lab-indicadores.js</li>')
+    expect(detalhada).toContain('<li>Volume manual desatualizado</li>')
+    expect(detalhada.indexOf('Critérios de aceite')).toBeLessThan(detalhada.indexOf('Como testar'))
+  })
+
   it('monta o link do item na conta da Be180', () => {
     expect(mondayItemUrl('be180', '123', '999')).toBe(
       'https://be180.monday.com/boards/123/pulses/999'

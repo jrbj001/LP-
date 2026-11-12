@@ -3,7 +3,14 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('server-only', () => ({}))
 
 import type { BacklogCard } from '@/lib/backlog/types'
-import { publishStoryToMonday, readBe180MondayConfig, sendCustomAgentMessage } from './publish'
+import {
+  createMondayItem,
+  createMondaySubitem,
+  listMondayGroupItems,
+  publishStoryToMonday,
+  readBe180MondayConfig,
+  sendCustomAgentMessage,
+} from './publish'
 
 function storyCard(overrides: Partial<BacklogCard> = {}): BacklogCard {
   return {
@@ -79,6 +86,44 @@ describe('volta da user story ao Monday', () => {
       Authorization: 'monday-token',
       'API-Version': 'dev',
     })
+  })
+
+  it('cria item no grupo e subitem embaixo do item pai', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ data: { create_item: { id: '10' } } }))
+      .mockResolvedValueOnce(jsonResponse({ data: { create_subitem: { id: '11', board: { id: '77' } } } }))
+
+    const itemId = await createMondayItem({
+      config,
+      boardId: '123',
+      groupId: 'group_x',
+      name: '  Épico\n Planilha  ',
+      fetchImpl: fetchMock,
+    })
+    const sub = await createMondaySubitem({ config, parentItemId: itemId, name: 'Grade', fetchImpl: fetchMock })
+
+    expect(itemId).toBe('10')
+    expect(sub).toEqual({ id: '11', boardId: '77' })
+    const item = JSON.parse(String(fetchMock.mock.calls[0][1]?.body))
+    expect(item.query).toContain('create_item')
+    expect(item.variables).toEqual({ boardId: '123', groupId: 'group_x', name: 'Épico Planilha' })
+    const subitem = JSON.parse(String(fetchMock.mock.calls[1][1]?.body))
+    expect(subitem.query).toContain('create_subitem')
+    expect(subitem.variables).toEqual({ parentId: '10', name: 'Grade' })
+  })
+
+  it('lista os itens do grupo com os subitens', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      jsonResponse({
+        data: { boards: [{ groups: [{ items_page: { items: [{ id: '1', name: 'A', subitems: [{ id: '2', name: 'B' }] }, { id: '3', name: 'C' }] } }] }] },
+      })
+    )
+    const items = await listMondayGroupItems({ config, boardId: '123', groupId: 'group_x', fetchImpl: fetchMock })
+    expect(items).toEqual([
+      { id: '1', name: 'A', subitems: [{ id: '2', name: 'B' }] },
+      { id: '3', name: 'C', subitems: [] },
+    ])
   })
 
   it('responde chat assíncrono com send_custom_agent_message', async () => {
