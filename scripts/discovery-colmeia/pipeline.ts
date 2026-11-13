@@ -79,27 +79,60 @@ function clienteBe180(): { contexto: BacklogClientContext; repos: RepoConfig[] }
 }
 
 /** Enriquece cada necessidade como o Cadence: user story e depois especificação com plano de testes. */
-export async function gerar(filtro?: string[]): Promise<void> {
+export async function gerar(options: { filtro: string[]; refazer: boolean }): Promise<void> {
   const { contexto, repos } = clienteBe180()
   await mkdir(SAIDA, { recursive: true })
+  const falhas: string[] = []
   for (const { necessidade, pai } of itens()) {
-    if (filtro?.length && !filtro.includes(necessidade.slug)) continue
-    const bruto = cardBruto(necessidade, pai)
-    const story = applyStoryEnrichment(bruto, await enrichCardToStory(contexto, bruto, repos))
-    const spec = applySpecEnrichment(story, await enrichCardToSpec(contexto, story, repos))
-    const card: BacklogCard = {
-      ...spec,
-      context: [
-        spec.context,
-        `O que foi dito na reunião: ${necessidade.reuniao}`,
-        `O que já existe no Colmeia: ${necessidade.base}`,
-      ].map(bloco => bloco?.replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean).join('\n\n'),
-      testPlan: spec.testPlan?.map(passo => passo.replace(/^\s*\d+[.)]\s*/, '')),
+    if (options.filtro.length && !options.filtro.includes(necessidade.slug)) continue
+    if (!options.refazer && (await lerGerado(necessidade.slug).catch(() => null))) {
+      console.log(`pronta  ${necessidade.slug}`)
+      continue
     }
-    const gerado: Gerado = { slug: necessidade.slug, pai, card }
-    await writeFile(path.join(SAIDA, `${necessidade.slug}.json`), JSON.stringify(gerado, null, 2))
-    console.log(`gerada  ${necessidade.slug}  ${card.title}  (${card.acceptance?.length ?? 0} critérios, ${card.testPlan?.length ?? 0} testes)`)
+    try {
+      await comLimite(gerarUma(contexto, repos, necessidade, pai), LIMITE_POR_STORY_MS)
+    } catch (error) {
+      falhas.push(necessidade.slug)
+      console.error(`falhou  ${necessidade.slug}  ${error instanceof Error ? error.message.split('\n')[0] : error}`)
+    }
   }
+  if (falhas.length) {
+    console.error(`\n${falhas.length} falharam; rode gerar de novo para tentar só elas: ${falhas.join(' ')}`)
+    process.exitCode = 1
+  }
+}
+
+const LIMITE_POR_STORY_MS = 4 * 60_000
+
+function comLimite<T>(promessa: Promise<T>, ms: number): Promise<T> {
+  let timer: NodeJS.Timeout | undefined
+  const limite = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`sem resposta em ${ms / 1000} s`)), ms)
+  })
+  return Promise.race([promessa, limite]).finally(() => clearTimeout(timer))
+}
+
+async function gerarUma(
+  contexto: BacklogClientContext,
+  repos: RepoConfig[],
+  necessidade: Necessidade,
+  pai?: string
+): Promise<void> {
+  const bruto = cardBruto(necessidade, pai)
+  const story = applyStoryEnrichment(bruto, await enrichCardToStory(contexto, bruto, repos))
+  const spec = applySpecEnrichment(story, await enrichCardToSpec(contexto, story, repos))
+  const card: BacklogCard = {
+    ...spec,
+    context: [
+      spec.context,
+      `O que foi dito na reunião: ${necessidade.reuniao}`,
+      `O que já existe no Colmeia: ${necessidade.base}`,
+    ].map(bloco => bloco?.replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean).join('\n\n'),
+    testPlan: spec.testPlan?.map(passo => passo.replace(/^\s*\d+[.)]\s*/, '')),
+  }
+  const gerado: Gerado = { slug: necessidade.slug, pai, card }
+  await writeFile(path.join(SAIDA, `${necessidade.slug}.json`), JSON.stringify(gerado, null, 2))
+  console.log(`gerada  ${necessidade.slug}  ${card.title}  (${card.acceptance?.length ?? 0} critérios, ${card.testPlan?.length ?? 0} testes)`)
 }
 
 async function lerGerado(slug: string): Promise<Gerado> {
@@ -121,7 +154,12 @@ export async function publicar(options: { dryRun: boolean }): Promise<void> {
   const idPorSlug = new Map<string, string>()
 
   for (const { necessidade, pai } of itens()) {
-    const { card } = await lerGerado(necessidade.slug)
+    const gerado = await lerGerado(necessidade.slug).catch(() => null)
+    if (!gerado) {
+      console.log(`falta   ${necessidade.slug}  (rode gerar antes)`)
+      continue
+    }
+    const { card } = gerado
     const nome = formatMondayItemName(card.title)
 
     if (!pai) {
