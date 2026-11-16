@@ -164,7 +164,7 @@ ${formatGithubContextForPrompt(gh)}
 
 Gere a especificação agent-ready.`
 
-  const parsed = await callOpenAiJson(system, user)
+  const parsed = await callOpenAiJson(system, user, { maxTokens: 4000 })
   if (!isSpecEnrichment(parsed)) {
     throw new Error('A IA retornou uma especificação incompleta.')
   }

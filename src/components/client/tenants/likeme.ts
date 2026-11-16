@@ -31,7 +31,7 @@ export const likeMe: ClientWorkspace = {
   stats: [
     { label: 'Repos', value: '3' },
     { label: 'Reuniões', value: String(LIKEME_MEETINGS.length) },
-    { label: 'Documentos', value: '11' },
+    { label: 'Documentos', value: '12' },
   ],
   projects: [
     {
@@ -160,6 +160,17 @@ export const likeMe: ClientWorkspace = {
   },
   meetings: LIKEME_MEETINGS,
   documents: [
+    {
+      id: 'likeme-avatar-animado',
+      title: 'Avatar animado — MENTE & CORPO',
+      category: 'Produto · Growth · Design',
+      description:
+        'Estudo e protótipo interativo do avatar vivo: mapa de dados dos 3 repos, regras de animação, card Wrapped compartilhável e roadmap para o app.',
+      updatedAt: '16/11/2026',
+      status: 'available',
+      href: '/avatar-animado',
+      external: false,
+    },
     {
       id: 'likeme-plano-glp1-dr-matheus',
       title: 'Plano de trabalho — Flagship GLP-1 Dr. Matheus',

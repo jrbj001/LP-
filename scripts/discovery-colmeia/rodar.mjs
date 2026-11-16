@@ -2,7 +2,8 @@
 /**
  * Leva as necessidades da reunião Discovery do Colmeia ao Monday, enriquecidas como o Cadence.
  *
- *   node --env-file=.env.local scripts/discovery-colmeia/rodar.mjs gerar [slug...]   enriquece e grava em tmp/discovery-colmeia
+ *   node --env-file=.env.local scripts/discovery-colmeia/rodar.mjs gerar [slug...] [--refazer]
+ *       enriquece e grava em tmp/discovery-colmeia; pula o que já foi gerado, a menos que venha --refazer
  *   node --env-file=.env.local scripts/discovery-colmeia/rodar.mjs publicar --dry-run  mostra o que seria criado
  *   node --env-file=.env.local scripts/discovery-colmeia/rodar.mjs publicar            cria os itens no grupo Discovery Colmeia
  *
@@ -24,7 +25,8 @@ const [comando, ...resto] = process.argv.slice(2)
 const pipeline = await jiti.import(path.join(raiz, 'scripts/discovery-colmeia/pipeline.ts'))
 
 if (comando === 'gerar') {
-  await pipeline.gerar(resto.filter(arg => !arg.startsWith('--')))
+  await pipeline.gerar({ filtro: resto.filter(arg => !arg.startsWith('--')), refazer: resto.includes('--refazer') })
+  process.exit(process.exitCode ?? 0)
 } else if (comando === 'publicar') {
   await pipeline.publicar({ dryRun: resto.includes('--dry-run') })
 } else {
