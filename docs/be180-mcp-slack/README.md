@@ -11,7 +11,7 @@ O Teste de Visibilidade ainda não entra. Não há fonte conectada para ele no C
 
 ## Variáveis
 
-Além das que o Cadence já usa para a Be180 (`BE180_ATIVOS_PG_*`, `BE180_COLMEIA_SQL_*`, `OPENAI_API_KEY`, `DATA_SOURCE_ENCRYPTION_KEY`, `DATABASE_URL`):
+Além das que o Cadence já usa para a Be180 (`BE180_ATIVOS_PG_*`, `BE180_COLMEIA_SQL_*`, `AI_GATEWAY_API_KEY` ou OIDC da Vercel, `DATA_SOURCE_ENCRYPTION_KEY`, `DATABASE_URL`):
 
 | Variável | Uso |
 |---|---|
