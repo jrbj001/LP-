@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { isMissingAiCredential } from '@/lib/ai/gateway'
 import { getBacklogBoards } from '@/lib/backlog/boards'
 import type { BacklogBoardId } from '@/lib/backlog/types'
 import { getClient } from '@/lib/client/registry'
@@ -84,6 +85,6 @@ export function documentErrorResponse(scope: string, error: unknown): NextRespon
   }
   const message = error instanceof Error ? error.message : 'Erro ao processar o documento.'
   const status =
-    message.includes('OPENAI_API_KEY') || message.includes('BLOB_READ_WRITE_TOKEN') ? 503 : 502
+    isMissingAiCredential(message) || message.includes('BLOB_READ_WRITE_TOKEN') ? 503 : 502
   return NextResponse.json({ ok: false, error: message }, { status })
 }

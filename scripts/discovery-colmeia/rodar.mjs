@@ -7,7 +7,7 @@
  *   node --env-file=.env.local scripts/discovery-colmeia/rodar.mjs publicar --dry-run  mostra o que seria criado
  *   node --env-file=.env.local scripts/discovery-colmeia/rodar.mjs publicar            cria os itens no grupo Discovery Colmeia
  *
- * Precisa de OPENAI_API_KEY (gerar) e MONDAY_AGENT_API_TOKEN com acesso Padrão ao quadro Colmeia (publicar).
+ * Precisa de AI_GATEWAY_API_KEY ou VERCEL_OIDC_TOKEN (gerar) e MONDAY_AGENT_API_TOKEN com acesso Padrão ao quadro Colmeia (publicar).
  */
 import { createJiti } from 'jiti'
 import path from 'path'

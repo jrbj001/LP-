@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { isMissingAiCredential } from '@/lib/ai/gateway'
 import { isBacklogEnabled } from '@/lib/backlog/access'
 import { getBacklogBoards } from '@/lib/backlog/boards'
 import {
@@ -58,7 +59,7 @@ export async function POST(
   } catch (error) {
     console.error('[client/meeting-backlog/generate]', error)
     const message = error instanceof Error ? error.message : 'Erro ao gerar itens para o backlog.'
-    const status = message.includes('OPENAI_API_KEY') ? 503 : 502
+    const status = isMissingAiCredential(message) ? 503 : 502
     return NextResponse.json({ ok: false, error: message }, { status })
   }
 }

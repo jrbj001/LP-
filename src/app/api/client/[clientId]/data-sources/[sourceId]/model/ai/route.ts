@@ -41,7 +41,7 @@ export async function POST(_request: Request, { params }: { params: RouteParams 
   } catch (error) {
     console.error('[client/data-sources/model/ai] POST', error)
     const message =
-      error instanceof Error && /OPENAI|OpenAI/.test(error.message)
+      error instanceof Error && /AI Gateway|AI_GATEWAY/.test(error.message)
         ? error.message
         : 'Não foi possível gerar a visão de IA da modelagem.'
     return NextResponse.json({ ok: false, error: message }, { status: 500 })
