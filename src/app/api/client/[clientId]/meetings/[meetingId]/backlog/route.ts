@@ -9,6 +9,7 @@ import {
 } from '@/lib/backlog/meeting-export'
 import { getBacklogSnapshot } from '@/lib/backlog/store'
 import { getClient } from '@/lib/client/registry'
+import { findClientMeeting } from '@/lib/meeting-agent/meetings'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +25,7 @@ export async function POST(
   if (!isBacklogEnabled(client.slug)) {
     return NextResponse.json({ ok: false, error: 'Backlog indisponível para este cliente.' }, { status: 403 })
   }
-  const meeting = client.meetings?.find(item => item.id === meetingId)
+  const meeting = await findClientMeeting(client, meetingId)
   if (!meeting) {
     return NextResponse.json({ ok: false, error: 'Reunião não encontrada.' }, { status: 404 })
   }

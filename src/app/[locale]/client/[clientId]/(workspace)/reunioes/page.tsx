@@ -2,8 +2,10 @@ import { notFound } from 'next/navigation'
 import { CalendarDays, ExternalLink, Users } from 'lucide-react'
 import { getClient } from '@/lib/client/registry'
 import { EmptyWorkspaceState, WorkspacePageHeader } from '@/components/client/workspace-page'
+import { CadenceMeetingAgent } from '@/components/client/cadence-meeting-agent'
 import { MeetingAiBrief } from '@/components/client/meeting-ai-brief'
 import { isBacklogEnabled } from '@/lib/backlog/access'
+import { listAgentMeetings } from '@/lib/meeting-agent/meetings'
 
 type Props = {
   params: Promise<{ locale: string; clientId: string }>
@@ -27,7 +29,9 @@ export default async function ClientMeetingsPage({ params }: Props) {
   if (!client) notFound()
 
   const base = `/${locale}/client/${client.slug}`
-  const meetings = [...(client.meetings ?? [])].sort((a, b) => b.date.localeCompare(a.date))
+  const agentEnabled = isBacklogEnabled(client.slug)
+  const agentMeetings = agentEnabled ? await listAgentMeetings(client.slug) : []
+  const meetings = [...(client.meetings ?? []), ...agentMeetings].sort((a, b) => b.date.localeCompare(a.date))
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-14 py-10 sm:py-14">
@@ -37,6 +41,8 @@ export default async function ClientMeetingsPage({ params }: Props) {
         description="Agenda e memória do projeto: participantes, sínteses, decisões e próximos passos."
         backHref={base}
       />
+
+      {agentEnabled && <CadenceMeetingAgent clientId={client.slug} accent={client.accent} />}
 
       {meetings.length === 0 ? (
         <EmptyWorkspaceState
