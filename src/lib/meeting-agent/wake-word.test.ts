@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { detectWakeWord } from './wake-word'
+import { detectWakeWord, priorQuestion } from './wake-word'
 
 describe('detectWakeWord', () => {
   it('reconhece a pergunta logo após o nome', () => {
@@ -26,6 +26,22 @@ describe('detectWakeWord', () => {
 
   it('ignora palavras que só contêm o nome', () => {
     expect(detectWakeWord('a cadenciada das entregas melhorou')).toEqual({ kind: 'none' })
+  })
+
+  it('um @Cadence sozinho usa a fala anterior de quem chamou', () => {
+    expect(
+      priorQuestion(
+        [
+          { speaker: 'Jose', text: 'Me ajude com o fluxo do banco de ativos.' },
+          { speaker: 'Jose', text: '@Cadence' },
+        ],
+        'Jose'
+      )
+    ).toBe('Me ajude com o fluxo do banco de ativos.')
+  })
+
+  it('ignora cumprimento curto antes do chamado', () => {
+    expect(priorQuestion([{ speaker: 'Jose', text: 'Oi.' }], 'Jose')).toBeNull()
   })
 
   it('no chat aceita @Cadence em qualquer posição', () => {
