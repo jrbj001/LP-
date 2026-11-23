@@ -3,6 +3,9 @@ import 'server-only'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+import { avatarSecret, signAvatarToken } from '@/lib/meeting-agent/avatar-token'
+import { voiceEnabled } from '@/lib/meeting-agent/voice'
+
 export const CADENCE_BOT_NAME = 'Cadence'
 
 const JOIN_MESSAGE =
@@ -99,6 +102,40 @@ function cadenceAvatar(): string {
   return avatarB64
 }
 
+/** Página do avatar falante. O token assinado prende o acesso a este bot. */
+function avatarPageUrl(botRecordId: string): string {
+  const secret = avatarSecret()
+  if (!secret) throw new Error('MEETING_AVATAR_SECRET ou CLIENT_SESSION_SECRET precisa estar configurado.')
+  const token = signAvatarToken(botRecordId, secret)
+  return `${publicAppOrigin()}/pt/meeting-avatar/${botRecordId}?t=${token}`
+}
+
+/**
+ * Com voz, o bot transmite a página do avatar como câmera (variante web_4_core, mais CPU).
+ * Sem voz, mantém o cartão JPEG estático.
+ */
+function videoConfig(botRecordId: string): Record<string, unknown> {
+  if (!voiceEnabled()) {
+    return {
+      automatic_video_output: {
+        in_call_not_recording: { kind: 'jpeg', b64_data: cadenceAvatar() },
+        in_call_recording: { kind: 'jpeg', b64_data: cadenceAvatar() },
+      },
+    }
+  }
+  return {
+    variant: {
+      zoom: 'web_4_core',
+      google_meet: 'web_4_core',
+      microsoft_teams: 'web_4_core',
+      webex: 'web_4_core',
+    },
+    output_media: {
+      camera: { kind: 'webpage', config: { url: avatarPageUrl(botRecordId) } },
+    },
+  }
+}
+
 export async function createBot(input: {
   meetingUrl: string
   clientId: string
@@ -111,10 +148,7 @@ export async function createBot(input: {
       bot_name: CADENCE_BOT_NAME,
       metadata: { client_id: input.clientId, bot_record_id: input.botRecordId },
       chat: { on_bot_join: { send_to: 'everyone', message: JOIN_MESSAGE } },
-      automatic_video_output: {
-        in_call_not_recording: { kind: 'jpeg', b64_data: cadenceAvatar() },
-        in_call_recording: { kind: 'jpeg', b64_data: cadenceAvatar() },
-      },
+      ...videoConfig(input.botRecordId),
       recording_config: {
         transcript: {
           provider: {

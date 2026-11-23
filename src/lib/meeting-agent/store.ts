@@ -266,6 +266,39 @@ export async function failReport(id: string, error: string): Promise<void> {
   `
 }
 
+export async function getBotById(id: string): Promise<MeetingBotRecord | null> {
+  const sql = cadenceDb()
+  const [row] = await sql`select * from cadence_meeting_bots where id = ${id}`
+  return row ? toBot(row) : null
+}
+
+/** Enfileira uma fala para a página do avatar tocar. */
+export async function enqueueSpeech(botId: string, clientId: string, text: string): Promise<void> {
+  const sql = cadenceDb()
+  await sql`
+    insert into cadence_speech_queue (bot_id, client_id, text)
+    values (${botId}, ${clientId}, ${text.slice(0, 1000)})
+  `
+}
+
+/** Entrega a próxima fala pendente e marca como reivindicada (evita tocar duas vezes). */
+export async function claimNextSpeech(botId: string): Promise<{ id: number; text: string } | null> {
+  const sql = cadenceDb()
+  const [row] = await sql`
+    update cadence_speech_queue
+    set claimed_at = now()
+    where id = (
+      select id from cadence_speech_queue
+      where bot_id = ${botId} and claimed_at is null
+      order by id
+      limit 1
+      for update skip locked
+    )
+    returning id, text
+  `
+  return row ? { id: Number(row.id), text: String(row.text) } : null
+}
+
 export async function listReadyReports(clientId: string): Promise<MeetingBotRecord[]> {
   const sql = cadenceDb()
   const rows = await sql`

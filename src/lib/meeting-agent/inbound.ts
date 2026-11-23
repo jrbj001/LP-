@@ -6,14 +6,17 @@ import { answerMeetingQuestion } from './agent'
 import { runPostMeeting } from './post-meeting'
 import {
   consumePendingWake,
+  enqueueSpeech,
   getBotByRecallId,
   insertInteraction,
   insertSegment,
   setPendingWake,
   updateBotStatus,
 } from './store'
+import { speakableText } from './speech-text'
 import type { MeetingBotRecord, MeetingBotStatus } from './types'
 import { detectWakeWord } from './wake-word'
+import { voiceEnabled } from './voice'
 
 const PENDING_WAKE_SECONDS = 20
 
@@ -58,6 +61,12 @@ async function respond(bot: MeetingBotRecord, question: string, speaker: string 
   try {
     const result = await answerMeetingQuestion({ client, botId: bot.id, question, speaker })
     await sendChatMessage(recallBotId, result.answer)
+    if (voiceEnabled()) {
+      // A página do avatar busca a fala na fila e toca em voz; o chat recebe o mesmo texto.
+      await enqueueSpeech(bot.id, bot.clientId, speakableText(result.answer)).catch((error: unknown) => {
+        console.error('[meeting-agent/speech-queue]', error instanceof Error ? error.message : error)
+      })
+    }
     await insertInteraction({
       botId: bot.id,
       clientId: bot.clientId,
