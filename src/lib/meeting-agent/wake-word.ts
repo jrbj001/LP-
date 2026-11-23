@@ -31,3 +31,25 @@ export function detectWakeWord(text: string, source: 'speech' | 'chat' = 'speech
   if (wordCount(question) < MIN_QUESTION_WORDS) return { kind: 'wake-only' }
   return { kind: 'question', question }
 }
+
+/**
+ * Quando a pessoa só chama o Cadence, a pergunta pode ser a fala de pouco antes.
+ * Prefere a última fala substantiva de quem chamou.
+ */
+export function priorQuestion(
+  segments: { speaker: string | null; text: string }[],
+  speaker: string | null
+): string | null {
+  const candidates = segments
+    .map(segment => ({ speaker: segment.speaker, text: addressableText(segment.text) }))
+    .filter((segment): segment is { speaker: string | null; text: string } => segment.text !== null)
+  const own = [...candidates].reverse().find(segment => (segment.speaker ?? '') === (speaker ?? ''))
+  return (own ?? candidates[candidates.length - 1])?.text ?? null
+}
+
+function addressableText(text: string): string | null {
+  const wake = detectWakeWord(text, 'chat')
+  if (wake.kind === 'wake-only') return null
+  if (wake.kind === 'question') return wake.question
+  return wordCount(text) >= MIN_QUESTION_WORDS ? text : null
+}

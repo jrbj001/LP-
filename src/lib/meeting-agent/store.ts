@@ -143,6 +143,15 @@ export async function updateBotStatus(id: string, status: MeetingBotStatus): Pro
   `
 }
 
+export async function clearPendingWake(id: string): Promise<void> {
+  const sql = cadenceDb()
+  await sql`
+    update cadence_meeting_bots
+    set pending_wake_speaker = null, pending_wake_at = null
+    where id = ${id}
+  `
+}
+
 export async function setPendingWake(id: string, speaker: string | null): Promise<void> {
   const sql = cadenceDb()
   await sql`
