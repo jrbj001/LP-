@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { hasAiCredentials } from '@/lib/ai/gateway'
 import { hasDatabase } from '@/lib/postgres'
 import { callOpenAiJson, chatModel } from '@/lib/backlog/llm'
 import { experiencesFor, faqAnswer, irisLocale, KNOWLEDGE, podById, type IrisPod } from '@/lib/iris/data'
@@ -77,7 +78,7 @@ export async function POST(req: Request) {
     })
   }
 
-  if (!process.env.OPENAI_API_KEY) return fallback()
+  if (!hasAiCredentials()) return fallback()
 
   try {
     const free = pod ? await nextFree(pod).catch(() => []) : []

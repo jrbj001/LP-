@@ -1,6 +1,5 @@
 import { generateText, stepCountIs } from 'ai'
-import { openai } from '@ai-sdk/openai'
-import { chatModel } from '@/lib/backlog/llm'
+import { aiModel, chatModel } from '@/lib/ai/gateway'
 import { loadBe180McpTools } from './mcp-client'
 
 const SYSTEM = `Você é o bot de consulta da Be180 no Slack, ligado ao Cadence.
@@ -15,7 +14,7 @@ export async function answerSlackQuestion(question: string): Promise<string> {
   const loaded = await loadBe180McpTools()
   try {
     const result = await generateText({
-      model: openai(chatModel()),
+      model: aiModel(chatModel()),
       system: SYSTEM,
       prompt: question,
       tools: loaded.tools,

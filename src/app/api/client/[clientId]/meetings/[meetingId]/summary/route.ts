@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { callOpenAiJson, chatModel } from '@/lib/backlog/llm'
 import { getClient } from '@/lib/client/registry'
+import { findClientMeeting } from '@/lib/meeting-agent/meetings'
 import { getMeetingSource } from '@/lib/meetings/source'
 
 export const dynamic = 'force-dynamic'
@@ -43,7 +44,7 @@ export async function POST(
     return NextResponse.json({ ok: false, error: 'Cliente não encontrado' }, { status: 404 })
   }
 
-  const meeting = client.meetings?.find(item => item.id === meetingId)
+  const meeting = await findClientMeeting(client, meetingId)
   if (!meeting) {
     return NextResponse.json({ ok: false, error: 'Reunião não encontrada' }, { status: 404 })
   }

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { isMissingAiCredential } from '@/lib/ai/gateway'
 import { isBacklogEnabled } from '@/lib/backlog/access'
 import { getBacklogBoards } from '@/lib/backlog/boards'
 import {
@@ -8,6 +9,7 @@ import {
 } from '@/lib/backlog/meeting-export'
 import { getBacklogSnapshot } from '@/lib/backlog/store'
 import { getClient } from '@/lib/client/registry'
+import { findClientMeeting } from '@/lib/meeting-agent/meetings'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,7 +25,7 @@ export async function POST(
   if (!isBacklogEnabled(client.slug)) {
     return NextResponse.json({ ok: false, error: 'Backlog indisponível para este cliente.' }, { status: 403 })
   }
-  const meeting = client.meetings?.find(item => item.id === meetingId)
+  const meeting = await findClientMeeting(client, meetingId)
   if (!meeting) {
     return NextResponse.json({ ok: false, error: 'Reunião não encontrada.' }, { status: 404 })
   }
@@ -58,7 +60,7 @@ export async function POST(
   } catch (error) {
     console.error('[client/meeting-backlog/generate]', error)
     const message = error instanceof Error ? error.message : 'Erro ao gerar itens para o backlog.'
-    const status = message.includes('OPENAI_API_KEY') ? 503 : 502
+    const status = isMissingAiCredential(message) ? 503 : 502
     return NextResponse.json({ ok: false, error: message }, { status })
   }
 }

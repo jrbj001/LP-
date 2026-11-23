@@ -1,8 +1,6 @@
-import { describeOpenAiError } from './openai-error'
-
-function visionModel(): string {
-  return process.env.OPENAI_VISION_MODEL || process.env.OPENAI_CODING_MODEL || process.env.OPENAI_MODEL || 'gpt-4.1'
-}
+import { generateText } from 'ai'
+import { toAiError } from './ai-error'
+import { aiModel, requireAiCredentials, visionModel } from './gateway'
 
 const SYSTEM = `Você lê imagens de artefatos de produto e engenharia (prints de tela, diagramas, fluxos, planilhas fotografadas, quadros).
 Descreva o conteúdo em português do Brasil de forma estruturada e fiel: transcreva todo texto legível, liste elementos de interface, setas e relações do diagrama, e números de tabelas.
@@ -10,44 +8,38 @@ Não interprete intenção nem sugira melhorias — apenas registre o que está 
 
 /**
  * Transcreve uma imagem em texto para alimentar o mesmo pipeline dos demais
- * formatos. A imagem vai como data URL porque o Blob pode ser privado.
+ * formatos. A imagem vai inline porque o Blob pode ser privado.
  */
 export async function describeImage(buffer: Buffer, mimeType: string): Promise<string> {
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) throw new Error('OPENAI_API_KEY não configurada no ambiente.')
+  requireAiCredentials()
 
-  const dataUrl = `data:${mimeType || 'image/png'};base64,${buffer.toString('base64')}`
-
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: visionModel(),
+  let text = ''
+  try {
+    const result = await generateText({
+      model: aiModel(visionModel()),
+      system: SYSTEM,
       temperature: 0.1,
-      max_tokens: 2000,
+      maxOutputTokens: 2000,
       messages: [
-        { role: 'system', content: SYSTEM },
         {
           role: 'user',
           content: [
             { type: 'text', text: 'Transcreva e descreva esta imagem para uso como fonte de requisitos.' },
-            { type: 'image_url', image_url: { url: dataUrl, detail: 'high' } },
+            {
+              type: 'image',
+              image: buffer,
+              mediaType: mimeType || 'image/png',
+              providerOptions: { openai: { imageDetail: 'high' } },
+            },
           ],
         },
       ],
-    }),
-  })
-
-  if (!res.ok) {
-    const errText = await res.text().catch(() => '')
-    throw new Error(describeOpenAiError(res.status, errText))
+    })
+    text = result.text.trim()
+  } catch (error) {
+    throw toAiError(error)
   }
 
-  const data = (await res.json()) as { choices?: { message?: { content?: string } }[] }
-  const text = data.choices?.[0]?.message?.content?.trim()
   if (!text) throw new Error('A leitura da imagem voltou vazia.')
   return text
 }

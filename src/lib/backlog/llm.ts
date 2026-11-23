@@ -1,47 +1,13 @@
 import { generateObject, generateText } from 'ai'
-import { openai } from '@ai-sdk/openai'
-import { describeOpenAiError } from '@/lib/ai/openai-error'
+import { toAiError } from '@/lib/ai/ai-error'
+import { aiModel, chatModel, codingModel, gatewayModelId, requireAiCredentials } from '@/lib/ai/gateway'
 import type { BacklogDiagram } from './types'
 
-export function codingModel(): string {
-  return process.env.OPENAI_CODING_MODEL || process.env.OPENAI_MODEL || 'gpt-4.1'
-}
-
-export function chatModel(): string {
-  return process.env.OPENAI_MODEL || 'gpt-4o-mini'
-}
+export { chatModel, codingModel }
 
 function samplingOptions(model: string, temperature: number): { temperature?: number } {
-  return model === 'gpt-6-astra' || model.startsWith('gpt-6-astra-') ? {} : { temperature }
-}
-
-function requireApiKey(): void {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY não configurada no ambiente.')
-  }
-}
-
-function mapAiError(error: unknown): Error {
-  if (error && typeof error === 'object') {
-    const rec = error as Record<string, unknown>
-    const status =
-      typeof rec.statusCode === 'number'
-        ? rec.statusCode
-        : typeof rec.status === 'number'
-          ? rec.status
-          : 0
-    const body =
-      typeof rec.responseBody === 'string'
-        ? rec.responseBody
-        : typeof rec.message === 'string'
-          ? rec.message
-          : ''
-    if (status >= 400) {
-      return new Error(describeOpenAiError(status, body))
-    }
-  }
-  if (error instanceof Error) return error
-  return new Error('Falha ao chamar a OpenAI.')
+  const name = gatewayModelId(model).split('/').pop() ?? ''
+  return name === 'gpt-6-astra' || name.startsWith('gpt-6-astra-') ? {} : { temperature }
 }
 
 export async function callOpenAiJson(
@@ -49,11 +15,11 @@ export async function callOpenAiJson(
   user: string,
   options?: { temperature?: number; maxTokens?: number; model?: string }
 ): Promise<unknown> {
-  requireApiKey()
+  requireAiCredentials()
   try {
     const model = options?.model || codingModel()
     const result = await generateObject({
-      model: openai(model),
+      model: aiModel(model),
       output: 'no-schema',
       system,
       prompt: user,
@@ -61,11 +27,11 @@ export async function callOpenAiJson(
       maxOutputTokens: options?.maxTokens ?? 2200,
     })
     if (result.object == null) {
-      throw new Error('Resposta vazia da OpenAI.')
+      throw new Error('Resposta vazia do modelo.')
     }
     return result.object
   } catch (error) {
-    throw mapAiError(error)
+    throw toAiError(error)
   }
 }
 
@@ -74,21 +40,21 @@ export async function callOpenAiText(
   user: string,
   options?: { temperature?: number; maxTokens?: number; model?: string }
 ): Promise<string> {
-  requireApiKey()
+  requireAiCredentials()
   try {
     const model = options?.model || chatModel()
     const result = await generateText({
-      model: openai(model),
+      model: aiModel(model),
       system,
       prompt: user,
       ...samplingOptions(model, options?.temperature ?? 0.4),
       maxOutputTokens: options?.maxTokens ?? 900,
     })
     const text = result.text.trim()
-    if (!text) throw new Error('Resposta vazia da OpenAI.')
+    if (!text) throw new Error('Resposta vazia do modelo.')
     return text
   } catch (error) {
-    throw mapAiError(error)
+    throw toAiError(error)
   }
 }
 

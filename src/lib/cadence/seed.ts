@@ -4,6 +4,7 @@ import { mergeCards, readBacklogStore } from '@/lib/backlog/store'
 import { getClient } from '@/lib/client/registry'
 import { readDeliveryCache } from '@/lib/delivery/cache'
 import { listDocuments } from '@/lib/documents/store'
+import { listAgentMeetings } from '@/lib/meeting-agent/meetings'
 import { hasCadenceDatabase } from './db'
 import { syncCadenceCards, syncCadenceDelivery, syncCadenceDocuments, syncCadenceMeetings } from './sync'
 
@@ -18,7 +19,8 @@ export async function seedCadenceClient(clientId: string): Promise<void> {
   if (delivery) await syncCadenceDelivery(clientId, delivery)
 
   const client = getClient(clientId)
-  if (client?.meetings?.length) await syncCadenceMeetings(clientId, client.meetings)
+  const meetings = [...(client?.meetings ?? []), ...(await listAgentMeetings(clientId))]
+  if (meetings.length) await syncCadenceMeetings(clientId, meetings)
 
   try {
     const documents = await listDocuments(clientId)
