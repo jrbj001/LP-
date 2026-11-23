@@ -101,7 +101,9 @@ export async function createBot(input: {
       recording_config: {
         transcript: {
           provider: {
-            recallai_streaming: { mode: 'prioritize_low_latency', language_code: 'pt' },
+            // prioritize_low_latency só aceita inglês. Em português o Recall exige
+            // prioritize_accuracy; os eventos de fala chegam com alguns minutos de atraso.
+            recallai_streaming: { mode: 'prioritize_accuracy', language_code: 'pt' },
           },
         },
         realtime_endpoints: [

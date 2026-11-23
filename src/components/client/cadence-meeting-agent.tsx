@@ -104,9 +104,10 @@ export function CadenceMeetingAgent({ clientId, accent }: { clientId: string; ac
         <div className="flex-1 min-w-0">
           <h2 className="text-[15px] font-semibold text-neutral-900">Cadence na reunião</h2>
           <p className="mt-1 text-[12px] text-neutral-500 leading-relaxed">
-            Convide o Cadence para uma chamada do Meet, Zoom ou Teams. Ele transcreve, responde quando alguém diz
-            &ldquo;Cadence,&rdquo; seguido da pergunta (ou escreve @Cadence no chat) usando GitHub, Notion e a base do
-            Cadence, e gera o relatório ao final.
+            Convide o Cadence para uma chamada do Meet, Zoom ou Teams. Ele transcreve em português, responde quando
+            alguém diz &ldquo;Cadence,&rdquo; seguido da pergunta (ou escreve @Cadence no chat) usando GitHub, Notion e a
+            base do Cadence, e gera o relatório ao final. A fala demora alguns minutos para aparecer; a pergunta no chat
+            chega na hora.
           </p>
         </div>
       </div>
