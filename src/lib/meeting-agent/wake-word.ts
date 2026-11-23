@@ -1,5 +1,9 @@
-/** "Cadence" como a transcrição em pt-BR costuma grafar: cadência, cadencia, kadence, cadense… */
-const WAKE = /(?<![\p{L}\p{N}])@?[ck]ad[eêé]n[cs](?:e|ia|ía|i)?(?![\p{L}\p{N}])/iu
+/**
+ * "Cadence" como a transcrição em pt-BR costuma grafar: cadência, cadencia, kadence,
+ * e também os erros já vistos na call: "Karen" e "Cadê esse".
+ */
+const WAKE =
+  /(?<![\p{L}\p{N}])(?:@?(?:[ck]ad[eêé]n[cs](?:e|ia|ía|i)?|karen|karem|caren)|cad[eêé]\s+esse)(?![\p{L}\p{N}])/iu
 
 /** O nome só conta como chamado se vier no começo da fala; citado no meio é só menção. */
 const MAX_LEADING_WORDS = 3

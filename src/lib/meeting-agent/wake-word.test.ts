@@ -9,6 +9,17 @@ describe('detectWakeWord', () => {
     })
   })
 
+  it('entende o nome quando a transcrição erra Cadence', () => {
+    expect(detectWakeWord('Karen, como está o fluxo hoje de publicação no banco de ativos?')).toEqual({
+      kind: 'question',
+      question: 'como está o fluxo hoje de publicação no banco de ativos?',
+    })
+    expect(detectWakeWord('Cadê esse? Como está o fluxo de publicação no banco de ativos?')).toEqual({
+      kind: 'question',
+      question: 'Como está o fluxo de publicação no banco de ativos?',
+    })
+  })
+
   it('aceita variações comuns de transcrição', () => {
     for (const text of ['Cadência, o que falta no checkout?', 'ok cadencia o que falta no checkout', 'Kadence, o que falta no checkout']) {
       expect(detectWakeWord(text).kind).toBe('question')
