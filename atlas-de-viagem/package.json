@@ -1,0 +1,28 @@
+{
+  "name": "atlas-de-viagem",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "copy-cesium": "node scripts/copy-cesium.mjs",
+    "postinstall": "node scripts/copy-cesium.mjs",
+    "predev": "node scripts/copy-cesium.mjs",
+    "dev": "next dev -p 3200",
+    "prebuild": "node scripts/copy-cesium.mjs",
+    "build": "next build",
+    "start": "next start -p 3200",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "cesium": "^1.147.0",
+    "next": "^15.5.29",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^5.9.3"
+  }
+}
