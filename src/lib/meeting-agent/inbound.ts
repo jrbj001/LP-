@@ -5,20 +5,23 @@ import { CADENCE_BOT_NAME, sendChatMessage } from '@/lib/recall/client'
 import { answerMeetingQuestion } from './agent'
 import { runPostMeeting } from './post-meeting'
 import {
+  clearPendingWake,
   consumePendingWake,
   enqueueSpeech,
   getBotByRecallId,
   insertInteraction,
   insertSegment,
+  listRecentSegments,
   setPendingWake,
   updateBotStatus,
 } from './store'
 import { speakableText } from './speech-text'
 import type { MeetingBotRecord, MeetingBotStatus } from './types'
-import { detectWakeWord } from './wake-word'
+import { detectWakeWord, priorQuestion } from './wake-word'
 import { voiceEnabled } from './voice'
 
-const PENDING_WAKE_SECONDS = 20
+const PENDING_WAKE_SECONDS = 90
+const LOOKBACK_MINUTES = 3
 
 const STATUS_BY_EVENT: Record<string, MeetingBotStatus> = {
   'bot.joining_call': 'joining',
@@ -106,14 +109,29 @@ async function handleUtterance(
 
   const wake = detectWakeWord(input.text, input.source)
   if (wake.kind === 'question') {
+    await clearPendingWake(bot.id)
     await respond(bot, wake.question, input.speaker)
     return
   }
   if (wake.kind === 'wake-only') {
+    const recent = await listRecentSegments(bot.id, LOOKBACK_MINUTES)
+    const question = priorQuestion(recent.slice(0, -1), input.speaker)
+    if (question) {
+      await clearPendingWake(bot.id)
+      await respond(bot, question, input.speaker)
+      return
+    }
     await setPendingWake(bot.id, input.speaker)
+    if (bot.recallBotId) {
+      const prompt = 'Estou aqui. Pode fazer a pergunta.'
+      await sendChatMessage(bot.recallBotId, prompt).catch(() => {})
+      if (voiceEnabled()) {
+        await enqueueSpeech(bot.id, bot.clientId, prompt).catch(() => {})
+      }
+    }
     return
   }
-  if (input.source === 'speech' && (await consumePendingWake(bot.id, input.speaker, PENDING_WAKE_SECONDS))) {
+  if (await consumePendingWake(bot.id, input.speaker, PENDING_WAKE_SECONDS)) {
     await respond(bot, input.text, input.speaker)
   }
 }
