@@ -8,6 +8,7 @@ import {
   clearPendingWake,
   consumePendingWake,
   enqueueSpeech,
+  getBotById,
   getBotByRecallId,
   insertInteraction,
   insertSegment,
@@ -22,6 +23,10 @@ import { voiceEnabled } from './voice'
 
 const PENDING_WAKE_SECONDS = 90
 const LOOKBACK_MINUTES = 3
+/** Sem notícia da página do avatar por esse tempo, a transcrição do Recall volta a disparar respostas. */
+const LIVE_LISTENING_STALE_MS = 2 * 60_000
+const ASK_PROMPT = 'Oi, tô aqui. Pode perguntar.'
+const FAILURE_REPLY = 'Não consegui responder agora. Pode repetir a pergunta daqui a pouco?'
 
 const STATUS_BY_EVENT: Record<string, MeetingBotStatus> = {
   'bot.joining_call': 'joining',
@@ -53,27 +58,53 @@ function isFromBot(participant: RecallParticipant | undefined): boolean {
   return (participant?.name ?? '').trim().toLowerCase() === CADENCE_BOT_NAME.toLowerCase()
 }
 
-async function respond(bot: MeetingBotRecord, question: string, speaker: string | null): Promise<void> {
+function isLiveListening(bot: MeetingBotRecord): boolean {
+  if (!bot.liveListeningAt) return false
+  return Date.now() - new Date(bot.liveListeningAt).getTime() < LIVE_LISTENING_STALE_MS
+}
+
+/** Enfileira no máximo uma fala por resposta; a página do avatar toca assim que chega. */
+function speaker(bot: MeetingBotRecord) {
+  const pending: Promise<void>[] = []
+  let spoken = false
+  return {
+    say(text: string) {
+      if (spoken || !text.trim() || !voiceEnabled()) return
+      spoken = true
+      pending.push(
+        enqueueSpeech(bot.id, bot.clientId, speakableText(text)).catch((error: unknown) => {
+          console.error('[meeting-agent/speech-queue]', error instanceof Error ? error.message : error)
+        })
+      )
+    },
+    done: () => Promise.all(pending),
+  }
+}
+
+async function respond(bot: MeetingBotRecord, question: string, from: string | null): Promise<void> {
   const client = getClient(bot.clientId)
   if (!client || !bot.recallBotId) return
   const recallBotId = bot.recallBotId
   const started = Date.now()
+  const voice = speaker(bot)
 
   void sendChatMessage(recallBotId, `Verificando: "${question.slice(0, 160)}"…`).catch(() => {})
 
   try {
-    const result = await answerMeetingQuestion({ client, botId: bot.id, question, speaker })
+    const result = await answerMeetingQuestion({
+      client,
+      botId: bot.id,
+      question,
+      speaker: from,
+      onSpoken: text => voice.say(text),
+    })
+    voice.say(result.spoken)
     await sendChatMessage(recallBotId, result.answer)
-    if (voiceEnabled()) {
-      // A página do avatar busca a fala na fila e toca em voz; o chat recebe o mesmo texto.
-      await enqueueSpeech(bot.id, bot.clientId, speakableText(result.answer)).catch((error: unknown) => {
-        console.error('[meeting-agent/speech-queue]', error instanceof Error ? error.message : error)
-      })
-    }
+    await voice.done()
     await insertInteraction({
       botId: bot.id,
       clientId: bot.clientId,
-      speaker,
+      speaker: from,
       question,
       answer: result.answer,
       tools: result.tools,
@@ -83,11 +114,13 @@ async function respond(bot: MeetingBotRecord, question: string, speaker: string 
   } catch (error) {
     const message = error instanceof Error ? error.message : 'erro desconhecido'
     console.error('[meeting-agent/respond]', message)
-    await sendChatMessage(recallBotId, 'Não consegui responder agora. Pode repetir a pergunta daqui a pouco?').catch(() => {})
+    voice.say(FAILURE_REPLY)
+    await sendChatMessage(recallBotId, FAILURE_REPLY).catch(() => {})
+    await voice.done()
     await insertInteraction({
       botId: bot.id,
       clientId: bot.clientId,
-      speaker,
+      speaker: from,
       question,
       answer: null,
       tools: [],
@@ -95,6 +128,41 @@ async function respond(bot: MeetingBotRecord, question: string, speaker: string 
       latencyMs: Date.now() - started,
       error: message,
     })
+  }
+}
+
+/** Chamaram o Cadence sem pergunta: usa a fala anterior ou pede a pergunta. */
+async function answerBareWake(bot: MeetingBotRecord, from: string | null, previous: string | null): Promise<void> {
+  if (previous) {
+    await clearPendingWake(bot.id)
+    await respond(bot, previous, from)
+    return
+  }
+  await setPendingWake(bot.id, from)
+  if (!bot.recallBotId) return
+  await sendChatMessage(bot.recallBotId, ASK_PROMPT).catch(() => {})
+  const voice = speaker(bot)
+  voice.say(ASK_PROMPT)
+  await voice.done()
+}
+
+async function routeUtterance(
+  bot: MeetingBotRecord,
+  input: { text: string; speaker: string | null; source: 'speech' | 'chat' },
+  previous: () => Promise<string | null>
+): Promise<void> {
+  const wake = detectWakeWord(input.text, input.source)
+  if (wake.kind === 'question') {
+    await clearPendingWake(bot.id)
+    await respond(bot, wake.question, input.speaker)
+    return
+  }
+  if (wake.kind === 'wake-only') {
+    await answerBareWake(bot, input.speaker, await previous())
+    return
+  }
+  if (await consumePendingWake(bot.id, input.speaker, PENDING_WAKE_SECONDS)) {
+    await respond(bot, input.text, input.speaker)
   }
 }
 
@@ -107,33 +175,25 @@ async function handleUtterance(
     await updateBotStatus(bot.id, 'recording')
   }
 
-  const wake = detectWakeWord(input.text, input.source)
-  if (wake.kind === 'question') {
-    await clearPendingWake(bot.id)
-    await respond(bot, wake.question, input.speaker)
-    return
-  }
-  if (wake.kind === 'wake-only') {
+  // Com a página ouvindo ao vivo, a fala transcrita pelo Recall chega minutos depois:
+  // serve ao relatório, mas responder a ela repetiria a resposta.
+  if (input.source === 'speech' && isLiveListening(bot)) return
+
+  await routeUtterance(bot, input, async () => {
     const recent = await listRecentSegments(bot.id, LOOKBACK_MINUTES)
-    const question = priorQuestion(recent.slice(0, -1), input.speaker)
-    if (question) {
-      await clearPendingWake(bot.id)
-      await respond(bot, question, input.speaker)
-      return
-    }
-    await setPendingWake(bot.id, input.speaker)
-    if (bot.recallBotId) {
-      const prompt = 'Estou aqui. Pode fazer a pergunta.'
-      await sendChatMessage(bot.recallBotId, prompt).catch(() => {})
-      if (voiceEnabled()) {
-        await enqueueSpeech(bot.id, bot.clientId, prompt).catch(() => {})
-      }
-    }
-    return
-  }
-  if (await consumePendingWake(bot.id, input.speaker, PENDING_WAKE_SECONDS)) {
-    await respond(bot, input.text, input.speaker)
-  }
+    return priorQuestion(recent.slice(0, -1), input.speaker)
+  })
+}
+
+/** Fala transcrita ao vivo pela página do avatar. Não entra na transcrição: o Recall já registra. */
+export async function handleLiveUtterance(botId: string, text: string, previous: string | null): Promise<void> {
+  const bot = await getBotById(botId)
+  if (!bot?.recallBotId) return
+  if (bot.status === 'ended' || bot.status === 'done' || bot.status === 'failed') return
+
+  await routeUtterance(bot, { text, speaker: null, source: 'speech' }, async () =>
+    previous ? priorQuestion([{ speaker: null, text: previous }], null) : null
+  )
 }
 
 export async function handleRecallEvent(envelope: RecallEnvelope): Promise<void> {
