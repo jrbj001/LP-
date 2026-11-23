@@ -1,5 +1,8 @@
 import 'server-only'
 
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 export const CADENCE_BOT_NAME = 'Cadence'
 
 const JOIN_MESSAGE =
@@ -86,6 +89,16 @@ export function isSupportedMeetingUrl(value: string): boolean {
   }
 }
 
+let avatarB64: string | null = null
+
+/** JPEG 1280×720 exibido como câmera do bot. O Meet mostra um “C” roxo quando não há vídeo. */
+function cadenceAvatar(): string {
+  if (!avatarB64) {
+    avatarB64 = readFileSync(join(process.cwd(), 'public/cadence-avatar.jpg')).toString('base64')
+  }
+  return avatarB64
+}
+
 export async function createBot(input: {
   meetingUrl: string
   clientId: string
@@ -98,6 +111,10 @@ export async function createBot(input: {
       bot_name: CADENCE_BOT_NAME,
       metadata: { client_id: input.clientId, bot_record_id: input.botRecordId },
       chat: { on_bot_join: { send_to: 'everyone', message: JOIN_MESSAGE } },
+      automatic_video_output: {
+        in_call_not_recording: { kind: 'jpeg', b64_data: cadenceAvatar() },
+        in_call_recording: { kind: 'jpeg', b64_data: cadenceAvatar() },
+      },
       recording_config: {
         transcript: {
           provider: {
