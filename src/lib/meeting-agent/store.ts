@@ -41,6 +41,7 @@ function toBot(row: Row): MeetingBotRecord {
     status: row.status as MeetingBotStatus,
     pendingWakeSpeaker: (row.pending_wake_speaker as string | null) ?? null,
     pendingWakeAt: iso(row.pending_wake_at),
+    liveListeningAt: iso(row.live_listening_at),
     report: (row.report as MeetingReport | null) ?? null,
     reportStatus: row.report_status as MeetingReportStatus,
     reportError: (row.report_error as string | null) ?? null,
@@ -141,6 +142,11 @@ export async function updateBotStatus(id: string, status: MeetingBotStatus): Pro
         ended_at = case when ${endsCall} then coalesce(ended_at, now()) else ended_at end
     where id = ${id} and status not in ('done', 'failed')
   `
+}
+
+export async function markLiveListening(id: string): Promise<void> {
+  const sql = cadenceDb()
+  await sql`update cadence_meeting_bots set live_listening_at = now() where id = ${id}`
 }
 
 export async function clearPendingWake(id: string): Promise<void> {

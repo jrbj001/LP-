@@ -1,3 +1,25 @@
+const SPOKEN = /FALA:\s*([\s\S]*?)\s*CHAT:/i
+const CHAT = /CHAT:\s*([\s\S]*)$/i
+
+/** A fala fica completa assim que o modelo começa a escrever a parte do chat. */
+export function completedSpoken(partial: string): string | null {
+  const match = SPOKEN.exec(partial)
+  return match?.[1]?.trim() || null
+}
+
+/**
+ * Separa a resposta do agente em fala curta e texto completo do chat.
+ * Sem as marcações, usa o começo da resposta como fala.
+ */
+export function splitAgentReply(text: string): { spoken: string; chat: string } {
+  const spoken = completedSpoken(text)
+  const chat = CHAT.exec(text)?.[1]?.trim()
+  if (spoken && chat) return { spoken, chat }
+
+  const plain = text.replace(/^\s*(FALA|CHAT):\s*/gim, '').trim()
+  return { spoken: speakableText(plain, 220), chat: plain }
+}
+
 /**
  * Transforma a resposta escrita do agente em fala: remove a linha de fontes, links e marcações,
  * que não fazem sentido ouvidos em voz alta.

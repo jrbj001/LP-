@@ -1,9 +1,21 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { encodeWav } from '@/lib/meeting-agent/wav'
 
-const IDLE_POLL_MS = 1500
+const IDLE_POLL_MS = 1000
 const BARS = 9
+
+/** Detecção de fala: nível acima do ruído de fundo, fim após silêncio curto. */
+const MIN_THRESHOLD = 0.008
+const NOISE_MULTIPLIER = 3
+const END_SILENCE_MS = 700
+const MIN_SPEECH_MS = 400
+const MAX_UTTERANCE_MS = 15_000
+const PREROLL_FRAMES = 3
+/** Depois de falar, espera um pouco antes de voltar a ouvir para não captar o eco da própria voz. */
+const SPEAKING_TAIL_MS = 600
+const PREVIOUS_TTL_MS = 60_000
 
 interface Props {
   botRecordId: string
@@ -17,13 +29,14 @@ interface SpeechPayload {
 }
 
 /**
- * Cartão do Cadence transmitido como câmera do bot. Busca as falas na fila do servidor,
- * toca o áudio e anima as barras com o nível real do áudio. Legenda o que está sendo dito.
+ * Cartão do Cadence transmitido como câmera do bot. Ouve a reunião ao vivo, envia cada
+ * fala para transcrição, toca as respostas da fila e anima as barras com o nível do áudio.
  */
 export function CadenceAvatar({ botRecordId, token }: Props) {
   const [caption, setCaption] = useState<string>('')
   const [speaking, setSpeaking] = useState(false)
   const barsRef = useRef<(HTMLSpanElement | null)[]>([])
+  const mutedUntilRef = useRef(0)
 
   useEffect(() => {
     let stopped = false
@@ -35,7 +48,6 @@ export function CadenceAvatar({ botRecordId, token }: Props) {
     let context: AudioContext | null = null
     let analyser: AnalyserNode | null = null
 
-    // A primeira reprodução cria o grafo de áudio; o analisador só lê o nível para animar as barras.
     const connectAnalyser = () => {
       if (context) {
         void context.resume()
@@ -93,7 +105,9 @@ export function CadenceAvatar({ botRecordId, token }: Props) {
           if (data.ok && data.audio) {
             setCaption(data.text ?? '')
             setSpeaking(true)
+            mutedUntilRef.current = Number.POSITIVE_INFINITY
             await playAudio(data.audio)
+            mutedUntilRef.current = Date.now() + SPEAKING_TAIL_MS
             setSpeaking(false)
             nextIn = 0
           }
@@ -111,6 +125,121 @@ export function CadenceAvatar({ botRecordId, token }: Props) {
       clearTimeout(timer)
       cancelAnimationFrame(frame)
       audio.pause()
+      void context?.close()
+    }
+  }, [botRecordId, token])
+
+  useEffect(() => {
+    let stopped = false
+    let stream: MediaStream | null = null
+    let context: AudioContext | null = null
+    let previous: { text: string; at: number } | null = null
+    let sending = Promise.resolve()
+
+    const send = (wav: Uint8Array<ArrayBuffer>) => {
+      sending = sending.then(async () => {
+        if (stopped) return
+        const form = new FormData()
+        form.append('audio', new Blob([wav], { type: 'audio/wav' }), 'fala.wav')
+        if (previous && Date.now() - previous.at < PREVIOUS_TTL_MS) form.append('previous', previous.text)
+        try {
+          const res = await fetch(
+            `/api/meeting-agent/avatar/${botRecordId}/listen?t=${encodeURIComponent(token)}`,
+            { method: 'POST', body: form }
+          )
+          if (!res.ok) return
+          const data = (await res.json()) as { text?: string }
+          if (data.text) previous = { text: data.text, at: Date.now() }
+        } catch {
+          /* rede instável: a próxima fala tenta de novo */
+        }
+      })
+    }
+
+    const start = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+        })
+      } catch {
+        return
+      }
+      if (stopped) return
+
+      context = new AudioContext()
+      const source = context.createMediaStreamSource(stream)
+      const processor = context.createScriptProcessor(4096, 1, 1)
+      // Ganho zero: o processador precisa estar ligado à saída, mas a reunião não pode ouvir o próprio áudio.
+      const silence = context.createGain()
+      silence.gain.value = 0
+      source.connect(processor)
+      processor.connect(silence)
+      silence.connect(context.destination)
+
+      const rate = context.sampleRate
+      let noise = MIN_THRESHOLD
+      let active = false
+      let chunks: Float32Array[] = []
+      let preroll: Float32Array[] = []
+      let speechMs = 0
+      let silentMs = 0
+
+      const reset = () => {
+        active = false
+        chunks = []
+        preroll = []
+        speechMs = 0
+        silentMs = 0
+      }
+
+      processor.onaudioprocess = (event) => {
+        const input = new Float32Array(event.inputBuffer.getChannelData(0))
+        if (Date.now() < mutedUntilRef.current) {
+          reset()
+          return
+        }
+        const ms = (input.length / rate) * 1000
+        let energy = 0
+        for (let i = 0; i < input.length; i++) energy += input[i] * input[i]
+        const rms = Math.sqrt(energy / input.length)
+        const threshold = Math.max(MIN_THRESHOLD, noise * NOISE_MULTIPLIER)
+        const loud = rms > threshold
+
+        if (!active) {
+          noise = noise * 0.95 + rms * 0.05
+          preroll.push(input)
+          if (preroll.length > PREROLL_FRAMES) preroll.shift()
+          if (loud) {
+            active = true
+            chunks = [...preroll]
+            speechMs = ms
+            silentMs = 0
+          }
+          return
+        }
+
+        chunks.push(input)
+        if (loud) {
+          speechMs += ms
+          silentMs = 0
+        } else {
+          silentMs += ms
+        }
+        const total = chunks.length * ms
+        if (silentMs >= END_SILENCE_MS || total >= MAX_UTTERANCE_MS) {
+          const clip = chunks
+          const spoke = speechMs
+          reset()
+          if (spoke >= MIN_SPEECH_MS) send(encodeWav(clip, rate))
+        }
+      }
+    }
+
+    void start()
+
+    return () => {
+      stopped = true
+      stream?.getTracks().forEach((track) => track.stop())
       void context?.close()
     }
   }, [botRecordId, token])

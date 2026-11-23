@@ -44,6 +44,7 @@ export interface MeetingBotRecord {
   status: MeetingBotStatus
   pendingWakeSpeaker: string | null
   pendingWakeAt: string | null
+  liveListeningAt: string | null
   report: MeetingReport | null
   reportStatus: MeetingReportStatus
   reportError: string | null
