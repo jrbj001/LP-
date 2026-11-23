@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Bot, ExternalLink, LogOut, MessageSquare, RefreshCw, Radio } from 'lucide-react'
+import { ExternalLink, LogOut, MessageSquare, RefreshCw, Radio } from 'lucide-react'
 import type {
   AgentInteraction,
   MeetingBotRecord,
@@ -95,12 +95,11 @@ export function CadenceMeetingAgent({ clientId, accent }: { clientId: string; ac
   return (
     <section className="mb-8 rounded-2xl border border-black/[0.06] bg-white p-5 sm:p-6">
       <div className="flex items-start gap-3">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-          style={{ backgroundColor: `${accent}12`, color: accent }}
-        >
-          <Bot className="w-4.5 h-4.5" strokeWidth={1.8} />
-        </div>
+        <img
+          src="/cadence-avatar.jpg"
+          alt="Cadence, pixelpulselab"
+          className="h-12 w-20 rounded-lg border border-black/[0.06] object-cover shrink-0"
+        />
         <div className="flex-1 min-w-0">
           <h2 className="text-[15px] font-semibold text-neutral-900">Cadence na reunião</h2>
           <p className="mt-1 text-[12px] text-neutral-500 leading-relaxed">
