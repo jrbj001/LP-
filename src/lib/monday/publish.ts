@@ -1,6 +1,7 @@
 import 'server-only'
 
 import type { BacklogCard } from '@/lib/backlog/types'
+import { rankMondayItems } from './rank'
 import {
   BE180_MONDAY_PILOT_BOARD_ID,
   BE180_MONDAY_ACCOUNT_SLUG,
@@ -233,6 +234,63 @@ export async function listMondayGroupItems(input: {
   )
   const items = data.boards[0]?.groups[0]?.items_page.items ?? []
   return items.map(item => ({ id: item.id, name: item.name, subitems: item.subitems ?? [] }))
+}
+
+export interface MondayBoardHit {
+  id: string
+  name: string
+  url: string
+  excerpt: string
+}
+
+/** Lê itens do quadro e devolve os que casam com a pergunta. Não escreve nada no Monday. */
+export async function searchMondayBoardItems(
+  config: Be180MondayConfig,
+  query: string,
+  fetchImpl: typeof fetch = fetch
+): Promise<MondayBoardHit[]> {
+  const data = await mondayQuery<{
+    boards: {
+      items_page: {
+        items: {
+          id: string
+          name: string
+          group?: { title?: string } | null
+          column_values?: { text?: string | null }[]
+          updates?: { text_body?: string | null }[]
+        }[]
+      }
+    }[]
+  }>(
+    config.token,
+    `query ($boardId: ID!) {
+      boards(ids: [$boardId]) {
+        items_page(limit: 100) {
+          items {
+            id
+            name
+            group { title }
+            column_values { text }
+            updates(limit: 2) { text_body }
+          }
+        }
+      }
+    }`,
+    { boardId: config.boardId },
+    fetchImpl
+  )
+  const items = (data.boards[0]?.items_page.items ?? []).map(item => ({
+    id: item.id,
+    name: item.name,
+    url: mondayItemUrl(config.accountSlug || BE180_MONDAY_ACCOUNT_SLUG, config.boardId, item.id),
+    excerpt: [item.group?.title, ...(item.column_values ?? []).map(column => column.text), ...(item.updates ?? []).map(update => update.text_body)]
+      .filter(Boolean)
+      .join(' · ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 500),
+  }))
+  return rankMondayItems(query, items)
 }
 
 async function mondayQuery<T>(

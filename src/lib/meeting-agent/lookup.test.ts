@@ -19,5 +19,6 @@ describe('questionNeedsLookup', () => {
     expect(questionNeedsLookup('qual o status do backlog?')).toBe(true)
     expect(questionNeedsLookup('lista os roteiros da última semana')).toBe(true)
     expect(questionNeedsLookup('o que o Notion diz sobre o PRD?')).toBe(true)
+    expect(questionNeedsLookup('o que está no Monday sobre o inventário?')).toBe(true)
   })
 })

@@ -4,9 +4,9 @@
  * e do dicionário de dados; as fontes do workspace ficam aqui.
  */
 
-export type WorkspaceSourceId = 'github' | 'meetings' | 'documents'
+export type WorkspaceSourceId = 'github' | 'meetings' | 'documents' | 'notion' | 'monday'
 
-export const WORKSPACE_SOURCE_IDS: WorkspaceSourceId[] = ['github', 'meetings', 'documents']
+export const WORKSPACE_SOURCE_IDS: WorkspaceSourceId[] = ['github', 'meetings', 'documents', 'notion', 'monday']
 
 export interface WorkspaceSourceGuide {
   id: WorkspaceSourceId
@@ -38,6 +38,20 @@ export const WORKSPACE_SOURCES: WorkspaceSourceGuide[] = [
     description:
       'documentos do portal e uploads: especificações, manuais, arquitetura e planos de projeto',
     askPattern: /\b(documento\w*|manual\w*|especifica\w*|arquitetura|prd|requisitos?|regras? de neg[oó]cio|portal)\b/i,
+  },
+  {
+    id: 'notion',
+    label: 'Notion',
+    description:
+      'páginas do Notion do produto: especificações, PRDs, decisões e wikis',
+    askPattern: /\b(notion|prd|wiki|especifica\w*|regras? de neg[oó]cio)\b/i,
+  },
+  {
+    id: 'monday',
+    label: 'Monday',
+    description:
+      'itens do quadro Monday da BE180: tarefas, status e atualizações. Só leitura.',
+    askPattern: /\bmonday\b/i,
   },
 ]
 

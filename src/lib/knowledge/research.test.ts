@@ -20,6 +20,11 @@ vi.mock('@/lib/cadence/nl-sql', () => ({ runNaturalLanguageQuery: mocks.runCaden
 vi.mock('@/lib/data-sources/nl-sql', () => ({ runExternalNaturalLanguageQuery: mocks.runExternal }))
 vi.mock('@/lib/data-sources/seed', () => ({ seedEnvDataSources: vi.fn() }))
 vi.mock('@/lib/data-sources/model/store', () => ({ getDataModel: vi.fn(async () => null) }))
+vi.mock('@/lib/notion/search', () => ({ hasNotionAccess: () => false, searchNotionPages: vi.fn() }))
+vi.mock('@/lib/monday/publish', () => ({
+  readBe180MondayConfig: () => ({ ok: false, missing: ['MONDAY_AGENT_API_TOKEN'] }),
+  searchMondayBoardItems: vi.fn(),
+}))
 vi.mock('@/lib/data-sources/store', () => ({
   listDataSources: () => [
     {

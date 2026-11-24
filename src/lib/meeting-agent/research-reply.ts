@@ -3,7 +3,6 @@ import 'server-only'
 import { callOpenAiJson, chatModel } from '@/lib/backlog/llm'
 import type { ClientWorkspace } from '@/lib/client/types'
 import { formatKnowledgeResearchForPrompt, gatherKnowledgeResearch } from '@/lib/knowledge/research'
-import { hasNotionAccess, searchNotionPages } from '@/lib/notion/search'
 import { formatTranscript } from './meetings'
 import { speakableText } from './speech-text'
 import { listRecentSegments } from './store'
@@ -31,12 +30,7 @@ export async function answerMeetingLookup(input: {
 }): Promise<LookupAnswer> {
   const recent = await listRecentSegments(input.botId, 5)
   const transcript = formatTranscript(recent, 4000)
-  const [research, notionPages] = await Promise.all([
-    gatherKnowledgeResearch({ clientId: input.client.slug, question: input.question }),
-    /\bnotion\b/i.test(input.question) && hasNotionAccess()
-      ? searchNotionPages(input.question).catch(() => [])
-      : Promise.resolve([]),
-  ])
+  const research = await gatherKnowledgeResearch({ clientId: input.client.slug, question: input.question })
   const table = research.databases.find(item => item.rows.length > 0) ?? null
   const artifact = table
     ? buildTableArtifact({ sourceName: table.sourceName, columns: table.columns, rows: table.rows })
@@ -49,12 +43,10 @@ export async function answerMeetingLookup(input: {
       label: database.sourceName,
     })
   }
-  for (const page of notionPages.slice(0, 3)) {
-    sources.push({ kind: 'notion', label: page.title, url: page.url })
-  }
   for (const item of research.evidence.filter(item => item.kind !== 'database').slice(0, 3)) {
     sources.push({
-      kind: item.kind === 'github' ? 'github' : 'cadence',
+      kind:
+        item.kind === 'github' || item.kind === 'notion' || item.kind === 'monday' ? item.kind : 'cadence',
       label: item.title,
       url: item.href,
     })
@@ -79,8 +71,7 @@ Status:
 ${research.statuses.map(status => `- ${status.label}: ${status.state}${status.detail ? ` — ${status.detail}` : ''}`).join('\n') || '- nenhuma fonte'}
 
 Evidências:
-${formatKnowledgeResearchForPrompt(research)}
-${notionPages.length ? `\nNotion:\n${notionPages.map(page => `- ${page.title}: ${page.text || '(sem texto)'}`).join('\n').slice(0, 3000)}` : ''}`,
+${formatKnowledgeResearchForPrompt(research)}`,
       { temperature: 0.1, maxTokens: 700, model: chatModel() }
     )) as Record<string, unknown>
     if (typeof parsed.spoken === 'string' && parsed.spoken.trim()) spoken = parsed.spoken.trim()

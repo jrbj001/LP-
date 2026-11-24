@@ -83,4 +83,22 @@ describe('finalizeKnowledgePlan', () => {
     )
     expect(result.databaseSourceIds).toEqual(['prod'])
   })
+
+  it('não mantém um segundo banco quando a fonte de produção já está definida', () => {
+    const result = finalizeKnowledgePlan(
+      'be180-ooh',
+      'quantos pontos de mídia ativos temos hoje?',
+      {
+        searchQuery: 'pontos ativos',
+        databaseSourceIds: ['be180-colmeia', 'be180-ativos'],
+        workspaceSourceIds: [],
+        reason: 'dois bancos',
+      },
+      [
+        { id: 'be180-ativos', label: 'Ativos PostgreSQL', description: 'inventário de pontos' },
+        { id: 'be180-colmeia', label: 'Colmeia SQL Server', description: 'roteiros' },
+      ]
+    )
+    expect(result.databaseSourceIds).toEqual(['be180-ativos'])
+  })
 })
