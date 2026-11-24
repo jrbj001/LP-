@@ -66,7 +66,7 @@ export interface TranscriptSegment {
 }
 
 export interface AgentSource {
-  kind: 'github' | 'notion' | 'cadence' | 'transcript'
+  kind: 'github' | 'notion' | 'cadence' | 'transcript' | 'database'
   label: string
   url?: string
 }

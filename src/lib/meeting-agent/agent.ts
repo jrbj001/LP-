@@ -11,7 +11,8 @@ import { listRecentSegments } from './store'
 import { buildMeetingAgentTools, type ToolRunLog } from './tools'
 import type { AgentSource } from './types'
 
-const AGENT_TIMEOUT_MS = 45_000
+/** As rotas que respondem têm 60 s; consultas aos bancos externos usam boa parte disso. */
+const AGENT_TIMEOUT_MS = 50_000
 const MAX_CHAT_CHARS = 2400
 
 function agentModel(): string {
@@ -25,6 +26,7 @@ No contexto do cliente, você une produto e engenharia: explica como o sistema f
 
 Quando usar ferramentas:
 - Para fatos sobre o código, PRs, entregas, backlog, dados ou documentação de ${client.name}, use as ferramentas antes de afirmar. Não invente arquivos, PRs, números, prazos ou decisões.
+- Para números, contagens, registros, status operacional ou qualquer dado de negócio, use consultar_dados: ela acessa os bancos do cliente (SQL Server, PostgreSQL, Supabase) e a base do Cadence, como o Copilot.
 - Se as ferramentas não trouxerem evidência, diga que não encontrou e sugira onde procurar.
 - Para conhecimento geral, opinião técnica ou conversa, responda direto com o que você sabe, sem ferramentas.
 - Não escreva nada antes de chamar uma ferramenta.
@@ -34,7 +36,7 @@ ${PIXELPULSELAB_PROFILE}
 
 Formato obrigatório, sempre as duas partes nesta ordem:
 FALA: o que você diz em voz alta na call. No máximo duas frases curtas (até 30 palavras no total), em português do Brasil, tom natural de conversa, como uma pessoa falaria. Vá direto ao ponto, sem repetir a pergunta. Sem listas, links, números de PR, caminhos de arquivo ou siglas soletradas. Se houver detalhes, diga algo como "mandei os detalhes no chat".
-CHAT: a resposta completa para o chat da reunião: explicação, passos, links e detalhes. Texto simples, no máximo 8 tópicos curtos, sem tabelas e sem blocos de código longos. Ao falar da PixelPulseLab, inclua o link https://pixelpulselab.dev. Só quando tiver usado ferramentas, termine com uma linha "Fontes:" listando arquivos, PRs (#número), páginas do Notion ou "base do Cadence"; sem ferramentas, não escreva "Fontes:".`
+CHAT: a resposta completa para o chat da reunião: explicação, passos, links e detalhes. Texto simples, no máximo 8 tópicos curtos, sem tabelas e sem blocos de código longos. Ao falar da PixelPulseLab, inclua o link https://pixelpulselab.dev. Só quando tiver usado ferramentas, termine com uma linha "Fontes:" listando arquivos, PRs (#número), páginas do Notion, bancos consultados pelo nome ou "base do Cadence"; sem ferramentas, não escreva "Fontes:".`
 }
 
 export interface MeetingAgentAnswer {
