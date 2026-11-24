@@ -30,9 +30,9 @@ export async function GET(
   if (!item) return new NextResponse(null, { status: 204, headers: NO_STORE })
 
   try {
-    const audio = await synthesizeSpeech(item.text)
+    const speech = await synthesizeSpeech(item.text)
     return NextResponse.json(
-      { ok: true, text: item.text, audio: audio.toString('base64'), mime: 'audio/mpeg' },
+      { ok: true, text: item.text, audio: speech.audio, alignment: speech.alignment, mime: 'audio/mpeg' },
       { headers: NO_STORE }
     )
   } catch (error) {

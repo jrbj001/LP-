@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { avatarSecret } from './avatar-token'
+import { parseAlignment, type SpeechAlignment } from './visemes'
 
 const DEFAULT_TTS_MODEL = 'eleven_turbo_v2_5'
 const DEFAULT_STT_MODEL = 'scribe_v2'
@@ -19,20 +20,26 @@ function elevenLabsKey(): string {
   return apiKey
 }
 
-/** Sintetiza a fala em MP3 com ElevenLabs. A chave nunca sai do servidor. */
-export async function synthesizeSpeech(text: string): Promise<Buffer> {
+export interface SynthesizedSpeech {
+  /** MP3 em base64. */
+  audio: string
+  /** Tempo de cada caractere falado; guia a boca do avatar. */
+  alignment: SpeechAlignment | null
+}
+
+/** Sintetiza a fala em MP3 com ElevenLabs, com o tempo de cada caractere. A chave nunca sai do servidor. */
+export async function synthesizeSpeech(text: string): Promise<SynthesizedSpeech> {
   const voiceId = process.env.ELEVENLABS_VOICE_ID?.trim()
   if (!voiceId) throw new Error('ELEVENLABS_VOICE_ID não configurado.')
 
   const model = process.env.ELEVENLABS_MODEL_ID?.trim() || DEFAULT_TTS_MODEL
   const res = await fetch(
-    `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}?output_format=mp3_44100_128`,
+    `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}/with-timestamps?output_format=mp3_44100_128`,
     {
       method: 'POST',
       headers: {
         'xi-api-key': elevenLabsKey(),
         'Content-Type': 'application/json',
-        Accept: 'audio/mpeg',
       },
       body: JSON.stringify({
         text,
@@ -46,7 +53,12 @@ export async function synthesizeSpeech(text: string): Promise<Buffer> {
   if (!res.ok) {
     throw new Error(`ElevenLabs respondeu ${res.status}`)
   }
-  return Buffer.from(await res.arrayBuffer())
+  const data = (await res.json()) as { audio_base64?: string; alignment?: unknown; normalized_alignment?: unknown }
+  if (!data.audio_base64) throw new Error('ElevenLabs não devolveu áudio.')
+  return {
+    audio: data.audio_base64,
+    alignment: parseAlignment(data.alignment) ?? parseAlignment(data.normalized_alignment),
+  }
 }
 
 /** Transcreve uma fala curta da reunião com o Speech to Text do ElevenLabs. */

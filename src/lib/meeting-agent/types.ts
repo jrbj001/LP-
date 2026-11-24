@@ -40,6 +40,8 @@ export interface MeetingBotRecord {
   clientId: string
   recallBotId: string | null
   meetingUrl: string
+  /** Reunião simulada no sandbox: sem Recall, a resposta aparece só na tela de teste. */
+  sandbox: boolean
   title: string | null
   status: MeetingBotStatus
   pendingWakeSpeaker: string | null

@@ -3,6 +3,7 @@ import { avatarSecret, verifyAvatarToken } from '@/lib/meeting-agent/avatar-toke
 import { handleLiveUtterance } from '@/lib/meeting-agent/inbound'
 import { markLiveListening } from '@/lib/meeting-agent/store'
 import { transcribeSpeech, voiceEnabled } from '@/lib/meeting-agent/voice'
+import { detectWakeWord } from '@/lib/meeting-agent/wake-word'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -54,5 +55,8 @@ export async function POST(
       })
     )
   }
-  return NextResponse.json({ ok: true, text }, { headers: NO_STORE })
+  return NextResponse.json(
+    { ok: true, text, responding: Boolean(text) && detectWakeWord(text).kind !== 'none' },
+    { headers: NO_STORE }
+  )
 }

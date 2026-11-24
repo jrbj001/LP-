@@ -42,7 +42,9 @@ export default async function ClientMeetingsPage({ params }: Props) {
         backHref={base}
       />
 
-      {agentEnabled && <CadenceMeetingAgent clientId={client.slug} accent={client.accent} />}
+      {agentEnabled && (
+        <CadenceMeetingAgent clientId={client.slug} accent={client.accent} sandboxHref={`${base}/reunioes/sandbox`} />
+      )}
 
       {meetings.length === 0 ? (
         <EmptyWorkspaceState
