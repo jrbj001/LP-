@@ -1,3 +1,16 @@
+/** Palavras da pergunta usadas para achar itens pelo nome. Ignora "monday". */
+export function mondaySearchWords(query: string): string[] {
+  return [
+    ...new Set(
+      query
+        .toLowerCase()
+        .replace(/[^a-z0-9à-ÿ\s]/gi, ' ')
+        .split(/\s+/)
+        .filter(word => word.length >= 4 && word !== 'monday')
+    ),
+  ].slice(0, 3)
+}
+
 /** Mantém os itens cujo nome ou texto casa com a pergunta. Sem palavra útil, devolve os primeiros. */
 export function rankMondayItems<T extends { name: string; excerpt: string }>(
   query: string,

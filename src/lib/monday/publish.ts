@@ -1,7 +1,7 @@
 import 'server-only'
 
 import type { BacklogCard } from '@/lib/backlog/types'
-import { rankMondayItems } from './rank'
+import { mondaySearchWords, rankMondayItems } from './rank'
 import {
   BE180_MONDAY_PILOT_BOARD_ID,
   BE180_MONDAY_ACCOUNT_SLUG,
@@ -249,6 +249,9 @@ export async function searchMondayBoardItems(
   query: string,
   fetchImpl: typeof fetch = fetch
 ): Promise<MondayBoardHit[]> {
+  const boardId = await readableMondayBoardId(config, fetchImpl)
+  const words = mondaySearchWords(query)
+  const filtered = words.length > 0
   const data = await mondayQuery<{
     boards: {
       items_page: {
@@ -263,26 +266,33 @@ export async function searchMondayBoardItems(
     }[]
   }>(
     config.token,
-    `query ($boardId: ID!) {
+    filtered
+      ? `query ($boardId: ID!, $rules: [ItemsQueryRule!]) {
       boards(ids: [$boardId]) {
-        items_page(limit: 100) {
-          items {
-            id
-            name
-            group { title }
-            column_values { text }
-            updates(limit: 2) { text_body }
-          }
+        items_page(limit: 25, query_params: {operator: or, rules: $rules}) {
+          items { id name group { title } column_values { text } updates(limit: 2) { text_body } }
+        }
+      }
+    }`
+      : `query ($boardId: ID!) {
+      boards(ids: [$boardId]) {
+        items_page(limit: 8) {
+          items { id name group { title } column_values { text } updates(limit: 2) { text_body } }
         }
       }
     }`,
-    { boardId: config.boardId },
+    {
+      boardId,
+      ...(filtered
+        ? { rules: words.map(word => ({ column_id: 'name', compare_value: [word], operator: 'contains_text' })) }
+        : {}),
+    },
     fetchImpl
   )
   const items = (data.boards[0]?.items_page.items ?? []).map(item => ({
     id: item.id,
     name: item.name,
-    url: mondayItemUrl(config.accountSlug || BE180_MONDAY_ACCOUNT_SLUG, config.boardId, item.id),
+    url: mondayItemUrl(config.accountSlug || BE180_MONDAY_ACCOUNT_SLUG, boardId, item.id),
     excerpt: [item.group?.title, ...(item.column_values ?? []).map(column => column.text), ...(item.updates ?? []).map(update => update.text_body)]
       .filter(Boolean)
       .join(' · ')
@@ -291,6 +301,28 @@ export async function searchMondayBoardItems(
       .slice(0, 500),
   }))
   return rankMondayItems(query, items)
+}
+
+/**
+ * O quadro configurado para publicar story pode ser outro, invisível para este token.
+ * A leitura usa esse quadro quando ele responde; senão, o quadro chamado Colmeia.
+ */
+async function readableMondayBoardId(config: Be180MondayConfig, fetchImpl: typeof fetch): Promise<string> {
+  const probe = await mondayQuery<{ boards: { id: string }[] }>(
+    config.token,
+    `query ($boardId: ID!) { boards(ids: [$boardId]) { id } }`,
+    { boardId: config.boardId },
+    fetchImpl
+  )
+  if (probe.boards[0]?.id) return config.boardId
+  const listed = await mondayQuery<{ boards: { id: string; name: string }[] }>(
+    config.token,
+    `query { boards(limit: 20) { id name } }`,
+    {},
+    fetchImpl
+  )
+  const named = listed.boards.find(board => board.name.trim().toLowerCase() === 'colmeia')
+  return named?.id ?? config.boardId
 }
 
 async function mondayQuery<T>(

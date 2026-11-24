@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { rankMondayItems } from './rank'
+import { mondaySearchWords, rankMondayItems } from './rank'
 
 const items = [
   { name: 'Promoção do inventário', excerpt: 'aguardando revisão' },
   { name: 'Ajuste de roteiro', excerpt: 'campanha de maio' },
   { name: 'Outro item', excerpt: 'sem relação' },
 ]
+
+describe('mondaySearchWords', () => {
+  it('mantém o acento e ignora monday', () => {
+    expect(mondaySearchWords('o que está no Monday sobre frequência')).toEqual(['está', 'sobre', 'frequência'])
+  })
+})
 
 describe('rankMondayItems', () => {
   it('filtra pelos termos da pergunta', () => {
