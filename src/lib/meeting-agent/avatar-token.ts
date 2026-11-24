@@ -12,6 +12,17 @@ export function signAvatarToken(botRecordId: string, secret: string): string {
   return createHmac('sha256', secret).update(`avatar:${botRecordId}`).digest('base64url')
 }
 
+export function signArtifactToken(interactionId: string, secret: string): string {
+  return createHmac('sha256', secret).update(`artifact:${interactionId}`).digest('base64url')
+}
+
+export function verifyArtifactToken(interactionId: string, token: string | null, secret: string | null): boolean {
+  if (!token || !secret) return false
+  const expected = Buffer.from(signArtifactToken(interactionId, secret))
+  const received = Buffer.from(token)
+  return received.length === expected.length && timingSafeEqual(received, expected)
+}
+
 export function verifyAvatarToken(botRecordId: string, token: string | null, secret: string | null): boolean {
   if (!token || !secret) return false
   const expected = Buffer.from(signAvatarToken(botRecordId, secret))

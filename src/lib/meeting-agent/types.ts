@@ -71,6 +71,17 @@ export interface AgentSource {
   url?: string
 }
 
+export interface MeetingTableArtifact {
+  kind: 'grid' | 'csv'
+  sourceName: string
+  columns: string[]
+  rowCount: number
+  /** Linhas da grade. Só existe quando kind é grid (até 12). */
+  rows?: Record<string, unknown>[]
+  /** CSV completo. Só existe quando kind é csv; o chat leva o link, não o arquivo. */
+  csv?: string
+}
+
 export interface AgentInteraction {
   id: string
   speaker: string | null
@@ -80,5 +91,8 @@ export interface AgentInteraction {
   sources: AgentSource[]
   latencyMs: number | null
   error: string | null
+  artifact: MeetingTableArtifact | null
+  /** Link da planilha, preenchido na API. Não fica gravado. */
+  artifactHref?: string | null
   createdAt: string
 }

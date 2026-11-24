@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import type { AgentInteraction, MeetingBotRecord, TranscriptSegment } from '@/lib/meeting-agent/types'
 import { CadenceFace, createFaceSignal, type FaceMode, type FaceSignal } from './cadence-face'
+import { MeetingTable } from './meeting-table'
 import { useCadenceSpeech, useFaceMood, useUtteranceCapture } from './use-cadence-audio'
 
 const POLL_MS = 1500
@@ -556,6 +557,7 @@ function AnswerBubble({ item }: { item: AgentInteraction }) {
       <p className="font-semibold text-[#c4b5fd]">Cadence</p>
       <p className="mt-0.5 text-[11px] text-white/40">Pergunta: {item.question}</p>
       <p className="mt-1.5 whitespace-pre-line text-white/80">{item.answer ?? `Sem resposta (${item.error ?? 'erro'})`}</p>
+      {item.artifact && <MeetingTable artifact={item.artifact} href={item.artifactHref} />}
       {item.sources.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {item.sources.map((source) =>

@@ -4,6 +4,7 @@ import { cadenceDb, hasCadenceDatabase } from '@/lib/cadence/db'
 import type {
   AgentInteraction,
   AgentSource,
+  MeetingTableArtifact,
   MeetingBotRecord,
   MeetingBotStatus,
   MeetingReport,
@@ -77,7 +78,25 @@ function toInteraction(row: Row): AgentInteraction {
     sources: Array.isArray(row.sources) ? (row.sources as AgentSource[]) : [],
     latencyMs: row.latency_ms == null ? null : Number(row.latency_ms),
     error: (row.error as string | null) ?? null,
+    artifact: parseArtifact(row.artifact),
     createdAt: iso(row.created_at) ?? new Date().toISOString(),
+  }
+}
+
+function parseArtifact(value: unknown): AgentInteraction['artifact'] {
+  const raw = typeof value === 'string' ? safeJson(value) : value
+  if (!raw || typeof raw !== 'object') return null
+  const artifact = raw as AgentInteraction['artifact']
+  if (!artifact || (artifact.kind !== 'grid' && artifact.kind !== 'csv')) return null
+  if (!Array.isArray(artifact.columns) || typeof artifact.rowCount !== 'number') return null
+  return artifact
+}
+
+function safeJson(value: string): unknown {
+  try {
+    return JSON.parse(value)
+  } catch {
+    return null
   }
 }
 
@@ -244,17 +263,29 @@ export async function insertInteraction(input: {
   sources: AgentSource[]
   latencyMs: number
   error?: string
-}): Promise<void> {
+  artifact?: MeetingTableArtifact | null
+}): Promise<string> {
   const sql = cadenceDb()
-  await sql`
+  const [row] = await sql<{ id: string }[]>`
     insert into cadence_agent_interactions (
-      bot_id, client_id, speaker, question, answer, tools, sources, latency_ms, error
+      bot_id, client_id, speaker, question, answer, tools, sources, latency_ms, error, artifact
     ) values (
       ${input.botId}, ${input.clientId}, ${input.speaker}, ${input.question}, ${input.answer},
       ${sql.json(input.tools)}, ${sql.json(input.sources as unknown as Parameters<typeof sql.json>[0])},
-      ${input.latencyMs}, ${input.error ?? null}
+      ${input.latencyMs}, ${input.error ?? null},
+      ${input.artifact ? sql.json(input.artifact as unknown as Parameters<typeof sql.json>[0]) : null}
     )
+    returning id
   `
+  return String(row.id)
+}
+
+export async function getInteraction(id: string): Promise<AgentInteraction | null> {
+  const sql = cadenceDb()
+  const [row] = await sql`
+    select * from cadence_agent_interactions where id = ${id} limit 1
+  `
+  return row ? toInteraction(row) : null
 }
 
 export async function listInteractions(botId: string): Promise<AgentInteraction[]> {
