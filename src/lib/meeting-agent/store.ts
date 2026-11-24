@@ -31,12 +31,16 @@ function iso(value: unknown): string | null {
   return typeof value === 'string' ? value : null
 }
 
+/** Reuniões simuladas do sandbox ficam na mesma tabela, marcadas por esta URL. */
+export const SANDBOX_MEETING_URL = 'sandbox://cadence'
+
 function toBot(row: Row): MeetingBotRecord {
   return {
     id: String(row.id),
     clientId: String(row.client_id),
     recallBotId: (row.recall_bot_id as string | null) ?? null,
     meetingUrl: String(row.meeting_url),
+    sandbox: row.meeting_url === SANDBOX_MEETING_URL,
     title: (row.title as string | null) ?? null,
     status: row.status as MeetingBotStatus,
     pendingWakeSpeaker: (row.pending_wake_speaker as string | null) ?? null,
@@ -92,6 +96,16 @@ export async function createBotRecord(input: {
   return toBot(row)
 }
 
+export async function createSandboxRecord(input: { clientId: string; createdBy?: string }): Promise<MeetingBotRecord> {
+  const sql = cadenceDb()
+  const [row] = await sql`
+    insert into cadence_meeting_bots (client_id, meeting_url, title, created_by, status, started_at)
+    values (${input.clientId}, ${SANDBOX_MEETING_URL}, 'Sandbox do Cadence', ${input.createdBy ?? null}, 'recording', now())
+    returning *
+  `
+  return toBot(row)
+}
+
 export async function attachRecallBot(id: string, recallBotId: string): Promise<void> {
   const sql = cadenceDb()
   await sql`
@@ -124,7 +138,7 @@ export async function listBotRecords(clientId: string, limit = 20): Promise<Meet
   const sql = cadenceDb()
   const rows = await sql`
     select * from cadence_meeting_bots
-    where client_id = ${clientId}
+    where client_id = ${clientId} and meeting_url <> ${SANDBOX_MEETING_URL}
     order by created_at desc
     limit ${limit}
   `
@@ -318,7 +332,7 @@ export async function listReadyReports(clientId: string): Promise<MeetingBotReco
   const sql = cadenceDb()
   const rows = await sql`
     select * from cadence_meeting_bots
-    where client_id = ${clientId} and report_status = 'ready'
+    where client_id = ${clientId} and report_status = 'ready' and meeting_url <> ${SANDBOX_MEETING_URL}
     order by created_at desc
     limit 50
   `

@@ -81,14 +81,18 @@ function speaker(bot: MeetingBotRecord) {
   }
 }
 
+/** Chat da call pelo Recall. No sandbox não há call: a resposta aparece pelas interações. */
+async function sendChat(bot: MeetingBotRecord, text: string): Promise<void> {
+  if (bot.recallBotId) await sendChatMessage(bot.recallBotId, text)
+}
+
 async function respond(bot: MeetingBotRecord, question: string, from: string | null): Promise<void> {
   const client = getClient(bot.clientId)
-  if (!client || !bot.recallBotId) return
-  const recallBotId = bot.recallBotId
+  if (!client || (!bot.recallBotId && !bot.sandbox)) return
   const started = Date.now()
   const voice = speaker(bot)
 
-  void sendChatMessage(recallBotId, `Verificando: "${question.slice(0, 160)}"…`).catch(() => {})
+  void sendChat(bot, `Verificando: "${question.slice(0, 160)}"…`).catch(() => {})
 
   try {
     const result = await answerMeetingQuestion({
@@ -99,7 +103,7 @@ async function respond(bot: MeetingBotRecord, question: string, from: string | n
       onSpoken: text => voice.say(text),
     })
     voice.say(result.spoken)
-    await sendChatMessage(recallBotId, result.answer)
+    await sendChat(bot, result.answer)
     await voice.done()
     await insertInteraction({
       botId: bot.id,
@@ -115,7 +119,7 @@ async function respond(bot: MeetingBotRecord, question: string, from: string | n
     const message = error instanceof Error ? error.message : 'erro desconhecido'
     console.error('[meeting-agent/respond]', message)
     voice.say(FAILURE_REPLY)
-    await sendChatMessage(recallBotId, FAILURE_REPLY).catch(() => {})
+    await sendChat(bot, FAILURE_REPLY).catch(() => {})
     await voice.done()
     await insertInteraction({
       botId: bot.id,
@@ -139,8 +143,8 @@ async function answerBareWake(bot: MeetingBotRecord, from: string | null, previo
     return
   }
   await setPendingWake(bot.id, from)
-  if (!bot.recallBotId) return
-  await sendChatMessage(bot.recallBotId, ASK_PROMPT).catch(() => {})
+  if (!bot.recallBotId && !bot.sandbox) return
+  await sendChat(bot, ASK_PROMPT).catch(() => {})
   const voice = speaker(bot)
   voice.say(ASK_PROMPT)
   await voice.done()
@@ -194,6 +198,26 @@ export async function handleLiveUtterance(botId: string, text: string, previous:
   await routeUtterance(bot, { text, speaker: null, source: 'speech' }, async () =>
     previous ? priorQuestion([{ speaker: null, text: previous }], null) : null
   )
+}
+
+/**
+ * Fala ou mensagem da reunião simulada. A transcrição é gravada por quem chama, para a tela
+ * mostrar na hora; aqui só decide se o Cadence responde. Sem exigir o nome, responde a tudo.
+ */
+export async function handleSandboxUtterance(
+  bot: MeetingBotRecord,
+  input: { text: string; speaker: string | null; source: 'speech' | 'chat'; requireWake: boolean }
+): Promise<void> {
+  if (!bot.sandbox || bot.status !== 'recording') return
+  if (!input.requireWake) {
+    await clearPendingWake(bot.id)
+    await respond(bot, input.text, input.speaker)
+    return
+  }
+  await routeUtterance(bot, input, async () => {
+    const recent = await listRecentSegments(bot.id, LOOKBACK_MINUTES)
+    return priorQuestion(recent.slice(0, -1), input.speaker)
+  })
 }
 
 export async function handleRecallEvent(envelope: RecallEnvelope): Promise<void> {

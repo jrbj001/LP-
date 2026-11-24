@@ -1,7 +1,8 @@
 'use client'
 
+import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ExternalLink, LogOut, MessageSquare, RefreshCw, Radio } from 'lucide-react'
+import { ExternalLink, FlaskConical, LogOut, MessageSquare, RefreshCw, Radio } from 'lucide-react'
 import type {
   AgentInteraction,
   MeetingBotRecord,
@@ -40,7 +41,15 @@ function formatTime(value: string): string {
   })
 }
 
-export function CadenceMeetingAgent({ clientId, accent }: { clientId: string; accent: string }) {
+export function CadenceMeetingAgent({
+  clientId,
+  accent,
+  sandboxHref,
+}: {
+  clientId: string
+  accent: string
+  sandboxHref: string
+}) {
   const base = `/api/client/${encodeURIComponent(clientId)}/meetings/bot`
   const [bots, setBots] = useState<MeetingBotRecord[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -135,6 +144,12 @@ export function CadenceMeetingAgent({ clientId, accent }: { clientId: string; ac
         >
           {inviting ? 'Convidando…' : 'Convidar Cadence'}
         </button>
+        <Link
+          href={sandboxHref}
+          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full border border-black/[0.08] px-4 py-2 text-[12px] font-semibold text-neutral-700 hover:border-neutral-400"
+        >
+          <FlaskConical className="w-3.5 h-3.5" /> Testar no sandbox
+        </Link>
       </form>
       {error && <p className="mt-3 text-[12px] text-rose-600">{error}</p>}
 
