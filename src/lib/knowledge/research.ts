@@ -16,11 +16,9 @@ import { isKnowledgePipelineEnabled } from './flag'
 import { inferQuestionIntent, resolveQuestionIntent } from './intent'
 import { sanitizeSourceError } from './safe-status'
 import { logKnowledgeTrace } from './trace'
-import {
-  finalizeKnowledgePlan,
-  planKnowledgeResearch,
-  type KnowledgePlanSource,
-} from './planner'
+import { finalizeKnowledgePlan, planKnowledgeResearch } from './planner'
+import { applyWorkspaceRules, type KnowledgePlan, type KnowledgePlanSource, ruleBasedPlan } from './routing'
+import { WORKSPACE_SOURCE_IDS, type WorkspaceSourceId, workspaceSourceLabel } from './source-guide'
 import type {
   KnowledgeAnswer,
   KnowledgeDatabaseResult,
@@ -154,35 +152,51 @@ export async function gatherKnowledgeResearch(input: {
     throw new Error('Fonte de dados indisponível ou desativada.')
   }
 
-  let plan
-  try {
-    plan = input.sourceId
-      ? {
-          searchQuery: question,
-          databaseSourceIds: [input.sourceId],
-          reason: 'Fonte selecionada pelo usuário.',
-        }
-      : await planKnowledgeResearch({
-          question,
-          recentContext: input.recentContext,
-          databaseSources: selectedSources,
-        })
-  } catch (error) {
-    console.warn('[knowledge/research] planner', error)
-    plan = { searchQuery: question, databaseSourceIds: [], reason: 'Planejamento indisponível.' }
+  const searchAllKnowledge = !input.sourceId
+  const hasGithub = (client.delivery?.repos ?? []).length > 0
+  const availableWorkspace: WorkspaceSourceId[] = searchAllKnowledge
+    ? WORKSPACE_SOURCE_IDS.filter(id => id !== 'github' || hasGithub)
+    : []
+
+  let plan: KnowledgePlan
+  if (input.sourceId) {
+    plan = {
+      searchQuery: question,
+      databaseSourceIds: [input.sourceId],
+      workspaceSourceIds: [],
+      reason: 'Fonte selecionada pelo usuário.',
+    }
+  } else {
+    try {
+      plan = await planKnowledgeResearch({
+        question,
+        recentContext: input.recentContext,
+        databaseSources: selectedSources,
+        workspaceSources: availableWorkspace,
+      })
+    } catch (error) {
+      console.warn('[knowledge/research] planner', error)
+      plan = ruleBasedPlan({ question, databaseSources: selectedSources, availableWorkspace })
+    }
+    plan = applyWorkspaceRules(question, plan, availableWorkspace)
   }
   plan = finalizeKnowledgePlan(client.slug, question, plan, selectedSources)
+
+  const sourceIds = [...plan.databaseSourceIds, ...plan.workspaceSourceIds]
   logKnowledgeTrace({
     stage: 'plan',
     clientId: client.slug,
     intent: intent.intent,
     sourceId: plan.databaseSourceIds[0],
+    sources: sourceIds.join(','),
     ok: true,
     ms: Date.now() - started,
   })
 
-  const searchAllKnowledge = !input.sourceId
-  const githubPromise = searchAllKnowledge
+  const wantsGithub = searchAllKnowledge && plan.workspaceSourceIds.includes('github')
+  const wantsMeetings = searchAllKnowledge && plan.workspaceSourceIds.includes('meetings')
+  const wantsDocuments = searchAllKnowledge && plan.workspaceSourceIds.includes('documents')
+  const githubPromise = wantsGithub
     ? gatherGithubContextForQuery(
         {
           clientId: client.slug,
@@ -193,13 +207,17 @@ export async function gatherKnowledgeResearch(input: {
         { allRepos: true }
       )
     : Promise.resolve({ repos: [], snippets: [], activity: [], notes: [] })
-  const workspacePromise = searchAllKnowledge
-    ? gatherWorkspaceContext(client.slug, plan.searchQuery)
-    : Promise.resolve({
-        meetings: [],
-        documents: [],
-        catalog: { meetings: [] as string[], documents: [] as string[] },
-      })
+  const workspacePromise =
+    wantsMeetings || wantsDocuments
+      ? gatherWorkspaceContext(client.slug, plan.searchQuery, {
+          meetings: wantsMeetings,
+          documents: wantsDocuments,
+        })
+      : Promise.resolve({
+          meetings: [],
+          documents: [],
+          catalog: { meetings: [] as string[], documents: [] as string[] },
+        })
 
   const databaseTasks = plan.databaseSourceIds.map(async sourceId => {
     const source = selectedSources.find(item => item.id === sourceId)
@@ -261,15 +279,22 @@ export async function gatherKnowledgeResearch(input: {
   ]
 
   const statuses: KnowledgeSourceStatus[] = []
-  if (searchAllKnowledge) {
+  if (wantsGithub) {
     statuses.push(
       github.repos.length === 0
         ? { id: 'github', label: 'GitHub', state: 'unavailable', detail: github.notes.join(' ') || 'Nenhum repositório configurado.' }
-        : statusFor('github', 'GitHub', github.snippets.length, github.notes.join(' ') || 'Nenhum trecho relevante encontrado.'),
-      statusFor('meetings', 'Reuniões', workspace.meetings.length, 'Nenhuma reunião relevante encontrada.'),
-      statusFor('documents', 'Documentos', workspace.documents.length, 'Nenhum documento relevante encontrado.')
+        : statusFor('github', 'GitHub', github.snippets.length, github.notes.join(' ') || 'Nenhum trecho relevante encontrado.')
     )
   }
+  if (wantsMeetings) {
+    statuses.push(statusFor('meetings', 'Reuniões', workspace.meetings.length, 'Nenhuma reunião relevante encontrada.'))
+  }
+  if (wantsDocuments) {
+    statuses.push(statusFor('documents', 'Documentos', workspace.documents.length, 'Nenhum documento relevante encontrado.'))
+  }
+  const skippedSources = availableWorkspace
+    .filter(id => !plan.workspaceSourceIds.includes(id))
+    .map(id => workspaceSourceLabel(id))
   for (const sourceId of plan.databaseSourceIds) {
     const source = selectedSources.find(item => item.id === sourceId)
     const outcome = databaseOutcomes.find(item =>
@@ -296,18 +321,21 @@ export async function gatherKnowledgeResearch(input: {
     )
   }
 
-  return { question, searchQuery: plan.searchQuery, intent, evidence, databases, statuses }
+  return { question, searchQuery: plan.searchQuery, intent, evidence, databases, statuses, skippedSources }
 }
 
 export function formatKnowledgeResearchForPrompt(research: KnowledgeResearch): string {
+  const skipped = research.skippedSources?.length
+    ? `\nFontes não consultadas para esta pergunta (não afirme que elas não têm a informação): ${research.skippedSources.join(', ')}.`
+    : ''
   if (research.evidence.length === 0) {
     const failures = research.statuses
       .filter(status => status.state === 'error' || status.state === 'unavailable')
       .map(status => `${status.label}: ${status.detail}`)
       .join('; ')
-    return `Nenhuma evidência encontrada.${failures ? ` Fontes indisponíveis: ${failures}` : ''}`
+    return `Nenhuma evidência encontrada.${failures ? ` Fontes indisponíveis: ${failures}` : ''}${skipped}`
   }
-  return research.evidence
+  const body = research.evidence
     .map(
       (item, index) =>
         `[${index + 1}] ${item.kind.toUpperCase()} · ${item.source} · ${item.title}${
@@ -315,6 +343,7 @@ export function formatKnowledgeResearchForPrompt(research: KnowledgeResearch): s
         }\n${item.excerpt}`
     )
     .join('\n\n')
+  return `${body}${skipped}`
 }
 
 export async function answerKnowledgeQuestion(input: {

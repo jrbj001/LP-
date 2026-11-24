@@ -40,6 +40,8 @@ export interface KnowledgeResearch {
   evidence: KnowledgeEvidence[]
   databases: KnowledgeDatabaseResult[]
   statuses: KnowledgeSourceStatus[]
+  /** Fontes do workspace disponíveis que o orquestrador decidiu não consultar nesta pergunta. */
+  skippedSources?: string[]
 }
 
 export interface KnowledgeAnswer extends KnowledgeResearch {

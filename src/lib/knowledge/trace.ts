@@ -7,6 +7,8 @@ export interface KnowledgeTraceEvent {
   clientId: string
   intent?: string
   sourceId?: string
+  /** Fontes escolhidas pelo orquestrador, separadas por vírgula (ids). */
+  sources?: string
   sqlHash?: string
   ms?: number
   repairCount?: number
