@@ -61,6 +61,7 @@ Use só as evidências. Não invente número, decisão ou arquivo.
 "spoken": uma frase assertiva, até 25 palavras, com o fato principal. Sem lista, sem link, sem dizer que vai verificar.
 "chat": o detalhe, até 8 tópicos curtos. Não despeje as linhas da tabela: a grade ou a planilha vão à parte. Cite a fonte pelo nome.
 Se não houver evidência, diga isso nas duas partes.
+Se a pergunta cita uma base ou sistema que não aparece no Status (ex.: Banco de Ativos, Colmeia), diga que essa fonte não está conectada a este workspace. Não apresente um zero de outra base como se fosse o total pedido.
 Retorne somente JSON: {"spoken":"...","chat":"..."}.`,
       `Pergunta: ${input.question}
 Trecho recente da reunião:
