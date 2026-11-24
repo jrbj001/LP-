@@ -1,4 +1,5 @@
 import { callOpenAiJson, chatModel } from '@/lib/backlog/llm'
+import { WORKSPACE_SOURCE_GUIDE } from './source-guide'
 
 export interface KnowledgePlanSource {
   id: string
@@ -100,7 +101,10 @@ Use apenas ids disponíveis. Retorne somente JSON:
     `Pergunta: ${input.question}
 Contexto recente: ${input.recentContext || '—'}
 
-Bancos disponíveis:
+Fontes do workspace (já pesquisadas em todo turno, não precisam de banco):
+${WORKSPACE_SOURCE_GUIDE}
+
+Bancos disponíveis (domínios do dicionário de dados quando existir; escolha pelo domínio e pelo nome das tabelas):
 ${input.databaseSources.map(source => `- ${source.id}: ${source.label} — ${source.description}`).join('\n')}`,
     { temperature: 0, maxTokens: 450, model: chatModel() }
   )

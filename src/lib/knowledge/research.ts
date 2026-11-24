@@ -7,6 +7,9 @@ import { seedCadenceClient } from '@/lib/cadence/seed'
 import { gatherWorkspaceContext } from '@/lib/cadence/workspace-gather'
 import { getClient } from '@/lib/client/registry'
 import { runExternalNaturalLanguageQuery } from '@/lib/data-sources/nl-sql'
+import { dictionaryOverviewForPrompt } from '@/lib/data-sources/model/dictionary'
+import { getDataModel } from '@/lib/data-sources/model/store'
+import type { DataModelAi } from '@/lib/data-sources/model/types'
 import { seedEnvDataSources } from '@/lib/data-sources/seed'
 import { listDataSources } from '@/lib/data-sources/store'
 import { isKnowledgePipelineEnabled } from './flag'
@@ -31,9 +34,15 @@ function clip(value: string, max = 1800): string {
   return text.length <= max ? text : `${text.slice(0, max - 1).trimEnd()}…`
 }
 
-function databaseDescription(name: string, kind: string, tables: string[]): string {
+function databaseDescription(
+  name: string,
+  kind: string,
+  tables: string[],
+  ai: DataModelAi | null
+): string {
   const catalog = tables.slice(0, 40).join(', ')
-  return `${name} (${kind}); tabelas: ${catalog || 'catálogo indisponível'}`
+  const domains = dictionaryOverviewForPrompt(ai)
+  return `${name} (${kind})${domains ? `; domínios: ${domains}` : ''}; tabelas: ${catalog || 'catálogo indisponível'}`
 }
 
 function databaseEvidence(result: KnowledgeDatabaseResult, index: number): KnowledgeEvidence {
@@ -79,17 +88,21 @@ async function availableDatabaseSources(clientId: string): Promise<{
       description: 'cards, PRs, commits, reuniões e metadados de documentos do workspace',
     })
   }
-  for (const source of enabled) {
+  const models = await Promise.all(
+    enabled.map(source => getDataModel(clientId, source.id).catch(() => null))
+  )
+  enabled.forEach((source, index) => {
     planner.push({
       id: source.id,
       label: source.name,
       description: databaseDescription(
         source.name,
         source.kind,
-        source.catalog.entries.map(entry => `${entry.schema}.${entry.table}`)
+        source.catalog.entries.map(entry => `${entry.schema}.${entry.table}`),
+        models[index]?.ai ?? null
       ),
     })
-  }
+  })
   return {
     planner,
     externalNames: new Map(enabled.map(source => [source.id, source.name])),

@@ -17,6 +17,7 @@ vi.mock('@/lib/cadence/seed', () => ({ seedCadenceClient: vi.fn() }))
 vi.mock('@/lib/cadence/nl-sql', () => ({ runNaturalLanguageQuery: mocks.runCadence }))
 vi.mock('@/lib/data-sources/nl-sql', () => ({ runExternalNaturalLanguageQuery: mocks.runExternal }))
 vi.mock('@/lib/data-sources/seed', () => ({ seedEnvDataSources: vi.fn() }))
+vi.mock('@/lib/data-sources/model/store', () => ({ getDataModel: vi.fn(async () => null) }))
 vi.mock('@/lib/data-sources/store', () => ({
   listDataSources: () => [
     {

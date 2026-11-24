@@ -3,6 +3,7 @@ import 'server-only'
 import { getClient } from '@/lib/client/registry'
 import { listDocuments } from '@/lib/documents/store'
 import type { ClientDocumentRecord } from '@/lib/documents/types'
+import { listAgentMeetings } from '@/lib/meeting-agent/meetings'
 import {
   selectPortalDocuments,
   selectUploadedDocuments,
@@ -15,14 +16,13 @@ export async function gatherWorkspaceContext(
   query: string
 ): Promise<WorkspaceContextBundle> {
   const client = getClient(clientId)
-  const meetings = client?.meetings ?? []
   const portal = client?.documents ?? []
-  let uploaded: ClientDocumentRecord[] = []
-  try {
-    uploaded = await listDocuments(clientId)
-  } catch {
-    uploaded = []
-  }
+  const [uploaded, agentMeetings] = await Promise.all([
+    listDocuments(clientId).catch((): ClientDocumentRecord[] => []),
+    // Reuniões gravadas pelo agente de reunião (com decisões e itens de ação do relatório).
+    listAgentMeetings(clientId),
+  ])
+  const meetings = [...(client?.meetings ?? []), ...agentMeetings]
 
   return {
     meetings: selectWorkspaceMeetings(meetings, query),

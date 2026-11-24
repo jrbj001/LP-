@@ -12,6 +12,8 @@ import {
 } from '@/lib/knowledge/result-critic'
 import { hashSql, logKnowledgeTrace } from '@/lib/knowledge/trace'
 import { decryptDataSourceConfig } from './crypto'
+import { describeTableForPrompt, dictionaryDetailKeys } from './model/dictionary'
+import { getDataModel } from './model/store'
 import {
   describePostgresTables,
   executePostgresReadOnly,
@@ -156,13 +158,20 @@ export async function runExternalNaturalLanguageQuery(input: {
     }
   }
 
+  const model = await getDataModel(input.clientId, input.sourceId).catch(() => null)
+  const described = dictionaryDetailKeys(input.question, catalog.entries, model?.ai)
   const catalogText = catalog.entries
-    .map(entry => `${entry.schema}.${entry.table} (${entry.type})`)
+    .map(entry => {
+      const key = `${entry.schema}.${entry.table}`
+      const note = described.has(key) ? describeTableForPrompt(model?.ai, key) : ''
+      return `${key} (${entry.type})${note ? ` — ${note}` : ''}`
+    })
     .join('\n')
 
   const choice = await callOpenAiJson(
     `Selecione de 1 a 12 tabelas ${engine} que podem responder à pergunta.
 Use somente nomes completos presentes no catálogo e não invente relações.
+Quando a linha trouxer a descrição do dicionário de dados, use-a para decidir se o dado existe e onde está.
 Retorne somente JSON: {"tables":["schema.tabela"]}.`,
     `Pergunta: ${input.question}\n\nCatálogo da fonte ${source.name}:\n${catalogText}`,
     { temperature: 0, maxTokens: 500, model: chatModel() }
