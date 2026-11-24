@@ -455,7 +455,7 @@ export async function runCopilotTurn(input: {
     `Rascunho atual (refine só se for escrever storyDraft):\n${lastStoryDraftBrief(thread.messages)}`,
     `Modelagem do workspace Cadence (não é produção):\n${CADENCE_SCHEMA}`,
     formatCadenceSummaryForPrompt(summary),
-    `Pesquisa unificada (GitHub, bancos, reuniões e documentos):\n${formatKnowledgeResearchForPrompt(research)}`,
+    `Pesquisa do orquestrador (só as fontes que a pergunta pediu: bancos, GitHub, reuniões e documentos):\n${formatKnowledgeResearchForPrompt(research)}`,
     `Status das fontes:\n${research.statuses.map(status => `- ${status.label}: ${status.state}${status.detail ? ` — ${status.detail}` : ''}`).join('\n')}`,
     `Mensagem atual do PM:\n${message}`,
     `Pergunta interpretada para pesquisa:\n${effectiveQuestion}`,

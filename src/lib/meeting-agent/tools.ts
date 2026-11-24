@@ -2,10 +2,10 @@ import 'server-only'
 
 import { jsonSchema, tool, type Tool } from 'ai'
 import { formatGithubContextForPrompt, gatherGithubContextForQuery } from '@/lib/backlog/github-context'
-import { runNaturalLanguageQuery } from '@/lib/cadence/nl-sql'
 import { hasCadenceDatabase } from '@/lib/cadence/db'
 import type { ClientWorkspace } from '@/lib/client/types'
 import { hasGitHubToken, listCommitsSince, listMergedPulls } from '@/lib/delivery/github'
+import { formatKnowledgeResearchForPrompt, gatherKnowledgeResearch } from '@/lib/knowledge/research'
 import { hasNotionAccess, searchNotionPages } from '@/lib/notion/search'
 import { formatTranscript } from './meetings'
 import { listRecentSegments } from './store'
@@ -138,22 +138,37 @@ export function buildMeetingAgentTools(input: {
   }
 
   if (hasCadenceDatabase()) {
-    tools.consultar_cadence = tool({
+    tools.consultar_dados = tool({
       description:
-        'Consulta a base do Cadence (backlog de cards, entregas, PRs indexadas, reuniões e documentos anteriores) com uma pergunta em linguagem natural. Use para status de cards, prioridades, histórico de decisões e números.',
+        'Consulta as fontes de dados do cliente, as mesmas do Copilot: bancos conectados (SQL Server, PostgreSQL, Supabase), a base do Cadence (cards, entregas, PRs, reuniões e documentos) e o workspace. Escolhe sozinha as fontes certas pela pergunta. Use para números, contagens, status, registros operacionais, histórico de decisões e qualquer dado de negócio.',
       inputSchema: jsonSchema<{ pergunta: string }>({
         type: 'object',
-        properties: { pergunta: { type: 'string', description: 'Pergunta objetiva em português.' } },
+        properties: {
+          pergunta: {
+            type: 'string',
+            description: 'Pergunta objetiva e completa em português, com período e filtros se houver.',
+          },
+        },
         required: ['pergunta'],
         additionalProperties: false,
       }),
       execute: async ({ pergunta }) => {
-        track('consultar_cadence')
+        track('consultar_dados')
         try {
-          const result = await runNaturalLanguageQuery(client.slug, pergunta)
-          addSource(log, { kind: 'cadence', label: 'Base do Cadence' })
-          const rows = result.rows.slice(0, 15)
-          return `Resposta: ${result.answer}\nLinhas (${result.rows.length}): ${JSON.stringify(rows).slice(0, 4000)}`
+          const research = await gatherKnowledgeResearch({ clientId: client.slug, question: pergunta })
+          for (const database of research.databases) {
+            addSource(log, { kind: database.sourceId === 'cadence' ? 'cadence' : 'database', label: database.sourceName })
+          }
+          for (const item of research.evidence.filter(item => item.kind === 'meeting' || item.kind === 'document').slice(0, 3)) {
+            addSource(log, { kind: 'cadence', label: item.title })
+          }
+          const statuses = research.statuses
+            .map(status => `- ${status.label}: ${status.state}${status.detail ? ` (${status.detail})` : ''}`)
+            .join('\n')
+          return `Status das fontes:\n${statuses || '- nenhuma fonte consultada'}\n\nEvidências:\n${formatKnowledgeResearchForPrompt(research)}`.slice(
+            0,
+            12_000
+          )
         } catch (error) {
           return errorText(error)
         }

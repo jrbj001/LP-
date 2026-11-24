@@ -9,6 +9,7 @@ import type {
   MeetingBotStatus,
   TranscriptSegment,
 } from '@/lib/meeting-agent/types'
+import { MeetingTable } from '@/components/meeting-agent/meeting-table'
 
 const POLL_MS = 4000
 const RECALL_SYNC_EVERY = 5
@@ -350,6 +351,7 @@ function BotPanel({
                   <p className="mt-1.5 whitespace-pre-line text-neutral-600">
                     {item.answer ?? `Sem resposta (${item.error ?? 'erro'})`}
                   </p>
+                  {item.artifact && <MeetingTable artifact={item.artifact} href={item.artifactHref} />}
                   {item.sources.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {item.sources.map(source =>

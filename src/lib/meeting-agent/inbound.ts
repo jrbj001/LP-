@@ -3,7 +3,10 @@ import 'server-only'
 import { getClient } from '@/lib/client/registry'
 import { CADENCE_BOT_NAME, sendChatMessage } from '@/lib/recall/client'
 import { answerMeetingQuestion } from './agent'
+import { artifactUrl } from './artifact-link'
+import { questionNeedsLookup } from './lookup'
 import { runPostMeeting } from './post-meeting'
+import { answerMeetingLookup } from './research-reply'
 import {
   clearPendingWake,
   consumePendingWake,
@@ -17,7 +20,8 @@ import {
   updateBotStatus,
 } from './store'
 import { speakableText } from './speech-text'
-import type { MeetingBotRecord, MeetingBotStatus } from './types'
+import { formatGridForChat } from './table-artifact'
+import type { MeetingBotRecord, MeetingBotStatus, MeetingTableArtifact } from './types'
 import { detectWakeWord, priorQuestion } from './wake-word'
 import { voiceEnabled } from './voice'
 
@@ -27,6 +31,7 @@ const LOOKBACK_MINUTES = 3
 const LIVE_LISTENING_STALE_MS = 2 * 60_000
 const ASK_PROMPT = 'Oi, tô aqui. Pode perguntar.'
 const FAILURE_REPLY = 'Não consegui responder agora. Pode repetir a pergunta daqui a pouco?'
+const LOOKUP_ACK = 'Vou verificar e mando o detalhe no chat.'
 
 const STATUS_BY_EVENT: Record<string, MeetingBotStatus> = {
   'bot.joining_call': 'joining',
@@ -63,22 +68,37 @@ function isLiveListening(bot: MeetingBotRecord): boolean {
   return Date.now() - new Date(bot.liveListeningAt).getTime() < LIVE_LISTENING_STALE_MS
 }
 
-/** Enfileira no máximo uma fala por resposta; a página do avatar toca assim que chega. */
+/**
+ * Até duas falas por resposta, em ordem: o aviso de consulta e o resultado.
+ * A conversa genérica usa só uma. Texto repetido não entra de novo.
+ */
 function speaker(bot: MeetingBotRecord) {
   const pending: Promise<void>[] = []
-  let spoken = false
+  const said = new Set<string>()
   return {
     say(text: string) {
-      if (spoken || !text.trim() || !voiceEnabled()) return
-      spoken = true
+      const clean = speakableText(text)
+      if (!clean || said.has(clean) || said.size >= 2 || !voiceEnabled()) return
+      said.add(clean)
       pending.push(
-        enqueueSpeech(bot.id, bot.clientId, speakableText(text)).catch((error: unknown) => {
+        enqueueSpeech(bot.id, bot.clientId, clean).catch((error: unknown) => {
           console.error('[meeting-agent/speech-queue]', error instanceof Error ? error.message : error)
         })
       )
     },
     done: () => Promise.all(pending),
   }
+}
+
+/** O chat da call só recebe texto: a grade vira linhas e o CSV vira link. */
+function chatBody(answer: string, artifact: MeetingTableArtifact | null, interactionId: string): string {
+  if (!artifact) return answer
+  if (artifact.kind === 'grid') return `${answer}\n\n${formatGridForChat(artifact)}`
+  const link = artifactUrl(interactionId)
+  const line = link
+    ? `Planilha com ${artifact.rowCount} linhas (${artifact.sourceName}): ${link}`
+    : `Há ${artifact.rowCount} linhas em ${artifact.sourceName}. A planilha está no painel da reunião.`
+  return `${answer}\n\n${line}`
 }
 
 /** Chat da call pelo Recall. No sandbox não há call: a resposta aparece pelas interações. */
@@ -91,21 +111,25 @@ async function respond(bot: MeetingBotRecord, question: string, from: string | n
   if (!client || (!bot.recallBotId && !bot.sandbox)) return
   const started = Date.now()
   const voice = speaker(bot)
-
-  void sendChat(bot, `Verificando: "${question.slice(0, 160)}"…`).catch(() => {})
+  const lookup = questionNeedsLookup(question)
+  if (lookup) {
+    voice.say(LOOKUP_ACK)
+    void sendChat(bot, 'Verificando…').catch(() => {})
+  }
 
   try {
-    const result = await answerMeetingQuestion({
-      client,
-      botId: bot.id,
-      question,
-      speaker: from,
-      onSpoken: text => voice.say(text),
-    })
+    const result = lookup
+      ? await answerMeetingLookup({ client, botId: bot.id, question })
+      : await answerMeetingQuestion({
+          client,
+          botId: bot.id,
+          question,
+          speaker: from,
+          onSpoken: text => voice.say(text),
+        })
+    const artifact = result.artifact
     voice.say(result.spoken)
-    await sendChat(bot, result.answer)
-    await voice.done()
-    await insertInteraction({
+    const interactionId = await insertInteraction({
       botId: bot.id,
       clientId: bot.clientId,
       speaker: from,
@@ -114,7 +138,10 @@ async function respond(bot: MeetingBotRecord, question: string, from: string | n
       tools: result.tools,
       sources: result.sources,
       latencyMs: Date.now() - started,
+      artifact,
     })
+    await sendChat(bot, chatBody(result.answer, artifact, interactionId))
+    await voice.done()
   } catch (error) {
     const message = error instanceof Error ? error.message : 'erro desconhecido'
     console.error('[meeting-agent/respond]', message)

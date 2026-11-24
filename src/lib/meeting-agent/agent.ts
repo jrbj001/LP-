@@ -4,37 +4,34 @@ import { stepCountIs, streamText } from 'ai'
 import { toAiError } from '@/lib/ai/ai-error'
 import { aiModel, codingModel, requireAiCredentials } from '@/lib/ai/gateway'
 import type { ClientWorkspace } from '@/lib/client/types'
+import { CADENCE_INTRO_CHAT, CADENCE_INTRO_SPOKEN, isSelfIntro } from './intro'
 import { formatTranscript } from './meetings'
 import { PIXELPULSELAB_PROFILE } from './pixelpulselab'
 import { completedSpoken, splitAgentReply } from './speech-text'
 import { listRecentSegments } from './store'
-import { buildMeetingAgentTools, type ToolRunLog } from './tools'
 import type { AgentSource } from './types'
 
-const AGENT_TIMEOUT_MS = 45_000
+/** Conversa genérica não consulta banco: a fala sai assim que a primeira frase fecha. */
+const DIRECT_TIMEOUT_MS = 20_000
 const MAX_CHAT_CHARS = 2400
 
 function agentModel(): string {
   return process.env.CADENCE_AGENT_MODEL?.trim() || codingModel()
 }
 
-function systemPrompt(client: ClientWorkspace): string {
-  return `Você é o Cadence, Product Engineer de IA da PixelPulseLab, participando ao vivo de uma reunião com o time de ${client.name}.
-Você é um colega experiente e conversa sobre qualquer assunto: tecnologia, produto, engenharia, negócios, mercado, ideias e conhecimento geral.
-No contexto do cliente, você une produto e engenharia: explica como o sistema funciona hoje, o que já foi entregue, o que está no backlog e o que precisaria ser feito.
+/** Conversa, opinião ou tema geral: uma chamada só, sem ferramenta e sem fala de espera. */
+function directPrompt(client: ClientWorkspace): string {
+  return `Você é o Cadence, Product Engineer da PixelPulseLab, numa reunião com o time de ${client.name}.
+Você só fala quando alguém te chama. O detalhe vai no chat.
 
-Quando usar ferramentas:
-- Para fatos sobre o código, PRs, entregas, backlog, dados ou documentação de ${client.name}, use as ferramentas antes de afirmar. Não invente arquivos, PRs, números, prazos ou decisões.
-- Se as ferramentas não trouxerem evidência, diga que não encontrou e sugira onde procurar.
-- Para conhecimento geral, opinião técnica ou conversa, responda direto com o que você sabe, sem ferramentas.
-- Não escreva nada antes de chamar uma ferramenta.
-
-Sobre a PixelPulseLab, para quando pedirem para apresentar a empresa ou falar dela:
-${PIXELPULSELAB_PROFILE}
+A pergunta é conversa, opinião ou tema geral: responda na hora, com o que você sabe. Não diga que vai verificar e não invente número, prazo ou decisão do cliente.
 
 Formato obrigatório, sempre as duas partes nesta ordem:
-FALA: o que você diz em voz alta na call. No máximo duas frases curtas (até 30 palavras no total), em português do Brasil, tom natural de conversa, como uma pessoa falaria. Vá direto ao ponto, sem repetir a pergunta. Sem listas, links, números de PR, caminhos de arquivo ou siglas soletradas. Se houver detalhes, diga algo como "mandei os detalhes no chat".
-CHAT: a resposta completa para o chat da reunião: explicação, passos, links e detalhes. Texto simples, no máximo 8 tópicos curtos, sem tabelas e sem blocos de código longos. Ao falar da PixelPulseLab, inclua o link https://pixelpulselab.dev. Só quando tiver usado ferramentas, termine com uma linha "Fontes:" listando arquivos, PRs (#número), páginas do Notion ou "base do Cadence"; sem ferramentas, não escreva "Fontes:".`
+FALA: no máximo duas frases curtas (até 30 palavras), em português do Brasil, tom de conversa. Se a resposta couber nisso, pare por aqui.
+CHAT: no máximo duas frases completando a fala. Sem lista longa, sem "Fontes:" e sem dizer que mandou detalhe se não houver detalhe.
+
+Sobre a PixelPulseLab, se pedirem a empresa:
+${PIXELPULSELAB_PROFILE}`
 }
 
 export interface MeetingAgentAnswer {
@@ -44,6 +41,7 @@ export interface MeetingAgentAnswer {
   answer: string
   tools: string[]
   sources: AgentSource[]
+  artifact: null
 }
 
 export async function answerMeetingQuestion(input: {
@@ -54,8 +52,18 @@ export async function answerMeetingQuestion(input: {
   /** Chamado assim que a fala fica pronta, antes de o texto do chat terminar. */
   onSpoken?: (spoken: string) => void
 }): Promise<MeetingAgentAnswer> {
+  if (isSelfIntro(input.question)) {
+    input.onSpoken?.(CADENCE_INTRO_SPOKEN)
+    return {
+      spoken: CADENCE_INTRO_SPOKEN,
+      answer: CADENCE_INTRO_CHAT,
+      tools: [],
+      sources: [],
+      artifact: null,
+    }
+  }
+
   requireAiCredentials()
-  const log: ToolRunLog = { tools: [], sources: [] }
   const recent = await listRecentSegments(input.botId, 5)
   const transcript = formatTranscript(recent, 6000)
 
@@ -63,12 +71,11 @@ export async function answerMeetingQuestion(input: {
   try {
     const result = streamText({
       model: aiModel(agentModel()),
-      system: systemPrompt(input.client),
+      system: directPrompt(input.client),
       prompt: `Últimos minutos da reunião:\n${transcript || '(sem transcrição ainda)'}\n\nPergunta de ${input.speaker || 'um participante'} para você: ${input.question}`,
-      tools: buildMeetingAgentTools({ client: input.client, botId: input.botId, log }),
-      stopWhen: stepCountIs(5),
-      maxOutputTokens: 900,
-      abortSignal: AbortSignal.timeout(AGENT_TIMEOUT_MS),
+      stopWhen: stepCountIs(1),
+      maxOutputTokens: 400,
+      abortSignal: AbortSignal.timeout(DIRECT_TIMEOUT_MS),
       onError: ({ error }) => {
         streamError = error
       },
@@ -92,12 +99,12 @@ export async function answerMeetingQuestion(input: {
     const finalText = (steps[steps.length - 1]?.text || partial).trim()
     if (!finalText) {
       const fallback = 'Não consegui formular uma resposta agora.'
-      return { spoken: fallback, answer: fallback, tools: log.tools, sources: log.sources }
+      return { spoken: fallback, answer: fallback, tools: [], sources: [], artifact: null }
     }
 
     const { spoken, chat } = splitAgentReply(finalText)
     const answer = chat.length > MAX_CHAT_CHARS ? `${chat.slice(0, MAX_CHAT_CHARS - 1)}…` : chat
-    return { spoken, answer, tools: log.tools, sources: log.sources }
+    return { spoken, answer, tools: [], sources: [], artifact: null }
   } catch (error) {
     throw toAiError(error)
   }

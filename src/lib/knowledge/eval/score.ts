@@ -2,6 +2,7 @@ import { applySourceTableSemantics } from '@/lib/data-sources/semantics'
 import type { DataSourceCatalogEntry } from '@/lib/data-sources/types'
 import { inferQuestionIntent } from '../intent'
 import { finalizeKnowledgePlan, type KnowledgePlanSource } from '../planner'
+import type { WorkspaceSourceId } from '../source-guide'
 import {
   KNOWLEDGE_EVAL_CASES,
   KNOWLEDGE_EVAL_NOW,
@@ -62,6 +63,7 @@ function naivePlan(sources: KnowledgePlanSource[], question: string) {
   return {
     searchQuery: question,
     databaseSourceIds: sources.slice(0, 2).map(source => source.id),
+    workspaceSourceIds: [] as WorkspaceSourceId[],
     reason: 'Plano ingênuo do baseline (simula LLM escolhendo as primeiras fontes).',
   }
 }

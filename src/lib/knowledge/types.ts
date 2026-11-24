@@ -1,7 +1,7 @@
 import type { QuestionIntent } from './intent'
 import type { QueryCritique } from './result-critic'
 
-export type KnowledgeSourceKind = 'github' | 'database' | 'meeting' | 'document'
+export type KnowledgeSourceKind = 'github' | 'database' | 'meeting' | 'document' | 'notion' | 'monday'
 
 export interface KnowledgeEvidence {
   id: string
@@ -40,6 +40,8 @@ export interface KnowledgeResearch {
   evidence: KnowledgeEvidence[]
   databases: KnowledgeDatabaseResult[]
   statuses: KnowledgeSourceStatus[]
+  /** Fontes do workspace disponíveis que o orquestrador decidiu não consultar nesta pergunta. */
+  skippedSources?: string[]
 }
 
 export interface KnowledgeAnswer extends KnowledgeResearch {

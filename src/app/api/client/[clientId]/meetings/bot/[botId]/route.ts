@@ -1,6 +1,7 @@
 import { after, NextResponse } from 'next/server'
 import { requireClientSession } from '@/lib/client/auth'
 import { getClient } from '@/lib/client/registry'
+import { artifactPath } from '@/lib/meeting-agent/artifact-link'
 import { statusFromRecallCode } from '@/lib/meeting-agent/inbound'
 import { runPostMeeting } from '@/lib/meeting-agent/post-meeting'
 import {
@@ -65,7 +66,16 @@ export async function GET(req: Request, { params }: Params) {
   }
 
   const [segments, interactions] = await Promise.all([listSegments(bot.id, afterId), listInteractions(bot.id)])
-  return NextResponse.json({ ok: true, bot, segments, interactions })
+  return NextResponse.json({
+    ok: true,
+    bot,
+    segments,
+    interactions: interactions.map(item => ({
+      ...item,
+      artifact: item.artifact ? { ...item.artifact, csv: undefined } : null,
+      artifactHref: item.artifact?.kind === 'csv' ? artifactPath(item.id) : null,
+    })),
+  })
 }
 
 export async function POST(req: Request, { params }: Params) {
