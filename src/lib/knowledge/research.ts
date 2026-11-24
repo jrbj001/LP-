@@ -12,6 +12,9 @@ import { getDataModel } from '@/lib/data-sources/model/store'
 import type { DataModelAi } from '@/lib/data-sources/model/types'
 import { seedEnvDataSources } from '@/lib/data-sources/seed'
 import { listDataSources } from '@/lib/data-sources/store'
+import { readBe180MondayConfig, searchMondayBoardItems, type MondayBoardHit } from '@/lib/monday/publish'
+import { BE180_MONDAY_CLIENT_ID } from '@/lib/monday/story'
+import { hasNotionAccess, searchNotionPages, type NotionPageHit } from '@/lib/notion/search'
 import { isKnowledgePipelineEnabled } from './flag'
 import { inferQuestionIntent, resolveQuestionIntent } from './intent'
 import { sanitizeSourceError } from './safe-status'
@@ -154,8 +157,14 @@ export async function gatherKnowledgeResearch(input: {
 
   const searchAllKnowledge = !input.sourceId
   const hasGithub = (client.delivery?.repos ?? []).length > 0
+  const mondayReady = client.slug === BE180_MONDAY_CLIENT_ID && readBe180MondayConfig().ok
   const availableWorkspace: WorkspaceSourceId[] = searchAllKnowledge
-    ? WORKSPACE_SOURCE_IDS.filter(id => id !== 'github' || hasGithub)
+    ? WORKSPACE_SOURCE_IDS.filter(id => {
+        if (id === 'github') return hasGithub
+        if (id === 'notion') return hasNotionAccess()
+        if (id === 'monday') return mondayReady
+        return true
+      })
     : []
 
   let plan: KnowledgePlan
@@ -196,6 +205,8 @@ export async function gatherKnowledgeResearch(input: {
   const wantsGithub = searchAllKnowledge && plan.workspaceSourceIds.includes('github')
   const wantsMeetings = searchAllKnowledge && plan.workspaceSourceIds.includes('meetings')
   const wantsDocuments = searchAllKnowledge && plan.workspaceSourceIds.includes('documents')
+  const wantsNotion = searchAllKnowledge && plan.workspaceSourceIds.includes('notion')
+  const wantsMonday = searchAllKnowledge && plan.workspaceSourceIds.includes('monday')
   const githubPromise = wantsGithub
     ? gatherGithubContextForQuery(
         {
@@ -218,6 +229,18 @@ export async function gatherKnowledgeResearch(input: {
           documents: [],
           catalog: { meetings: [] as string[], documents: [] as string[] },
         })
+  const notionPromise: Promise<{ ok: true; pages: NotionPageHit[] } | { ok: false; error: string }> = wantsNotion
+    ? searchNotionPages(plan.searchQuery)
+        .then(pages => ({ ok: true as const, pages }))
+        .catch(error => ({ ok: false as const, error: sanitizeSourceError(error) }))
+    : Promise.resolve({ ok: true as const, pages: [] })
+  const mondayConfig = wantsMonday ? readBe180MondayConfig() : null
+  const mondayPromise: Promise<{ ok: true; items: MondayBoardHit[] } | { ok: false; error: string }> =
+    wantsMonday && mondayConfig?.ok
+      ? searchMondayBoardItems(mondayConfig.config, plan.searchQuery)
+          .then(items => ({ ok: true as const, items }))
+          .catch(error => ({ ok: false as const, error: sanitizeSourceError(error) }))
+      : Promise.resolve({ ok: true as const, items: [] })
 
   const databaseTasks = plan.databaseSourceIds.map(async sourceId => {
     const source = selectedSources.find(item => item.id === sourceId)
@@ -244,9 +267,11 @@ export async function gatherKnowledgeResearch(input: {
     }
   })
 
-  const [github, workspace, ...databaseOutcomes] = await Promise.all([
+  const [github, workspace, notion, monday, ...databaseOutcomes] = await Promise.all([
     githubPromise,
     workspacePromise,
+    notionPromise,
+    mondayPromise,
     ...databaseTasks,
   ])
   const databases = databaseOutcomes.flatMap(outcome =>
@@ -276,6 +301,26 @@ export async function gatherKnowledgeResearch(input: {
       excerpt: clip(item.excerpt || item.description),
     })),
     ...databases.map(databaseEvidence),
+    ...(notion.ok
+      ? notion.pages.map((page, index) => ({
+          id: `notion-${index + 1}`,
+          kind: 'notion' as const,
+          source: 'Notion',
+          title: page.title,
+          excerpt: clip(page.text || page.title),
+          href: page.url,
+        }))
+      : []),
+    ...(monday.ok
+      ? monday.items.map((item, index) => ({
+          id: `monday-${index + 1}`,
+          kind: 'monday' as const,
+          source: 'Monday',
+          title: item.name,
+          excerpt: clip(item.excerpt || item.name),
+          href: item.url,
+        }))
+      : []),
   ]
 
   const statuses: KnowledgeSourceStatus[] = []
@@ -291,6 +336,20 @@ export async function gatherKnowledgeResearch(input: {
   }
   if (wantsDocuments) {
     statuses.push(statusFor('documents', 'Documentos', workspace.documents.length, 'Nenhum documento relevante encontrado.'))
+  }
+  if (wantsNotion) {
+    statuses.push(
+      notion.ok
+        ? statusFor('notion', 'Notion', notion.pages.length, 'Nenhuma página relevante encontrada.')
+        : { id: 'notion', label: 'Notion', state: 'error', detail: notion.error }
+    )
+  }
+  if (wantsMonday) {
+    statuses.push(
+      monday.ok
+        ? statusFor('monday', 'Monday', monday.items.length, 'Nenhum item relevante encontrado.')
+        : { id: 'monday', label: 'Monday', state: 'error', detail: monday.error }
+    )
   }
   const skippedSources = availableWorkspace
     .filter(id => !plan.workspaceSourceIds.includes(id))

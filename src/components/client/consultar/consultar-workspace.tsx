@@ -22,7 +22,7 @@ interface QueryPayload {
   chart: { labelKey: string; valueKey: string } | null
   evidence: {
     id: string
-    kind: 'github' | 'database' | 'meeting' | 'document'
+    kind: 'github' | 'database' | 'meeting' | 'document' | 'notion' | 'monday'
     source: string
     title: string
     excerpt: string

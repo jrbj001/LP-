@@ -40,10 +40,7 @@ export function finalizeKnowledgePlan(
   if (!required) return plan
   return capPlan({
     ...plan,
-    databaseSourceIds: [
-      required.id,
-      ...plan.databaseSourceIds.filter(id => id !== required.id && id !== 'cadence'),
-    ],
+    databaseSourceIds: [required.id],
     reason: `${plan.reason}${plan.reason ? ' ' : ''}Fonte de produção obrigatória para pergunta factual.`,
   })
 }
@@ -105,13 +102,14 @@ ${availableWorkspace.map(source => `- ${source.id} (${source.label}): ${source.d
 Bancos (use o id): escolha quando a pergunta pedir fatos, contagens, listas, datas, status atual ou cruzamento com dados operacionais.
 Não escolha nada para saudação, opinião ou explicação puramente conceitual.
 Quando pedir decisão, combinado ou "o que falamos", inclua reuniões. Quando pedir como algo funciona no código, inclua GitHub.
+Quando a pergunta citar Notion ou Monday, inclua essa fonte. Não escolha uma fonte que não esteja na lista.
 Se a pergunta misturar dado de negócio (status, quantidade, registro) com decisão ou contexto, escolha as fontes dos dois lados: banco e reuniões.
 Perguntas sobre usuários, registros ou volumes de um produto devem usar o banco de produção desse produto, nunca o Workspace Cadence.
 
 "searchQuery" reescreve a pergunta com termos e sinônimos úteis para procurar, sem mudar a intenção.
 
 Use apenas ids disponíveis. Retorne somente JSON:
-{"searchQuery":"consulta enriquecida","databaseSourceIds":["id"],"workspaceSourceIds":["github|meetings|documents"],"reason":"motivo curto"}.`,
+{"searchQuery":"consulta enriquecida","databaseSourceIds":["id"],"workspaceSourceIds":["github|meetings|documents|notion|monday"],"reason":"motivo curto"}.`,
     `Pergunta: ${input.question}
 Contexto recente: ${input.recentContext || '—'}
 

@@ -4,6 +4,7 @@ import { stepCountIs, streamText } from 'ai'
 import { toAiError } from '@/lib/ai/ai-error'
 import { aiModel, codingModel, requireAiCredentials } from '@/lib/ai/gateway'
 import type { ClientWorkspace } from '@/lib/client/types'
+import { CADENCE_INTRO_CHAT, CADENCE_INTRO_SPOKEN, isSelfIntro } from './intro'
 import { formatTranscript } from './meetings'
 import { PIXELPULSELAB_PROFILE } from './pixelpulselab'
 import { completedSpoken, splitAgentReply } from './speech-text'
@@ -20,7 +21,9 @@ function agentModel(): string {
 
 /** Conversa, opinião ou tema geral: uma chamada só, sem ferramenta e sem fala de espera. */
 function directPrompt(client: ClientWorkspace): string {
-  return `Você é o Cadence, Product Engineer de IA da PixelPulseLab, numa reunião com o time de ${client.name}.
+  return `Você é o Cadence, Product Engineer da PixelPulseLab, numa reunião com o time de ${client.name}.
+Você só fala quando alguém te chama. O detalhe vai no chat.
+
 A pergunta é conversa, opinião ou tema geral: responda na hora, com o que você sabe. Não diga que vai verificar e não invente número, prazo ou decisão do cliente.
 
 Formato obrigatório, sempre as duas partes nesta ordem:
@@ -49,6 +52,17 @@ export async function answerMeetingQuestion(input: {
   /** Chamado assim que a fala fica pronta, antes de o texto do chat terminar. */
   onSpoken?: (spoken: string) => void
 }): Promise<MeetingAgentAnswer> {
+  if (isSelfIntro(input.question)) {
+    input.onSpoken?.(CADENCE_INTRO_SPOKEN)
+    return {
+      spoken: CADENCE_INTRO_SPOKEN,
+      answer: CADENCE_INTRO_CHAT,
+      tools: [],
+      sources: [],
+      artifact: null,
+    }
+  }
+
   requireAiCredentials()
   const recent = await listRecentSegments(input.botId, 5)
   const transcript = formatTranscript(recent, 6000)

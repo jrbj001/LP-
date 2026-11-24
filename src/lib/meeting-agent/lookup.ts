@@ -8,7 +8,7 @@ const FACT_ASK = /\b(quantos?|quantas|total|quantidade|n[uú]mero|lista|liste|ra
  * Sinais de dado operacional. Não inclui "ativo" no singular: em conversa é adjetivo
  * ("o time está ativo") e mandaria uma pergunta genérica para a pesquisa.
  */
-const NOTION_ASK = /\bnotion\b/i
+const NOTION_ASK = /\b(notion|monday)\b/i
 
 const DATA_TOPIC =
   /\b(banco de dados|tabelas?|sql|usu[aá]rios?|pontos? de m[ií]dia|roteiros?|campanhas?|invent[aá]rio|exibidor\w*|amostras?|lotes?|registros?|m[eé]tricas?|pedidos?|vendas?)\b/i

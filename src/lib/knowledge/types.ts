@@ -1,7 +1,7 @@
 import type { QuestionIntent } from './intent'
 import type { QueryCritique } from './result-critic'
 
-export type KnowledgeSourceKind = 'github' | 'database' | 'meeting' | 'document'
+export type KnowledgeSourceKind = 'github' | 'database' | 'meeting' | 'document' | 'notion' | 'monday'
 
 export interface KnowledgeEvidence {
   id: string
