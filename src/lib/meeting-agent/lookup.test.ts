@@ -11,6 +11,14 @@ describe('questionNeedsLookup', () => {
     expect(questionNeedsLookup('como você está hoje?')).toBe(false)
   })
 
+  it('apresentação e o nome dele no meio da frase ficam no caminho rápido', () => {
+    expect(questionNeedsLookup('Se apresente pra mim, Cadence, primeiro')).toBe(false)
+    expect(questionNeedsLookup('Cadence, o que você acha disso?')).toBe(false)
+    expect(questionNeedsLookup('quem é você, Cadence?')).toBe(false)
+    expect(questionNeedsLookup('Cadence, quantos exibidores temos no banco de ativos?')).toBe(true)
+    expect(questionNeedsLookup('o que está no backlog do Cadence?')).toBe(true)
+  })
+
   it('manda para a pesquisa quando há fato, código, reunião, documento ou dado', () => {
     expect(questionNeedsLookup('quantos pontos de mídia ativos temos hoje?')).toBe(true)
     expect(questionNeedsLookup('o que foi decidido sobre a promoção?')).toBe(true)
