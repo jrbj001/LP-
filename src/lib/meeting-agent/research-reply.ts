@@ -2,6 +2,7 @@ import 'server-only'
 
 import { callOpenAiJson, chatModel } from '@/lib/backlog/llm'
 import type { ClientWorkspace } from '@/lib/client/types'
+import { projectsBrief } from '@/lib/knowledge/portfolio'
 import { formatKnowledgeResearchForPrompt, gatherKnowledgeResearch } from '@/lib/knowledge/research'
 import { formatTranscript } from './meetings'
 import { speakableText } from './speech-text'
@@ -60,7 +61,8 @@ export async function answerMeetingLookup(input: {
 Use só as evidências. Não invente número, decisão ou arquivo.
 "spoken": uma frase assertiva, até 25 palavras, com o fato principal. Sem lista, sem link, sem dizer que vai verificar.
 "chat": o detalhe, até 8 tópicos curtos. Não despeje as linhas da tabela: a grade ou a planilha vão à parte. Cite a fonte pelo nome.
-Se não houver evidência, diga isso nas duas partes.
+O cadastro dos projetos também é fonte: use-o para nome, status, dono e descrição de projeto, citando "cadastro do workspace". Para número, decisão ou código, valem só as evidências.
+Se não houver evidência nem cadastro que responda, diga isso nas duas partes.
 Se a pergunta cita uma base ou sistema que não aparece no Status (ex.: Banco de Ativos, Colmeia), diga que essa fonte não está conectada a este workspace. Não apresente um zero de outra base como se fosse o total pedido.
 Retorne somente JSON: {"spoken":"...","chat":"..."}.`,
       `Pergunta: ${input.question}
@@ -72,7 +74,10 @@ Status:
 ${research.statuses.map(status => `- ${status.label}: ${status.state}${status.detail ? ` — ${status.detail}` : ''}`).join('\n') || '- nenhuma fonte'}
 
 Evidências:
-${formatKnowledgeResearchForPrompt(research)}`,
+${formatKnowledgeResearchForPrompt(research)}
+
+Cadastro dos projetos:
+${projectsBrief(input.client)}`,
       { temperature: 0.1, maxTokens: 700, model: chatModel() }
     )) as Record<string, unknown>
     if (typeof parsed.spoken === 'string' && parsed.spoken.trim()) spoken = parsed.spoken.trim()

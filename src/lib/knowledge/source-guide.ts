@@ -23,7 +23,7 @@ export const WORKSPACE_SOURCES: WorkspaceSourceGuide[] = [
     label: 'GitHub',
     description:
       'código, PRs e commits dos repositórios: como algo é implementado, mudanças recentes e trechos de código',
-    askPattern: /\b(c[oó]digo|github|reposit[oó]ri\w*|pull requests?|prs?|commits?|branch|implementa\w*|arquivos?|fun[cç][aã]o|bugs?)\b/i,
+    askPattern: /\b(c[oó]digo|github|reposit[oó]ri\w*|pull requests?|prs?|commits?|branch|implementa\w*|arquivos?|fun[cç][aã]o|bugs?|lp|landing page)\b/i,
   },
   {
     id: 'meetings',

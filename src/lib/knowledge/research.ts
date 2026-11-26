@@ -6,6 +6,7 @@ import { runNaturalLanguageQuery } from '@/lib/cadence/nl-sql'
 import { seedCadenceClient } from '@/lib/cadence/seed'
 import { gatherWorkspaceContext } from '@/lib/cadence/workspace-gather'
 import { getClient } from '@/lib/client/registry'
+import type { ClientWorkspace } from '@/lib/client/types'
 import { runExternalNaturalLanguageQuery } from '@/lib/data-sources/nl-sql'
 import { dictionaryOverviewForPrompt } from '@/lib/data-sources/model/dictionary'
 import { getDataModel } from '@/lib/data-sources/model/store'
@@ -20,6 +21,7 @@ import { inferQuestionIntent, resolveQuestionIntent } from './intent'
 import { sanitizeSourceError } from './safe-status'
 import { logKnowledgeTrace } from './trace'
 import { finalizeKnowledgePlan, planKnowledgeResearch } from './planner'
+import { isPortfolioWorkspace, knowledgeClients, knowledgeRepos } from './portfolio'
 import { applyWorkspaceRules, type KnowledgePlan, type KnowledgePlanSource, ruleBasedPlan } from './routing'
 import { WORKSPACE_SOURCE_IDS, type WorkspaceSourceId, workspaceSourceLabel } from './source-guide'
 import type {
@@ -70,59 +72,102 @@ function statusFor(
     : { id, label, state: 'empty', detail: emptyDetail }
 }
 
-async function availableDatabaseSources(clientId: string): Promise<{
-  planner: KnowledgePlanSource[]
-  externalNames: Map<string, string>
-}> {
+/** O seed testa a conexão de cada banco; repetir isso a cada pergunta atrasa a resposta. */
+const SEED_TTL_MS = 10 * 60 * 1000
+const seededAt = new Map<string, number>()
+
+async function seedOnce(clientId: string): Promise<void> {
+  const last = seededAt.get(clientId)
+  if (last && Date.now() - last < SEED_TTL_MS) return
   try {
     await seedEnvDataSources(clientId)
+    seededAt.set(clientId, Date.now())
   } catch (error) {
-    console.warn('[knowledge/research] seed data sources', error)
+    console.warn('[knowledge/research] seed data sources', clientId, error)
   }
-  const external = await listDataSources(clientId)
-  const enabled = external.filter(source => source.enabled)
+}
+
+/** Fonte de banco consultável: o dono é o workspace que cadastrou o banco. */
+interface DatabaseSourceRef {
+  clientId: string
+  sourceId: string
+}
+
+/** No portfólio, o id do planejador leva o workspace dono para não colidir entre clientes. */
+function plannerSourceId(hostSlug: string, clientId: string, sourceId: string): string {
+  return clientId === hostSlug ? sourceId : `${clientId}::${sourceId}`
+}
+
+async function availableDatabaseSources(
+  hostSlug: string,
+  clients: ClientWorkspace[]
+): Promise<{
+  planner: KnowledgePlanSource[]
+  refs: Map<string, DatabaseSourceRef>
+}> {
+  const labelled = clients.length > 1 || clients[0]?.slug !== hostSlug
   const planner: KnowledgePlanSource[] = []
+  const refs = new Map<string, DatabaseSourceRef>()
   if (hasCadenceDatabase()) {
     planner.push({
       id: 'cadence',
       label: 'Workspace Cadence',
       description: 'cards, PRs, commits, reuniões e metadados de documentos do workspace',
     })
+    refs.set('cadence', { clientId: hostSlug, sourceId: 'cadence' })
   }
-  const models = await Promise.all(
-    enabled.map(source => getDataModel(clientId, source.id).catch(() => null))
-  )
-  enabled.forEach((source, index) => {
-    planner.push({
-      id: source.id,
-      label: source.name,
-      description: databaseDescription(
-        source.name,
-        source.kind,
-        source.catalog.entries.map(entry => `${entry.schema}.${entry.table}`),
-        models[index]?.ai ?? null
-      ),
+
+  const perClient = await Promise.all(
+    clients.map(async client => {
+      await seedOnce(client.slug)
+      const enabled = (await listDataSources(client.slug)).filter(source => source.enabled)
+      const models = await Promise.all(
+        enabled.map(source => getDataModel(client.slug, source.id).catch(() => null))
+      )
+      return { client, enabled, models }
     })
-  })
-  return {
-    planner,
-    externalNames: new Map(enabled.map(source => [source.id, source.name])),
+  )
+
+  for (const { client, enabled, models } of perClient) {
+    enabled.forEach((source, index) => {
+      const id = plannerSourceId(hostSlug, client.slug, source.id)
+      const label =
+        labelled && !source.name.toLowerCase().includes(client.name.toLowerCase())
+          ? `${client.name} · ${source.name}`
+          : source.name
+      planner.push({
+        id,
+        label,
+        description: databaseDescription(
+          label,
+          source.kind,
+          source.catalog.entries.map(entry => `${entry.schema}.${entry.table}`),
+          models[index]?.ai ?? null
+        ),
+      })
+      refs.set(id, { clientId: client.slug, sourceId: source.id })
+    })
   }
+  return { planner, refs }
 }
 
 async function runDatabase(
-  clientId: string,
-  sourceId: string,
+  ref: DatabaseSourceRef,
+  plannerId: string,
   sourceName: string,
   question: string
 ): Promise<KnowledgeDatabaseResult> {
-  if (sourceId === 'cadence') {
-    await seedCadenceClient(clientId)
-    const result = await runNaturalLanguageQuery(clientId, question)
-    return { sourceId, sourceName, question, ...result }
+  if (ref.sourceId === 'cadence') {
+    await seedCadenceClient(ref.clientId)
+    const result = await runNaturalLanguageQuery(ref.clientId, question)
+    return { sourceId: plannerId, sourceName, question, ...result }
   }
-  const result = await runExternalNaturalLanguageQuery({ clientId, sourceId, question })
-  return { sourceId, question, ...result, sourceName: result.sourceName || sourceName }
+  const result = await runExternalNaturalLanguageQuery({
+    clientId: ref.clientId,
+    sourceId: ref.sourceId,
+    question,
+  })
+  return { sourceId: plannerId, question, ...result, sourceName: sourceName || result.sourceName }
 }
 
 export async function gatherKnowledgeResearch(input: {
@@ -147,7 +192,11 @@ export async function gatherKnowledgeResearch(input: {
     ms: Date.now() - started,
   })
 
-  const dbSources = await availableDatabaseSources(client.slug)
+  // Fonte escolhida na tela Consultar é sempre do próprio workspace.
+  const scope = input.sourceId ? [client] : knowledgeClients(client, input.question)
+  const portfolio = isPortfolioWorkspace(client)
+  const repos = knowledgeRepos(scope)
+  const dbSources = await availableDatabaseSources(client.slug, scope)
   const selectedSources = input.sourceId
     ? dbSources.planner.filter(source => source.id === input.sourceId)
     : dbSources.planner
@@ -156,8 +205,9 @@ export async function gatherKnowledgeResearch(input: {
   }
 
   const searchAllKnowledge = !input.sourceId
-  const hasGithub = (client.delivery?.repos ?? []).length > 0
-  const mondayReady = client.slug === BE180_MONDAY_CLIENT_ID && readBe180MondayConfig().ok
+  const hasGithub = repos.length > 0
+  const mondayReady =
+    scope.some(item => item.slug === BE180_MONDAY_CLIENT_ID) && readBe180MondayConfig().ok
   const availableWorkspace: WorkspaceSourceId[] = searchAllKnowledge
     ? WORKSPACE_SOURCE_IDS.filter(id => {
         if (id === 'github') return hasGithub
@@ -189,7 +239,9 @@ export async function gatherKnowledgeResearch(input: {
     }
     plan = applyWorkspaceRules(question, plan, availableWorkspace)
   }
-  plan = finalizeKnowledgePlan(client.slug, question, plan, selectedSources)
+  // No portfólio, a regra de banco obrigatório vale quando a pergunta cai num único cliente.
+  const ruleClient = portfolio && scope.length === 1 ? scope[0].slug : client.slug
+  plan = finalizeKnowledgePlan(ruleClient, question, plan, selectedSources)
 
   const sourceIds = [...plan.databaseSourceIds, ...plan.workspaceSourceIds]
   logKnowledgeTrace({
@@ -214,13 +266,18 @@ export async function gatherKnowledgeResearch(input: {
           boardId: input.boardId,
           query: plan.searchQuery,
         },
-        client.delivery?.repos ?? [],
-        { allRepos: true }
-      )
+        repos,
+        { allRepos: true, maxRepos: portfolio ? 8 : undefined }
+      ).catch(error => ({
+        repos: repos.map(repo => `${repo.owner}/${repo.repo}`),
+        snippets: [],
+        activity: [],
+        notes: [`GitHub indisponível: ${sanitizeSourceError(error)}`],
+      }))
     : Promise.resolve({ repos: [], snippets: [], activity: [], notes: [] })
   const workspacePromise =
     wantsMeetings || wantsDocuments
-      ? gatherWorkspaceContext(client.slug, plan.searchQuery, {
+      ? gatherWorkspaceContext(scope.map(item => item.slug), plan.searchQuery, {
           meetings: wantsMeetings,
           documents: wantsDocuments,
         })
@@ -244,11 +301,12 @@ export async function gatherKnowledgeResearch(input: {
 
   const databaseTasks = plan.databaseSourceIds.map(async sourceId => {
     const source = selectedSources.find(item => item.id === sourceId)
-    if (!source) return null
+    const ref = dbSources.refs.get(sourceId)
+    if (!source || !ref) return null
     try {
       return {
         ok: true as const,
-        result: await runDatabase(client.slug, source.id, source.label, question),
+        result: await runDatabase(ref, source.id, source.label, question),
       }
     } catch (error) {
       const errorCode = sanitizeSourceError(error)
@@ -286,6 +344,21 @@ export async function gatherKnowledgeResearch(input: {
       excerpt: clip(item.excerpt),
       href: item.url,
     })),
+    ...github.activity
+      .filter(item => item.pulls.length > 0 || item.commits.length > 0)
+      .map((item, index) => ({
+        id: `github-activity-${index + 1}`,
+        kind: 'github' as const,
+        source: item.repo,
+        title: 'PRs mescladas e commits recentes (6 semanas)',
+        excerpt: clip(
+          [
+            `PRs: ${item.pulls.map(pr => `#${pr.number} ${pr.title} (${pr.mergedAt.slice(0, 10)})`).join('; ') || '—'}`,
+            `Commits: ${item.commits.map(commit => `${commit.date.slice(0, 10)} ${commit.message}`).join('; ') || '—'}`,
+          ].join('\n')
+        ),
+        href: `https://github.com/${item.repo}/pulls?q=is%3Amerged`,
+      })),
     ...workspace.meetings.map((item, index) => ({
       id: `meeting-${index + 1}`,
       kind: 'meeting' as const,

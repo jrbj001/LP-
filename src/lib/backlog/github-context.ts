@@ -32,6 +32,8 @@ export interface GithubContextBundle {
 export interface GithubGatherOptions {
   mode?: GithubGatherMode
   allRepos?: boolean
+  /** Teto de repositórios lidos por pergunta. O portfólio cobre mais repositórios que um cliente. */
+  maxRepos?: number
 }
 
 interface GhJsonOk<T> {
@@ -62,8 +64,21 @@ function headers(): Record<string, string> {
   return h
 }
 
+/** Uma conexão presa com o GitHub não pode segurar a resposta do Copilot nem a fala na reunião. */
+const GITHUB_TIMEOUT_MS = 12_000
+
 async function ghJson<T>(path: string): Promise<GhJsonOk<T> | GhJsonErr> {
-  const res = await fetch(`${API}${path}`, { headers: headers(), cache: 'no-store' })
+  let res: Response
+  try {
+    res = await fetch(`${API}${path}`, {
+      headers: headers(),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(GITHUB_TIMEOUT_MS),
+    })
+  } catch (error) {
+    const timedOut = error instanceof Error && error.name === 'TimeoutError'
+    return { ok: false, status: 0, message: timedOut ? 'GitHub não respondeu a tempo' : 'falha de rede com o GitHub' }
+  }
   if (!res.ok) {
     let message = `GitHub ${res.status}`
     try {
@@ -314,7 +329,7 @@ async function collectRepoActivity(repo: RepoConfig, notes: string[]): Promise<R
   try {
     const [pulls, commits] = await Promise.all([
       listMergedPulls(repo.owner, repo.repo, since),
-      listCommitsSince(repo.owner, repo.repo, since),
+      listCommitsSince(repo.owner, repo.repo, since, 1),
     ])
     return {
       repo: full,
@@ -479,7 +494,7 @@ export async function gatherGithubContextForQuery(
 
   // Todo repositório do cliente é lido: o orçamento de arquivos é dividido entre eles
   // para que nenhum fique de fora por causa de um limite global.
-  const targets = selected.slice(0, MAX_REPOS)
+  const targets = selected.slice(0, options?.maxRepos ?? MAX_REPOS)
   const totalBudget = mode === 'spec' ? 12 : 10
   const perRepoBudget = Math.max(2, Math.ceil(totalBudget / targets.length))
 

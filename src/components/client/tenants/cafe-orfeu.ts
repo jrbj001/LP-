@@ -7,6 +7,7 @@ import type { ClientWorkspace } from '@/lib/client/types'
 export const cafeOrfeu: ClientWorkspace = {
   id: 'orfeu',
   slug: 'orfeu',
+  knowledgeAliases: ['orfeu', 'cafe orfeu', 'café orfeu'],
   name: 'Café Orfeu',
   sector: 'Café especial · Adaptive Layer™',
   tagline:

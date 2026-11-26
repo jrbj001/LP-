@@ -4,6 +4,8 @@ import { stepCountIs, streamText } from 'ai'
 import { toAiError } from '@/lib/ai/ai-error'
 import { aiModel, codingModel, requireAiCredentials } from '@/lib/ai/gateway'
 import type { ClientWorkspace } from '@/lib/client/types'
+import { isPortfolioWorkspace, projectsBrief } from '@/lib/knowledge/portfolio'
+import { CADENCE_PRODUCT_PROFILE, LP_SITE_PROFILE } from './cadence-profile'
 import { CADENCE_INTRO_CHAT, CADENCE_INTRO_SPOKEN, isSelfIntro } from './intro'
 import { formatTranscript } from './meetings'
 import { PIXELPULSELAB_PROFILE } from './pixelpulselab'
@@ -21,17 +23,27 @@ function agentModel(): string {
 
 /** Conversa, opinião ou tema geral: uma chamada só, sem ferramenta e sem fala de espera. */
 function directPrompt(client: ClientWorkspace): string {
-  return `Você é o Cadence, Product Engineer da PixelPulseLab, numa reunião com o time de ${client.name}.
+  const audience = isPortfolioWorkspace(client)
+    ? 'numa reunião interna da PixelPulseLab. Você conhece todos os clientes e projetos do portfólio'
+    : `numa reunião com o time de ${client.name}. Fale só deste cliente: nunca cite dados, projetos ou repositórios de outros clientes`
+  return `Você é o Cadence, Product Engineer da PixelPulseLab, ${audience}.
 Você só fala quando alguém te chama. O detalhe vai no chat.
 
-A pergunta é conversa, opinião ou tema geral: responda na hora, com o que você sabe. Não diga que vai verificar e não invente número, prazo ou decisão do cliente.
+A pergunta é conversa, opinião, explicação ou tema geral: responda na hora, com o que você sabe e com o cadastro abaixo. Não diga que vai verificar e não invente número, prazo ou decisão do cliente. Se o cadastro não tiver o detalhe pedido, diga o que sabe e sugira pedir a consulta ao código, às reuniões ou aos dados.
 
 Formato obrigatório, sempre as duas partes nesta ordem:
 FALA: no máximo duas frases curtas (até 30 palavras), em português do Brasil, tom de conversa. Se a resposta couber nisso, pare por aqui.
-CHAT: no máximo duas frases completando a fala. Sem lista longa, sem "Fontes:" e sem dizer que mandou detalhe se não houver detalhe.
+CHAT: no máximo duas frases completando a fala. Sem "Fontes:" e sem dizer que mandou detalhe se não houver detalhe.
+Quando pedirem para explicar a PixelPulseLab, o Cadence, o site ou um projeto: FALA até três frases (até 45 palavras) com a ideia central; CHAT com até seis tópicos curtos, concretos e fiéis ao cadastro.
 
-Sobre a PixelPulseLab, se pedirem a empresa:
-${PIXELPULSELAB_PROFILE}`
+Sobre a PixelPulseLab:
+${PIXELPULSELAB_PROFILE}
+
+Sobre o Cadence (você mesmo, o produto):
+${CADENCE_PRODUCT_PROFILE}
+${isPortfolioWorkspace(client) ? `\nSobre o site e o repositório LP-:\n${LP_SITE_PROFILE}\n` : ''}
+Cadastro dos projetos:
+${projectsBrief(client)}`
 }
 
 export interface MeetingAgentAnswer {
@@ -74,7 +86,7 @@ export async function answerMeetingQuestion(input: {
       system: directPrompt(input.client),
       prompt: `Últimos minutos da reunião:\n${transcript || '(sem transcrição ainda)'}\n\nPergunta de ${input.speaker || 'um participante'} para você: ${input.question}`,
       stopWhen: stepCountIs(1),
-      maxOutputTokens: 400,
+      maxOutputTokens: 700,
       abortSignal: AbortSignal.timeout(DIRECT_TIMEOUT_MS),
       onError: ({ error }) => {
         streamError = error

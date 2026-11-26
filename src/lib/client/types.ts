@@ -85,6 +85,14 @@ export interface ClientWorkspace {
   entryPath?: string
   /** Slugs antigos que resolvem para este workspace. */
   aliases?: string[]
+  /**
+   * `portfolio`: workspace interno da PixelPulseLab. A pesquisa e o agente de reunião
+   * enxergam bancos, repositórios, reuniões e documentos de todos os workspaces.
+   * Nunca use em workspace de cliente: os dados de um cliente vazariam para outro.
+   */
+  knowledgeScope?: 'workspace' | 'portfolio'
+  /** Pistas extras da pergunta que apontam para este workspace na visão de portfólio. */
+  knowledgeAliases?: string[]
   contacts: ClientContact[]
   stats: { label: string; value: string }[]
   /** Legado — clientes maduros usam `projects` no lugar. */

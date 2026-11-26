@@ -32,6 +32,7 @@ async function gh<T>(path: string): Promise<T> {
   const res = await fetch(`${API}${path}`, {
     headers: headers(),
     cache: 'no-store',
+    signal: AbortSignal.timeout(20_000),
   })
   if (!res.ok) {
     throw new GitHubError(`GitHub ${res.status}: ${path}`, res.status)
@@ -182,9 +183,14 @@ export function getPullDetail(owner: string, repo: string, number: number): Prom
 }
 
 /** Commits do branch padrão desde uma data (stats do período). */
-export async function listCommitsSince(owner: string, repo: string, since: Date): Promise<GhCommit[]> {
+export async function listCommitsSince(
+  owner: string,
+  repo: string,
+  since: Date,
+  maxPages = 10
+): Promise<GhCommit[]> {
   const commits: GhCommit[] = []
-  for (let page = 1; page <= 10; page++) {
+  for (let page = 1; page <= maxPages; page++) {
     const batch = await gh<GhCommit[]>(
       `/repos/${owner}/${repo}/commits?since=${encodeURIComponent(since.toISOString())}&per_page=100&page=${page}`
     )

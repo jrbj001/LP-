@@ -3,6 +3,7 @@ import type { ClientWorkspace } from '@/lib/client/types'
 export const adaptiveLayer: ClientWorkspace = {
   id: 'adaptive-layer',
   slug: 'adaptive-layer',
+  knowledgeAliases: ['adaptive', 'adaptive layer', 'adaptive core', 'assessment'],
   name: 'Adaptive Layer™',
   sector: 'AI Operating System',
   tagline:

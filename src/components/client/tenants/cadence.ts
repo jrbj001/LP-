@@ -4,6 +4,8 @@ export const cadence: ClientWorkspace = {
   id: 'cadence',
   slug: 'cadence',
   aliases: ['pixelpulselab'],
+  knowledgeScope: 'portfolio',
+  knowledgeAliases: ['pixelpulselab', 'pixel pulse', 'lp', 'landing page', 'site', 'copiloto', 'agente de reuni'],
   name: 'Cadence',
   sector: 'Agent-ready Delivery™',
   tagline:
@@ -42,7 +44,7 @@ export const cadence: ClientWorkspace = {
       {
         owner: 'jrbj001',
         repo: 'LP-',
-        label: 'Cadence',
+        label: 'LP- · Site PixelPulseLab + Cadence',
         products: [{ label: 'Cadence', pattern: 'cadence|copilot' }],
       },
     ],

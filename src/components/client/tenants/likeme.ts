@@ -13,6 +13,7 @@ import { LIKEME_MEETINGS } from '@/components/client/tenants/likeme-meetings'
 export const likeMe: ClientWorkspace = {
   id: 'likeme',
   slug: 'likeme',
+  knowledgeAliases: ['like me', 'likeme', 'like:me', 'supabase'],
   name: 'Like:Me',
   sector: 'Saúde · Marketplace · Comunidade',
   tagline:

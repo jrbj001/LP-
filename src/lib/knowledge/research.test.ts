@@ -167,7 +167,7 @@ describe('gatherKnowledgeResearch', () => {
     const result = await gatherKnowledgeResearch({ clientId: 'cliente', question: 'o que decidimos sobre o inventário?' })
 
     expect(mocks.gatherGithub).not.toHaveBeenCalled()
-    expect(mocks.gatherWorkspace).toHaveBeenCalledWith('cliente', 'decisão inventário', {
+    expect(mocks.gatherWorkspace).toHaveBeenCalledWith(['cliente'], 'decisão inventário', {
       meetings: true,
       documents: false,
     })
@@ -181,7 +181,7 @@ describe('gatherKnowledgeResearch', () => {
     const result = await gatherKnowledgeResearch({ clientId: 'cliente', question: 'quais decisões foram tomadas?' })
 
     expect(mocks.gatherWorkspace).toHaveBeenCalledWith(
-      'cliente',
+      ['cliente'],
       'quais decisões foram tomadas?',
       { meetings: true, documents: false }
     )
@@ -199,7 +199,7 @@ describe('gatherKnowledgeResearch', () => {
 
     await gatherKnowledgeResearch({ clientId: 'cliente', question: 'o que foi decidido sobre a promoção?' })
 
-    expect(mocks.gatherWorkspace).toHaveBeenCalledWith('cliente', 'promoção', {
+    expect(mocks.gatherWorkspace).toHaveBeenCalledWith(['cliente'], 'promoção', {
       meetings: true,
       documents: false,
     })

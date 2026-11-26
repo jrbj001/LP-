@@ -3,6 +3,7 @@ import type { ClientWorkspace } from '@/lib/client/types'
 export const be180Ooh: ClientWorkspace = {
   id: 'be180-ooh',
   slug: 'be180-ooh',
+  knowledgeAliases: ['be180', 'be 180', 'ooh', 'colmeia', 'banco de ativos', 'visibilidade', 'roteiros', 'exibidor'],
   name: 'Be180 OOH',
   sector: 'Mídia Out-of-Home · OOH',
   tagline:
